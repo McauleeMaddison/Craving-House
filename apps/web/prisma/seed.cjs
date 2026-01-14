@@ -41,10 +41,10 @@ async function main() {
     }
   ];
 
-  for (const p of products) {
-    const existing = await prisma.product.findFirst({ where: { name: p.name } });
+  for (const product of products) {
+    const existing = await prisma.product.findFirst({ where: { name: product.name } });
     if (existing) continue;
-    await prisma.product.create({ data: p });
+    await prisma.product.create({ data: product });
   }
 
   const settings = await prisma.loyaltyProgramSettings.findFirst();
@@ -55,8 +55,8 @@ async function main() {
 
 main()
   .then(() => prisma.$disconnect())
-  .catch(async (e) => {
-    console.error(e);
+  .catch(async (error) => {
+    console.error(error);
     await prisma.$disconnect();
     process.exit(1);
   });

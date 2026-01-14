@@ -9,9 +9,9 @@
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:deploy": "node prisma/deploy.cjs",
     "prisma:push": "prisma db push",
-    "prisma:seed": "node prisma/seed.js",
+    "prisma:seed": "node prisma/seed.cjs",
     "dev:setup": "npm run prisma:generate && npm run prisma:push && npm run prisma:seed"
   },
   "dependencies": {
