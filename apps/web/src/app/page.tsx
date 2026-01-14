@@ -12,7 +12,7 @@ export default function HomePage() {
           <span className="pill">Buy 5 get 1 free</span>
         </div>
 
-        <div style={{ marginTop: 14 }}>
+        <div>
           <BrandLockup size="lg" />
         </div>
 
@@ -21,7 +21,7 @@ export default function HomePage() {
           {store.tagline} — order ahead for collection and earn loyalty stamps (buy 5 eligible coffees, get 1 free).
         </p>
 
-        <div className="rowWrap" style={{ marginTop: 14 }}>
+        <div className="rowWrap">
           <a className="btn" href="/menu">
             Browse menu
           </a>
@@ -36,17 +36,16 @@ export default function HomePage() {
           </a>
         </div>
 
-        <div className="rowWrap" style={{ marginTop: 14 }}>
+        <div className="rowWrap">
           <span className="pill">
             {store.addressLine} • {store.postcodeLine}
           </span>
           <span className="pill">{store.openingHours.summary}</span>
-          <a
+          <a>
             className="pill"
             href="https://instagram.com/cravinghouseashford2025"
             target="_blank"
             rel="noreferrer"
-          >
             {store.instagramHandle}
           </a>
         </div>
