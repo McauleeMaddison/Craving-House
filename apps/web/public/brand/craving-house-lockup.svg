@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" role="img" aria-label="Craving House">
+  <defs>
+    <linearGradient id="steam" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#D4A373" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#9C6644" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0 0)">
+    <rect x="0" y="0" width="220" height="220" rx="56" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
+    <defs>
+      <path id="ringPath" d="M110,28 a82,82 0 1,1 0,164 a82,82 0 1,1 0,-164"/>
+    </defs>
+    <text fill="rgba(255,255,255,0.62)" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="3.2">
+      <textPath href="#ringPath" startOffset="50%" text-anchor="middle">
+        COFFEE • BAR • KITCHEN
+      </textPath>
+    </text>
+    <g transform="translate(20 18) scale(0.86)">
+      <path d="M102 56c-12 0-20-7-20-17 0-7 5-13 12-15 3-8 11-14 20-14 10 0 18 6 21 15 7 2 12 8 12 15 0 10-8 16-20 16h-25z" fill="none" stroke="url(#steam)" stroke-width="10" stroke-linejoin="round"/>
+      <path d="M92 66h86" stroke="url(#steam)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M164 126c0 34-26 58-66 58-40 0-72-29-72-72 0-44 32-74 74-74 18 0 33 5 45 14 6 5 7 14 2 20-5 6-14 7-20 2-8-6-17-9-27-9-26 0-46 19-46 47 0 28 19 46 45 46 24 0 38-13 38-32v-2h-26c-8 0-14-6-14-14s6-14 14-14h52v6z" fill="rgba(12,13,18,0.96)" stroke="rgba(255,255,255,0.14)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M96 130h90" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+      <path d="M108 150h76" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+      <path d="M194 132c12 0 22 10 22 22s-10 22-22 22" fill="none" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g transform="translate(260 54)">
+    <text x="0" y="54" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="52" font-weight="800" fill="rgba(255,255,255,0.92)">Craving House</text>
+    <text x="2" y="104" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.68)">Order ahead • Loyalty rewards</text>
+  </g>
+</svg>

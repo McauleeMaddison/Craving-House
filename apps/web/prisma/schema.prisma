@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?  @unique
+  emailVerified DateTime?
+  image     String?
+  phone     String?  @unique
+  role      String   @default("customer")
+  disabledAt DateTime?
+  createdAt DateTime @default(now())
+
+  orders         Order[]
+  loyaltyAccount LoyaltyAccount?
+
+  stampsCreated LoyaltyStamp[] @relation("StampCreatedBy")
+
+  accounts Account[]
+  sessions Session[]
+
+  roleChangesMade RoleChange[] @relation("RoleChangeBy")
+  roleChangesReceived RoleChange[] @relation("RoleChangeTarget")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  priceCents  Int
+  available   Boolean  @default(true)
+  prepSeconds Int      @default(0)
+  loyaltyEligible Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id         String   @id @default(cuid())
+  userId     String
+  status     String   @default("received")
+  pickupName String
+  notes      String?
+  pickupTime DateTime?
+  estimatedReadyAt DateTime?
+  collectedAt DateTime?
+  totalCents Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  items      OrderItem[]
+  stamps     LoyaltyStamp[]
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  productId  String
+  qty        Int
+  unitCents  Int
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model LoyaltyProgramSettings {
+  id            String   @id @default(cuid())
+  rewardStamps  Int      @default(5)   // buy 5 eligible coffees => reward
+  updatedAt     DateTime @updatedAt
+}
+
+model LoyaltyAccount {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  stamps         Int      @default(0)
+  rewardsRedeemed Int     @default(0)
+  updatedAt      DateTime @updatedAt
+
+  user      User          @relation(fields: [userId], references: [id])
+  stampsLog LoyaltyStamp[]
+}
+
+model LoyaltyStamp {
+  id              String   @id @default(cuid())
+  loyaltyAccountId String
+  orderId         String?
+  eligibleItemCount Int    @default(0)
+  source          String   @default("scan") // scan | manual | adjustment
+  idempotencyKey  String?  @unique
+  createdByStaffId String?
+  createdAt       DateTime @default(now())
+
+  loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id])
+  order          Order?         @relation(fields: [orderId], references: [id])
+  createdByStaff User?          @relation("StampCreatedBy", fields: [createdByStaffId], references: [id])
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model RoleChange {
+  id           String   @id @default(cuid())
+  byUserId     String
+  targetUserId String
+  fromRole     String
+  toRole       String
+  note         String?
+  createdAt    DateTime @default(now())
+
+  byUser     User @relation("RoleChangeBy", fields: [byUserId], references: [id], onDelete: Cascade)
+  targetUser User @relation("RoleChangeTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([targetUserId, createdAt])
+}

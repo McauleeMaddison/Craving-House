@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Craving House logo">
+  <defs>
+    <linearGradient id="steam" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#D4A373" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#9C6644" stop-opacity="0.95"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="b"/>
+      <feOffset dy="2" result="o"/>
+      <feColorMatrix in="o" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .25 0" result="s"/>
+      <feMerge>
+        <feMergeNode in="s"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background badge -->
+  <g filter="url(#soft)">
+    <rect x="18" y="18" width="220" height="220" rx="56" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
+  </g>
+
+  <!-- Ring text -->
+  <defs>
+    <path id="ringPath" d="M128,46 a82,82 0 1,1 0,164 a82,82 0 1,1 0,-164"/>
+  </defs>
+  <text fill="rgba(255,255,255,0.62)" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="3.2">
+    <textPath href="#ringPath" startOffset="50%" text-anchor="middle">
+      COFFEE • BAR • KITCHEN
+    </textPath>
+  </text>
+
+  <!-- Chef hat -->
+  <g transform="translate(58 46)">
+    <path d="M44 36c-12 0-20-7-20-17 0-7 5-13 12-15 3-8 11-14 20-14 10 0 18 6 21 15 7 2 12 8 12 15 0 10-8 16-20 16H44z" fill="none" stroke="url(#steam)" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M34 46h86" stroke="url(#steam)" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Stylized C + cup -->
+  <g transform="translate(34 64)">
+    <!-- C body -->
+    <path d="M138 88c0 34-26 58-66 58-40 0-72-29-72-72 0-44 32-74 74-74 18 0 33 5 45 14 6 5 7 14 2 20-5 6-14 7-20 2-8-6-17-9-27-9-26 0-46 19-46 47 0 28 19 46 45 46 24 0 38-13 38-32v-2H86c-8 0-14-6-14-14s6-14 14-14h52v6z" fill="rgba(12,13,18,0.96)" stroke="rgba(255,255,255,0.14)" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Cup line -->
+    <path d="M70 92h90" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M82 112h76" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+    <!-- Handle -->
+    <path d="M168 94c12 0 22 10 22 22s-10 22-22 22" fill="none" stroke="rgba(255,255,255,0.78)" stroke-width="8" stroke-linecap="round"/>
+    <!-- Eyes (subtle) -->
+    <path d="M108 38c-7 0-12 4-12 10" fill="none" stroke="rgba(212,163,115,0.9)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M144 38c-7 0-12 4-12 10" fill="none" stroke="rgba(212,163,115,0.9)" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

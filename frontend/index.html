@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Craving House — Starter</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">CH</div>
+        <div>
+          <div class="name">Craving House</div>
+          <div class="tagline">coffee, bites, vibes</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="link" href="../manuals/README.md">Manuals</a>
+        <a class="link" href="../manuals/01-requirements.md">Requirements</a>
+        <a class="link" href="../manuals/02-architecture.md">Architecture</a>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section class="hero">
+        <h1 class="h1">coffee, bites, vibes</h1>
+        <p class="p">
+          This is a lightweight HTML/CSS/JS landing page. The actual app runs in Next.js
+          under <code>apps/web</code>.
+        </p>
+        <div class="actions">
+          <button id="copy-run" class="button">Copy “run dev” commands</button>
+          <a class="button button-secondary" href="../apps/web/src/app/page.tsx">Open web home</a>
+        </div>
+        <pre id="commands" class="commands" aria-label="Commands">cp apps/web/.env.example apps/web/.env
+npm install
+npm run dev</pre>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2 class="h2">Customer</h2>
+          <ul class="list">
+            <li>Order ahead (pay in store)</li>
+            <li>Pickup ETA based on prep times</li>
+            <li>QR loyalty card</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2 class="h2">Staff</h2>
+          <ul class="list">
+            <li>Scan customer QR to add stamps</li>
+            <li>Update order status</li>
+            <li>Secure role-based access</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2 class="h2">Manager</h2>
+          <ul class="list">
+            <li>Manage menu and availability</li>
+            <li>Set per-item prep times</li>
+            <li>Configure loyalty eligibility</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <script src="./js/script.js"></script>
+  </body>
+</html>

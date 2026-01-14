@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+
+# next.js
+.next
+out
+
+# env files
+.env
+.env.*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# prisma
+*.db
+*.db-journal
+
+# OS/editor
+.DS_Store
+.vscode
+
