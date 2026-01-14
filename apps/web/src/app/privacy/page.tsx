@@ -15,7 +15,7 @@ export default function PrivacyPage() {
             participate in loyalty rewards.
           </p>
           <p className="muted" style={{ margin: 0 }}>
-            Data we store typically includes: account identifier (Apple/Google), orders, and loyalty stamps.
+            Data we store typically includes: account identifier (Google), orders, and loyalty stamps.
           </p>
           <p className="muted" style={{ margin: 0 }}>
             We do not sell personal data. Access is restricted by staff/manager roles.
@@ -28,4 +28,3 @@ export default function PrivacyPage() {
     </main>
   );
 }
-

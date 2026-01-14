@@ -10,7 +10,7 @@ Minimum required for local dev (fastest path):
 - Set `NEXTAUTH_SECRET` to a long random string
 - Set `QR_SECRET` to a long random string
 
-If you don’t want to configure Apple/Google yet, enable the dev sign-in (local only):
+If you don’t want to configure Google OAuth yet, enable the dev sign-in (local only):
 - Set `DEV_AUTH_ENABLED="true"`
 - Set `NEXT_PUBLIC_DEV_AUTH_ENABLED="true"`
 - Set `DEV_AUTH_CODE="your-own-strong-code"`
@@ -68,7 +68,7 @@ npm run dev
 
 ## 5) What to click (staff flow)
 
-1) Sign in (dev sign-in or Apple/Google)
+1) Sign in (dev sign-in or Google)
 2) `/staff/orders` → see queue → click status buttons
 3) `/staff/loyalty-scan` → paste a customer token → add stamps
 

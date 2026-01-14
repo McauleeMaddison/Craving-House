@@ -9,7 +9,7 @@ Use this rule:
 - The **server is security** (it decides what is allowed).
 
 So the “best version” is:
-- **Next.js + NextAuth (Apple/Google) + Prisma + roles enforced in server routes**
+- **Next.js + NextAuth (Google) + Prisma + roles enforced in server routes**
 
 That is what your project is set up for.
 
@@ -17,7 +17,7 @@ That is what your project is set up for.
 
 1) A real domain + HTTPS
 2) Real database in production (Postgres) + backups
-3) Working sign-in (Apple + Google) with correct redirect URLs
+3) Working sign-in (Google) with correct redirect URLs
 4) A staff/manager admin area (menu, prep times, order queue, loyalty, reviews)
 5) Policies + operations (privacy policy, basic monitoring, support process)
 
@@ -29,7 +29,7 @@ That is what your project is set up for.
    - `cp apps/web/.env.example apps/web/.env`
 2) Fill in:
    - `NEXTAUTH_SECRET`
-    - Google + Apple credentials
+    - Google credentials
 3) Create DB tables + seed menu:
    - `npm -w apps/web run dev:setup`
 4) Start:

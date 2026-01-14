@@ -12,19 +12,12 @@ export default function SignInPage() {
       <section className="surface" style={{ padding: 18, maxWidth: 560 }}>
         <h1 style={{ fontSize: 26, margin: 0 }}>Sign in</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-          Use Apple or Google. This keeps accounts secure (no passwords stored by you).
+          Use Google. This keeps accounts secure (no passwords stored by you).
         </p>
 
         <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
           <button className="btn btn-secondary" onClick={() => signIn("google")}>
             Continue with Google
-          </button>
-          <button
-            className="btn"
-            onClick={() => signIn("apple")}
-            style={{ background: "black", borderColor: "rgba(255,255,255,0.18)" }}
-          >
-            Continue with Apple
           </button>
         </div>
 
@@ -49,7 +42,7 @@ export default function SignInPage() {
                 Sign in (dev)
               </button>
               <p className="muted" style={{ margin: 0, fontSize: 12, lineHeight: 1.6 }}>
-                Turn this off for real launch. It exists so you can see the app working before Apple/Google are configured.
+                Turn this off for real launch. It exists so you can see the app working before Google is configured.
               </p>
             </div>
           </div>

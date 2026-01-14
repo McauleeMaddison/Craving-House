@@ -82,12 +82,10 @@ Open `apps/web/.env.example` and you’ll see:
   - Encrypts/signs sessions; keep private
 - `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`
   - For “Continue with Google” login
-- `APPLE_CLIENT_ID` + `APPLE_CLIENT_SECRET`
-  - For “Continue with Apple” login
 - `QR_SECRET`
   - Signs customer QR tokens so they can’t be forged
 
-If you don’t fill Apple/Google creds yet, sign-in won’t work. That’s expected.
+If you don’t fill Google OAuth creds yet, sign-in won’t work. That’s expected.
 
 ## 6) Roles (security in one word: “separation”)
 
@@ -133,7 +131,7 @@ For Dynamic Island:
 
 - Clean structure (already set)
 - Typed code (TypeScript)
-- Auth via Apple/Google (already wired)
+- Auth via Google (already wired)
 - Roles enforced on server routes (started)
 - Database migrations tracked (Prisma)
 - Logs/audit trails for sensitive actions (we’ll add)

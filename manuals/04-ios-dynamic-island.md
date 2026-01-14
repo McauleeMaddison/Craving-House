@@ -16,7 +16,7 @@ You asked for a sleek “coffee bean” animation in the iPhone Dynamic Island w
 
 ### Phase 2 (native iOS add-on)
 - Build a small iOS app (SwiftUI) focused on:
-  - Sign in with Apple
+  - Sign in (e.g. Google)
   - Wallet-style loyalty card
   - Live Activity for “stamp earned” moment + Dynamic Island presentation
 - Backend remains the same; the iOS app uses the same API

@@ -6,7 +6,7 @@ This is what “ready for the public” means for this app.
 
 - `DEV_AUTH_ENABLED` must be `false`
 - `NEXT_PUBLIC_DEV_AUTH_ENABLED` must be `false`
-- Use real Apple/Google sign-in
+- Use real Google sign-in
 
 ## 2) Use a production database (not SQLite)
 
@@ -17,12 +17,11 @@ You will:
 - Set `DATABASE_URL` in production
 - Run `prisma migrate deploy` in production
 
-## 3) Configure OAuth properly (Apple + Google)
+## 3) Configure OAuth properly (Google)
 
 You must set correct production callback URLs:
 - `NEXTAUTH_URL` = your real domain (https)
 - Google OAuth: add redirect URL for NextAuth
-- Apple OAuth: add Service ID, Key, and redirect URL
 
 If OAuth redirects are wrong, sign-in will fail for everyone.
 

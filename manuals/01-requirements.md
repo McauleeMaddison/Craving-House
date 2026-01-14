@@ -22,7 +22,7 @@
 2) Pickup scheduling: **ASAP + estimate** (estimate depends on items ordered).
 3) Loyalty: **buy 5 coffees, get 1 coffee free** (5 stamps = reward).
 4) Loyalty scan: **staff scan a customer QR code** (customer presents QR in their account).
-5) Accounts: **Sign in with Apple + Google** (no passwords for MVP).
+5) Accounts: **Sign in with Google** (no passwords for MVP).
 6) Locations: **one store**.
 
 ## Loyalty rules (proposed for MVP)

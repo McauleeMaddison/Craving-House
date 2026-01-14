@@ -1,4 +1,4 @@
-# Apple/Google OAuth + Staff Roles (proper setup)
+# Google OAuth + Staff Roles (proper setup)
 
 This is the correct way to launch sign-in and manage staff access.
 
@@ -15,26 +15,7 @@ This is the correct way to launch sign-in and manage staff access.
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
 
-## Part B — Apple OAuth (NextAuth)
-
-Apple is stricter. You need:
-- A Service ID (client id)
-- A private key (client secret)
-- Correct redirect URL
-
-1) In Apple Developer:
-   - Create a **Service ID** (this becomes `APPLE_CLIENT_ID`)
-   - Enable “Sign in with Apple”
-
-2) Configure the redirect URL:
-   - `https://YOUR-DOMAIN/api/auth/callback/apple`
-
-3) Create the client secret:
-   - You’ll generate the JWT client secret using your Key ID + Team ID + private key
-   - Put the final secret into:
-     - `APPLE_CLIENT_SECRET`
-
-## Part C — Required NextAuth env
+## Part B — Required NextAuth env
 
 In Render env vars:
 - `NEXTAUTH_URL` = `https://YOUR-DOMAIN`
@@ -42,7 +23,7 @@ In Render env vars:
 
 If `NEXTAUTH_URL` is wrong, OAuth will break.
 
-## Part D — Staff roles (clean workflow)
+## Part C — Staff roles (clean workflow)
 
 ### 1) Rule
 - New users default to `customer`.
@@ -65,9 +46,8 @@ If `NEXTAUTH_URL` is wrong, OAuth will break.
 Notes:
 - Role changes are recorded in the database (`RoleChange`) with an optional note.
 
-## Part E — Turn off dev sign-in for launch
+## Part D — Turn off dev sign-in for launch
 
 For public launch, set:
 - `DEV_AUTH_ENABLED="false"`
 - `NEXT_PUBLIC_DEV_AUTH_ENABLED="false"`
-

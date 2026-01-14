@@ -53,8 +53,6 @@ In Render → Environment, set:
 For sign-in providers:
 - `GOOGLE_CLIENT_ID`
 - `GOOGLE_CLIENT_SECRET`
-- `APPLE_CLIENT_ID`
-- `APPLE_CLIENT_SECRET`
 
 ## 4) Run database migrations in production
 
@@ -70,7 +68,7 @@ Option B: run on Render (if you add it to build)
 
 For small apps this is fine. For larger apps, do migrations separately to avoid concurrency issues.
 
-## 5) Configure Apple + Google OAuth (required)
+## 5) Configure Google OAuth (required)
 
 This is the part that breaks most launches if done wrong.
 
@@ -78,11 +76,6 @@ This is the part that breaks most launches if done wrong.
 In Google Cloud OAuth settings:
 - Add an authorized redirect URI:
   - `https://YOUR-DOMAIN/api/auth/callback/google`
-
-### Apple
-In Apple Developer:
-- Configure your Service ID and redirect:
-  - `https://YOUR-DOMAIN/api/auth/callback/apple`
 
 Also ensure `NEXTAUTH_URL` matches your domain exactly (https, no trailing slash).
 
@@ -101,4 +94,3 @@ Also ensure `NEXTAUTH_URL` matches your domain exactly (https, no trailing slash
 - Customer can open `/loyalty` and generate a QR token
 - Staff can stamp loyalty via `/staff/loyalty-scan`
 - `DEV_AUTH_ENABLED` is OFF
-
