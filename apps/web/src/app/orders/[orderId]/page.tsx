@@ -7,9 +7,8 @@ export default async function OrderDetailsPage({
 }) {
   const { orderId } = await params;
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
+    <main className="container page">
       <OrderDetailsClient orderId={orderId} />
     </main>
   );
 }
-

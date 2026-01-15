@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AppProviders>
           <AppHeader />
 
-          {children}
+          <div className="appMain">{children}</div>
 
           <footer className="appFooter">
             <div className="container appFooterInner muted">

@@ -5,7 +5,7 @@ export default function ContactPage() {
   const hasSupportEmail = Boolean(supportEmail) && supportEmail !== "replace-me@example.com";
 
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
+    <main className="container page">
       <section className="surface" style={{ padding: 18, maxWidth: 900 }}>
         <h1 style={{ margin: 0, fontSize: 26 }}>Contact</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.7, maxWidth: "75ch" }}>

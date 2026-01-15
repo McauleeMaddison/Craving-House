@@ -8,7 +8,7 @@ export default function SignInPage() {
   const [devCode, setDevCode] = useState("");
 
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
+    <main className="container page">
       <section className="surface" style={{ padding: 18, maxWidth: 560 }}>
         <h1 style={{ fontSize: 26, margin: 0 }}>Sign in</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>

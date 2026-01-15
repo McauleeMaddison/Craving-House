@@ -112,9 +112,30 @@ export function AppHeader() {
         aria-hidden={!open}
       >
         <div className="drawerTop">
-          <div className="pill">{store.openingHours.summary}</div>
-          <button className="iconButton" onClick={() => setOpen(false)} type="button" aria-label="Close">
-            ×
+          <Link href="/" className="brandLink" aria-label={store.name}>
+            <span className="brandMark" aria-hidden="true">
+              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} />
+            </span>
+            <span className="brandText">
+              <span className="brandName">{store.name}</span>
+              <span className="brandTag muted">{store.tagline}</span>
+            </span>
+          </Link>
+          <button
+            className="iconButton"
+            onClick={() => setOpen(false)}
+            type="button"
+            aria-label="Close"
+            title="Close"
+          >
+            <span style={{ fontSize: 22, lineHeight: 1, transform: "translateY(-1px)" }}>×</span>
+          </button>
+        </div>
+
+        <div className="rowWrap" style={{ marginTop: -2 }}>
+          <span className="pill">{store.openingHours.summary}</span>
+          <button className="pill" type="button" onClick={toggleTheme} style={{ cursor: "pointer" }}>
+            {theme === "poster" ? "Dark mode" : "Light mode"}
           </button>
         </div>
 
@@ -131,9 +152,6 @@ export function AppHeader() {
         </div>
 
         <div className="drawerBottom">
-          <button className="btn btn-secondary" type="button" onClick={toggleTheme}>
-            Theme: {theme === "poster" ? "Poster (yellow/black)" : "Dark"}
-          </button>
           <Link className="btn btn-secondary" href="/help">
             Quick guide
           </Link>

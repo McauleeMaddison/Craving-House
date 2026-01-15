@@ -5,7 +5,7 @@ import { LoyaltySummaryClient } from "@/app/loyalty/LoyaltySummaryClient";
 
 export default function LoyaltyPage() {
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
+    <main className="container page">
       <section className="surface" style={{ padding: 18 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>

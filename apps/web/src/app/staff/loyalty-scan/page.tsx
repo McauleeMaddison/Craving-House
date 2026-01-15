@@ -7,7 +7,7 @@ export default async function StaffLoyaltyScanPage() {
   const access = await requireRole(["staff", "manager"]);
   if (!access.ok) {
     return (
-      <main className="container" style={{ padding: "12px 0 30px" }}>
+      <main className="container page">
         <section className="surface" style={{ padding: 18, maxWidth: 720 }}>
           <h1 style={{ margin: 0, fontSize: 26 }}>Loyalty scan</h1>
           <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
@@ -24,8 +24,8 @@ export default async function StaffLoyaltyScanPage() {
   }
 
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+    <main className="container page">
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <Link className="btn btn-secondary" href="/staff">
           Staff home
         </Link>
@@ -37,4 +37,3 @@ export default async function StaffLoyaltyScanPage() {
     </main>
   );
 }
-

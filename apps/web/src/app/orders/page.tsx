@@ -4,8 +4,8 @@ import { OrdersClient } from "@/app/orders/OrdersClient";
 
 export default function OrdersPage() {
   return (
-    <main className="container" style={{ padding: "12px 0 30px" }}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+    <main className="container page">
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <Link className="btn btn-secondary" href="/menu">
           Menu
         </Link>
@@ -17,4 +17,3 @@ export default function OrdersPage() {
     </main>
   );
 }
-
