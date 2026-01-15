@@ -20,28 +20,45 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
           {children}
 
-          <footer>
-            <div className="container muted">
-              <span>
+          <footer className="appFooter">
+            <div className="container appFooterInner muted">
+              <div className="appFooterRow">
                 © {new Date().getFullYear()} {store.name} • {store.addressLine} • {store.postcodeLine}
-              </span>
-              <span>
-                <a> href="https://instagram.com/cravinghouseashford2025" target="_blank" rel="noreferrer"
+              </div>
+              <nav className="appFooterRow" aria-label="Footer">
+                <a
+                  className="appFooterLink"
+                  href="https://instagram.com/cravinghouseashford2025"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   {store.instagramHandle}
                 </a>
                 <span aria-hidden="true">•</span>
-                <Link href="/privacy">Privacy</Link>
+                <Link className="appFooterLink" href="/privacy">
+                  Privacy
+                </Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/terms">Terms</Link>
+                <Link className="appFooterLink" href="/terms">
+                  Terms
+                </Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/contact">Contact</Link>
+                <Link className="appFooterLink" href="/contact">
+                  Contact
+                </Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/staff">Staff</Link>
+                <Link className="appFooterLink" href="/staff">
+                  Staff
+                </Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/manager">Manager</Link>
+                <Link className="appFooterLink" href="/manager">
+                  Manager
+                </Link>
                 <span aria-hidden="true">•</span>
-                <Link href="/setup">Setup</Link>
-              </span>
+                <Link className="appFooterLink" href="/setup">
+                  Setup
+                </Link>
+              </nav>
             </div>
           </footer>
         </AppProviders>

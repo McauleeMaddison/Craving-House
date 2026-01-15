@@ -56,6 +56,8 @@ body {
   color: var(--text);
   background: var(--bg-gradient);
   font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -83,13 +85,14 @@ code {
   width: 100%;
   max-width: 1040px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 clamp(14px, 4vw, 22px);
 }
 
 .page {
-  padding: 16px 0 36px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 0
+    calc(36px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .surface {
@@ -97,6 +100,12 @@ code {
   background: linear-gradient(180deg, var(--panel-strong), var(--panel));
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .surface {
+    backdrop-filter: blur(10px);
+  }
 }
 
 .surfaceFlat {
@@ -127,6 +136,8 @@ code {
   padding: 10px 12px;
   border-radius: 14px;
   font-size: 14px;
+  font-weight: 850;
+  min-height: 44px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -135,9 +146,11 @@ code {
   transition: background 120ms ease, transform 120ms ease, border-color 120ms ease;
 }
 
-.btn:hover {
-  background: var(--btn-hover);
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    background: var(--btn-hover);
+    transform: translateY(-1px);
+  }
 }
 
 .btn:active {
@@ -170,6 +183,7 @@ code {
   background: var(--input-bg);
   color: var(--text);
   outline: none;
+  min-height: 44px;
 }
 
 .input::placeholder {
@@ -201,12 +215,12 @@ code {
 
 /* Home / dashboard layout */
 .hero {
-  padding: 20px;
+  padding: clamp(16px, 3vw, 22px);
 }
 
 .heroTitle {
   margin-top: 14px;
-  font-size: 34px;
+  font-size: clamp(26px, 5.4vw, 36px);
   letter-spacing: -0.02em;
   line-height: 1.05;
 }
@@ -312,7 +326,7 @@ code {
 
 /* App header + mobile drawer */
 .appHeader {
-  padding: 16px 0 10px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 0 10px;
   position: sticky;
   top: 0;
   z-index: 30;
@@ -463,6 +477,57 @@ code {
 .drawerBottom {
   border-top: 1px solid var(--border);
   padding-top: 12px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Footer */
+.appFooter {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 65%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.appFooterInner {
+  padding: 14px 0 calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.appFooterRow {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.appFooterLink {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.appFooterLink:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Accessibility */
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* Optional alternate theme: Dark */

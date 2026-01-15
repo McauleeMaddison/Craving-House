@@ -41,11 +41,12 @@ export default function HomePage() {
             {store.addressLine} • {store.postcodeLine}
           </span>
           <span className="pill">{store.openingHours.summary}</span>
-          <a>
+          <a
             className="pill"
             href="https://instagram.com/cravinghouseashford2025"
             target="_blank"
             rel="noreferrer"
+          >
             {store.instagramHandle}
           </a>
         </div>
