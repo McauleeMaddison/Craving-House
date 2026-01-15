@@ -427,6 +427,7 @@ code {
   position: sticky;
   top: 0;
   z-index: 30;
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   background: var(--header-bg);
   border-bottom: 1px solid var(--header-border);
@@ -498,9 +499,10 @@ code {
 .iconLines {
   width: 18px;
   height: 12px;
-  border-top: 2px solid color-mix(in srgb, currentColor 88%, transparent);
-  border-bottom: 2px solid color-mix(in srgb, currentColor 88%, transparent);
+  border-top: 2px solid rgba(0, 0, 0, 0.88);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.88);
   position: relative;
+  color: inherit;
 }
 .iconLines::before {
   content: "";
@@ -508,7 +510,7 @@ code {
   left: 0;
   right: 0;
   top: 4px;
-  border-top: 2px solid color-mix(in srgb, currentColor 88%, transparent);
+  border-top: 2px solid rgba(0, 0, 0, 0.88);
 }
 
 .drawerOverlay {
@@ -567,8 +569,8 @@ code {
 }
 
 .drawerLinkActive {
-  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: rgba(242, 183, 5, 0.25);
+  background: rgba(242, 183, 5, 0.12);
 }
 
 .drawerBottom {
@@ -582,6 +584,7 @@ code {
   margin-top: 18px;
   border-top: 1px solid var(--border);
   background: color-mix(in srgb, var(--panel) 65%, transparent);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -606,7 +609,11 @@ code {
 .appFooterLink {
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-color: rgba(10, 10, 12, 0.35);
+}
+
+html[data-theme="dark"] .appFooterLink {
+  text-decoration-color: rgba(255, 255, 255, 0.35);
 }
 
 .appFooterLink:hover {
@@ -615,8 +622,12 @@ code {
 
 /* Accessibility */
 :where(a, button, input, textarea, select):focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline: 2px solid rgba(242, 183, 5, 0.55);
   outline-offset: 2px;
+}
+
+html[data-theme="dark"] :where(a, button, input, textarea, select):focus-visible {
+  outline-color: rgba(11, 13, 18, 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -626,8 +637,6 @@ code {
     animation: none !important;
   }
 }
-
-/* Optional alternate theme: Dark */
 html[data-theme="dark"] {
   --bg: #0b0d12;
   --bg-gradient:

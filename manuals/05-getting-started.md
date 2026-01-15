@@ -36,7 +36,7 @@ Confirm:
 At the root:
 - `manuals/` — all written plans/specs (treat this like your project binder)
 - `apps/web/` — the real application (Next.js)
-- `frontend/` — tiny static landing page (optional)
+- `static/` — tiny static landing page (optional)
 
 Inside `apps/web/`:
 - `src/app/` — pages + API routes (Next.js “App Router”)

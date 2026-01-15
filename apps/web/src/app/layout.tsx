@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
-import "./globals.css";
+import "../styles/globals.css";
 import { AppProviders } from "@/app/providers";
 import { store } from "@/lib/store";
 import { AppHeader } from "@/components/nav/AppHeader";

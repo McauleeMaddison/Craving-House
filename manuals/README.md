@@ -35,7 +35,7 @@ This repo is scaffolded as a **clean starting point** you can grow into a profes
    - `npm run dev`
 
 Quick local entry points:
-- `frontend/index.html` (simple HTML/CSS/JS landing page)
+- `static/html/index.html` (simple HTML/CSS/JS landing page)
 - `apps/web` (the real app: Next.js)
 
 Note: **Dynamic Island** effects require a native iOS app (Live Activities). See `manuals/04-ios-dynamic-island.md`.
