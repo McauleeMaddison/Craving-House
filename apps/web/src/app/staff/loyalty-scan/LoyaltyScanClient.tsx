@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { apiGetJson, apiPostJson } from "@/lib/api";
 
@@ -27,6 +27,11 @@ export function LoyaltyScanClient() {
   const [eligibleItemCount, setEligibleItemCount] = useState<number>(1);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scannerError, setScannerError] = useState("");
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const scanTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -74,6 +79,76 @@ export function LoyaltyScanClient() {
       setMessage("Stamp failed");
     }
   }
+
+  async function stopScanner() {
+    if (scanTimerRef.current) {
+      window.clearInterval(scanTimerRef.current);
+      scanTimerRef.current = null;
+    }
+    const stream = streamRef.current;
+    streamRef.current = null;
+    if (stream) {
+      for (const track of stream.getTracks()) track.stop();
+    }
+    setScannerOpen(false);
+  }
+
+  async function startScanner() {
+    setScannerError("");
+
+    const BarcodeDetectorCtor = (window as any).BarcodeDetector as
+      | (new (opts?: { formats?: string[] }) => { detect: (image: CanvasImageSource) => Promise<any[]> })
+      | undefined;
+    if (!BarcodeDetectorCtor) {
+      setScannerError("Camera scanning isn’t supported on this device/browser. Use “Paste token”.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false
+      });
+      streamRef.current = stream;
+      setScannerOpen(true);
+
+      // Wait a tick for the video element to exist
+      setTimeout(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.srcObject = stream;
+        void video.play();
+      }, 0);
+
+      const detector = new BarcodeDetectorCtor({ formats: ["qr_code"] });
+      scanTimerRef.current = window.setInterval(async () => {
+        const video = videoRef.current;
+        if (!video) return;
+        if (video.readyState < 2) return;
+        try {
+          const codes = await detector.detect(video);
+          if (!codes || codes.length === 0) return;
+          const value = codes[0]?.rawValue ?? codes[0]?.data ?? "";
+          if (!value) return;
+
+          setQrToken(String(value));
+          if (navigator.vibrate) navigator.vibrate(30);
+          await stopScanner();
+        } catch {
+          // ignore transient detect errors
+        }
+      }, 220);
+    } catch {
+      setScannerError("Camera permission denied or unavailable. You can paste the token instead.");
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      void stopScanner();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="surface" style={{ padding: 18 }}>
@@ -125,6 +200,19 @@ export function LoyaltyScanClient() {
               autoCorrect="off"
             />
           </label>
+          <div className="rowWrap" style={{ marginTop: 10, justifyContent: "space-between" }}>
+            <button className="btn btn-secondary" type="button" onClick={startScanner}>
+              Scan with camera
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={() => setQrToken("")} disabled={!qrToken}>
+              Clear
+            </button>
+          </div>
+          {scannerError ? (
+            <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+              {scannerError}
+            </p>
+          ) : null}
           <label style={{ display: "grid", gap: 8, marginTop: 10 }}>
             <span className="muted" style={{ fontSize: 13 }}>
               Eligible coffees
@@ -164,6 +252,23 @@ export function LoyaltyScanClient() {
           </p>
         </div>
       </div>
+
+      {scannerOpen ? (
+        <div className="modalOverlay" role="dialog" aria-label="Scan QR" onClick={() => void stopScanner()}>
+          <div className="modalSheet" onClick={(e) => e.stopPropagation()}>
+            <div className="modalTop">
+              <div style={{ fontWeight: 900 }}>Scan customer QR</div>
+              <button className="iconButton" type="button" onClick={() => void stopScanner()} aria-label="Close">
+                <span style={{ fontSize: 22, lineHeight: 1, transform: "translateY(-1px)" }}>×</span>
+              </button>
+            </div>
+            <div className="cameraFrame" style={{ marginTop: 12 }}>
+              <video ref={videoRef} className="cameraVideo" playsInline muted />
+              <div className="cameraHint muted">Center the QR inside the frame</div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

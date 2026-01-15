@@ -33,16 +33,16 @@ export default function LoyaltyPage() {
           </div>
         </section>
 
-        <div className="grid-2" style={{ marginTop: 14 }}>
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Your stamps</div>
-            <LoyaltySummaryClient />
-          </div>
+          <div className="grid-2" style={{ marginTop: 14 }}>
+            <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
+              <div style={{ fontWeight: 800 }}>Your stamps</div>
+              <LoyaltySummaryClient />
+            </div>
 
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Your QR (placeholder)</div>
+            <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
+            <div style={{ fontWeight: 800 }}>Your QR</div>
             <div className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-              This is a signed, short-lived token. Next we’ll render it as a scannable QR code image.
+              This QR refreshes and is short-lived for security.
             </div>
             <LoyaltyQrClient />
           </div>

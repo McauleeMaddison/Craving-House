@@ -17,7 +17,7 @@ export function FeedbackClient() {
     <section className="surface" style={{ padding: 18 }}>
       <h1 style={{ margin: 0, fontSize: 26 }}>Feedback</h1>
       <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-        Customers can leave feedback. Managers can moderate and respond. (UI first; backend next.)
+        Send feedback to help us improve. If you need a response, include your contact details in the message.
       </p>
 
       <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
@@ -66,4 +66,3 @@ export function FeedbackClient() {
     </section>
   );
 }
-

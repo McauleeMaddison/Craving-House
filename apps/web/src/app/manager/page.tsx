@@ -27,8 +27,7 @@ export default async function ManagerHomePage() {
       <section className="surface" style={{ padding: 18 }}>
         <h1 style={{ margin: 0, fontSize: 26 }}>Manager dashboard</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-          Next: menu management (prices, availability, prep times, loyalty eligibility), staff
-          management, and feedback moderation.
+          Manage menu items, prep times, loyalty eligibility, and staff access.
         </p>
 
         <section className="grid-3" style={{ marginTop: 12 }}>

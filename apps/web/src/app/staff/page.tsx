@@ -27,7 +27,7 @@ export default async function StaffHomePage() {
       <section className="surface" style={{ padding: 18 }}>
         <h1 style={{ margin: 0, fontSize: 26 }}>Staff dashboard</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-          Next: order queue + status updates + loyalty scanning.
+          Use the queue to manage orders, and the scanner to add loyalty stamps after collection.
         </p>
 
         <div className="grid-2" style={{ marginTop: 12 }}>
