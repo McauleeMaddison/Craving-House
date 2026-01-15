@@ -57,7 +57,7 @@ export function AppHeader() {
         <Link href="/" className="brandLink" aria-label={store.name}>
           <span className="brandMark" aria-hidden="true">
             <Image
-              src="/brand/craving-house-mark.svg"
+              src="/ch-favicon.jpeg"
               alt=""
               width={34}
               height={34}

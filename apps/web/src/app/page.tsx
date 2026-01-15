@@ -43,7 +43,7 @@ export default function HomePage() {
           <span className="pill">{store.openingHours.summary}</span>
           <a
             className="pill"
-            href="https://instagram.com/cravinghouseashford2025"
+            href={`https://instagram.com/${store.instagramHandle}`}
             target="_blank"
             rel="noreferrer"
           >

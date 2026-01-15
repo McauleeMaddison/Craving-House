@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
@@ -6,9 +7,14 @@ import { AppProviders } from "@/app/providers";
 import { store } from "@/lib/store";
 import { AppHeader } from "@/components/nav/AppHeader";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Craving House",
-  description: "Order ahead + loyalty rewards"
+  description: "Order ahead + loyalty rewards",
+  icons: {
+    icon: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }],
+    shortcut: ["/ch-favicon.jpeg"],
+    apple: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }]
+  }
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -28,7 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <nav className="appFooterRow" aria-label="Footer">
                 <a
                   className="appFooterLink"
-                  href="https://instagram.com/cravinghouseashford2025"
+                  href={`https://instagram.com/${store.instagramHandle}`}
                   target="_blank"
                   rel="noreferrer"
                 >
