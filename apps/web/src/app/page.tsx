@@ -1,48 +1,76 @@
-import { BrandLockup } from "@/components/brand/BrandLockup";
 import { TutorialNudge } from "@/components/tutorial/TutorialNudge";
 import { store } from "@/lib/store";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
     <main className="container page">
-      <section className="surface hero">
-        <div className="rowWrap">
-          <span className="pill">Mobile-first</span>
+      <section className="surface dashHero">
+        <div className="dashHeader">
+          <div className="dashLogo" aria-hidden="true">
+            <Image src="/ch-favicon.jpeg" alt="" width={56} height={56} priority />
+          </div>
+          <div className="dashTitleBlock">
+            <div className="dashName">{store.name}</div>
+            <div className="muted dashTagline">{store.tagline}</div>
+          </div>
+        </div>
+
+        <div className="dashMeta rowWrap">
+          <span className="pill">{store.openingHours.summary}</span>
           <span className="pill">Pay in store</span>
           <span className="pill">Buy 5 get 1 free</span>
         </div>
 
-        <div>
-          <BrandLockup size="lg" />
+        <div className="dashActions">
+          <Link className="actionCard actionPrimary" href="/menu">
+            <span>
+              <span className="actionTitle">Menu</span>
+              <span className="actionSubtitle muted">Browse + build your order</span>
+            </span>
+            <span className="actionArrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
+          <Link className="actionCard" href="/cart">
+            <span>
+              <span className="actionTitle">Cart</span>
+              <span className="actionSubtitle muted">Review before checkout</span>
+            </span>
+            <span className="actionArrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
+          <Link className="actionCard" href="/orders">
+            <span>
+              <span className="actionTitle">Orders</span>
+              <span className="actionSubtitle muted">Live status timeline</span>
+            </span>
+            <span className="actionArrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
+          <Link className="actionCard" href="/loyalty">
+            <span>
+              <span className="actionTitle">Loyalty</span>
+              <span className="actionSubtitle muted">Show QR at collection</span>
+            </span>
+            <span className="actionArrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
         </div>
 
-        <h1 className="heroTitle">Order ahead. Collect when ready.</h1>
-        <p className="muted heroSubtitle">
-          {store.tagline} — order ahead for collection and earn loyalty stamps (buy 5 eligible coffees, get 1 free).
-        </p>
-
-        <div className="rowWrap">
-          <a className="btn" href="/menu">
-            Browse menu
-          </a>
-          <a className="btn btn-secondary" href="/loyalty">
-            Loyalty card
-          </a>
-          <a className="btn btn-secondary" href="/signin">
-            Sign in
-          </a>
-          <a className="btn btn-secondary" href="/help">
+        <div className="dashFooter rowWrap">
+          <Link className="btn btn-secondary" href="/help">
             Quick guide
-          </a>
-        </div>
-
-        <div className="rowWrap">
-          <span className="pill">
-            {store.addressLine} • {store.postcodeLine}
-          </span>
-          <span className="pill">{store.openingHours.summary}</span>
+          </Link>
+          <Link className="btn" href="/signin">
+            Sign in
+          </Link>
           <a
-            className="pill"
+            className="btn btn-secondary"
             href={`https://instagram.com/${store.instagramHandle}`}
             target="_blank"
             rel="noreferrer"
@@ -50,27 +78,6 @@ export default function HomePage() {
             {store.instagramHandle}
           </a>
         </div>
-      </section>
-
-      <section className="grid-3 cards">
-        <article className="surface surfaceFlat card">
-          <h2 className="cardTitle">Customer</h2>
-          <p className="muted cardBody">
-            Menu → Cart → Order ahead → Pickup updates → Loyalty stamps.
-          </p>
-        </article>
-        <article className="surface surfaceFlat card">
-          <h2 className="cardTitle">Staff</h2>
-          <p className="muted cardBody">
-            Order queue + status updates + scan customer QR to add stamps.
-          </p>
-        </article>
-        <article className="surface surfaceFlat card">
-          <h2 className="cardTitle">Manager</h2>
-          <p className="muted cardBody">
-            Manage menu, prep times, loyalty eligibility, staff access, and feedback moderation.
-          </p>
-        </article>
       </section>
 
       <TutorialNudge />

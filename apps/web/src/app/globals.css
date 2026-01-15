@@ -214,21 +214,118 @@ code {
 }
 
 /* Home / dashboard layout */
-.hero {
-  padding: clamp(16px, 3vw, 22px);
+.dashHero {
+  padding: clamp(16px, 3.6vw, 22px);
 }
 
-.heroTitle {
+.dashHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashLogo {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  overflow: hidden;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+}
+
+.dashLogo img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+}
+
+.dashTitleBlock {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dashName {
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.dashTagline {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.dashMeta {
+  margin-top: 12px;
+}
+
+.dashActions {
   margin-top: 14px;
-  font-size: clamp(26px, 5.4vw, 36px);
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.heroSubtitle {
-  margin-top: 10px;
-  line-height: 1.6;
-  max-width: 64ch;
+@media (max-width: 520px) {
+  .dashActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actionCard {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  border-radius: 16px;
+  padding: 14px;
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: none;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.actionPrimary {
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.actionTitle {
+  display: block;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.actionSubtitle {
+  display: block;
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+.actionArrow {
+  font-weight: 950;
+  opacity: 0.7;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .actionCard:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+  }
+  .actionPrimary:hover {
+    background: color-mix(in srgb, var(--accent) 14%, var(--panel));
+  }
+}
+
+.dashFooter {
+  margin-top: 14px;
 }
 
 .stack {
