@@ -17,6 +17,24 @@ type ProductDto = {
   loyaltyEligible: boolean;
 };
 
+function AddToCartButton(props: { onAdd: () => void }) {
+  const [burstKey, setBurstKey] = useState(0);
+
+  return (
+    <button
+      className="btn btn-burst"
+      onClick={() => {
+        setBurstKey((k) => k + 1);
+        props.onAdd();
+      }}
+      type="button"
+    >
+      Add to cart
+      <span key={burstKey} className="beanBurst" aria-hidden="true" />
+    </button>
+  );
+}
+
 export function MenuClient() {
   const cart = useCart();
   const [query, setQuery] = useState("");
@@ -91,9 +109,7 @@ export function MenuClient() {
               <div className="pill">
                 {item.loyaltyEligible ? "Earns stamp" : "No stamp"}
               </div>
-              <button className="btn" onClick={() => cart.add(item.id, 1)}>
-                Add to cart
-              </button>
+              <AddToCartButton onAdd={() => cart.add(item.id, 1)} />
             </div>
           </article>
         ))}

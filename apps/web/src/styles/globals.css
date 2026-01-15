@@ -183,6 +183,81 @@ code {
   color: var(--text);
 }
 
+.btn-burst {
+  position: relative;
+  overflow: hidden;
+}
+
+.beanBurst {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 22px;
+  height: 26px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(0) scale(0.9);
+  animation: beanBurstPop 720ms ease-out forwards;
+}
+
+.beanBurst::before {
+  content: "";
+  position: absolute;
+  inset: 7px 2px 0 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--btn-text) 88%, #6a3b12);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.22);
+  transform: rotate(-10deg);
+}
+
+.beanBurst::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 0px;
+  width: 14px;
+  height: 12px;
+  opacity: 0.9;
+  filter: blur(0.2px);
+  background:
+    radial-gradient(8px 10px at 50% 100%, rgba(255, 255, 255, 0.6), transparent 70%),
+    radial-gradient(8px 10px at 20% 100%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(8px 10px at 80% 100%, rgba(255, 255, 255, 0.55), transparent 70%);
+  animation: beanSteam 720ms ease-out forwards;
+}
+
+@keyframes beanBurstPop {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.85);
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-16px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px) scale(1.03);
+  }
+}
+
+@keyframes beanSteam {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.85);
+  }
+  25% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(1);
+  }
+}
+
 .input {
   width: 100%;
   padding: 12px 12px;
