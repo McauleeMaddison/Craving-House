@@ -4,6 +4,7 @@ export const store = {
   addressLine: "73A High Street, Ashford",
   postcodeLine: "TN24 8SF, Kent",
   instagramHandle: "@cravinghouseashford2025",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "replace-me@example.com",
   loyalty: {
     headline: "Buy 5 & have a free coffee on us",
     finePrint: "Subject to management discretion. Please ask for your loyalty card to be stamped."
@@ -12,4 +13,3 @@ export const store = {
     summary: "Open 7:30am • Tue–Sat"
   }
 } as const;
-
