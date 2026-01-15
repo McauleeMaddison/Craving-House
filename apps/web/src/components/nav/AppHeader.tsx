@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -19,6 +20,9 @@ export function AppHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"poster" | "dark">("poster");
+  const { data } = useSession();
+  const role = (data?.user as any)?.role as string | undefined;
+  const showAdmin = role === "staff" || role === "manager";
 
   useEffect(() => {
     const stored = window.localStorage.getItem("ch.theme");
@@ -165,13 +169,15 @@ export function AppHeader() {
               {store.instagramHandle}
             </a>
           </div>
-          <div className="drawerAdminLinks">
-            <Link href="/staff">Staff</Link>
-            <span aria-hidden="true">•</span>
-            <Link href="/manager">Manager</Link>
-            <span aria-hidden="true">•</span>
-            <Link href="/setup">Setup</Link>
-          </div>
+          {showAdmin ? (
+            <div className="drawerAdminLinks">
+              <Link href="/staff">Staff</Link>
+              <span aria-hidden="true">•</span>
+              <Link href="/manager">Manager</Link>
+              <span aria-hidden="true">•</span>
+              <Link href="/setup">Setup</Link>
+            </div>
+          ) : null}
         </div>
       </aside>
     </header>

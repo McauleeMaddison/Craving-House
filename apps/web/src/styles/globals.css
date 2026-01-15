@@ -1,5 +1,4 @@
 :root {
-  /* Default theme: Poster (yellow/black) */
   --bg: #f2b705;
   --bg-gradient:
     radial-gradient(1200px 800px at 20% 0%, rgba(0, 0, 0, 0.12), transparent 55%),
@@ -178,8 +177,8 @@ code {
 }
 
 .btn-danger {
-  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
-  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  border-color: rgba(177, 0, 42, 0.55);
+  background: rgba(177, 0, 42, 0.14);
   color: var(--text);
 }
 
@@ -270,11 +269,21 @@ code {
 }
 
 .input::placeholder {
-  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  color: rgba(10, 10, 12, 0.544);
+}
+
+html[data-theme="dark"] .input::placeholder {
+  color: rgba(255, 255, 255, 0.576);
 }
 
 .input:focus {
-  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: rgba(11, 13, 18, 0.3);
+}
+
+@supports (color-mix(in srgb, #000, #fff)) {
+  .input:focus {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
 }
 
 .grid-2 {
@@ -376,7 +385,7 @@ code {
 
 .actionPrimary {
   background: color-mix(in srgb, var(--accent) 10%, var(--panel));
-  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: rgba(11, 13, 18, 0.22);
 }
 
 .actionTitle {
