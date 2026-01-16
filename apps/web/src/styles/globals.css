@@ -144,9 +144,9 @@ code {
 }
 
 .btn {
-  border: 1px solid var(--btn-border);
-  background: var(--btn-bg);
-  color: var(--btn-text);
+  border: 1px solid var(--btn-secondary-border);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
   padding: 10px 12px;
   border-radius: 14px;
   font-size: 14px;
@@ -162,7 +162,7 @@ code {
 
 @media (hover: hover) and (pointer: fine) {
   .btn:hover {
-    background: var(--btn-hover);
+    background: color-mix(in srgb, var(--btn-secondary-bg) 82%, white 10%);
     transform: translateY(-1px);
   }
 }
@@ -178,9 +178,21 @@ code {
 }
 
 .btnActive {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--btn-secondary-text);
+}
+
+.btn-primary {
   border-color: var(--btn-border);
   background: var(--btn-bg);
   color: var(--btn-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover {
+    background: var(--btn-hover);
+  }
 }
 
 .btn-danger {
