@@ -178,8 +178,9 @@ code {
 }
 
 .btnActive {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  /* Avoid `color-mix(...)` here for wider browser support (older iOS Safari). */
+  border-color: var(--drawer-link-active-border);
+  background: var(--drawer-link-active-bg);
   color: var(--btn-secondary-text);
 }
 
