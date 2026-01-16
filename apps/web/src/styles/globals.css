@@ -178,9 +178,8 @@ code {
 }
 
 .btnActive {
-  /* Avoid `color-mix(...)` here for wider browser support (older iOS Safari). */
-  border-color: var(--drawer-link-active-border);
-  background: var(--drawer-link-active-bg);
+  border-color: rgba(11, 13, 18, 0.55);
+  background: rgba(11, 13, 18, 0.12);
   color: var(--btn-secondary-text);
 }
 
@@ -611,10 +610,11 @@ html[data-theme="dark"] .input::placeholder {
 .iconLines {
   width: 18px;
   height: 12px;
-  border-top: 2px solid color-mix(in srgb, currentColor 88%, transparent);
-  border-bottom: 2px solid color-mix(in srgb, currentColor 88%, transparent);
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
   position: relative;
   color: inherit;
+  opacity: 0.88;
 }
 .iconLines::before {
   content: "";
@@ -622,13 +622,13 @@ html[data-theme="dark"] .input::placeholder {
   left: 0;
   right: 0;
   top: 4px;
-  border-top: 2px solid color-mix(in srgb, currentColor 88%, transparent);
+  border-top: 2px solid currentColor;
 }
 
 .drawerOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.56);
+  background: rgba(0, 0, 0, 0.78);
   opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease;
@@ -788,7 +788,7 @@ html[data-theme="dark"] .modalSheet {
   padding: 12px 12px;
   border-radius: 14px;
   border: 1px solid var(--drawer-border);
-  background: var(--drawer-link-bg);
+  background: rgba(255, 255, 255, 0.1);
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -860,7 +860,7 @@ html[data-theme="dark"] .modalSheet {
 
 @supports (backdrop-filter: blur(10px)) {
   .drawer {
-    background: rgba(11, 13, 18, 0.72);
+    background: rgba(11, 13, 18, 0.92);
     backdrop-filter: blur(18px);
   }
 }
@@ -895,7 +895,7 @@ html[data-theme="dark"] .modalSheet {
 .appFooterLink {
   text-decoration: underline;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-decoration-color: rgba(255, 255, 255, 0.35);
 }
 
 .appFooterLink:hover {

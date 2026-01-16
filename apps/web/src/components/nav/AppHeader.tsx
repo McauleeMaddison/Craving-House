@@ -44,6 +44,15 @@ export function AppHeader() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
