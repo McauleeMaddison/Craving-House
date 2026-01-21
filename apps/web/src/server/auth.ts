@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
+import { verifyPassword } from "@/server/password";
 
 type AppUserRole = "customer" | "staff" | "manager";
 
@@ -16,9 +17,52 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "database" },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET
+          })
+        ]
+      : []),
+    CredentialsProvider({
+      id: "credentials",
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        const email = String(credentials?.email ?? "").trim().toLowerCase();
+        const password = String(credentials?.password ?? "");
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true,
+            role: true,
+            disabledAt: true,
+            passwordHash: true
+          }
+        });
+        if (!user || user.disabledAt) return null;
+        if (!user.passwordHash) return null;
+
+        const ok = await verifyPassword({ password, stored: user.passwordHash });
+        if (!ok) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          role: normalizeRole(user.role)
+        } as any;
+      }
     }),
     ...(process.env.DEV_AUTH_ENABLED === "true"
       ? [

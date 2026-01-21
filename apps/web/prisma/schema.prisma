@@ -12,6 +12,7 @@ model User {
   name      String?
   email     String?  @unique
   emailVerified DateTime?
+  passwordHash String?
   image     String?
   phone     String?  @unique
   role      String   @default("customer")
@@ -47,6 +48,11 @@ model Order {
   id         String   @id @default(cuid())
   userId     String
   status     String   @default("received")
+  paymentStatus String @default("unpaid") // unpaid | pending | paid | failed | refunded
+  paymentProvider String? // stripe
+  stripeCheckoutSessionId String? @unique
+  stripePaymentIntentId   String? @unique
+  paidAt     DateTime?
   pickupName String
   notes      String?
   pickupTime DateTime?

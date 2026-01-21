@@ -12,6 +12,8 @@ type OrderDto = {
   id: string;
   createdAtIso: string;
   status: OrderStatus | string;
+  paymentStatus: string;
+  paidAtIso: string | null;
   estimatedReadyAtIso: string | null;
   collectedAtIso: string | null;
   totalCents: number;
@@ -47,6 +49,8 @@ function stepIndex(status: OrderStatus) {
 export function OrderDetailsClient(props: { orderId: string }) {
   const [order, setOrder] = useState<OrderDto | null>(null);
   const [error, setError] = useState<string>("");
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -111,6 +115,12 @@ export function OrderDetailsClient(props: { orderId: string }) {
   }
 
   const idx = stepIndex(status);
+  const paymentLabel =
+    order.paymentStatus === "paid"
+      ? "Paid online"
+      : order.paymentStatus === "pending"
+        ? "Payment pending"
+        : "Pay in store";
 
   return (
     <>
@@ -119,7 +129,8 @@ export function OrderDetailsClient(props: { orderId: string }) {
           <div>
             <h1 style={{ margin: 0, fontSize: 26 }}>Order confirmed</h1>
             <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-              Pickup name: <span style={{ color: "var(--text)", fontWeight: 800 }}>{order.pickupName}</span> • Pay in store
+              Pickup name: <span style={{ color: "var(--text)", fontWeight: 800 }}>{order.pickupName}</span> •{" "}
+              {paymentLabel}
             </p>
           </div>
           <div style={{ textAlign: "right" }}>
@@ -178,7 +189,43 @@ export function OrderDetailsClient(props: { orderId: string }) {
           <Link className="btn" href="/loyalty">
             Loyalty card
           </Link>
+          {order.paymentStatus !== "paid" ? (
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={async () => {
+                setPayError("");
+                setPaying(true);
+                try {
+                  const res = await fetch("/api/payments/stripe/create-session", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ orderId: order.id })
+                  });
+                  const json = (await res.json().catch(() => ({}))) as any;
+                  if (!res.ok) {
+                    setPayError(json?.error || "Could not start payment.");
+                    return;
+                  }
+                  if (json?.url) window.location.href = String(json.url);
+                } catch {
+                  setPayError("Could not start payment.");
+                } finally {
+                  setPaying(false);
+                }
+              }}
+              disabled={paying}
+              title="Pay securely with card"
+            >
+              {paying ? "Opening Stripe..." : "Pay by card"}
+            </button>
+          ) : null}
         </div>
+        {payError ? (
+          <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+            {payError}
+          </p>
+        ) : null}
       </section>
 
       <section className="surface" style={{ padding: 18, marginTop: 12 }}>

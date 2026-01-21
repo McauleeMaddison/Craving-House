@@ -1,0 +1,56 @@
+import { NextResponse } from "next/server";
+
+import { prisma } from "@/server/db";
+import { hashPassword, validatePasswordForSignup } from "@/server/password";
+
+type RegisterBody = {
+  email: string;
+  password: string;
+  name?: string;
+};
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+function isReasonableEmail(email: string) {
+  if (email.length < 3 || email.length > 254) return false;
+  if (!email.includes("@")) return false;
+  return true;
+}
+
+export async function POST(request: Request) {
+  const body = (await request.json()) as Partial<RegisterBody>;
+  const email = normalizeEmail(String(body.email ?? ""));
+  const password = String(body.password ?? "");
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+
+  if (!isReasonableEmail(email)) {
+    return NextResponse.json({ error: "Invalid email." }, { status: 400 });
+  }
+
+  const passwordError = validatePasswordForSignup(password);
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await prisma.user.create({
+    data: {
+      email,
+      name: name || null,
+      role: "customer",
+      passwordHash,
+      loyaltyAccount: { create: {} }
+    }
+  });
+
+  return NextResponse.json({ ok: true });
+}
+

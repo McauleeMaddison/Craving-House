@@ -23,6 +23,7 @@ export async function GET() {
       estimatedReadyAtIso: o.estimatedReadyAt?.toISOString() ?? null,
       totalCents: o.totalCents,
       pickupName: o.pickupName,
+      paymentStatus: o.paymentStatus,
       lines: o.items.map((i) => ({
         itemId: i.productId,
         name: i.product.name,

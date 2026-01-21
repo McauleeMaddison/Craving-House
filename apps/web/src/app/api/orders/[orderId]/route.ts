@@ -25,6 +25,8 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
     id: order.id,
     createdAtIso: order.createdAt.toISOString(),
     status: order.status,
+    paymentStatus: order.paymentStatus,
+    paidAtIso: order.paidAt?.toISOString() ?? null,
     estimatedReadyAtIso: order.estimatedReadyAt?.toISOString() ?? null,
     collectedAtIso: order.collectedAt?.toISOString() ?? null,
     totalCents: order.totalCents,

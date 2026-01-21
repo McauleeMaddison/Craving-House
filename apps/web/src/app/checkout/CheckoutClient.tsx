@@ -24,6 +24,7 @@ export function CheckoutClient() {
   const cart = useCart();
   const [pickupName, setPickupName] = useState("");
   const [notes, setNotes] = useState("");
+  const [payMethod, setPayMethod] = useState<"store" | "card">("store");
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [authError, setAuthError] = useState<string>("");
@@ -80,8 +81,22 @@ export function CheckoutClient() {
         setAuthError(res.error);
         return;
       }
+      const orderId = res.data.id;
+
+      if (payMethod === "card") {
+        const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId });
+        if (!payRes.ok) {
+          setAuthError(payRes.status === 401 ? "Please sign in to pay." : payRes.error);
+          router.push(`/orders/${orderId}`);
+          return;
+        }
+        cart.clear();
+        window.location.href = payRes.data.url;
+        return;
+      }
+
       cart.clear();
-      router.push(`/orders/${res.data.id}`);
+      router.push(`/orders/${orderId}`);
     } finally {
       setSubmitting(false);
     }
@@ -106,7 +121,7 @@ export function CheckoutClient() {
       <section className="surface" style={{ padding: 18 }}>
         <h1 style={{ margin: 0, fontSize: 26 }}>Checkout</h1>
         <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-          Pay in store. We’ll prepare your order and you’ll collect it when it’s ready.
+          Choose how you want to pay. We’ll prepare your order and you’ll collect it when it’s ready.
         </p>
 
         <div className="grid-2" style={{ marginTop: 14 }}>
@@ -145,6 +160,34 @@ export function CheckoutClient() {
             />
           </label>
 
+          <div className="surface" style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
+            <div style={{ fontWeight: 800 }}>Payment</div>
+            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+              Pay in store (fastest) or pay now by card.
+            </div>
+            <div className="rowWrap" style={{ marginTop: 10 }}>
+              <button
+                className={`btn btn-secondary ${payMethod === "store" ? "btnActive" : ""}`}
+                type="button"
+                onClick={() => setPayMethod("store")}
+              >
+                Pay in store
+              </button>
+              <button
+                className={`btn btn-secondary ${payMethod === "card" ? "btnActive" : ""}`}
+                type="button"
+                onClick={() => setPayMethod("card")}
+              >
+                Pay by card
+              </button>
+            </div>
+            {payMethod === "card" ? (
+              <p className="muted" style={{ marginTop: 10, fontSize: 12, lineHeight: 1.6 }}>
+                You’ll be redirected to Stripe Checkout to pay securely.
+              </p>
+            ) : null}
+          </div>
+
           <label style={{ display: "grid", gap: 8 }}>
             <span className="muted" style={{ fontSize: 13 }}>
               Notes (optional)
@@ -165,7 +208,7 @@ export function CheckoutClient() {
           <div>
             <div style={{ fontWeight: 800 }}>Total</div>
             <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
-              Pay in store
+              {payMethod === "card" ? "Pay online (card)" : "Pay in store"}
             </div>
           </div>
           <div style={{ fontWeight: 900, fontSize: 18 }}>{formatMoneyGBP(subtotalCents)}</div>
@@ -177,7 +220,7 @@ export function CheckoutClient() {
           onClick={placeOrder}
           disabled={submitting || pickupName.trim().length === 0}
         >
-          {submitting ? "Placing order..." : "Place order"}
+          {submitting ? "Processing..." : payMethod === "card" ? "Pay now" : "Place order"}
         </button>
         {authError ? (
           <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>

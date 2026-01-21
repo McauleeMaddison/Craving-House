@@ -106,7 +106,7 @@ code {
   padding: calc(14px + env(safe-area-inset-top, 0px)) 0
     calc(36px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .surface {
@@ -326,7 +326,7 @@ html[data-theme="dark"] .input::placeholder {
 
 /* Home / dashboard layout */
 .dashHero {
-  padding: clamp(16px, 3.6vw, 22px);
+  padding: clamp(18px, 4vw, 24px);
 }
 
 .dashHeader {
@@ -375,31 +375,51 @@ html[data-theme="dark"] .input::placeholder {
   margin-top: 12px;
 }
 
-.dashActions {
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+.rowScroll {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
 }
 
-@media (max-width: 520px) {
+.rowScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.dashActions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 720px) {
   .dashActions {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .actionCard {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--panel) 70%, transparent);
-  border-radius: 16px;
-  padding: 14px;
-  min-height: 78px;
+  border-radius: 18px;
+  padding: 16px;
+  min-height: 86px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   box-shadow: none;
   transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+  touch-action: manipulation;
+}
+
+.actionCard:active {
+  transform: translateY(0px) scale(0.99);
 }
 
 .actionPrimary {
@@ -436,7 +456,53 @@ html[data-theme="dark"] .input::placeholder {
 }
 
 .dashFooter {
+  margin-top: 16px;
+}
+
+.dashWidgets {
   margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .dashWidgets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.widgetCard {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  border-radius: 18px;
+  padding: 14px 14px 12px;
+  display: grid;
+  gap: 8px;
+  min-height: 84px;
+}
+
+.widgetTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.widgetTitle {
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.widgetValue {
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.widgetHint {
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .stack {

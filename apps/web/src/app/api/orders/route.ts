@@ -27,6 +27,8 @@ export async function GET() {
       id: o.id,
       createdAtIso: o.createdAt.toISOString(),
       status: o.status,
+      paymentStatus: o.paymentStatus,
+      paidAtIso: o.paidAt?.toISOString() ?? null,
       pickupTimeIso: o.pickupTime?.toISOString() ?? null,
       estimatedReadyAtIso: o.estimatedReadyAt?.toISOString() ?? null,
       totalCents: o.totalCents,
