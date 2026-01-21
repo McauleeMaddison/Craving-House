@@ -24,6 +24,13 @@ export default function HomePage() {
           <span className="pill">Buy 5 get 1 free</span>
         </div>
 
+        <div className="dashLead">
+          <div className="dashLeadTitle">Order ahead. Collect when ready.</div>
+          <div className="muted dashLeadSub">
+            Place your order for collection, then show your loyalty QR at pickup to earn beans.
+          </div>
+        </div>
+
         <HomeDashboardClient />
 
         <div className="dashActions">
