@@ -1,9 +1,18 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 import { store } from "@/lib/store";
 import { LoyaltyQrClient } from "@/app/loyalty/LoyaltyQrClient";
 import { LoyaltySummaryClient } from "@/app/loyalty/LoyaltySummaryClient";
+import { authOptions } from "@/server/auth";
 
-export default function LoyaltyPage() {
+export default async function LoyaltyPage() {
+  const session = await getServerSession(authOptions);
+  const signedIn = Boolean(session?.user?.id);
+  const displayName =
+    (typeof session?.user?.name === "string" && session.user.name.trim()) ||
+    (typeof session?.user?.email === "string" && session.user.email.split("@")[0]) ||
+    "";
+
   return (
     <main className="container page">
       <section className="surface" style={{ padding: 18 }}>
@@ -49,12 +58,21 @@ export default function LoyaltyPage() {
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
-          <Link className="btn" href="/signin">
-            Sign in to view
-          </Link>
+          {!signedIn ? (
+            <Link className="btn" href="/signin">
+              Sign in to view
+            </Link>
+          ) : (
+            <div className="pill">Signed in as {displayName || "customer"}</div>
+          )}
           <Link className="btn btn-secondary" href="/menu">
             Browse menu
           </Link>
+          {signedIn ? (
+            <Link className="btn btn-secondary" href="/orders">
+              Track orders
+            </Link>
+          ) : null}
         </div>
       </section>
     </main>

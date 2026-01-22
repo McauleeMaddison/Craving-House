@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { store } from "@/lib/store";
@@ -17,6 +18,17 @@ const links: Array<{ href: string; label: string }> = [
 
 export function AppHeader() {
   const pathname = usePathname();
+  const { data, status } = useSession();
+  const signedIn = status === "authenticated";
+  const displayName = useMemo(() => {
+    const user = data?.user as any;
+    const name = typeof user?.name === "string" ? user.name.trim() : "";
+    const email = typeof user?.email === "string" ? user.email.trim() : "";
+    if (name) return name;
+    if (email) return email.split("@")[0] || "Account";
+    return "Account";
+  }, [data?.user]);
+
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"poster" | "dark">("poster");
   const [score, setScore] = useState(0);
@@ -83,6 +95,14 @@ export function AppHeader() {
     return links.find((l) => pathname?.startsWith(l.href))?.href ?? "";
   }, [pathname]);
 
+  const drawerLinks = useMemo(() => {
+    return links.map((l) => {
+      if (signedIn && l.href === "/loyalty") return { ...l, label: "My QR (loyalty)" };
+      if (signedIn && l.href === "/orders") return { ...l, label: "Track orders" };
+      return l;
+    });
+  }, [signedIn]);
+
   return (
     <>
       <header className="appHeader">
@@ -110,9 +130,15 @@ export function AppHeader() {
             <button className="btn btn-secondary" type="button" onClick={toggleTheme}>
               {theme === "poster" ? "Dark mode" : "Light mode"}
             </button>
-            <Link className="btn btn-secondary" href="/signin">
-              Sign in
-            </Link>
+            {signedIn ? (
+              <Link className="btn btn-secondary" href="/loyalty" title="Account">
+                {displayName}
+              </Link>
+            ) : (
+              <Link className="btn btn-secondary" href="/signin">
+                Sign in
+              </Link>
+            )}
           </nav>
 
           <button
@@ -176,11 +202,12 @@ export function AppHeader() {
           <button className="pill" type="button" onClick={toggleTheme} style={{ cursor: "pointer" }}>
             {theme === "poster" ? "Dark mode" : "Light mode"}
           </button>
+          {signedIn ? <span className="pill">Signed in: {displayName}</span> : null}
         </div>
 
         <div className="drawerContent">
           <div className="drawerLinks" role="navigation" aria-label="Primary">
-            {links.map((link) => (
+            {drawerLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -190,9 +217,22 @@ export function AppHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/signin" className="drawerLink" onClick={() => setOpen(false)}>
-              Sign in
-            </Link>
+            {signedIn ? (
+              <button
+                className="drawerLink"
+                type="button"
+                onClick={async () => {
+                  setOpen(false);
+                  await signOut({ callbackUrl: "/" });
+                }}
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link href="/signin" className="drawerLink" onClick={() => setOpen(false)}>
+                Sign in
+              </Link>
+            )}
           </div>
 
           <div className="drawerGame" aria-label="Coffee bean clicker">

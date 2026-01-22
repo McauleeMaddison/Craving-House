@@ -968,6 +968,17 @@ html[data-theme="dark"] .modalSheet {
   background: var(--drawer-surface);
 }
 
+.drawerLinks .drawerLink {
+  width: 100%;
+  text-align: left;
+}
+
+.drawerLinks button.drawerLink {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+}
+
 .drawerLink {
   padding: 14px 14px;
   min-height: 52px;
