@@ -41,11 +41,11 @@ export function LoyaltySummaryClient() {
 
   if (error) {
     return (
-      <div style={{ marginTop: 10 }}>
-        <p className="muted" style={{ margin: 0, color: "var(--danger)" }}>
+      <div className="u-mt-10">
+        <p className="muted u-m-0 u-danger">
           {error}
         </p>
-        <a className="btn btn-secondary" href="/signin" style={{ marginTop: 10 }}>
+        <a className="btn btn-secondary u-mt-10" href="/signin">
           Sign in
         </a>
       </div>
@@ -54,46 +54,35 @@ export function LoyaltySummaryClient() {
 
   if (!data) {
     return (
-      <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <p className="muted u-mt-10 u-lh-16">
         Loading…
       </p>
     );
   }
 
   return (
-    <div style={{ marginTop: 10 }}>
+    <div className="u-mt-10">
       <div className="rowWrap">
         <span className="pill">
-          Stamps: <strong style={{ color: "var(--text)" }}>{data.stamps}</strong>
+          Stamps: <strong className="u-text">{data.stamps}</strong>
         </span>
         <span className="pill">
           Rewards redeemed:{" "}
-          <strong style={{ color: "var(--text)" }}>{data.rewardsRedeemed}</strong>
+          <strong className="u-text">{data.rewardsRedeemed}</strong>
         </span>
         <span className="pill">
-          Target: <strong style={{ color: "var(--text)" }}>{data.rewardStamps}</strong>
+          Target: <strong className="u-text">{data.rewardStamps}</strong>
         </span>
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+      <div className="loyaltyStampGrid">
         {Array.from({ length: progress.total }).map((_, i) => {
           const filled = i < progress.filled;
           return (
             <div
               key={i}
               aria-hidden="true"
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                border: `1px solid ${filled ? "color-mix(in srgb, var(--accent) 35%, var(--border))" : "var(--border)"}`,
-                display: "grid",
-                placeItems: "center",
-                background: filled
-                  ? "color-mix(in srgb, var(--accent) 18%, var(--panel))"
-                  : "color-mix(in srgb, var(--panel) 70%, transparent)",
-                transition: "transform 140ms ease, background 140ms ease"
-              }}
+              className={`loyaltyStamp ${filled ? "loyaltyStampFilled" : ""}`}
             >
               {filled ? "☕︎" : "•"}
             </div>
@@ -101,10 +90,9 @@ export function LoyaltySummaryClient() {
         })}
       </div>
 
-      <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <p className="muted u-mt-10 u-lh-16">
         Show your QR at collection and ask staff to stamp your loyalty card.
       </p>
     </div>
   );
 }
-

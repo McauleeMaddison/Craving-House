@@ -86,15 +86,15 @@ export function OrderQueueClient() {
 
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18">
+        <div className="u-flex-between-wrap">
           <div>
-            <h1 style={{ margin: 0, fontSize: 26 }}>Order queue</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Order queue</h1>
+            <p className="muted u-mt-10 u-lh-16">
               This queue is database-backed so all staff devices see the same orders.
             </p>
             {error ? (
-              <p className="muted" style={{ marginTop: 8, color: "var(--danger)" }}>
+              <p className="muted u-mt-8 u-danger">
                 {error}
               </p>
             ) : null}
@@ -105,29 +105,29 @@ export function OrderQueueClient() {
         </div>
       </section>
 
-      <section style={{ marginTop: 12 }}>
-        <h2 style={{ margin: "0 0 10px", fontSize: 14 }}>Active</h2>
+      <section className="u-mt-12">
+        <h2 className="sectionLabel">Active</h2>
         {active.length === 0 ? (
-          <div className="surface" style={{ padding: 16 }}>
-            <p className="muted" style={{ margin: 0 }}>
+          <div className="surface u-pad-16">
+            <p className="muted u-m-0">
               No active orders.
             </p>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="u-grid-gap-10">
             {active.map((o) => (
-              <article key={o.id} className="surface" style={{ padding: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+              <article key={o.id} className="surface u-pad-16">
+                <div className="u-flex-between-wrap">
                   <div>
-                    <div style={{ fontWeight: 900 }}>
+                    <div className="u-fw-900">
                       {o.pickupName} • {formatMoneyGBP(o.totalCents)}
                     </div>
-                    <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+                    <div className="muted u-mt-6 u-fs-13">
                       Status: {o.status} • Created: {formatTime(o.createdAtIso)} • ETA:{" "}
                       {o.estimatedReadyAtIso ? formatTime(o.estimatedReadyAtIso) : "—"}
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                  <div className="u-flex-wrap-gap-10-center">
                     {nextActions(o.status).map((a) => (
                       <button
                         key={a.status}
@@ -140,25 +140,24 @@ export function OrderQueueClient() {
                   </div>
                 </div>
 
-                <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+                <div className="u-mt-12 u-grid-gap-8">
                   {o.lines.map((l) => (
                     <div
                       key={l.itemId}
-                      className="surface"
-                      style={{ padding: 12, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
+                      className="surface surfaceInset u-pad-12"
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                      <div className="u-flex-between">
                         <div>
-                          <div style={{ fontWeight: 800 }}>
+                          <div className="u-fw-800">
                             {l.qty}× {l.name}
                           </div>
                           {formatCustomizations(l.customizations) ? (
-                            <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                            <div className="muted u-mt-6 u-fs-12 u-lh-15">
                               {formatCustomizations(l.customizations)}
                             </div>
                           ) : null}
                         </div>
-                        <div className="muted" style={{ fontSize: 13 }}>
+                        <div className="muted u-fs-13">
                           {l.loyaltyEligible ? "Eligible" : "—"}
                         </div>
                       </div>
@@ -171,27 +170,26 @@ export function OrderQueueClient() {
         )}
       </section>
 
-      <section style={{ marginTop: 16 }}>
-        <h2 style={{ margin: "0 0 10px", fontSize: 14 }}>Completed</h2>
+      <section className="u-mt-16">
+        <h2 className="sectionLabel">Completed</h2>
         {done.length === 0 ? (
-          <div className="surface" style={{ padding: 16 }}>
-            <p className="muted" style={{ margin: 0 }}>
+          <div className="surface u-pad-16">
+            <p className="muted u-m-0">
               None yet.
             </p>
           </div>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="u-grid-gap-10">
             {done.slice(0, 10).map((o) => (
               <div
                 key={o.id}
-                className="surface"
-                style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
+                className="surface surfaceInset u-pad-14"
               >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ fontWeight: 800 }}>
+                <div className="u-flex-between">
+                  <div className="u-fw-800">
                     {o.pickupName} • {o.status}
                   </div>
-                  <div className="muted" style={{ fontSize: 13 }}>
+                  <div className="muted u-fs-13">
                     {formatTime(o.createdAtIso)}
                   </div>
                 </div>

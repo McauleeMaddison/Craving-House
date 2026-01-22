@@ -37,43 +37,45 @@ export function SetupClient(props: {
 
   if (props.alreadyConfigured) {
     return (
-      <p className="muted" style={{ marginTop: 12, lineHeight: 1.7 }}>
+      <p className="muted u-mt-12 u-lh-17">
         Setup is already completed. If you need another manager, promote users
-        from <a href="/manager/users" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Manager → Users</a>.
+        from{" "}
+        <a href="/manager/users" className="u-underline">
+          Manager → Users
+        </a>
+        .
       </p>
     );
   }
 
   if (!props.isSignedIn) {
     return (
-      <p className="muted" style={{ marginTop: 12, lineHeight: 1.7 }}>
+      <p className="muted u-mt-12 u-lh-17">
         Sign in first, then come back here to enter the one-time setup code.
       </p>
     );
   }
 
   return (
-    <section style={{ marginTop: 16 }}>
-      <label className="muted" style={{ display: "block", fontSize: 13 }}>
+    <section className="u-mt-16">
+      <label className="muted u-block u-fs-13">
         One-time setup code
       </label>
       <input
-        className="input"
+        className="input u-mt-8"
         value={setupCode}
         onChange={(e) => setSetupCode(e.target.value)}
         placeholder="Paste the code from your .env"
-        style={{ marginTop: 8 }}
       />
       <button
-        className="btn"
+        className={`btn u-mt-12 ${status === "submitting" ? "setupSubmitSubmitting" : ""}`}
         onClick={submit}
         disabled={status === "submitting" || setupCode.trim().length === 0}
-        style={{ marginTop: 12, opacity: status === "submitting" ? 0.7 : 1 }}
       >
         {status === "submitting" ? "Setting up..." : "Make me the first manager"}
       </button>
       {message ? (
-        <p className="muted" style={{ marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>
+        <p className="muted u-mt-10 u-fs-13 u-lh-17">
           {message}
         </p>
       ) : null}

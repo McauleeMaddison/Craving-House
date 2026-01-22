@@ -18,15 +18,15 @@ export default async function SetupPage() {
   }
 
   return (
-    <main className="container page" style={{ maxWidth: 860 }}>
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Initial setup</h1>
+    <main className="container page u-maxw-860">
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Initial setup</h1>
       <p>
         This is a one-time safety step: the first manager account must be created
         intentionally. After a manager exists, this page is disabled.
       </p>
 
-      <ul className="muted" style={{ lineHeight: 1.8 }}>
+      <ul className="muted u-lh-18">
         <li>
           Sign in first: <Link href="/signin">/signin</Link>
         </li>

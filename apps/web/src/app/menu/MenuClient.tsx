@@ -73,15 +73,15 @@ export function MenuClient() {
 
   return (
     <>
-      <div className="surface" style={{ padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <div className="surface u-pad-16">
+        <div className="u-flex-between-wrap">
           <div>
-            <h1 style={{ margin: 0, fontSize: 26 }}>Menu</h1>
-            <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Menu</h1>
+            <p className="muted u-mt-8 u-lh-16">
               Manager-controlled prep times and loyalty eligibility. (Sample data for now.)
             </p>
           </div>
-          <div style={{ minWidth: 260, width: "min(380px, 100%)" }}>
+          <div className="menuSearchWrap">
             <input
               className="input"
               value={query}
@@ -93,29 +93,29 @@ export function MenuClient() {
         </div>
       </div>
 
-      <section className="grid-2" style={{ marginTop: 12 }}>
+      <section className="grid-2 u-mt-12">
         {items.map((item) => (
-          <article key={item.id} className="surface" style={{ padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+          <article key={item.id} className="surface u-pad-16">
+            <div className="u-flex-between">
               <div>
-                <div style={{ fontWeight: 800 }}>{item.name}</div>
-                <div className="muted" style={{ marginTop: 6, lineHeight: 1.5 }}>
+                <div className="u-fw-800">{item.name}</div>
+                <div className="muted u-mt-6 u-lh-15">
                   {item.description}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 800 }}>{formatMoneyGBP(item.priceCents)}</div>
-                <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+              <div className="u-text-right">
+                <div className="u-fw-800">{formatMoneyGBP(item.priceCents)}</div>
+                <div className="muted u-mt-6 u-fs-12">
                   Prep: {Math.round(item.prepSeconds / 60)}m
                 </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
+            <div className="u-flex-between-wrap u-mt-14">
               <div className="pill">
                 {item.loyaltyEligible ? "Earns stamp" : "No stamp"}
               </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+              <div className="u-flex-wrap-gap-10-center">
                 <button
                   className="btn btn-secondary"
                   type="button"
@@ -128,15 +128,15 @@ export function MenuClient() {
             </div>
 
             {expanded[item.id] ? (
-              <div className="surface" style={{ padding: 14, marginTop: 12, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-                <div style={{ fontWeight: 900 }}>Customise your drink</div>
-                <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+              <div className="surface surfaceInset u-pad-14 u-mt-12">
+                <div className="u-fw-900">Customise your drink</div>
+                <div className="muted u-mt-8 u-lh-16">
                   Choose sugar and syrup. (Applies to the whole quantity you add.)
                 </div>
 
-                <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
-                  <label style={{ display: "grid", gap: 8 }}>
-                    <span className="muted" style={{ fontSize: 13 }}>Sugar</span>
+                <div className="u-mt-12 u-grid-gap-12">
+                  <label className="u-grid-gap-8">
+                    <span className="muted u-fs-13">Sugar</span>
                     <select
                       className="input"
                       value={String(custom[item.id]?.sugar ?? 0)}
@@ -153,8 +153,8 @@ export function MenuClient() {
                     </select>
                   </label>
 
-                  <div style={{ display: "grid", gap: 8 }}>
-                    <span className="muted" style={{ fontSize: 13 }}>Syrups</span>
+                  <div className="u-grid-gap-8">
+                    <span className="muted u-fs-13">Syrups</span>
                     <div className="rowWrap">
                       {SYRUP_OPTIONS.map((s) => {
                         const selected = Boolean(custom[item.id]?.syrups?.includes(s.key));
@@ -162,7 +162,7 @@ export function MenuClient() {
                           <button
                             key={s.key}
                             type="button"
-                            className={`btn btn-secondary ${selected ? "btnActive" : ""}`}
+                            className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
                             onClick={() => {
                               const current = custom[item.id]?.syrups ?? [];
                               const next = selected
@@ -170,7 +170,6 @@ export function MenuClient() {
                                 : [...current, s.key as Syrup];
                               updateCustom(item.id, { ...(custom[item.id] ?? {}), syrups: next });
                             }}
-                            style={{ minHeight: 38, padding: "8px 10px" }}
                           >
                             {s.label}
                           </button>

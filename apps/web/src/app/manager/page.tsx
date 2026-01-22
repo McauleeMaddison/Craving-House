@@ -7,16 +7,19 @@ export default async function ManagerHomePage() {
   if (!access.ok) {
     return (
       <main className="container page">
-        <section className="surface" style={{ padding: 18, maxWidth: 720 }}>
-          <h1 style={{ margin: 0, fontSize: 26 }}>Manager</h1>
-          <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-          {access.reason === "unauthorized"
-            ? "You need to sign in."
-            : "You don’t have manager access."}
+        <section className="surface u-pad-18 u-maxw-720">
+          <h1 className="u-title-26">Manager Portal</h1>
+          <p className="muted u-mt-10 u-lh-16">
+            {access.reason === "unauthorized" ? "You need to sign in." : "You don’t have manager access."}
           </p>
-          <Link className="btn" href="/signin" style={{ marginTop: 10 }}>
-            Go to sign-in
-          </Link>
+          <div className="u-flex-wrap-gap-10 u-mt-10">
+            <Link className="btn" href="/signin?callbackUrl=/manager">
+              Manager sign-in
+            </Link>
+            <Link className="btn btn-secondary" href="/">
+              Back to customer app
+            </Link>
+          </div>
         </section>
       </main>
     );
@@ -24,36 +27,39 @@ export default async function ManagerHomePage() {
 
   return (
     <main className="container page">
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Manager dashboard</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Manager dashboard</h1>
+        <p className="muted u-mt-10 u-lh-16">
           Manage menu items, prep times, loyalty eligibility, and staff access.
         </p>
 
-        <section className="grid-3" style={{ marginTop: 12 }}>
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Menu</div>
-            <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+        <section className="grid-3 u-mt-12">
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Menu</div>
+            <p className="muted u-mt-8 u-lh-16">
               Manage price, availability, <code>prepSeconds</code>, and <code>loyaltyEligible</code>.
             </p>
-            <Link className="btn" href="/manager/products" style={{ marginTop: 10 }}>
+            <Link className="btn u-mt-10" href="/manager/products">
               Open menu editor
             </Link>
           </div>
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Users</div>
-            <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Users</div>
+            <p className="muted u-mt-8 u-lh-16">
               Promote staff, add managers, and disable accounts.
             </p>
-            <Link className="btn" href="/manager/users" style={{ marginTop: 10 }}>
+            <Link className="btn u-mt-10" href="/manager/users">
               Open user roles
             </Link>
           </div>
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Feedback</div>
-            <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
-              Moderate reviews/feedback and reply.
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Settings</div>
+            <p className="muted u-mt-8 u-lh-16">
+              Loyalty rule (buy N get 1), and other global controls.
             </p>
+            <Link className="btn u-mt-10" href="/manager/settings">
+              Open settings
+            </Link>
           </div>
         </section>
       </section>

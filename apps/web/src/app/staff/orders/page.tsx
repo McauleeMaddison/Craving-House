@@ -8,14 +8,14 @@ export default async function StaffOrdersPage() {
   if (!access.ok) {
     return (
       <main className="container page">
-        <section className="surface" style={{ padding: 18, maxWidth: 720 }}>
-          <h1 style={{ margin: 0, fontSize: 26 }}>Order queue</h1>
-          <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+        <section className="surface u-pad-18 u-maxw-720">
+          <h1 className="u-title-26">Order queue</h1>
+          <p className="muted u-mt-10 u-lh-16">
             {access.reason === "unauthorized"
               ? "You need to sign in."
               : "You don’t have staff access."}
           </p>
-          <Link className="btn" href="/signin" style={{ marginTop: 10 }}>
+          <Link className="btn u-mt-10" href="/signin">
             Go to sign-in
           </Link>
         </section>
@@ -25,7 +25,7 @@ export default async function StaffOrdersPage() {
 
   return (
     <main className="container page">
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div className="u-flex-wrap-gap-10">
         <Link className="btn btn-secondary" href="/staff">
           Staff home
         </Link>

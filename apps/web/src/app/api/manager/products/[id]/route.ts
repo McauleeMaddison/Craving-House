@@ -35,3 +35,26 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   return NextResponse.json({ id: updated.id });
 }
+
+export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const access = await requireRole(["manager"]);
+  if (!access.ok) {
+    return NextResponse.json(
+      { error: access.reason },
+      { status: access.reason === "unauthorized" ? 401 : 403 }
+    );
+  }
+
+  const { id } = await context.params;
+
+  const usage = await prisma.orderItem.count({ where: { productId: id } });
+  if (usage > 0) {
+    return NextResponse.json(
+      { error: "This product has been ordered before. You can’t delete it; set Available = off instead." },
+      { status: 409 }
+    );
+  }
+
+  await prisma.product.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

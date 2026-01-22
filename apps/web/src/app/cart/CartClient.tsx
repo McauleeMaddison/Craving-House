@@ -65,12 +65,12 @@ export function CartClient() {
 
   if (detailed.length === 0) {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Cart</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Cart</h1>
+        <p className="muted u-mt-10 u-lh-16">
           Your cart is empty.
         </p>
-        <Link className="btn" href="/menu" style={{ marginTop: 10 }}>
+        <Link className="btn u-mt-10" href="/menu">
           Browse menu
         </Link>
       </section>
@@ -79,15 +79,15 @@ export function CartClient() {
 
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18">
+        <div className="u-flex-between-wrap">
           <div>
-            <h1 style={{ margin: 0, fontSize: 26 }}>Cart</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Cart</h1>
+            <p className="muted u-mt-10 u-lh-16">
               Pay in store. Estimated prep based on manager-set prep times.
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <div className="u-flex-wrap-gap-10-center">
             <div className="pill">
               Est. prep: {Math.max(1, Math.round(prepSeconds / 60))}m
             </div>
@@ -97,32 +97,30 @@ export function CartClient() {
           </div>
         </div>
 
-        <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+        <div className="u-mt-14 u-grid-gap-10">
           {detailed.map((x) => (
             <div
               key={x.line.id}
-              className="surface"
-              style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
+              className="surface surfaceInset u-pad-14"
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+              <div className="u-flex-between">
                 <div>
-                  <div style={{ fontWeight: 800 }}>{x.item!.name}</div>
-                  <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+                  <div className="u-fw-800">{x.item!.name}</div>
+                  <div className="muted u-mt-6 u-fs-13">
                     {formatMoneyGBP(x.item!.priceCents)} each
                   </div>
                   {formatCustomizations(x.line.customizations) ? (
-                    <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                    <div className="muted u-mt-6 u-fs-12 u-lh-15">
                       {formatCustomizations(x.line.customizations)}
                     </div>
                   ) : null}
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: 800 }}>
+                <div className="u-text-right">
+                  <div className="u-fw-800">
                     {formatMoneyGBP(x.item!.priceCents * x.line.qty)}
                   </div>
                   <button
-                    className="btn btn-secondary"
-                    style={{ marginTop: 10, padding: "8px 10px" }}
+                    className="btn btn-secondary btnCompact u-mt-10"
                     onClick={() => cart.remove(x.line.id)}
                   >
                     Remove
@@ -130,7 +128,7 @@ export function CartClient() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+              <div className="u-flex-wrap-gap-10-center u-mt-12">
                 <button
                   className="btn btn-secondary"
                   onClick={() => cart.setQty(x.line.id, Math.max(1, x.line.qty - 1))}
@@ -150,20 +148,19 @@ export function CartClient() {
         </div>
       </section>
 
-      <section className="surface" style={{ padding: 18, marginTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18 u-mt-12">
+        <div className="u-flex-between-wrap">
           <div>
-            <div style={{ fontWeight: 800 }}>Subtotal</div>
-            <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+            <div className="u-fw-800">Subtotal</div>
+            <div className="muted u-mt-6 u-fs-13">
               Loyalty eligible coffees in this order: {eligibleCoffeeCount}
             </div>
           </div>
-          <div style={{ fontWeight: 900, fontSize: 18 }}>{formatMoneyGBP(subtotalCents)}</div>
+          <div className="u-fw-900 u-fs-18">{formatMoneyGBP(subtotalCents)}</div>
         </div>
 
         <button
-          className="btn"
-          style={{ marginTop: 14, width: "100%" }}
+          className="btn u-mt-14 u-w-full"
           onClick={() => (window.location.href = "/checkout")}
         >
           Continue to checkout

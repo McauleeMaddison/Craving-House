@@ -104,12 +104,12 @@ export function CheckoutClient() {
 
   if (items.length === 0) {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Checkout</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Checkout</h1>
+        <p className="muted u-mt-10 u-lh-16">
           Your cart is empty.
         </p>
-        <a className="btn" href="/menu" style={{ marginTop: 10 }}>
+        <a className="btn u-mt-10" href="/menu">
           Browse menu
         </a>
       </section>
@@ -118,44 +118,44 @@ export function CheckoutClient() {
 
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Checkout</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Checkout</h1>
+        <p className="muted u-mt-10 u-lh-16">
           Choose how you want to pay. We’ll prepare your order and you’ll collect it when it’s ready.
         </p>
 
-        <div className="grid-2" style={{ marginTop: 14 }}>
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Pickup</div>
-            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
-              ASAP estimate based on items: <span style={{ color: "var(--text)", fontWeight: 800 }}>{etaText}</span>
+        <div className="grid-2 u-mt-14">
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Pickup</div>
+            <div className="muted u-mt-8 u-lh-16">
+              ASAP estimate based on items: <span className="orderInlineName">{etaText}</span>
             </div>
-            <div className="pill" style={{ marginTop: 10 }}>
+            <div className="pill u-mt-10">
               Prep times are manager-managed
             </div>
           </div>
 
-          <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Loyalty</div>
-            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
-              Eligible coffees in this order: <span style={{ color: "var(--text)", fontWeight: 800 }}>{eligibleCoffeeCount}</span>
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Loyalty</div>
+            <div className="muted u-mt-8 u-lh-16">
+              Eligible coffees in this order: <span className="orderInlineName">{eligibleCoffeeCount}</span>
             </div>
-            <div className="pill" style={{ marginTop: 10 }}>
+            <div className="pill u-mt-10">
               Buy 5 eligible coffees = 1 reward
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
-          <div className="surface" style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Items</div>
-            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+        <div className="u-mt-14 u-grid-gap-10">
+          <div className="surface surfaceInset u-pad-14">
+            <div className="u-fw-800">Items</div>
+            <div className="muted u-mt-8 u-lh-16">
               Drink customisations are attached per item.
             </div>
-            <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+            <div className="u-mt-10 u-grid-gap-8">
               {items.map((x) => (
-                <div key={`${x.item.id}:${formatCustomizations(x.customizations)}`} className="pill" style={{ justifyContent: "space-between", width: "100%" }}>
-                  <span style={{ color: "var(--text)", fontWeight: 900 }}>
+                <div key={`${x.item.id}:${formatCustomizations(x.customizations)}`} className="pill pillRow">
+                  <span className="u-text u-fw-900">
                     {x.qty}× {x.item.name}
                   </span>
                   <span>{formatCustomizations(x.customizations) || "No customisations"}</span>
@@ -164,8 +164,8 @@ export function CheckoutClient() {
             </div>
           </div>
 
-          <label style={{ display: "grid", gap: 8 }}>
-            <span className="muted" style={{ fontSize: 13 }}>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-13">
               Name for pickup
             </span>
             <input
@@ -177,12 +177,12 @@ export function CheckoutClient() {
             />
           </label>
 
-          <div className="surface" style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Payment</div>
-            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+          <div className="surface surfaceInset u-pad-14">
+            <div className="u-fw-800">Payment</div>
+            <div className="muted u-mt-8 u-lh-16">
               Pay in store (fastest) or pay now by card.
             </div>
-            <div className="rowWrap" style={{ marginTop: 10 }}>
+            <div className="rowWrap u-mt-10">
               <button
                 className={`btn btn-secondary ${payMethod === "store" ? "btnActive" : ""}`}
                 type="button"
@@ -199,14 +199,14 @@ export function CheckoutClient() {
               </button>
             </div>
             {payMethod === "card" ? (
-              <p className="muted" style={{ marginTop: 10, fontSize: 12, lineHeight: 1.6 }}>
+              <p className="muted u-mt-10 u-fs-12 u-lh-16">
                 You’ll be redirected to Stripe Checkout to pay securely.
               </p>
             ) : null}
           </div>
 
-          <label style={{ display: "grid", gap: 8 }}>
-            <span className="muted" style={{ fontSize: 13 }}>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-13">
               Notes (optional)
             </span>
             <textarea
@@ -220,34 +220,33 @@ export function CheckoutClient() {
         </div>
       </section>
 
-      <section className="surface" style={{ padding: 18, marginTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18 u-mt-12">
+        <div className="u-flex-between-wrap">
           <div>
-            <div style={{ fontWeight: 800 }}>Total</div>
-            <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+            <div className="u-fw-800">Total</div>
+            <div className="muted u-mt-6 u-fs-13">
               {payMethod === "card" ? "Pay online (card)" : "Pay in store"}
             </div>
           </div>
-          <div style={{ fontWeight: 900, fontSize: 18 }}>{formatMoneyGBP(subtotalCents)}</div>
+          <div className="u-fw-900 u-fs-18">{formatMoneyGBP(subtotalCents)}</div>
         </div>
 
         <button
-          className="btn"
-          style={{ marginTop: 14, width: "100%" }}
+          className="btn u-mt-14 u-w-full"
           onClick={placeOrder}
           disabled={submitting || pickupName.trim().length === 0}
         >
           {submitting ? "Processing..." : payMethod === "card" ? "Pay now" : "Place order"}
         </button>
         {authError ? (
-          <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+          <p className="muted u-mt-10 u-danger">
             {authError}{" "}
-            <a href="/signin" style={{ textDecoration: "underline" }}>
+            <a href="/signin" className="u-underline">
               Sign in
             </a>
           </p>
         ) : null}
-        <p className="muted" style={{ marginTop: 10, fontSize: 12, lineHeight: 1.6 }}>
+        <p className="muted u-mt-10 u-fs-12 u-lh-16">
           Orders are stored in the shared database so staff devices can see the queue.
         </p>
       </section>

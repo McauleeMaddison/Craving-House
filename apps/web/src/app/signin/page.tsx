@@ -97,13 +97,13 @@ export default function SignInPage() {
 
   return (
     <main className="container page">
-      <section className="surface" style={{ padding: 18, maxWidth: 560 }}>
-        <h1 style={{ fontSize: 26, margin: 0 }}>Sign in</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18 u-maxw-560">
+        <h1 className="u-title-26">Sign in</h1>
+        <p className="muted u-mt-10 u-lh-16">
           Sign in with Google or with your email + password.
         </p>
 
-        <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+        <div className="u-grid-gap-12 u-mt-16">
           {googleAvailable ? (
             <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl: "/" })}>
               Continue with Google
@@ -112,23 +112,22 @@ export default function SignInPage() {
             <div className="pill">Google sign-in not available yet.</div>
           )}
 
-          <div className="surface surfaceFlat" style={{ padding: 14 }}>
-            <div className="rowWrap" style={{ justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 950 }}>{mode === "signin" ? "Email sign in" : "Create account"}</div>
+          <div className="surface surfaceFlat u-pad-14">
+            <div className="rowWrap u-justify-between">
+              <div className="u-fw-950">{mode === "signin" ? "Email sign in" : "Create account"}</div>
               <button
-                className="btn btn-secondary"
+                className="btn btn-secondary btnCompact"
                 type="button"
                 onClick={() => {
                   setMessage(null);
                   setMode((m) => (m === "signin" ? "signup" : "signin"));
                 }}
-                style={{ minHeight: 38, padding: "8px 10px" }}
               >
                 {mode === "signin" ? "Create account" : "I have an account"}
               </button>
             </div>
 
-            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            <div className="u-grid-gap-10 u-mt-12">
               <input
                 className="input"
                 value={email}
@@ -157,7 +156,7 @@ export default function SignInPage() {
                 {mode === "signin" ? "Sign in" : "Create account + sign in"}
               </button>
               {mode === "signup" ? (
-                <p className="muted" style={{ margin: 0, fontSize: 12, lineHeight: 1.6 }}>
+                <p className="muted u-m-0 u-fs-12 u-lh-16">
                   Password must be at least 10 characters.
                 </p>
               ) : null}
@@ -166,9 +165,9 @@ export default function SignInPage() {
         </div>
 
         {devEnabled ? (
-          <div style={{ marginTop: 16 }}>
+          <div className="u-mt-16">
             <div className="pill">Dev sign-in (local only)</div>
-            <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+            <div className="u-grid-gap-10 u-mt-10">
               <input
                 className="input"
                 value={devCode}
@@ -185,7 +184,7 @@ export default function SignInPage() {
               >
                 Sign in (dev)
               </button>
-              <p className="muted" style={{ margin: 0, fontSize: 12, lineHeight: 1.6 }}>
+              <p className="muted u-m-0 u-fs-12 u-lh-16">
                 Turn this off for real launch. It exists so you can see the app working before Google is configured.
               </p>
             </div>

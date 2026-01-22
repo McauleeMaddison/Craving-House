@@ -14,15 +14,15 @@ export function FeedbackClient() {
   }
 
   return (
-    <section className="surface" style={{ padding: 18 }}>
-      <h1 style={{ margin: 0, fontSize: 26 }}>Feedback</h1>
-      <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+    <section className="surface u-pad-18">
+      <h1 className="u-title-26">Feedback</h1>
+      <p className="muted u-mt-10 u-lh-16">
         Send feedback to help us improve. If you need a response, include your contact details in the message.
       </p>
 
-      <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
-        <label style={{ display: "grid", gap: 8 }}>
-          <span className="muted" style={{ fontSize: 13 }}>
+      <div className="u-mt-14 u-grid-gap-10">
+        <label className="u-grid-gap-8">
+          <span className="muted u-fs-13">
             Rating
           </span>
           <select
@@ -39,8 +39,8 @@ export function FeedbackClient() {
           </select>
         </label>
 
-        <label style={{ display: "grid", gap: 8 }}>
-          <span className="muted" style={{ fontSize: 13 }}>
+        <label className="u-grid-gap-8">
+          <span className="muted u-fs-13">
             Message
           </span>
           <textarea
@@ -58,7 +58,7 @@ export function FeedbackClient() {
         </button>
 
         {status === "sent" ? (
-          <p className="muted" style={{ margin: 0 }}>
+          <p className="muted u-m-0">
             Sent. Thank you.
           </p>
         ) : null}

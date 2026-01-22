@@ -131,9 +131,12 @@ export function HomeDashboardClient() {
               : "Sign in to get your personal QR card."}
           </div>
           {loyaltyProgress ? (
-            <div className="dashProgress" aria-hidden="true">
-              <div className="dashProgressFill" style={{ width: `${Math.max(2, loyaltyProgress.pct)}%` }} />
-            </div>
+            <progress
+              className="dashProgress"
+              aria-hidden="true"
+              value={Math.max(2, loyaltyProgress.pct)}
+              max={100}
+            />
           ) : null}
         </Link>
 
@@ -160,21 +163,21 @@ export function HomeDashboardClient() {
             <span className="dashCtaPrimaryTitle">{primaryCta.title}</span>
             <span className="dashCtaPrimarySub muted">{primaryCta.sub}</span>
           </span>
-          <span aria-hidden="true" style={{ fontWeight: 950, opacity: 0.75 }}>
+          <span aria-hidden="true" className="dashArrow">
             →
           </span>
         </Link>
 
         <div className="dashCtaRow">
           <Link className="dashCtaSmall" href={signedIn ? "/loyalty" : "/signin"}>
-            <span style={{ fontWeight: 900 }}>My QR</span>
-            <span aria-hidden="true" style={{ opacity: 0.6 }}>
+            <span className="dashCtaSmallTitle">My QR</span>
+            <span aria-hidden="true" className="dashCtaSmallArrow">
               →
             </span>
           </Link>
           <Link className="dashCtaSmall" href={signedIn ? "/orders" : "/signin"}>
-            <span style={{ fontWeight: 900 }}>Track order</span>
-            <span aria-hidden="true" style={{ opacity: 0.6 }}>
+            <span className="dashCtaSmallTitle">Track order</span>
+            <span aria-hidden="true" className="dashCtaSmallArrow">
               →
             </span>
           </Link>

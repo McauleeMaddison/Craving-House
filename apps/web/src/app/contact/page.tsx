@@ -6,18 +6,15 @@ export default function ContactPage() {
 
   return (
     <main className="container page">
-      <section className="surface" style={{ padding: 18, maxWidth: 900 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Contact</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.7, maxWidth: "75ch" }}>
+      <section className="surface u-pad-18 u-maxw-900">
+        <h1 className="u-title-26">Contact</h1>
+        <p className="muted u-mt-10 u-lh-17 u-maxch-75">
           For help with orders, accessibility, or data requests, contact us using the details below.
         </p>
 
-        <div
-          className="surface surfaceFlat"
-          style={{ marginTop: 14, padding: 16, background: "rgba(255,255,255,0.04)" }}
-        >
-          <div style={{ fontWeight: 900 }}>{store.name}</div>
-          <div className="muted" style={{ marginTop: 8, lineHeight: 1.7 }}>
+        <div className="surface surfaceFlat surfaceInset u-mt-14 u-pad-16">
+          <div className="u-fw-900">{store.name}</div>
+          <div className="muted u-mt-8 u-lh-17">
             {store.addressLine}
             <br />
             {store.postcodeLine}
@@ -25,11 +22,11 @@ export default function ContactPage() {
             <span>{store.openingHours.summary}</span>
             <br />
             <br />
-            <div style={{ display: "grid", gap: 8 }}>
+            <div className="u-grid-gap-8">
               <div>
-                <strong style={{ color: "var(--text)" }}>Email:</strong>{" "}
+                <strong className="u-text">Email:</strong>{" "}
                 {hasSupportEmail ? (
-                  <a href={`mailto:${supportEmail}`} style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>
+                  <a href={`mailto:${supportEmail}`} className="u-underline">
                     {supportEmail}
                   </a>
                 ) : (

@@ -45,14 +45,14 @@ export function LoyaltyQrClient() {
   }, [token]);
 
   return (
-    <div style={{ marginTop: 12 }}>
+    <div className="u-mt-12">
       {error ? (
-        <p className="muted" style={{ margin: 0, color: "var(--danger)" }}>
+        <p className="muted u-m-0 u-danger">
           {error}
         </p>
       ) : null}
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+      <div className="loyaltyQrActions">
         <button className="btn btn-secondary" onClick={refresh} type="button">
           Refresh QR
         </button>
@@ -65,7 +65,7 @@ export function LoyaltyQrClient() {
       </div>
 
       {token && !imgError ? (
-        <div className="qrFrame" style={{ marginTop: 12 }}>
+        <div className="qrFrame u-mt-12">
           {/* External QR render for MVP; replace with first-party QR generation later if desired */}
           <img
             className="qrImage"
@@ -75,26 +75,17 @@ export function LoyaltyQrClient() {
             onError={() => setImgError(true)}
             onClick={() => setShowLarge(true)}
           />
-          <div className="muted" style={{ fontSize: 12, lineHeight: 1.6, marginTop: 10 }}>
+          <div className="muted u-fs-12 u-lh-16 u-mt-10">
             Show this QR to staff at collection. If scanning fails, use “Copy token”.
           </div>
         </div>
       ) : null}
 
-      <div
-        className="surface"
-        style={{
-          marginTop: 12,
-          padding: 12,
-          background: "rgba(0,0,0,0.22)",
-          boxShadow: "none",
-          overflow: "hidden"
-        }}
-      >
-        <div className="muted" style={{ fontSize: 12 }}>
+      <div className="surface loyaltyTokenBox">
+        <div className="muted loyaltyTokenLabel">
           QR token (fallback):
         </div>
-        <div style={{ marginTop: 8, wordBreak: "break-all", fontSize: 12 }}>
+        <div className="loyaltyTokenValue">
           {token || "—"}
         </div>
       </div>
@@ -103,17 +94,19 @@ export function LoyaltyQrClient() {
         <div className="modalOverlay" role="dialog" aria-label="Loyalty QR" onClick={() => setShowLarge(false)}>
           <div className="modalSheet" onClick={(e) => e.stopPropagation()}>
             <div className="modalTop">
-              <div style={{ fontWeight: 900 }}>Your loyalty QR</div>
+              <div className="u-fw-900">Your loyalty QR</div>
               <button className="iconButton" type="button" onClick={() => setShowLarge(false)} aria-label="Close">
-                <span style={{ fontSize: 22, lineHeight: 1, transform: "translateY(-1px)" }}>×</span>
+                <span className="iconX" aria-hidden="true">
+                  ×
+                </span>
               </button>
             </div>
             {!imgError ? (
-              <div className="qrFrame" style={{ marginTop: 12 }}>
+              <div className="qrFrame u-mt-12">
                 <img className="qrImage" src={qrImageUrl} alt="Your loyalty QR code" />
               </div>
             ) : null}
-            <div className="muted" style={{ marginTop: 12, lineHeight: 1.6 }}>
+            <div className="muted u-mt-12 u-lh-16">
               If scanning fails, use “Copy token” and staff can paste it.
             </div>
           </div>

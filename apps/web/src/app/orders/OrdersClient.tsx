@@ -43,12 +43,12 @@ export function OrdersClient() {
 
   if (error) {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Orders</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6, color: "var(--danger)" }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Orders</h1>
+        <p className="muted u-mt-10 u-lh-16 u-danger">
           {error}
         </p>
-        <Link className="btn" href="/signin" style={{ marginTop: 10 }}>
+        <Link className="btn u-mt-10" href="/signin">
           Sign in
         </Link>
       </section>
@@ -57,12 +57,12 @@ export function OrdersClient() {
 
   if (orders.length === 0) {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Orders</h1>
-        <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Orders</h1>
+        <p className="muted u-mt-10 u-lh-16">
           No orders yet.
         </p>
-        <Link className="btn" href="/menu" style={{ marginTop: 10 }}>
+        <Link className="btn u-mt-10" href="/menu">
           Start an order
         </Link>
       </section>
@@ -70,30 +70,21 @@ export function OrdersClient() {
   }
 
   return (
-    <section className="surface" style={{ padding: 18 }}>
-      <h1 style={{ margin: 0, fontSize: 26 }}>Orders</h1>
-      <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>Your recent orders.</p>
-      <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+    <section className="surface u-pad-18">
+      <h1 className="u-title-26">Orders</h1>
+      <p className="muted u-mt-10 u-lh-16">Your recent orders.</p>
+      <div className="u-mt-14 u-grid-gap-10">
         {orders.map((o) => (
           <Link
             key={o.id}
             href={`/orders/${o.id}`}
-            className="surface"
-            style={{
-              padding: 14,
-              background: "rgba(255,255,255,0.04)",
-              boxShadow: "none",
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 12,
-              alignItems: "center"
-            }}
+            className="surface surfaceInset u-pad-14 ordersListItem"
           >
             <div>
-              <div style={{ fontWeight: 800 }}>
+              <div className="u-fw-800">
                 {o.status?.toString?.() ?? "received"} • {formatMoneyGBP(o.totalCents ?? 0)}
               </div>
-              <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+              <div className="muted u-mt-6 u-fs-13">
                 {formatDateTime(o.createdAtIso)}
               </div>
             </div>

@@ -23,6 +23,12 @@ export function ProductsClient() {
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [error, setError] = useState<string>("");
   const [savingId, setSavingId] = useState<string>("");
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newPricePence, setNewPricePence] = useState<number>(290);
+  const [newPrepSeconds, setNewPrepSeconds] = useState<number>(60);
+  const [newLoyaltyEligible, setNewLoyaltyEligible] = useState<boolean>(true);
 
   async function refresh() {
     setError("");
@@ -66,17 +72,63 @@ export function ProductsClient() {
     }
   }
 
+  async function createProduct() {
+    setCreating(true);
+    setError("");
+    try {
+      const res = await fetch("/api/manager/products", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: newName.trim(),
+          description: newDescription.trim(),
+          priceCents: Math.max(0, Math.round(Number(newPricePence))),
+          prepSeconds: Math.max(0, Math.round(Number(newPrepSeconds))),
+          loyaltyEligible: Boolean(newLoyaltyEligible),
+          available: true
+        })
+      });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!res.ok) {
+        setError(json?.error ?? "Create failed");
+        return;
+      }
+      setNewName("");
+      setNewDescription("");
+      await refresh();
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function deleteProduct(id: string) {
+    if (!confirm("Delete this product? If it has been ordered before, you won’t be able to delete it.")) return;
+    setSavingId(id);
+    setError("");
+    try {
+      const res = await fetch(`/api/manager/products/${id}`, { method: "DELETE" });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!res.ok) {
+        setError(json?.error ?? "Delete failed");
+        return;
+      }
+      await refresh();
+    } finally {
+      setSavingId("");
+    }
+  }
+
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <div className="rowWrap" style={{ justifyContent: "space-between" }}>
+      <section className="surface u-pad-18">
+        <div className="rowWrap u-justify-between">
           <div>
-            <h1 style={{ fontSize: 26 }}>Menu editor</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Menu editor</h1>
+            <p className="muted u-mt-10 u-lh-16">
               Toggle availability, prep times, prices, and loyalty eligibility.
             </p>
             {error ? (
-              <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+              <p className="muted u-mt-10 u-danger">
                 {error}
               </p>
             ) : null}
@@ -92,26 +144,98 @@ export function ProductsClient() {
         </div>
       </section>
 
-      <section className="grid-2" style={{ marginTop: 12 }}>
+      <section className="surface surfaceInset u-pad-16 u-mt-12">
+        <div className="u-fw-900">Add product</div>
+        <p className="muted u-mt-8 u-lh-16">
+          Create a new menu item. You can adjust price/prep and loyalty eligibility after.
+        </p>
+
+        <div className="grid-2 u-mt-12">
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Name</span>
+            <input
+              className="input"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="e.g. Flat white"
+            />
+          </label>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Description</span>
+            <input
+              className="input"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="e.g. Double espresso + steamed milk"
+            />
+          </label>
+        </div>
+
+        <div className="grid-2 u-mt-12">
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Price (pence)</span>
+            <input
+              className="input"
+              type="number"
+              min={0}
+              value={newPricePence}
+              onChange={(e) => setNewPricePence(Number(e.target.value))}
+            />
+          </label>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Prep (seconds)</span>
+            <input
+              className="input"
+              type="number"
+              min={0}
+              value={newPrepSeconds}
+              onChange={(e) => setNewPrepSeconds(Number(e.target.value))}
+            />
+          </label>
+        </div>
+
+        <div className="rowWrap u-mt-12">
+          <label className="pill pillButton">
+            <input
+              type="checkbox"
+              checked={newLoyaltyEligible}
+              onChange={(e) => setNewLoyaltyEligible(e.target.checked)}
+              disabled={creating}
+            />
+            Earns stamp
+          </label>
+        </div>
+
+        <button
+          className="btn u-mt-12"
+          type="button"
+          onClick={createProduct}
+          disabled={creating || !newName.trim() || !Number.isFinite(newPricePence)}
+        >
+          {creating ? "Creating…" : "Create product"}
+        </button>
+      </section>
+
+      <section className="grid-2 u-mt-12">
         {products.map((p) => (
-          <article key={p.id} className="surface surfaceFlat" style={{ padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+          <article key={p.id} className="surface surfaceFlat u-pad-16">
+            <div className="u-flex-between">
               <div>
-                <div style={{ fontWeight: 900 }}>{p.name}</div>
-                <div className="muted" style={{ marginTop: 6, lineHeight: 1.5 }}>
+                <div className="u-fw-900">{p.name}</div>
+                <div className="muted u-mt-6 u-lh-15">
                   {p.description || "—"}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 900 }}>{formatMoneyGBP(p.priceCents)}</div>
-                <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+              <div className="u-text-right">
+                <div className="u-fw-900">{formatMoneyGBP(p.priceCents)}</div>
+                <div className="muted u-mt-6 u-fs-12">
                   Prep: {minutes(p.prepSeconds)}m
                 </div>
               </div>
             </div>
 
-            <div className="rowWrap" style={{ marginTop: 12 }}>
-              <label className="pill" style={{ cursor: "pointer" }}>
+            <div className="rowWrap u-mt-12">
+              <label className="pill pillButton">
                 <input
                   type="checkbox"
                   checked={p.available}
@@ -122,7 +246,7 @@ export function ProductsClient() {
                 />
                 Available
               </label>
-              <label className="pill" style={{ cursor: "pointer" }}>
+              <label className="pill pillButton">
                 <input
                   type="checkbox"
                   checked={p.loyaltyEligible}
@@ -135,9 +259,9 @@ export function ProductsClient() {
               </label>
             </div>
 
-            <div className="grid-2" style={{ marginTop: 12 }}>
-              <label style={{ display: "grid", gap: 8 }}>
-                <span className="muted" style={{ fontSize: 12 }}>
+            <div className="grid-2 u-mt-12">
+              <label className="u-grid-gap-8">
+                <span className="muted u-fs-12">
                   Price (pence)
                 </span>
                 <input
@@ -153,8 +277,8 @@ export function ProductsClient() {
                   }
                 />
               </label>
-              <label style={{ display: "grid", gap: 8 }}>
-                <span className="muted" style={{ fontSize: 12 }}>
+              <label className="u-grid-gap-8">
+                <span className="muted u-fs-12">
                   Prep (seconds)
                 </span>
                 <input
@@ -172,16 +296,25 @@ export function ProductsClient() {
               </label>
             </div>
 
-            <button
-              className="btn"
-              style={{ marginTop: 12, width: "100%" }}
-              onClick={() =>
-                patchViaFetch(p.id, { priceCents: p.priceCents, prepSeconds: p.prepSeconds })
-              }
-              disabled={savingId === p.id}
-            >
-              {savingId === p.id ? "Saving…" : "Save changes"}
-            </button>
+            <div className="u-flex-wrap-gap-10 u-mt-12">
+              <button
+                className="btn u-w-full"
+                onClick={() =>
+                  patchViaFetch(p.id, { priceCents: p.priceCents, prepSeconds: p.prepSeconds })
+                }
+                disabled={savingId === p.id}
+              >
+                {savingId === p.id ? "Saving…" : "Save changes"}
+              </button>
+              <button
+                className="btn btn-danger u-w-full"
+                type="button"
+                onClick={() => void deleteProduct(p.id)}
+                disabled={savingId === p.id}
+              >
+                Delete
+              </button>
+            </div>
           </article>
         ))}
       </section>

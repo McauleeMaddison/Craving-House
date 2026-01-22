@@ -151,24 +151,23 @@ export function LoyaltyScanClient() {
   }, []);
 
   return (
-    <section className="surface" style={{ padding: 18 }}>
-      <h1 style={{ margin: 0, fontSize: 26 }}>Loyalty scan</h1>
-      <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+    <section className="surface u-pad-18">
+      <h1 className="u-title-26">Loyalty scan</h1>
+      <p className="muted u-mt-10 u-lh-16">
         Staff scan the customer QR after collection and submit the number of eligible coffees. This calls the secure server route.
       </p>
 
-      <div className="grid-2" style={{ marginTop: 14 }}>
-        <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-          <div style={{ fontWeight: 800 }}>Order (optional)</div>
-          <p className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+      <div className="grid-2 u-mt-14">
+        <div className="surface surfaceInset u-pad-16">
+          <div className="u-fw-800">Order (optional)</div>
+          <p className="muted u-mt-8 u-lh-16">
             Link stamping to an order for audit/history.
           </p>
           <select
-            className="input"
+            className="input u-mt-10"
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
             aria-label="Order"
-            style={{ marginTop: 10 }}
           >
             <option value="">No order selected</option>
             {orders.map((o) => (
@@ -179,16 +178,16 @@ export function LoyaltyScanClient() {
           </select>
 
           {selected ? (
-            <div className="pill" style={{ marginTop: 10 }}>
+            <div className="pill u-mt-10">
               Eligible coffees in order: {eligibleCount(selected)}
             </div>
           ) : null}
         </div>
 
-        <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-          <div style={{ fontWeight: 800 }}>Stamp</div>
-          <label style={{ display: "grid", gap: 8, marginTop: 10 }}>
-            <span className="muted" style={{ fontSize: 13 }}>
+        <div className="surface surfaceInset u-pad-16">
+          <div className="u-fw-800">Stamp</div>
+          <label className="u-grid-gap-8 u-mt-10">
+            <span className="muted u-fs-13">
               Customer QR token
             </span>
             <input
@@ -200,7 +199,7 @@ export function LoyaltyScanClient() {
               autoCorrect="off"
             />
           </label>
-          <div className="rowWrap" style={{ marginTop: 10, justifyContent: "space-between" }}>
+          <div className="rowWrap u-mt-10 u-justify-between">
             <button className="btn btn-secondary" type="button" onClick={startScanner}>
               Scan with camera
             </button>
@@ -209,12 +208,12 @@ export function LoyaltyScanClient() {
             </button>
           </div>
           {scannerError ? (
-            <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+            <p className="muted u-mt-10 u-danger">
               {scannerError}
             </p>
           ) : null}
-          <label style={{ display: "grid", gap: 8, marginTop: 10 }}>
-            <span className="muted" style={{ fontSize: 13 }}>
+          <label className="u-grid-gap-8 u-mt-10">
+            <span className="muted u-fs-13">
               Eligible coffees
             </span>
             <input
@@ -227,8 +226,7 @@ export function LoyaltyScanClient() {
           </label>
 
           <button
-            className="btn"
-            style={{ marginTop: 12, width: "100%" }}
+            className="btn u-mt-12 u-w-full"
             onClick={submit}
             disabled={status === "sending" || qrToken.trim().length === 0 || eligibleItemCount <= 0}
           >
@@ -237,17 +235,13 @@ export function LoyaltyScanClient() {
 
           {message ? (
             <p
-              className="muted"
-              style={{
-                marginTop: 10,
-                color: status === "error" ? "var(--danger)" : "var(--muted)"
-              }}
+              className={`muted u-mt-10 ${status === "error" ? "u-danger" : ""}`}
             >
               {message}
             </p>
           ) : null}
 
-          <p className="muted" style={{ marginTop: 10, fontSize: 12, lineHeight: 1.6 }}>
+          <p className="muted u-mt-10 u-fs-12 u-lh-16">
             If you see “Unauthorized/Forbidden”, make sure you are signed in and your account role is <code>staff</code> or <code>manager</code>.
           </p>
         </div>
@@ -257,12 +251,14 @@ export function LoyaltyScanClient() {
         <div className="modalOverlay" role="dialog" aria-label="Scan QR" onClick={() => void stopScanner()}>
           <div className="modalSheet" onClick={(e) => e.stopPropagation()}>
             <div className="modalTop">
-              <div style={{ fontWeight: 900 }}>Scan customer QR</div>
+              <div className="u-fw-900">Scan customer QR</div>
               <button className="iconButton" type="button" onClick={() => void stopScanner()} aria-label="Close">
-                <span style={{ fontSize: 22, lineHeight: 1, transform: "translateY(-1px)" }}>×</span>
+                <span className="iconX" aria-hidden="true">
+                  ×
+                </span>
               </button>
             </div>
-            <div className="cameraFrame" style={{ marginTop: 12 }}>
+            <div className="cameraFrame u-mt-12">
               <video ref={videoRef} className="cameraVideo" playsInline muted />
               <div className="cameraHint muted">Center the QR inside the frame</div>
             </div>

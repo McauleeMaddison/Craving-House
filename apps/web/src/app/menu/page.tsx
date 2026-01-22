@@ -5,7 +5,7 @@ import { MenuClient } from "@/app/menu/MenuClient";
 export default function MenuPage() {
   return (
     <main className="container page">
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <div className="u-flex-between-wrap">
         <Link className="btn btn-secondary" href="/cart">
           Go to cart
         </Link>

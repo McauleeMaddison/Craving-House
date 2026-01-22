@@ -78,15 +78,14 @@ export function OrderDetailsClient(props: { orderId: string }) {
 
   if (!order) {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Order</h1>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Order</h1>
         <p
-          className="muted"
-          style={{ marginTop: 10, lineHeight: 1.6, color: error ? "var(--danger)" : "var(--muted)" }}
+          className={`muted u-mt-10 u-lh-16 ${error ? "u-danger" : ""}`}
         >
           {error || "Loading..."}
         </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+        <div className="u-flex-wrap-gap-10 u-mt-12">
           <Link className="btn btn-secondary" href="/orders">
             Back to orders
           </Link>
@@ -104,12 +103,12 @@ export function OrderDetailsClient(props: { orderId: string }) {
 
   if (status === "canceled") {
     return (
-      <section className="surface" style={{ padding: 18 }}>
-        <h1 style={{ margin: 0, fontSize: 26 }}>Order canceled</h1>
-        <p className="muted" style={{ marginTop: 10 }}>
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Order canceled</h1>
+        <p className="muted u-mt-10">
           If this is unexpected, please contact the shop.
         </p>
-        <Link className="btn" href="/menu" style={{ marginTop: 10 }}>
+        <Link className="btn u-mt-10" href="/menu">
           Start a new order
         </Link>
       </section>
@@ -126,29 +125,29 @@ export function OrderDetailsClient(props: { orderId: string }) {
 
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18">
+        <div className="u-flex-between-wrap">
           <div>
-            <h1 style={{ margin: 0, fontSize: 26 }}>Order confirmed</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
-              Pickup name: <span style={{ color: "var(--text)", fontWeight: 800 }}>{order.pickupName}</span> •{" "}
+            <h1 className="u-title-26">Order confirmed</h1>
+            <p className="muted u-mt-10 u-lh-16">
+              Pickup name: <span className="orderInlineName">{order.pickupName}</span> •{" "}
               {paymentLabel}
             </p>
           </div>
-          <div style={{ textAlign: "right" }}>
+          <div className="u-text-right">
             <div className="pill">Total: {formatMoneyGBP(order.totalCents)}</div>
-            <div className="muted" style={{ marginTop: 8, fontSize: 12 }}>
+            <div className="muted u-mt-8 u-fs-12">
               Created: {formatDateTime(order.createdAtIso)}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="surface" style={{ padding: 18, marginTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+      <section className="surface u-pad-18 u-mt-12">
+        <div className="u-flex-between-wrap">
           <div>
-            <div style={{ fontWeight: 800 }}>Status</div>
-            <div className="muted" style={{ marginTop: 6 }}>
+            <div className="u-fw-800">Status</div>
+            <div className="muted u-mt-6">
               Estimated ready:{" "}
               {order.estimatedReadyAtIso ? formatDateTime(order.estimatedReadyAtIso) : "—"}
             </div>
@@ -158,25 +157,19 @@ export function OrderDetailsClient(props: { orderId: string }) {
           </div>
         </div>
 
-        <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+        <div className="u-mt-14 u-grid-gap-10">
           {steps.map((s, i) => {
             const done = i <= idx;
             return (
               <div
                 key={s.key}
-                className="surface"
-                style={{
-                  padding: 14,
-                  background: done ? "rgba(47, 228, 171, 0.09)" : "rgba(255,255,255,0.04)",
-                  borderColor: done ? "rgba(47, 228, 171, 0.25)" : "rgba(255,255,255,0.14)",
-                  boxShadow: "none"
-                }}
+                className={`surface orderStepCard ${done ? "orderStepCardDone" : ""}`}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ fontWeight: 900 }}>{s.label}</div>
+                <div className="u-flex-between">
+                  <div className="u-fw-900">{s.label}</div>
                   <div className="pill">{done ? "Done" : "Pending"}</div>
                 </div>
-                <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+                <div className="muted u-mt-8 u-lh-16">
                   {s.help}
                 </div>
               </div>
@@ -184,7 +177,7 @@ export function OrderDetailsClient(props: { orderId: string }) {
           })}
         </div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+        <div className="u-flex-wrap-gap-10 u-mt-14">
           <Link className="btn btn-secondary" href="/orders">
             All orders
           </Link>
@@ -224,35 +217,34 @@ export function OrderDetailsClient(props: { orderId: string }) {
           ) : null}
         </div>
         {payError ? (
-          <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+          <p className="muted u-mt-10 u-danger">
             {payError}
           </p>
         ) : null}
       </section>
 
-      <section className="surface" style={{ padding: 18, marginTop: 12 }}>
-        <div style={{ fontWeight: 800 }}>Items</div>
-        <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+      <section className="surface u-pad-18 u-mt-12">
+        <div className="u-fw-800">Items</div>
+        <div className="u-mt-12 u-grid-gap-10">
           {order.lines.map((l) => (
             <div
               key={l.itemId}
-              className="surface"
-              style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
+              className="surface surfaceInset u-pad-14"
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+              <div className="u-flex-between">
                 <div>
-                  <div style={{ fontWeight: 800 }}>{l.name}</div>
-                  <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+                  <div className="u-fw-800">{l.name}</div>
+                  <div className="muted u-mt-6 u-fs-13">
                     Qty {l.qty} • {formatMoneyGBP(l.unitPriceCents)} each
                     {l.loyaltyEligible ? " • Earns stamp" : ""}
                   </div>
                   {formatCustomizations(l.customizations) ? (
-                    <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                    <div className="muted u-mt-6 u-fs-12 u-lh-15">
                       {formatCustomizations(l.customizations)}
                     </div>
                   ) : null}
                 </div>
-                <div style={{ fontWeight: 900 }}>{formatMoneyGBP(l.unitPriceCents * l.qty)}</div>
+                <div className="u-fw-900">{formatMoneyGBP(l.unitPriceCents * l.qty)}</div>
               </div>
             </div>
           ))}

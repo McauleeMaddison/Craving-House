@@ -15,49 +15,40 @@ export default async function LoyaltyPage() {
 
   return (
     <main className="container page">
-      <section className="surface" style={{ padding: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className="surface u-pad-18">
+        <div className="u-flex-between-wrap">
           <div>
-            <h1 style={{ margin: 0, fontSize: 26 }}>Loyalty card</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Loyalty card</h1>
+            <p className="muted u-mt-10 u-lh-16">
               Buy 5 eligible coffees, get 1 coffee on us. Staff scan your QR after collection.
             </p>
           </div>
           <div className="pill">5 stamps = reward</div>
         </div>
 
-        <section
-          className="surface"
-          style={{
-            marginTop: 14,
-            padding: 16,
-            background: "rgba(212, 163, 115, 0.12)",
-            borderColor: "rgba(212, 163, 115, 0.25)",
-            boxShadow: "none"
-          }}
-        >
-          <div style={{ fontWeight: 900, letterSpacing: -0.1 }}>{store.loyalty.headline}</div>
-          <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+        <section className="surface loyaltyBanner">
+          <div className="u-fw-900">{store.loyalty.headline}</div>
+          <div className="muted u-mt-8 u-lh-16">
             {store.loyalty.finePrint}
           </div>
         </section>
 
-          <div className="grid-2" style={{ marginTop: 14 }}>
-            <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-              <div style={{ fontWeight: 800 }}>Your stamps</div>
+          <div className="grid-2 u-mt-14">
+            <div className="surface surfaceInset u-pad-16">
+              <div className="u-fw-800">Your stamps</div>
               <LoyaltySummaryClient />
             </div>
 
-            <div className="surface" style={{ padding: 16, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
-            <div style={{ fontWeight: 800 }}>Your QR</div>
-            <div className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Your QR</div>
+            <div className="muted u-mt-10 u-lh-16">
               This QR refreshes and is short-lived for security.
             </div>
             <LoyaltyQrClient />
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+        <div className="u-flex-wrap-gap-10 u-mt-14">
           {!signedIn ? (
             <Link className="btn" href="/signin">
               Sign in to view

@@ -72,15 +72,15 @@ export function UsersClient() {
 
   return (
     <>
-      <section className="surface" style={{ padding: 18 }}>
-        <div className="rowWrap" style={{ justifyContent: "space-between" }}>
+      <section className="surface u-pad-18">
+        <div className="rowWrap u-justify-between">
           <div>
-            <h1 style={{ fontSize: 26 }}>Users & roles</h1>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+            <h1 className="u-title-26">Users & roles</h1>
+            <p className="muted u-mt-10 u-lh-16">
               Search users, promote to staff, and disable accounts.
             </p>
             {error ? (
-              <p className="muted" style={{ marginTop: 10, color: "var(--danger)" }}>
+              <p className="muted u-mt-10 u-danger">
                 {error}
               </p>
             ) : null}
@@ -93,7 +93,7 @@ export function UsersClient() {
           </div>
         </div>
 
-        <div className="grid-2" style={{ marginTop: 12 }}>
+        <div className="grid-2 u-mt-12">
           <input
             className="input"
             value={q}
@@ -105,8 +105,8 @@ export function UsersClient() {
           </button>
         </div>
 
-        <label style={{ display: "grid", gap: 8, marginTop: 12 }}>
-          <span className="muted" style={{ fontSize: 12 }}>
+        <label className="u-grid-gap-8 u-mt-12">
+          <span className="muted u-fs-12">
             Note (stored on role changes)
           </span>
           <input
@@ -118,15 +118,15 @@ export function UsersClient() {
         </label>
       </section>
 
-      <section style={{ marginTop: 12, display: "grid", gap: 10 }}>
+      <section className="u-mt-12 u-grid-gap-10">
         {users.map((u) => (
-          <article key={u.id} className="surface surfaceFlat" style={{ padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <article key={u.id} className="surface surfaceFlat u-pad-16">
+            <div className="u-flex-between-wrap">
               <div>
-                <div style={{ fontWeight: 900 }}>
+                <div className="u-fw-900">
                   {u.name || u.email || u.id}
                 </div>
-                <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
+                <div className="muted u-mt-6 u-fs-13">
                   {u.email || "—"} • Created {formatDate(u.createdAtIso)}
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function UsersClient() {
               </div>
             </div>
 
-            <div className="rowWrap" style={{ marginTop: 12 }}>
+            <div className="rowWrap u-mt-12">
               <button
                 className="btn btn-secondary"
                 type="button"
@@ -180,4 +180,3 @@ export function UsersClient() {
     </>
   );
 }
-

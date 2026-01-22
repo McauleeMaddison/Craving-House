@@ -8,14 +8,14 @@ export default async function ManagerProductsPage() {
   if (!access.ok) {
     return (
       <main className="container page">
-        <section className="surface" style={{ padding: 18, maxWidth: 720 }}>
-          <h1 style={{ fontSize: 26 }}>Menu editor</h1>
-          <p className="muted" style={{ marginTop: 10, lineHeight: 1.6 }}>
+        <section className="surface u-pad-18 u-maxw-720">
+          <h1 className="u-title-26">Menu editor</h1>
+          <p className="muted u-mt-10 u-lh-16">
             {access.reason === "unauthorized"
               ? "You need to sign in."
               : "You don’t have manager access."}
           </p>
-          <Link className="btn" href="/signin" style={{ marginTop: 10 }}>
+          <Link className="btn u-mt-10" href="/signin">
             Go to sign-in
           </Link>
         </section>
@@ -34,4 +34,3 @@ export default async function ManagerProductsPage() {
     </main>
   );
 }
-

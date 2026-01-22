@@ -5,7 +5,7 @@ import { OrdersClient } from "@/app/orders/OrdersClient";
 export default function OrdersPage() {
   return (
     <main className="container page">
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <div className="u-flex-wrap-gap-10">
         <Link className="btn btn-secondary" href="/menu">
           Menu
         </Link>

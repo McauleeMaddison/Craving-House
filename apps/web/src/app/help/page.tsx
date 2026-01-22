@@ -5,14 +5,14 @@ import { store } from "@/lib/store";
 export default function HelpPage() {
   return (
     <main className="container page">
-      <section className="surface helpHero" style={{ maxWidth: 980 }}>
+      <section className="surface helpHero u-maxw-980">
         <div className="rowWrap">
           <span className="pill">Minimal</span>
           <span className="pill">Mobile-first</span>
           <span className="pill">Pay in store</span>
         </div>
 
-        <h1 className="helpTitle" style={{ marginTop: 12 }}>
+        <h1 className="helpTitle u-mt-12">
           Quick guide
         </h1>
         <p className="muted helpLead">
@@ -22,7 +22,7 @@ export default function HelpPage() {
         <div className="grid-2 helpGrid">
           <div className="surface surfaceFlat helpCard">
             <div className="helpCardHeader">
-              <div style={{ fontWeight: 900 }}>Customers</div>
+              <div className="u-fw-900">Customers</div>
               <span className="helpBadge">☕︎ Order</span>
             </div>
             <ol className="muted helpList">
@@ -48,7 +48,7 @@ export default function HelpPage() {
 
           <div className="surface surfaceFlat helpCard">
             <div className="helpCardHeader">
-              <div style={{ fontWeight: 900 }}>Staff</div>
+              <div className="u-fw-900">Staff</div>
               <span className="helpBadge">✓ Queue</span>
             </div>
             <ol className="muted helpList">
@@ -62,18 +62,18 @@ export default function HelpPage() {
                 customer QR, add stamps.
               </li>
             </ol>
-            <p className="muted" style={{ marginTop: 10, lineHeight: 1.7 }}>
+            <p className="muted u-mt-10 u-lh-17">
               Manager tasks live under <Link href="/manager">Manager</Link>.
             </p>
           </div>
         </div>
 
-        <div className="surface surfaceFlat helpCard" style={{ maxWidth: 980 }}>
+        <div className="surface surfaceFlat helpCard u-maxw-980">
           <div className="helpCardHeader">
-            <div style={{ fontWeight: 900 }}>Theme</div>
+            <div className="u-fw-900">Theme</div>
             <span className="helpBadge">◐ Toggle</span>
           </div>
-          <p className="muted" style={{ marginTop: 10, lineHeight: 1.7, maxWidth: "70ch" }}>
+          <p className="muted u-mt-10 u-lh-17 u-maxch-70">
             Light mode (poster yellow/black) is the default. Use the menu to
             toggle dark mode for a smokey black + yellow glow.
           </p>
