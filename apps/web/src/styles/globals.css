@@ -32,16 +32,17 @@
 
   --header-bg: rgba(11, 13, 18, 0.72);
   --header-border: rgba(255, 255, 255, 0.08);
-  /* Drawer is always glassy black with white text (both themes) */
-  --drawer-solid: rgba(11, 13, 18, 0.98);
-  --drawer-text: rgba(255, 255, 255, 0.92);
-  --drawer-muted: rgba(255, 255, 255, 0.72);
-  --drawer-border: rgba(255, 255, 255, 0.14);
-  --drawer-link-bg: rgba(255, 255, 255, 0.12);
-  --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
-  --drawer-link-active-border: rgba(242, 183, 5, 0.42);
+  /* Drawer (mobile menu) — themed */
+  --drawer-solid: rgba(255, 255, 255, 0.94);
+  --drawer-text: rgba(11, 13, 18, 0.92);
+  --drawer-muted: rgba(11, 13, 18, 0.62);
+  --drawer-border: rgba(11, 13, 18, 0.12);
+  --drawer-surface: rgba(11, 13, 18, 0.06);
+  --drawer-sep: rgba(11, 13, 18, 0.12);
+  --drawer-chevron: rgba(11, 13, 18, 0.38);
+  --drawer-link-active-bg: rgba(242, 183, 5, 0.22);
   --drawer-bg:
-    radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.14), transparent 60%),
+    radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.12), transparent 60%),
     var(--drawer-solid);
 }
 
@@ -886,35 +887,43 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerLinks {
   display: grid;
-  gap: 8px;
-  padding: 6px 0;
+  gap: 0;
+  padding: 0;
   overflow: auto;
   overscroll-behavior: contain;
   align-content: start;
   grid-auto-rows: max-content;
+  border-radius: 18px;
+  border: 1px solid var(--drawer-border);
+  background: var(--drawer-surface);
 }
 
 .drawerLink {
-  padding: 12px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--drawer-border);
-  background: var(--drawer-link-bg);
+  padding: 14px 14px;
+  min-height: 52px;
+  border: 0;
+  border-top: 1px solid var(--drawer-sep);
+  background: transparent;
   font-weight: 800;
   font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  box-shadow: none;
+}
+
+.drawerLink:first-child {
+  border-top: 0;
 }
 
 .drawerLink::after {
   content: "›";
-  opacity: 0.6;
+  color: var(--drawer-chevron);
+  opacity: 1;
 }
 
 .drawerLinkActive {
-  border-color: var(--drawer-link-active-border);
   background: var(--drawer-link-active-bg);
 }
 
@@ -930,7 +939,7 @@ html[data-theme="dark"] .modalSheet {
 .drawer .pill {
   border-color: var(--drawer-border);
   color: var(--drawer-muted);
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--drawer-solid) 70%, transparent);
 }
 
 .drawer a {
@@ -939,18 +948,18 @@ html[data-theme="dark"] .modalSheet {
 
 .drawer .iconButton {
   border-color: var(--drawer-border);
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--drawer-solid) 70%, transparent);
   color: var(--drawer-text);
 }
 
 .drawer .brandMark {
   border-color: var(--drawer-border);
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--drawer-solid) 70%, transparent);
 }
 
 .drawer .btn {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--drawer-border);
+  background: color-mix(in srgb, var(--drawer-solid) 70%, transparent);
   color: var(--drawer-text);
 }
 
@@ -961,8 +970,8 @@ html[data-theme="dark"] .modalSheet {
 }
 
 .drawer .btn-secondary {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--drawer-border);
+  background: color-mix(in srgb, var(--drawer-solid) 70%, transparent);
   color: var(--drawer-text);
 }
 
@@ -1060,11 +1069,18 @@ html[data-theme="dark"] {
 
   --header-bg: rgba(11, 13, 18, 0.6);
   --header-border: rgba(255, 255, 255, 0.08);
-  /* Keep the same glassy black drawer in dark mode too */
+  /* Drawer overrides for dark mode */
   --drawer-solid: rgba(11, 13, 18, 0.98);
   --drawer-bg:
     radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.14), transparent 60%),
     var(--drawer-solid);
+  --drawer-text: rgba(255, 255, 255, 0.92);
+  --drawer-muted: rgba(255, 255, 255, 0.72);
+  --drawer-border: rgba(255, 255, 255, 0.14);
+  --drawer-surface: rgba(255, 255, 255, 0.06);
+  --drawer-sep: rgba(255, 255, 255, 0.12);
+  --drawer-chevron: rgba(255, 255, 255, 0.38);
+  --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
 }
 
 .drawer,
