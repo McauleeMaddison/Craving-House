@@ -890,6 +890,8 @@ html[data-theme="dark"] .modalSheet {
   padding: 6px 0;
   overflow: auto;
   overscroll-behavior: contain;
+  align-content: start;
+  grid-auto-rows: max-content;
 }
 
 .drawerLink {
