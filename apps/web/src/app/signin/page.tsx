@@ -1,9 +1,23 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+function authErrorToMessage(error: string) {
+  switch (error) {
+    case "CredentialsSignin":
+      return "Sign-in failed. Check your email/password.";
+    case "OAuthSignin":
+    case "OAuthCallback":
+      return "Google sign-in failed. Check your Google OAuth configuration.";
+    default:
+      return "Sign-in failed. Please try again.";
+  }
+}
+
 export default function SignInPage() {
+  const router = useRouter();
   const devEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true";
   const [devCode, setDevCode] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -13,6 +27,12 @@ export default function SignInPage() {
   const [providers, setProviders] = useState<Record<string, unknown> | null>(null);
 
   const googleAvailable = Boolean(providers && (providers as any).google);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const err = url.searchParams.get("error");
+    if (err) setMessage(authErrorToMessage(err));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,11 +82,17 @@ export default function SignInPage() {
       email: cleanEmail,
       password,
       callbackUrl: "/",
-      redirect: true
+      redirect: false
     });
-    if ((result as any)?.error) {
-      setMessage("Sign-in failed. Check your email/password.");
+    if (!result) {
+      setMessage("Sign-in failed. Please try again.");
+      return;
     }
+    if (result.error) {
+      setMessage(authErrorToMessage(result.error));
+      return;
+    }
+    router.push(result.url || "/");
   }
 
   return (
@@ -79,7 +105,7 @@ export default function SignInPage() {
 
         <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
           {googleAvailable ? (
-            <button className="btn btn-secondary" onClick={() => signIn("google")}>
+            <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl: "/" })}>
               Continue with Google
             </button>
           ) : (

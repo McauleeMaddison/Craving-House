@@ -93,14 +93,12 @@ export function AppHeader() {
           </Link>
         </nav>
 
-        <button
+        <button>
           className={`iconButton navMobileButton ${open ? "iconButtonActive" : ""}`}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open ? "true" : "false"}
           aria-controls="mobile-drawer"
-          onClick={() => setOpen((v) => !v)}
           type="button"
-        >
           {open ? (
             <span className="iconX" aria-hidden="true">
               ×
@@ -111,20 +109,19 @@ export function AppHeader() {
         </button>
       </div>
 
-      <div
+      <div>
         className={`drawerOverlay ${open ? "drawerOverlayOpen" : ""}`}
-        onClick={open ? () => setOpen(false) : undefined}
         aria-hidden={open ? "false" : "true"}
-      />
+      </div>
 
       <aside
-        id="mobile-drawer"
+        id="mobile-drawer">
         className={`drawer ${open ? "drawerOpen" : ""}`}
         aria-hidden={open ? "false" : "true"}
         role="dialog"
         aria-modal={open ? "true" : "false"}
         aria-label="Menu"
-      >
+      
         <div className="drawerTop">
           <Link href="/" className="brandLink" aria-label={store.name} onClick={() => setOpen(false)}>
             <span className="brandMark" aria-hidden="true">
@@ -142,13 +139,13 @@ export function AppHeader() {
             aria-label="Close"
             title="Close"
           >
-            <span style={{ fontSize: 22, lineHeight: 1, transform: "translateY(-1px)" }}>×</span>
+            <span>×</span>
           </button>
         </div>
 
-        <div className="rowWrap" style={{ marginTop: -2 }}>
+        <div className="rowWrap">
           <span className="pill">{store.openingHours.summary}</span>
-          <button className="pill" type="button" onClick={toggleTheme} style={{ cursor: "pointer" }}>
+          <button className="pill" type="button" onClick={toggleTheme}>
             {theme === "poster" ? "Dark mode" : "Light mode"}
           </button>
         </div>
