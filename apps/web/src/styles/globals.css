@@ -1036,6 +1036,8 @@ html[data-theme="dark"] .modalSheet {
 }
 
 .drawerGameButton {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--drawer-border);
   background: color-mix(in srgb, var(--drawer-solid) 78%, transparent);
   color: var(--drawer-text);
@@ -1064,6 +1066,57 @@ html[data-theme="dark"] .modalSheet {
 .drawerGameReset:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.steamBurst {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(0) scale(0.96);
+  animation: steamBurstPop 720ms ease-out forwards;
+}
+
+.steamBurst::before,
+.steamBurst::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(10px 10px at 50% 60%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(10px 10px at 30% 80%, rgba(255, 255, 255, 0.42), transparent 72%),
+    radial-gradient(10px 10px at 70% 85%, rgba(255, 255, 255, 0.4), transparent 72%);
+  filter: blur(0.2px);
+}
+
+.steamBurst::after {
+  inset: 6px 4px 0 4px;
+  opacity: 0.8;
+  background:
+    radial-gradient(10px 14px at 45% 90%, rgba(255, 255, 255, 0.42), transparent 72%),
+    radial-gradient(10px 14px at 65% 95%, rgba(255, 255, 255, 0.38), transparent 72%);
+}
+
+@keyframes steamBurstPop {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.95);
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-14px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px) scale(1.08);
+  }
 }
 
 .drawerBottom {

@@ -19,7 +19,8 @@ export function AppHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"poster" | "dark">("poster");
-  const [beans, setBeans] = useState(0);
+  const [score, setScore] = useState(0);
+  const [tapKey, setTapKey] = useState(0);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("ch.theme");
@@ -61,9 +62,10 @@ export function AppHeader() {
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem("ch.game.beans");
-      const n = stored ? Number(stored) : 0;
-      if (Number.isFinite(n) && n >= 0) setBeans(n);
+      const storedScore = window.localStorage.getItem("ch.game.score");
+      const storedLegacy = window.localStorage.getItem("ch.game.beans");
+      const n = storedScore ? Number(storedScore) : storedLegacy ? Number(storedLegacy) : 0;
+      if (Number.isFinite(n) && n >= 0) setScore(n);
     } catch {
       // ignore
     }
@@ -71,11 +73,11 @@ export function AppHeader() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("ch.game.beans", String(beans));
+      window.localStorage.setItem("ch.game.score", String(score));
     } catch {
       // ignore
     }
-  }, [beans]);
+  }, [score]);
 
   const activeHref = useMemo(() => {
     return links.find((l) => pathname?.startsWith(l.href))?.href ?? "";
@@ -195,17 +197,27 @@ export function AppHeader() {
 
           <div className="drawerGame" aria-label="Coffee bean clicker">
             <div className="drawerGameTop">
-              <div className="drawerGameTitle">Bean tap</div>
-              <div className="drawerGameCount" aria-label={`Beans: ${beans}`}>
-                {beans}
+              <div className="drawerGameTitle">Steam tap (mini game)</div>
+              <div className="drawerGameCount" aria-label={`Score: ${score}`}>
+                {score}
               </div>
             </div>
-            <div className="drawerGameHint muted">Kill 10 seconds while you wait. Tap to collect beans.</div>
+            <div className="drawerGameHint muted">
+              Just for fun — this does <strong>not</strong> affect your loyalty stamps.
+            </div>
             <div className="drawerGameActions">
-              <button className="drawerGameButton" type="button" onClick={() => setBeans((b) => b + 1)}>
-                Tap bean
+              <button
+                className="drawerGameButton"
+                type="button"
+                onClick={() => {
+                  setTapKey((k) => k + 1);
+                  setScore((s) => s + 1);
+                }}
+              >
+                Tap for steam
+                <span key={tapKey} className="steamBurst" aria-hidden="true" />
               </button>
-              <button className="drawerGameReset" type="button" onClick={() => setBeans(0)} disabled={beans === 0}>
+              <button className="drawerGameReset" type="button" onClick={() => setScore(0)} disabled={score === 0}>
                 Reset
               </button>
             </div>
