@@ -83,48 +83,103 @@ export function HomeDashboardClient() {
     };
   }, [signedIn]);
 
+  const primaryCta = useMemo(() => {
+    if (cartCount > 0) {
+      return {
+        href: "/checkout",
+        title: "Checkout",
+        sub: "Pay in store or by card."
+      };
+    }
+    return {
+      href: "/menu",
+      title: "Start an order",
+      sub: "Browse menu + customise drinks."
+    };
+  }, [cartCount]);
+
+  const loyaltyProgress = useMemo(() => {
+    if (!signedIn || !loyalty) return null;
+    const mod = loyalty.rewardStamps > 0 ? loyalty.stamps % loyalty.rewardStamps : 0;
+    const pct = loyalty.rewardStamps > 0 ? (mod / loyalty.rewardStamps) * 100 : 0;
+    return { mod, pct };
+  }, [signedIn, loyalty]);
+
   return (
-    <div className="dashWidgets">
-      <Link className="widgetCard" href={cartCount > 0 ? "/cart" : "/menu"}>
-        <div className="widgetTop">
-          <div className="widgetTitle">Your cart</div>
-          <div className="widgetValue">{cartCount > 0 ? `${cartCount}` : "—"}</div>
-        </div>
-        <div className="muted widgetHint">
-          {cartCount > 0 ? "Items ready to checkout." : "Tap Menu to start an order."}
-        </div>
-      </Link>
-
-      <Link className="widgetCard" href={signedIn ? "/loyalty" : "/signin"}>
-        <div className="widgetTop">
-          <div className="widgetTitle">Loyalty</div>
-          <div className="widgetValue">
-            {signedIn && loyalty ? `${loyalty.stamps % loyalty.rewardStamps}/${loyalty.rewardStamps}` : "Sign in"}
-          </div>
-        </div>
-        <div className="muted widgetHint">
-          {signedIn && loyalty
-            ? "Show your QR at collection to collect beans."
-            : "Sign in to get your personal QR card."}
-        </div>
-      </Link>
-
-      {isCustomer ? (
-        <Link className="widgetCard" href={signedIn ? "/orders" : "/signin"}>
+    <>
+      <div className="dashWidgets">
+        <Link className="widgetCard" href={cartCount > 0 ? "/cart" : "/menu"}>
           <div className="widgetTop">
-            <div className="widgetTitle">Orders</div>
-            <div className="widgetValue">{signedIn ? `${ordersCount ?? 0}` : "Sign in"}</div>
+            <div className="widgetTitle">Your cart</div>
+            <div className="widgetValue">{cartCount > 0 ? `${cartCount}` : "—"}</div>
           </div>
           <div className="muted widgetHint">
-            {signedIn
-              ? latestOrder
-                ? `Latest: ${formatOrderStatus(latestOrder.status)}`
-                : "No orders yet."
-              : "Sign in to track your orders."}
+            {cartCount > 0 ? "Items ready to checkout." : "Tap Menu to start an order."}
           </div>
         </Link>
-      ) : null}
-    </div>
+
+        <Link className="widgetCard" href={signedIn ? "/loyalty" : "/signin"}>
+          <div className="widgetTop">
+            <div className="widgetTitle">Loyalty</div>
+            <div className="widgetValue">
+              {signedIn && loyalty ? `${loyalty.stamps % loyalty.rewardStamps}/${loyalty.rewardStamps}` : "Sign in"}
+            </div>
+          </div>
+          <div className="muted widgetHint">
+            {signedIn && loyalty
+              ? "Show your QR at collection to collect beans."
+              : "Sign in to get your personal QR card."}
+          </div>
+          {loyaltyProgress ? (
+            <div className="dashProgress" aria-hidden="true">
+              <div className="dashProgressFill" style={{ width: `${Math.max(2, loyaltyProgress.pct)}%` }} />
+            </div>
+          ) : null}
+        </Link>
+
+        {isCustomer ? (
+          <Link className="widgetCard" href={signedIn ? "/orders" : "/signin"}>
+            <div className="widgetTop">
+              <div className="widgetTitle">Orders</div>
+              <div className="widgetValue">{signedIn ? `${ordersCount ?? 0}` : "Sign in"}</div>
+            </div>
+            <div className="muted widgetHint">
+              {signedIn
+                ? latestOrder
+                  ? `Latest: ${formatOrderStatus(latestOrder.status)}`
+                  : "No orders yet."
+                : "Sign in to track your orders."}
+            </div>
+          </Link>
+        ) : null}
+      </div>
+
+      <div className="dashCtas">
+        <Link className="dashCtaPrimary" href={primaryCta.href}>
+          <span>
+            <span className="dashCtaPrimaryTitle">{primaryCta.title}</span>
+            <span className="dashCtaPrimarySub muted">{primaryCta.sub}</span>
+          </span>
+          <span aria-hidden="true" style={{ fontWeight: 950, opacity: 0.75 }}>
+            →
+          </span>
+        </Link>
+
+        <div className="dashCtaRow">
+          <Link className="dashCtaSmall" href={signedIn ? "/loyalty" : "/signin"}>
+            <span style={{ fontWeight: 900 }}>My QR</span>
+            <span aria-hidden="true" style={{ opacity: 0.6 }}>
+              →
+            </span>
+          </Link>
+          <Link className="dashCtaSmall" href={signedIn ? "/orders" : "/signin"}>
+            <span style={{ fontWeight: 900 }}>Track order</span>
+            <span aria-hidden="true" style={{ opacity: 0.6 }}>
+              →
+            </span>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
-

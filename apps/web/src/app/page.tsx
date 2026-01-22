@@ -33,45 +33,6 @@ export default function HomePage() {
 
         <HomeDashboardClient />
 
-        <div className="dashActions">
-          <Link className="actionCard actionPrimary" href="/menu">
-            <span>
-              <span className="actionTitle">Menu</span>
-              <span className="actionSubtitle muted">Browse + build your order</span>
-            </span>
-            <span className="actionArrow" aria-hidden="true">
-              →
-            </span>
-          </Link>
-          <Link className="actionCard" href="/cart">
-            <span>
-              <span className="actionTitle">Cart</span>
-              <span className="actionSubtitle muted">Review before checkout</span>
-            </span>
-            <span className="actionArrow" aria-hidden="true">
-              →
-            </span>
-          </Link>
-          <Link className="actionCard" href="/orders">
-            <span>
-              <span className="actionTitle">Orders</span>
-              <span className="actionSubtitle muted">Live status timeline</span>
-            </span>
-            <span className="actionArrow" aria-hidden="true">
-              →
-            </span>
-          </Link>
-          <Link className="actionCard" href="/loyalty">
-            <span>
-              <span className="actionTitle">Loyalty</span>
-              <span className="actionSubtitle muted">Show QR at collection</span>
-            </span>
-            <span className="actionArrow" aria-hidden="true">
-              →
-            </span>
-          </Link>
-        </div>
-
         <div className="dashFooter rowWrap">
           <Link className="btn btn-secondary" href="/help">
             Quick guide
