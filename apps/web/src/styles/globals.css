@@ -949,14 +949,20 @@ html[data-theme="dark"] .modalSheet {
   text-overflow: ellipsis;
 }
 
+.drawerContent {
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  grid-auto-rows: max-content;
+  padding-bottom: 2px;
+}
+
 .drawerLinks {
   display: grid;
   gap: 0;
   padding: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  align-content: start;
-  grid-auto-rows: max-content;
   border-radius: 18px;
   border: 1px solid var(--drawer-border);
   background: var(--drawer-surface);
@@ -989,6 +995,75 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerLinkActive {
   background: var(--drawer-link-active-bg);
+}
+
+.drawerGame {
+  border-radius: 18px;
+  border: 1px solid var(--drawer-border);
+  background: var(--drawer-surface);
+  padding: 14px;
+}
+
+.drawerGameTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.drawerGameTitle {
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.drawerGameCount {
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.drawerGameHint {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.drawerGameActions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.drawerGameButton {
+  border: 1px solid var(--drawer-border);
+  background: color-mix(in srgb, var(--drawer-solid) 78%, transparent);
+  color: var(--drawer-text);
+  padding: 12px 12px;
+  border-radius: 16px;
+  font-weight: 950;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.drawerGameButton:active {
+  transform: scale(0.99);
+}
+
+.drawerGameReset {
+  border: 1px solid var(--drawer-border);
+  background: transparent;
+  color: var(--drawer-muted);
+  padding: 12px 12px;
+  border-radius: 16px;
+  font-weight: 900;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.drawerGameReset:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .drawerBottom {

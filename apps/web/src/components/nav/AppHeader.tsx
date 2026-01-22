@@ -19,6 +19,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<"poster" | "dark">("poster");
+  const [beans, setBeans] = useState(0);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("ch.theme");
@@ -57,6 +58,24 @@ export function AppHeader() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("ch.game.beans");
+      const n = stored ? Number(stored) : 0;
+      if (Number.isFinite(n) && n >= 0) setBeans(n);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("ch.game.beans", String(beans));
+    } catch {
+      // ignore
+    }
+  }, [beans]);
 
   const activeHref = useMemo(() => {
     return links.find((l) => pathname?.startsWith(l.href))?.href ?? "";
@@ -157,20 +176,40 @@ export function AppHeader() {
           </button>
         </div>
 
-        <div className="drawerLinks" role="navigation" aria-label="Primary">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`drawerLink ${activeHref === link.href ? "drawerLinkActive" : ""}`}
-              onClick={() => setOpen(false)}
-            >
-              {link.label}
+        <div className="drawerContent">
+          <div className="drawerLinks" role="navigation" aria-label="Primary">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`drawerLink ${activeHref === link.href ? "drawerLinkActive" : ""}`}
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link href="/signin" className="drawerLink" onClick={() => setOpen(false)}>
+              Sign in
             </Link>
-          ))}
-          <Link href="/signin" className="drawerLink" onClick={() => setOpen(false)}>
-            Sign in
-          </Link>
+          </div>
+
+          <div className="drawerGame" aria-label="Coffee bean clicker">
+            <div className="drawerGameTop">
+              <div className="drawerGameTitle">Bean tap</div>
+              <div className="drawerGameCount" aria-label={`Beans: ${beans}`}>
+                {beans}
+              </div>
+            </div>
+            <div className="drawerGameHint muted">Kill 10 seconds while you wait. Tap to collect beans.</div>
+            <div className="drawerGameActions">
+              <button className="drawerGameButton" type="button" onClick={() => setBeans((b) => b + 1)}>
+                Tap bean
+              </button>
+              <button className="drawerGameReset" type="button" onClick={() => setBeans(0)} disabled={beans === 0}>
+                Reset
+              </button>
+            </div>
+          </div>
         </div>
       </aside>
     </>
