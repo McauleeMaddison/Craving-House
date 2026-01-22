@@ -63,53 +63,55 @@ export function AppHeader() {
   }, [pathname]);
 
   return (
-    <header className="appHeader">
-      <div className="container appHeaderInner">
-        <Link href="/" className="brandLink" aria-label={store.name}>
-          <span className="brandMark" aria-hidden="true">
-            <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
-          </span>
-          <span className="brandText">
-            <span className="brandName">{store.name}</span>
-            <span className="brandTag muted">{store.tagline}</span>
-          </span>
-        </Link>
-
-        <nav className="navDesktop" aria-label="Primary">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              className={`btn btn-secondary ${activeHref === link.href ? "btnActive" : ""}`}
-              href={link.href}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <button className="btn btn-secondary" type="button" onClick={toggleTheme}>
-            {theme === "poster" ? "Dark mode" : "Light mode"}
-          </button>
-          <Link className="btn btn-secondary" href="/signin">
-            Sign in
-          </Link>
-        </nav>
-
-        <button
-          className={`iconButton navMobileButton ${open ? "iconButtonActive" : ""}`}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open ? "true" : "false"}
-          aria-controls="mobile-drawer"
-          onClick={() => setOpen((v) => !v)}
-          type="button"
-        >
-          {open ? (
-            <span className="iconX" aria-hidden="true">
-              ×
+    <>
+      <header className="appHeader">
+        <div className="container appHeaderInner">
+          <Link href="/" className="brandLink" aria-label={store.name}>
+            <span className="brandMark" aria-hidden="true">
+              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
             </span>
-          ) : (
-            <span className="iconLines" aria-hidden="true" />
-          )}
-        </button>
-      </div>
+            <span className="brandText">
+              <span className="brandName">{store.name}</span>
+              <span className="brandTag muted">{store.tagline}</span>
+            </span>
+          </Link>
+
+          <nav className="navDesktop" aria-label="Primary">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                className={`btn btn-secondary ${activeHref === link.href ? "btnActive" : ""}`}
+                href={link.href}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <button className="btn btn-secondary" type="button" onClick={toggleTheme}>
+              {theme === "poster" ? "Dark mode" : "Light mode"}
+            </button>
+            <Link className="btn btn-secondary" href="/signin">
+              Sign in
+            </Link>
+          </nav>
+
+          <button
+            className={`iconButton navMobileButton ${open ? "iconButtonActive" : ""}`}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open ? "true" : "false"}
+            aria-controls="mobile-drawer"
+            onClick={() => setOpen((v) => !v)}
+            type="button"
+          >
+            {open ? (
+              <span className="iconX" aria-hidden="true">
+                ×
+              </span>
+            ) : (
+              <span className="iconLines" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </header>
 
       <div
         className={`drawerOverlay ${open ? "drawerOverlayOpen" : ""}`}
@@ -171,6 +173,6 @@ export function AppHeader() {
           </Link>
         </div>
       </aside>
-    </header>
+    </>
   );
 }
