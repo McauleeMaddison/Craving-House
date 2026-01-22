@@ -28,7 +28,8 @@ export async function GET() {
         itemId: i.productId,
         name: i.product.name,
         qty: i.qty,
-        loyaltyEligible: i.product.loyaltyEligible
+        loyaltyEligible: i.product.loyaltyEligible,
+        customizations: i.customizations ?? null
       }))
     }))
   });

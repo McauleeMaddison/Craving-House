@@ -72,6 +72,7 @@ model OrderItem {
   productId  String
   qty        Int
   unitCents  Int
+  customizations Json?
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])

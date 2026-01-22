@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 type CreateOrderBody = {
   pickupName: string;
   notes?: string;
-  items: Array<{ productId: string; qty: number }>;
+  items: Array<{ productId: string; qty: number; customizations?: unknown }>;
 };
 
 export async function GET() {
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const items = body.items
-    .map((x) => ({ productId: String(x.productId), qty: Number(x.qty) }))
+    .map((x) => ({ productId: String(x.productId), qty: Number(x.qty), customizations: (x as any)?.customizations }))
     .filter((x) => x.productId && Number.isFinite(x.qty) && x.qty > 0);
   if (items.length === 0) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
 
@@ -83,7 +83,8 @@ export async function POST(request: Request) {
         create: items.map((i) => ({
           productId: i.productId,
           qty: i.qty,
-          unitCents: productById.get(i.productId)!.priceCents
+          unitCents: productById.get(i.productId)!.priceCents,
+          customizations: i.customizations ?? undefined
         }))
       }
     }

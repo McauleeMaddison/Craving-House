@@ -38,7 +38,8 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
       qty: i.qty,
       unitPriceCents: i.unitCents,
       prepSeconds: i.product.prepSeconds,
-      loyaltyEligible: i.product.loyaltyEligible
+      loyaltyEligible: i.product.loyaltyEligible,
+      customizations: i.customizations ?? null
     }))
   });
 }

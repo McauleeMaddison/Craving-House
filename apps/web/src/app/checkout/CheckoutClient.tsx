@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson, apiPostJson } from "@/lib/api";
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 import { formatMoneyGBP } from "@/lib/sample-data";
-import { useEffect } from "react";
 
 type ProductDto = {
   id: string;
@@ -33,7 +33,7 @@ export function CheckoutClient() {
     return cart.lines
       .map((l) => {
         const item = products.find((x) => x.id === l.itemId);
-        return item ? { item, qty: l.qty } : null;
+        return item ? { item, qty: l.qty, customizations: l.customizations } : null;
       })
       .filter((x): x is NonNullable<typeof x> => Boolean(x));
   }, [cart.lines, products]);
@@ -71,7 +71,7 @@ export function CheckoutClient() {
       const res = await apiPostJson<{ id: string }>("/api/orders", {
         pickupName,
         notes,
-        items: items.map((x) => ({ productId: x.item.id, qty: x.qty }))
+        items: items.map((x) => ({ productId: x.item.id, qty: x.qty, customizations: x.customizations ?? null }))
       });
       if (!res.ok) {
         if (res.status === 401) {
@@ -147,6 +147,23 @@ export function CheckoutClient() {
         </div>
 
         <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
+          <div className="surface" style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}>
+            <div style={{ fontWeight: 800 }}>Items</div>
+            <div className="muted" style={{ marginTop: 8, lineHeight: 1.6 }}>
+              Drink customisations are attached per item.
+            </div>
+            <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+              {items.map((x) => (
+                <div key={`${x.item.id}:${formatCustomizations(x.customizations)}`} className="pill" style={{ justifyContent: "space-between", width: "100%" }}>
+                  <span style={{ color: "var(--text)", fontWeight: 900 }}>
+                    {x.qty}× {x.item.name}
+                  </span>
+                  <span>{formatCustomizations(x.customizations) || "No customisations"}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <label style={{ display: "grid", gap: 8 }}>
             <span className="muted" style={{ fontSize: 13 }}>
               Name for pickup

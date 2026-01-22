@@ -1,6 +1,8 @@
 export type CartLine = {
+  id: string;
   itemId: string;
   qty: number;
+  customizations?: unknown;
 };
 
 const KEY = "craving-house.cart.v1";
@@ -14,9 +16,12 @@ function safeParse(json: string | null): CartLine[] {
       .map((x) => {
         const itemId = typeof (x as any)?.itemId === "string" ? (x as any).itemId : "";
         const qty = Number.isFinite((x as any)?.qty) ? Number((x as any).qty) : 0;
-        return { itemId, qty };
+        const customizations = (x as any)?.customizations;
+        const id =
+          typeof (x as any)?.id === "string" ? (x as any).id : itemId ? `${itemId}:base` : "";
+        return { id, itemId, qty, customizations };
       })
-      .filter((x) => x.itemId && x.qty > 0);
+      .filter((x) => x.id && x.itemId && x.qty > 0);
   } catch {
     return [];
   }
@@ -31,4 +36,3 @@ export function saveCart(lines: CartLine[]) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(KEY, JSON.stringify(lines));
 }
-

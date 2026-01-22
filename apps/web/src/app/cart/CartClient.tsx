@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson } from "@/lib/api";
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 
@@ -99,7 +100,7 @@ export function CartClient() {
         <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
           {detailed.map((x) => (
             <div
-              key={x.item!.id}
+              key={x.line.id}
               className="surface"
               style={{ padding: 14, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
             >
@@ -109,6 +110,11 @@ export function CartClient() {
                   <div className="muted" style={{ marginTop: 6, fontSize: 13 }}>
                     {formatMoneyGBP(x.item!.priceCents)} each
                   </div>
+                  {formatCustomizations(x.line.customizations) ? (
+                    <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                      {formatCustomizations(x.line.customizations)}
+                    </div>
+                  ) : null}
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontWeight: 800 }}>
@@ -117,7 +123,7 @@ export function CartClient() {
                   <button
                     className="btn btn-secondary"
                     style={{ marginTop: 10, padding: "8px 10px" }}
-                    onClick={() => cart.remove(x.item!.id)}
+                    onClick={() => cart.remove(x.line.id)}
                   >
                     Remove
                   </button>
@@ -127,14 +133,14 @@ export function CartClient() {
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => cart.setQty(x.item!.id, Math.max(1, x.line.qty - 1))}
+                  onClick={() => cart.setQty(x.line.id, Math.max(1, x.line.qty - 1))}
                 >
                   −
                 </button>
                 <div className="pill">Qty {x.line.qty}</div>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => cart.setQty(x.item!.id, x.line.qty + 1)}
+                  onClick={() => cart.setQty(x.line.id, x.line.qty + 1)}
                 >
                   +
                 </button>

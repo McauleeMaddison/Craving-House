@@ -5,12 +5,14 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import type { CartLine } from "@/components/cart/cart-storage";
 import { loadCart, saveCart } from "@/components/cart/cart-storage";
+import type { DrinkCustomizations } from "@/lib/drink-customizations";
+import { customizationsKey, normalizeCustomizations } from "@/lib/drink-customizations";
 
 type CartContextValue = {
   lines: CartLine[];
-  add: (itemId: string, qty?: number) => void;
-  remove: (itemId: string) => void;
-  setQty: (itemId: string, qty: number) => void;
+  add: (itemId: string, qty?: number, customizations?: DrinkCustomizations | null) => void;
+  remove: (lineId: string) => void;
+  setQty: (lineId: string, qty: number) => void;
   clear: () => void;
 };
 
@@ -30,22 +32,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CartContextValue>(() => {
     return {
       lines,
-      add(itemId, qty = 1) {
+      add(itemId, qty = 1, customizations) {
         setLines((prev) => {
           const next = [...prev];
-          const existing = next.find((l) => l.itemId === itemId);
+          const cleaned = normalizeCustomizations(customizations);
+          const id = `${itemId}:${customizationsKey(cleaned)}`;
+          const existing = next.find((l) => l.id === id);
           if (existing) existing.qty += qty;
-          else next.push({ itemId, qty });
+          else next.push({ id, itemId, qty, customizations: cleaned ?? undefined });
           return next.filter((l) => l.qty > 0);
         });
       },
-      remove(itemId) {
-        setLines((prev) => prev.filter((l) => l.itemId !== itemId));
+      remove(lineId) {
+        setLines((prev) => prev.filter((l) => l.id !== lineId));
       },
-      setQty(itemId, qty) {
+      setQty(lineId, qty) {
         setLines((prev) =>
           prev
-            .map((l) => (l.itemId === itemId ? { ...l, qty } : l))
+            .map((l) => (l.id === lineId ? { ...l, qty } : l))
             .filter((l) => l.qty > 0)
         );
       },
@@ -63,4 +67,3 @@ export function useCart() {
   if (!ctx) throw new Error("useCart must be used within CartProvider");
   return ctx;
 }
-

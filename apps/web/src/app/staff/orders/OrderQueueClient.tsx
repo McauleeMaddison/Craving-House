@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { apiGetJson, apiPostJson } from "@/lib/api";
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
 
 type OrderStatus = "received" | "accepted" | "ready" | "collected" | "canceled";
@@ -14,7 +15,7 @@ type StaffOrderDto = {
   estimatedReadyAtIso: string | null;
   totalCents: number;
   pickupName: string;
-  lines: Array<{ itemId: string; name: string; qty: number; loyaltyEligible: boolean }>;
+  lines: Array<{ itemId: string; name: string; qty: number; loyaltyEligible: boolean; customizations: unknown }>;
 };
 
 function formatTime(iso: string) {
@@ -147,8 +148,15 @@ export function OrderQueueClient() {
                       style={{ padding: 12, background: "rgba(255,255,255,0.04)", boxShadow: "none" }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                        <div style={{ fontWeight: 800 }}>
-                          {l.qty}× {l.name}
+                        <div>
+                          <div style={{ fontWeight: 800 }}>
+                            {l.qty}× {l.name}
+                          </div>
+                          {formatCustomizations(l.customizations) ? (
+                            <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                              {formatCustomizations(l.customizations)}
+                            </div>
+                          ) : null}
                         </div>
                         <div className="muted" style={{ fontSize: 13 }}>
                           {l.loyaltyEligible ? "Eligible" : "—"}

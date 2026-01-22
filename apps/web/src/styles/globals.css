@@ -24,6 +24,8 @@
   --btn-secondary-bg: rgba(255, 255, 255, 0.08);
   --btn-secondary-text: rgba(255, 255, 255, 0.94);
   --btn-secondary-border: rgba(255, 255, 255, 0.18);
+  --btn-active-bg: rgba(255, 255, 255, 0.12);
+  --btn-active-border: rgba(255, 255, 255, 0.28);
 
   --input-bg: rgba(0, 0, 0, 0.22);
   --input-border: rgba(255, 255, 255, 0.18);
@@ -31,11 +33,11 @@
   --header-bg: rgba(11, 13, 18, 0.72);
   --header-border: rgba(255, 255, 255, 0.08);
   /* Drawer is always glassy black with white text (both themes) */
-  --drawer-solid: rgba(11, 13, 18, 0.92);
+  --drawer-solid: rgba(11, 13, 18, 0.98);
   --drawer-text: rgba(255, 255, 255, 0.92);
   --drawer-muted: rgba(255, 255, 255, 0.72);
   --drawer-border: rgba(255, 255, 255, 0.14);
-  --drawer-link-bg: rgba(255, 255, 255, 0.08);
+  --drawer-link-bg: rgba(255, 255, 255, 0.12);
   --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
   --drawer-link-active-border: rgba(242, 183, 5, 0.42);
   --drawer-bg:
@@ -178,15 +180,15 @@ code {
 }
 
 .btnActive {
-  border-color: rgba(11, 13, 18, 0.55);
-  background: rgba(11, 13, 18, 0.12);
+  border-color: var(--btn-active-border);
+  background: var(--btn-active-bg);
   color: var(--btn-secondary-text);
 }
 
 .btn-primary {
-  border-color: var(--btn-border);
-  background: var(--btn-bg);
-  color: var(--btn-text);
+  border-color: var(--btn-secondary-border);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -412,8 +414,14 @@ html[data-theme="dark"] .input::placeholder {
 .dashActions {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+}
+
+@media (max-width: 420px) {
+  .dashActions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 720px) {
@@ -641,7 +649,7 @@ html[data-theme="dark"] .input::placeholder {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 220px;
+  min-width: 0;
 }
 
 .brandMark {
@@ -711,10 +719,22 @@ html[data-theme="dark"] .input::placeholder {
   border-top: 2px solid currentColor;
 }
 
+.iconX {
+  font-size: 24px;
+  line-height: 1;
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.iconButtonActive {
+  border-color: rgba(242, 183, 5, 0.35);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+}
+
 .drawerOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.78);
+  background: rgba(0, 0, 0, 0.84);
   opacity: 0;
   pointer-events: none;
   transition: opacity 160ms ease;
@@ -830,7 +850,7 @@ html[data-theme="dark"] .modalSheet {
   z-index: 50;
   padding: calc(14px + env(safe-area-inset-top, 0px)) 14px calc(14px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr;
   gap: 12px;
 }
 .drawerOpen {
@@ -868,18 +888,22 @@ html[data-theme="dark"] .modalSheet {
   display: grid;
   gap: 8px;
   padding: 6px 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .drawerLink {
   padding: 12px 12px;
   border-radius: 14px;
   border: 1px solid var(--drawer-border);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--drawer-link-bg);
   font-weight: 800;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
 .drawerLink::after {
@@ -946,7 +970,7 @@ html[data-theme="dark"] .modalSheet {
 
 @supports (backdrop-filter: blur(10px)) {
   .drawer {
-    background: rgba(11, 13, 18, 0.92);
+    background: var(--drawer-bg);
     backdrop-filter: blur(18px);
   }
 }
@@ -1026,6 +1050,8 @@ html[data-theme="dark"] {
   --btn-secondary-bg: rgba(255, 255, 255, 0.05);
   --btn-secondary-text: rgba(255, 255, 255, 0.92);
   --btn-secondary-border: rgba(255, 255, 255, 0.2);
+  --btn-active-bg: rgba(255, 255, 255, 0.08);
+  --btn-active-border: rgba(242, 183, 5, 0.45);
 
   --input-bg: rgba(0, 0, 0, 0.22);
   --input-border: rgba(255, 255, 255, 0.18);
@@ -1033,7 +1059,7 @@ html[data-theme="dark"] {
   --header-bg: rgba(11, 13, 18, 0.6);
   --header-border: rgba(255, 255, 255, 0.08);
   /* Keep the same glassy black drawer in dark mode too */
-  --drawer-solid: rgba(11, 13, 18, 0.92);
+  --drawer-solid: rgba(11, 13, 18, 0.98);
   --drawer-bg:
     radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.14), transparent 60%),
     var(--drawer-solid);
@@ -1053,7 +1079,7 @@ html[data-theme="dark"] {
   flex-wrap: wrap;
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1024px) {
   .navDesktop {
     display: none;
   }

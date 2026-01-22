@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { apiGetJson } from "@/lib/api";
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
 
 type OrderStatus = "received" | "accepted" | "ready" | "collected" | "canceled";
@@ -26,6 +27,7 @@ type OrderDto = {
     unitPriceCents: number;
     prepSeconds: number;
     loyaltyEligible: boolean;
+    customizations: unknown;
   }>;
 };
 
@@ -244,6 +246,11 @@ export function OrderDetailsClient(props: { orderId: string }) {
                     Qty {l.qty} • {formatMoneyGBP(l.unitPriceCents)} each
                     {l.loyaltyEligible ? " • Earns stamp" : ""}
                   </div>
+                  {formatCustomizations(l.customizations) ? (
+                    <div className="muted" style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5 }}>
+                      {formatCustomizations(l.customizations)}
+                    </div>
+                  ) : null}
                 </div>
                 <div style={{ fontWeight: 900 }}>{formatMoneyGBP(l.unitPriceCents * l.qty)}</div>
               </div>
