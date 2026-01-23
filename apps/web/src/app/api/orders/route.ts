@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
 import { calculatePrepSeconds } from "@/lib/prep-time";
+import { notifyStaffNewOrder } from "@/server/push";
 
 export const dynamic = "force-dynamic";
 
@@ -90,5 +91,6 @@ export async function POST(request: Request) {
     }
   });
 
+  void notifyStaffNewOrder({ orderId: created.id, pickupName: created.pickupName, totalCents: created.totalCents });
   return NextResponse.json({ id: created.id });
 }

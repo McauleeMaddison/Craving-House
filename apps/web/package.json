@@ -4,9 +4,10 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3000",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "node scripts/start.mjs",
     "lint": "eslint . --max-warnings=0",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "node prisma/deploy.cjs",
@@ -21,12 +22,14 @@
     "next-auth": "^4.24.7",
     "prisma": "^5.11.0",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.1.4",
     "typescript": "^5.4.5"
