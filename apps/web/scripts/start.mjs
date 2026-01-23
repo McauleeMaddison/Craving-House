@@ -6,19 +6,34 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-const host = process.env.HOSTNAME ?? "0.0.0.0";
+function runPrismaDeploy() {
+  if (process.env.SKIP_PRISMA_DEPLOY === "true") return;
 
-const candidates = [
-  path.join(__dirname, "..", "node_modules", ".bin", "next"),
-  path.join(__dirname, "..", "..", "..", "node_modules", ".bin", "next")
-];
-const nextBin = candidates.find((candidate) => existsSync(candidate)) ?? "next";
+  const deployScript = path.join(__dirname, "..", "prisma", "deploy.cjs");
+  const child = spawn(process.execPath, [deployScript], { stdio: "inherit" });
+  child.on("exit", (code) => {
+    if (code && code !== 0) process.exit(code);
+    startNext();
+  });
+}
 
-const child = spawn(nextBin, ["start", "-H", host, "-p", String(port)], {
-  stdio: "inherit"
-});
+function startNext() {
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  const host = process.env.HOSTNAME ?? "0.0.0.0";
 
-child.on("exit", (code) => {
-  process.exit(code ?? 1);
-});
+  const candidates = [
+    path.join(__dirname, "..", "node_modules", ".bin", "next"),
+    path.join(__dirname, "..", "..", "..", "node_modules", ".bin", "next")
+  ];
+  const nextBin = candidates.find((candidate) => existsSync(candidate)) ?? "next";
+
+  const child = spawn(nextBin, ["start", "-H", host, "-p", String(port)], {
+    stdio: "inherit"
+  });
+
+  child.on("exit", (code) => {
+    process.exit(code ?? 1);
+  });
+}
+
+runPrismaDeploy();

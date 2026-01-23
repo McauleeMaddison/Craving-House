@@ -11,4 +11,3 @@
     "lint": "npm run lint -w apps/web"
   }
 }
-

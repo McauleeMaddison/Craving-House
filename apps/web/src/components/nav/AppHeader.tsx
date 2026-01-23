@@ -23,6 +23,7 @@ export function AppHeader() {
   const canUseStaff = role === "staff" || role === "manager";
   const canUseManager = role === "manager";
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
+  const portalKind = pathname?.startsWith("/manager") ? "manager" : "staff";
   const portalCallbackUrl = useMemo(() => {
     if (!pathname) return "/staff";
     if (pathname.startsWith("/manager")) return pathname;
@@ -140,7 +141,14 @@ export function AppHeader() {
       { href: "/staff/orders", label: "Order queue" },
       { href: "/staff/loyalty-scan", label: "Loyalty scan" }
     ];
-    if (canUseManager) list.push({ href: "/manager", label: "Manager" });
+    if (canUseManager) {
+      list.push({ href: "/manager", label: "Manager home" });
+      list.push({ href: "/manager/orders", label: "Orders" });
+      list.push({ href: "/manager/products", label: "Products" });
+      list.push({ href: "/manager/users", label: "Users" });
+      list.push({ href: "/manager/settings", label: "Settings" });
+      list.push({ href: "/manager/audit", label: "Audit" });
+    }
     return list;
   }, [canUseManager, canUseStaff]);
 
@@ -220,7 +228,6 @@ export function AppHeader() {
     }, 120);
 
     return () => window.clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, roundEndAt, score, streak]);
 
   function startRound() {
@@ -284,7 +291,9 @@ export function AppHeader() {
               <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
             </span>
             <span className="brandText">
-              <span className="brandName">{isPortal ? "Staff Portal" : store.name}</span>
+              <span className="brandName">
+                {isPortal ? (portalKind === "manager" ? "Manager Portal" : "Staff Portal") : store.name}
+              </span>
               <span className="brandTag muted">{isPortal ? "staff & management only" : store.tagline}</span>
             </span>
           </Link>
@@ -369,7 +378,9 @@ export function AppHeader() {
               <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} />
             </span>
             <span className="brandText">
-              <span className="brandName">{isPortal ? "Staff Portal" : store.name}</span>
+              <span className="brandName">
+                {isPortal ? (portalKind === "manager" ? "Manager Portal" : "Staff Portal") : store.name}
+              </span>
               <span className="brandTag muted">{isPortal ? "staff & management only" : store.tagline}</span>
             </span>
           </Link>

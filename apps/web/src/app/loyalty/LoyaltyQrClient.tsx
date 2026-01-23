@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 import { apiGetJson } from "@/lib/api";
 
@@ -12,14 +13,14 @@ export function LoyaltyQrClient() {
   const [imgError, setImgError] = useState(false);
 
   async function refresh() {
-    setError("");
-    setImgError(false);
     const res = await apiGetJson<{ token: string; expiresInSeconds: number }>("/api/loyalty/qr");
     if (!res.ok) {
       setToken("");
       setError(res.status === 401 ? "Sign in to view your QR." : res.error);
       return;
     }
+    setError("");
+    setImgError(false);
     setToken(res.data.token);
   }
 
@@ -53,7 +54,15 @@ export function LoyaltyQrClient() {
       ) : null}
 
       <div className="loyaltyQrActions">
-        <button className="btn btn-secondary" onClick={refresh} type="button">
+        <button
+          className="btn btn-secondary"
+          onClick={() => {
+            setError("");
+            setImgError(false);
+            void refresh();
+          }}
+          type="button"
+        >
           Refresh QR
         </button>
         <button className="btn btn-secondary" onClick={() => setShowLarge(true)} type="button" disabled={!token}>
@@ -67,11 +76,12 @@ export function LoyaltyQrClient() {
       {token && !imgError ? (
         <div className="qrFrame u-mt-12">
           {/* External QR render for MVP; replace with first-party QR generation later if desired */}
-          <img
+          <Image
             className="qrImage"
             src={qrImageUrl}
             alt="Your loyalty QR code"
-            loading="lazy"
+            width={240}
+            height={240}
             onError={() => setImgError(true)}
             onClick={() => setShowLarge(true)}
           />
@@ -103,7 +113,7 @@ export function LoyaltyQrClient() {
             </div>
             {!imgError ? (
               <div className="qrFrame u-mt-12">
-                <img className="qrImage" src={qrImageUrl} alt="Your loyalty QR code" />
+                <Image className="qrImage" src={qrImageUrl} alt="Your loyalty QR code" width={360} height={360} />
               </div>
             ) : null}
             <div className="muted u-mt-12 u-lh-16">

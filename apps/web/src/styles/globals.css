@@ -32,7 +32,6 @@
 
   --header-bg: rgba(11, 13, 18, 0.72);
   --header-border: rgba(255, 255, 255, 0.08);
-  /* Drawer (mobile menu) — themed */
   --drawer-solid: rgba(255, 255, 255, 0.94);
   --drawer-text: rgba(11, 13, 18, 0.92);
   --drawer-muted: rgba(11, 13, 18, 0.62);
@@ -45,12 +44,6 @@
     radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.12), transparent 60%),
     var(--drawer-solid);
 }
-
-/*
-  Brand font hook:
-  - When you provide the exact poster font files, we’ll add an @font-face here
-    and set --font-display to that family for a perfect match.
-*/
 
 * {
   box-sizing: border-box;
@@ -695,14 +688,20 @@ html[data-theme="dark"] .input::placeholder {
   gap: 12px;
 }
 
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
 @media (max-width: 820px) {
   .grid-2,
-  .grid-3 {
+  .grid-3,
+  .grid-4 {
     grid-template-columns: 1fr;
   }
 }
 
-/* Home / dashboard layout */
 .dashHero {
   padding: clamp(18px, 4vw, 24px);
 }
@@ -1040,7 +1039,6 @@ html[data-theme="dark"] .input::placeholder {
   line-height: 1.6;
 }
 
-/* Help page */
 .helpHero {
   padding: 18px;
 }
@@ -1756,7 +1754,6 @@ html[data-theme="dark"] .modalSheet {
   }
 }
 
-/* Footer */
 .appFooter {
   margin-top: 18px;
   border-top: 1px solid var(--border);
@@ -1792,8 +1789,6 @@ html[data-theme="dark"] .modalSheet {
 .appFooterLink:hover {
   text-decoration-color: currentColor;
 }
-
-/* Accessibility */
 :where(a, button, input, textarea, select):focus-visible {
   outline: 2px solid rgba(242, 183, 5, 0.65);
   outline-offset: 2px;
@@ -1839,7 +1834,6 @@ html[data-theme="dark"] {
 
   --header-bg: rgba(11, 13, 18, 0.6);
   --header-border: rgba(255, 255, 255, 0.08);
-  /* Drawer overrides for dark mode */
   --drawer-solid: rgba(11, 13, 18, 0.98);
   --drawer-bg:
     radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.14), transparent 60%),

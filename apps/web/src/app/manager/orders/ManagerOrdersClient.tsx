@@ -8,13 +8,17 @@ import { formatMoneyGBP } from "@/lib/sample-data";
 
 type OrderStatus = "received" | "accepted" | "ready" | "collected" | "canceled";
 
-type StaffOrderDto = {
+type ManagerOrderDto = {
   id: string;
   createdAtIso: string;
   status: OrderStatus;
+  paymentStatus: string;
+  paidAtIso: string | null;
   estimatedReadyAtIso: string | null;
+  collectedAtIso: string | null;
   totalCents: number;
   pickupName: string;
+  customerEmail: string | null;
   lines: Array<{ itemId: string; name: string; qty: number; loyaltyEligible: boolean; customizations: unknown }>;
 };
 
@@ -46,36 +50,38 @@ function nextActions(status: OrderStatus): Array<{ label: string; status: OrderS
   }
 }
 
-export function OrderQueueClient() {
-  const [orders, setOrders] = useState<StaffOrderDto[]>([]);
+export function ManagerOrdersClient() {
+  const [orders, setOrders] = useState<ManagerOrderDto[]>([]);
   const [error, setError] = useState<string>("");
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState<OrderStatus | "">("");
 
   async function refresh() {
-    const res = await apiGetJson<{ orders: StaffOrderDto[] }>("/api/staff/orders");
+    setError("");
+    const qs = new URLSearchParams();
+    if (q.trim()) qs.set("q", q.trim());
+    if (status) qs.set("status", status);
+    qs.set("limit", "100");
+    const res = await apiGetJson<{ orders: ManagerOrderDto[] }>(`/api/manager/orders?${qs.toString()}`);
     if (!res.ok) {
-      setError(res.status === 401 ? "Please sign in." : res.error);
+      setError(res.status === 401 ? "Sign in as manager." : res.error);
       setOrders([]);
       return;
     }
-    setError("");
     setOrders(res.data.orders);
   }
 
   useEffect(() => {
     void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const active = useMemo(() => {
-    return orders.filter((o) => o.status !== "collected" && o.status !== "canceled");
-  }, [orders]);
+  const active = useMemo(() => orders.filter((o) => o.status !== "collected" && o.status !== "canceled"), [orders]);
+  const done = useMemo(() => orders.filter((o) => o.status === "collected" || o.status === "canceled"), [orders]);
 
-  const done = useMemo(() => {
-    return orders.filter((o) => o.status === "collected" || o.status === "canceled");
-  }, [orders]);
-
-  function setStatus(orderId: string, status: OrderStatus) {
+  function updateStatus(orderId: string, next: OrderStatus) {
     void (async () => {
-      const res = await apiPostJson<{ ok: true }>(`/api/staff/orders/${orderId}/status`, { status });
+      const res = await apiPostJson<{ ok: true }>(`/api/staff/orders/${orderId}/status`, { status: next });
       if (!res.ok) {
         setError(res.error);
         return;
@@ -89,25 +95,35 @@ export function OrderQueueClient() {
       <section className="surface u-pad-18">
         <div className="u-flex-between-wrap">
           <div>
-            <h1 className="u-title-26">Order queue</h1>
+            <h1 className="u-title-26">Orders</h1>
             <p className="muted u-mt-10 u-lh-16">
-              This queue is database-backed so all staff devices see the same orders.
+              Search across pickup names and customer emails. Managers can also update statuses.
             </p>
-            {error ? (
-              <p className="muted u-mt-8 u-danger">
-                {error}
-              </p>
-            ) : null}
+            {error ? <p className="muted u-mt-10 u-danger">{error}</p> : null}
           </div>
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              setError("");
-              void refresh();
-            }}
-          >
+          <button className="btn btn-secondary" type="button" onClick={refresh}>
             Refresh
           </button>
+        </div>
+
+        <div className="grid-2 u-mt-12">
+          <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search pickup / email…" />
+          <select className="input" value={status} onChange={(e) => setStatus(e.target.value as any)}>
+            <option value="">All statuses</option>
+            <option value="received">received</option>
+            <option value="accepted">accepted</option>
+            <option value="ready">ready</option>
+            <option value="collected">collected</option>
+            <option value="canceled">canceled</option>
+          </select>
+        </div>
+
+        <div className="rowWrap u-mt-10">
+          <button className="btn" type="button" onClick={refresh}>
+            Search
+          </button>
+          <span className="pill">Active: {active.length}</span>
+          <span className="pill">Completed: {done.length}</span>
         </div>
       </section>
 
@@ -115,9 +131,7 @@ export function OrderQueueClient() {
         <h2 className="sectionLabel">Active</h2>
         {active.length === 0 ? (
           <div className="surface u-pad-16">
-            <p className="muted u-m-0">
-              No active orders.
-            </p>
+            <p className="muted u-m-0">No active orders.</p>
           </div>
         ) : (
           <div className="u-grid-gap-10">
@@ -129,8 +143,11 @@ export function OrderQueueClient() {
                       {o.pickupName} • {formatMoneyGBP(o.totalCents)}
                     </div>
                     <div className="muted u-mt-6 u-fs-13">
-                      Status: {o.status} • Created: {formatTime(o.createdAtIso)} • ETA:{" "}
+                      Status: {o.status} • Payment: {o.paymentStatus} • Created: {formatTime(o.createdAtIso)} • ETA:{" "}
                       {o.estimatedReadyAtIso ? formatTime(o.estimatedReadyAtIso) : "—"}
+                    </div>
+                    <div className="muted u-mt-4 u-fs-12">
+                      Customer: {o.customerEmail ?? "—"}
                     </div>
                   </div>
                   <div className="u-flex-wrap-gap-10-center">
@@ -138,7 +155,8 @@ export function OrderQueueClient() {
                       <button
                         key={a.status}
                         className={a.kind === "danger" ? "btn btn-danger" : "btn"}
-                        onClick={() => setStatus(o.id, a.status)}
+                        type="button"
+                        onClick={() => updateStatus(o.id, a.status)}
                       >
                         {a.label}
                       </button>
@@ -148,24 +166,17 @@ export function OrderQueueClient() {
 
                 <div className="u-mt-12 u-grid-gap-8">
                   {o.lines.map((l) => (
-                    <div
-                      key={l.itemId}
-                      className="surface surfaceInset u-pad-12"
-                    >
+                    <div key={l.itemId} className="surface surfaceInset u-pad-12">
                       <div className="u-flex-between">
                         <div>
                           <div className="u-fw-800">
                             {l.qty}× {l.name}
                           </div>
                           {formatCustomizations(l.customizations) ? (
-                            <div className="muted u-mt-6 u-fs-12 u-lh-15">
-                              {formatCustomizations(l.customizations)}
-                            </div>
+                            <div className="muted u-mt-6 u-fs-12 u-lh-15">{formatCustomizations(l.customizations)}</div>
                           ) : null}
                         </div>
-                        <div className="muted u-fs-13">
-                          {l.loyaltyEligible ? "Eligible" : "—"}
-                        </div>
+                        <div className="muted u-fs-13">{l.loyaltyEligible ? "Eligible" : "—"}</div>
                       </div>
                     </div>
                   ))}
@@ -180,25 +191,19 @@ export function OrderQueueClient() {
         <h2 className="sectionLabel">Completed</h2>
         {done.length === 0 ? (
           <div className="surface u-pad-16">
-            <p className="muted u-m-0">
-              None yet.
-            </p>
+            <p className="muted u-m-0">None yet.</p>
           </div>
         ) : (
           <div className="u-grid-gap-10">
-            {done.slice(0, 10).map((o) => (
-              <div
-                key={o.id}
-                className="surface surfaceInset u-pad-14"
-              >
-                <div className="u-flex-between">
+            {done.slice(0, 25).map((o) => (
+              <div key={o.id} className="surface surfaceInset u-pad-14">
+                <div className="u-flex-between-wrap">
                   <div className="u-fw-800">
-                    {o.pickupName} • {o.status}
+                    {o.pickupName} • {o.status} • {formatMoneyGBP(o.totalCents)}
                   </div>
-                  <div className="muted u-fs-13">
-                    {formatTime(o.createdAtIso)}
-                  </div>
+                  <div className="muted u-fs-13">{formatTime(o.createdAtIso)}</div>
                 </div>
+                <div className="muted u-mt-6 u-fs-12">Customer: {o.customerEmail ?? "—"} • Payment: {o.paymentStatus}</div>
               </div>
             ))}
           </div>
@@ -207,3 +212,4 @@ export function OrderQueueClient() {
     </>
   );
 }
+

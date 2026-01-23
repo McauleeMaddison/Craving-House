@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/require-role";
+import { ManagerDashboardClient } from "@/app/manager/ManagerDashboardClient";
 
 export default async function ManagerHomePage() {
   const access = await requireRole(["manager"]);
@@ -29,9 +30,9 @@ export default async function ManagerHomePage() {
     <main className="container page">
       <section className="surface u-pad-18">
         <h1 className="u-title-26">Manager dashboard</h1>
-        <p className="muted u-mt-10 u-lh-16">
-          Manage menu items, prep times, loyalty eligibility, and staff access.
-        </p>
+        <p className="muted u-mt-10 u-lh-16">Menu, users, orders, loyalty, and audit.</p>
+
+        <ManagerDashboardClient />
 
         <section className="grid-3 u-mt-12">
           <div className="surface surfaceInset u-pad-16">
@@ -53,12 +54,27 @@ export default async function ManagerHomePage() {
             </Link>
           </div>
           <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Orders</div>
+            <p className="muted u-mt-8 u-lh-16">Search orders and view payment + status at a glance.</p>
+            <Link className="btn u-mt-10" href="/manager/orders">
+              Open orders
+            </Link>
+          </div>
+        </section>
+
+        <section className="grid-2 u-mt-12">
+          <div className="surface surfaceInset u-pad-16">
             <div className="u-fw-800">Settings</div>
-            <p className="muted u-mt-8 u-lh-16">
-              Loyalty rule (buy N get 1), and other global controls.
-            </p>
+            <p className="muted u-mt-8 u-lh-16">Loyalty rules and global controls.</p>
             <Link className="btn u-mt-10" href="/manager/settings">
               Open settings
+            </Link>
+          </div>
+          <div className="surface surfaceInset u-pad-16">
+            <div className="u-fw-800">Audit</div>
+            <p className="muted u-mt-8 u-lh-16">Track role changes made by managers.</p>
+            <Link className="btn u-mt-10" href="/manager/audit">
+              Open audit log
             </Link>
           </div>
         </section>

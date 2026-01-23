@@ -24,6 +24,13 @@ export function UsersClient() {
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState("");
   const [note, setNote] = useState("");
+  const [createEmail, setCreateEmail] = useState("");
+  const [createName, setCreateName] = useState("");
+  const [createRole, setCreateRole] = useState<"customer" | "staff" | "manager">("staff");
+  const [createPassword, setCreatePassword] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [pwUserId, setPwUserId] = useState("");
+  const [pwValue, setPwValue] = useState("");
 
   async function refresh() {
     setError("");
@@ -70,6 +77,41 @@ export function UsersClient() {
     }
   }
 
+  async function createUser() {
+    setCreating(true);
+    setError("");
+    try {
+      const res = await fetch("/api/manager/users", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email: createEmail,
+          name: createName,
+          role: createRole,
+          password: createPassword
+        })
+      });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!res.ok) {
+        setError(json?.error ?? "Create failed");
+        return;
+      }
+      setCreateEmail("");
+      setCreateName("");
+      setCreatePassword("");
+      await refresh();
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function setPassword(userId: string) {
+    if (!pwValue.trim()) return;
+    await patch(userId, { newPassword: pwValue });
+    setPwUserId("");
+    setPwValue("");
+  }
+
   return (
     <>
       <section className="surface u-pad-18">
@@ -102,6 +144,46 @@ export function UsersClient() {
           />
           <button className="btn btn-secondary" onClick={refresh} type="button">
             Search
+          </button>
+        </div>
+
+        <div className="surface surfaceInset u-pad-14 u-mt-12">
+          <div className="u-fw-900">Create staff/manager account</div>
+          <p className="muted u-mt-8 u-lh-16">
+            Creates an email+password account immediately (no invite email). Share credentials securely.
+          </p>
+          <div className="grid-2 u-mt-10">
+            <input
+              className="input"
+              value={createEmail}
+              onChange={(e) => setCreateEmail(e.target.value)}
+              placeholder="Email"
+              autoComplete="email"
+            />
+            <input className="input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Name (optional)" />
+          </div>
+          <div className="grid-2 u-mt-10">
+            <select className="input" value={createRole} onChange={(e) => setCreateRole(e.target.value as any)}>
+              <option value="customer">customer</option>
+              <option value="staff">staff</option>
+              <option value="manager">manager</option>
+            </select>
+            <input
+              className="input"
+              value={createPassword}
+              onChange={(e) => setCreatePassword(e.target.value)}
+              placeholder="Temporary password (min 10 chars)"
+              type="password"
+              autoComplete="new-password"
+            />
+          </div>
+          <button
+            className="btn u-mt-10"
+            type="button"
+            onClick={createUser}
+            disabled={creating || !createEmail.trim() || createPassword.trim().length < 10}
+          >
+            {creating ? "Creating…" : "Create account"}
           </button>
         </div>
 
@@ -173,6 +255,34 @@ export function UsersClient() {
               >
                 {u.disabledAtIso ? "Re-enable" : "Disable"}
               </button>
+            </div>
+
+            <div className="surface surfaceInset u-pad-12 u-mt-12">
+              <div className="u-fw-800">Password</div>
+              {pwUserId === u.id ? (
+                <>
+                  <div className="grid-2 u-mt-10">
+                    <input
+                      className="input"
+                      value={pwValue}
+                      onChange={(e) => setPwValue(e.target.value)}
+                      placeholder="New password (min 10 chars)"
+                      type="password"
+                      autoComplete="new-password"
+                    />
+                    <button className="btn" type="button" onClick={() => void setPassword(u.id)} disabled={savingId === u.id}>
+                      Set password
+                    </button>
+                  </div>
+                  <button className="btn btn-secondary u-mt-10" type="button" onClick={() => { setPwUserId(""); setPwValue(""); }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button className="btn btn-secondary u-mt-10" type="button" onClick={() => setPwUserId(u.id)} disabled={savingId === u.id}>
+                  Set / reset password
+                </button>
+              )}
             </div>
           </article>
         ))}

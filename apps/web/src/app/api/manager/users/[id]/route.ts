@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
+import { hashPassword, validatePasswordForSignup } from "@/server/password";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ type PatchBody = Partial<{
   role: "customer" | "staff" | "manager";
   disabled: boolean;
   note: string;
+  newPassword: string;
 }>;
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -52,6 +54,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     updates.disabledAt = body.disabled ? new Date() : null;
   }
 
+  if (typeof body.newPassword === "string" && body.newPassword.trim().length > 0) {
+    const err = validatePasswordForSignup(body.newPassword);
+    if (err) return NextResponse.json({ error: err }, { status: 400 });
+    updates.passwordHash = await hashPassword(body.newPassword);
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ ok: true });
   }
@@ -63,4 +71,3 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   return NextResponse.json({ ok: true });
 }
-

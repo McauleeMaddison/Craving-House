@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/require-role";
+import { StaffDashboardClient } from "@/app/staff/StaffDashboardClient";
 
 export default async function StaffHomePage() {
   const access = await requireRole(["staff", "manager"]);
@@ -32,6 +33,8 @@ export default async function StaffHomePage() {
         <p className="muted u-mt-10 u-lh-16">
           Use the queue to manage orders, and the scanner to add loyalty stamps after collection.
         </p>
+
+        <StaffDashboardClient />
 
         <div className="grid-2 u-mt-12">
           <div className="surface surfaceInset u-pad-16">

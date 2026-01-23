@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import { store } from "@/lib/store";
@@ -10,9 +11,13 @@ function isAdminRole(role: unknown) {
 }
 
 export function AppFooter() {
+  const pathname = usePathname();
+  const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const { data } = useSession();
   const role = (data?.user as any)?.role;
   const showAdmin = isAdminRole(role);
+
+  if (isPortal) return null;
 
   return (
     <footer className="appFooter">
