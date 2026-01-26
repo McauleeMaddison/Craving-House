@@ -144,23 +144,25 @@ export default function SignInPage() {
                 autoCapitalize="none"
                 autoCorrect="off"
               />
-              <input
-                className="input inputWithEndButton"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                type={showPassword ? "text" : "password"}
-                autoCapitalize="none"
-                autoCorrect="off"
-              />
-              <button
-                className="inputEndButton"
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
+              <div className="inputEndWrap">
+                <input
+                  className="input inputWithEndButton"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  type={showPassword ? "text" : "password"}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                />
+                <button
+                  className="inputEndButton"
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
               <input
                 className="input"
                 value={totp}

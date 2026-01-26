@@ -678,11 +678,15 @@ code {
   padding-right: 62px;
 }
 
-.inputEndButton {
+.inputEndWrap {
   position: relative;
-  margin-top: -38px;
-  margin-left: auto;
-  margin-right: 10px;
+}
+
+.inputEndButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   height: 34px;
   padding: 0 10px;
   border-radius: 12px;
@@ -691,7 +695,8 @@ code {
   color: var(--btn-secondary-text);
   font-weight: 850;
   cursor: pointer;
-  display: block;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (hover: hover) and (pointer: fine) {
