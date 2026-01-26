@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import "../styles/globals.css";
 import { AppProviders } from "@/app/providers";
-import { AppHeader } from "@/components/nav/AppHeader";
+import { AppChrome } from "@/components/nav/AppChrome";
 import { AppFooter } from "@/components/nav/AppFooter";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" data-theme="poster">
       <body>
         <AppProviders>
-          <AppHeader />
+          <AppChrome />
 
           <div className="appMain">{children}</div>
 

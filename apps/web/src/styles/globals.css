@@ -67,6 +67,16 @@ body {
   flex-direction: column;
 }
 
+[data-shell="portal"] body {
+  --bg: #0b0d12;
+  --bg-gradient:
+    radial-gradient(1200px 800px at 10% 0%, rgba(47, 228, 171, 0.08), transparent 55%),
+    radial-gradient(900px 700px at 100% 20%, rgba(242, 183, 5, 0.08), transparent 55%),
+    var(--bg);
+  --header-bg: rgba(11, 13, 18, 0.88);
+  --header-border: rgba(255, 255, 255, 0.1);
+}
+
 .appMain {
   flex: 1;
 }
@@ -1120,6 +1130,18 @@ code {
   gap: 14px;
   align-items: center;
   justify-content: space-between;
+}
+
+.portalHeaderInner {
+  gap: 12px;
+}
+
+.portalNav {
+  gap: 8px;
+}
+
+.portalBrandMark {
+  border-radius: 12px;
 }
 
 .brandLink {
