@@ -54,6 +54,7 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
   const [error, setError] = useState<string>("");
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string>("");
+  const [stripeEnabled, setStripeEnabled] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -71,6 +72,19 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
       mounted = false;
     };
   }, [props.guestToken]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const res = await fetch("/api/payments/stripe/enabled", { cache: "no-store" });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!mounted) return;
+      setStripeEnabled(Boolean(json?.enabled));
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const eligibleCoffeeCount = useMemo(() => {
     if (!order) return 0;
@@ -147,7 +161,7 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
           <Link className="btn btn-secondary" href="/menu">
             Menu
           </Link>
-          {order.paymentStatus !== "paid" ? (
+          {stripeEnabled && order.paymentStatus !== "paid" ? (
             <button
               className="btn btn-secondary"
               type="button"
@@ -206,4 +220,3 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
     </>
   );
 }
-

@@ -32,6 +32,7 @@ export function CheckoutClient() {
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [authError, setAuthError] = useState<string>("");
+  const [stripeEnabled, setStripeEnabled] = useState(false);
 
   const items = useMemo(() => {
     return cart.lines
@@ -52,6 +53,21 @@ export function CheckoutClient() {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const res = await fetch("/api/payments/stripe/enabled", { cache: "no-store" });
+      const json = (await res.json().catch(() => null)) as any;
+      if (!mounted) return;
+      setStripeEnabled(Boolean(json?.enabled));
+      if (!json?.enabled && payMethod === "card") setPayMethod("store");
+    })();
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const subtotalCents = items.reduce((sum, x) => sum + x.qty * x.item.priceCents, 0);
@@ -212,17 +228,23 @@ export function CheckoutClient() {
               >
                 Pay in store
               </button>
-              <button
-                className={`btn btn-secondary ${payMethod === "card" ? "btnActive" : ""}`}
-                type="button"
-                onClick={() => setPayMethod("card")}
-              >
-                Pay by card
-              </button>
+              {stripeEnabled ? (
+                <button
+                  className={`btn btn-secondary ${payMethod === "card" ? "btnActive" : ""}`}
+                  type="button"
+                  onClick={() => setPayMethod("card")}
+                >
+                  Pay by card
+                </button>
+              ) : null}
             </div>
             {payMethod === "card" ? (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
                 You’ll be redirected to Stripe Checkout to pay securely.
+              </p>
+            ) : !stripeEnabled ? (
+              <p className="muted u-mt-10 u-fs-12 u-lh-16">
+                Card payments aren’t enabled yet.
               </p>
             ) : null}
           </div>
