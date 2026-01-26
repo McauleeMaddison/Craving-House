@@ -5,11 +5,14 @@ import { requireUser } from "@/server/access";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 import { notifyStaffNewOrder } from "@/server/push";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
+import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/email";
+import crypto from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
 type CreateOrderBody = {
   pickupName: string;
+  guestEmail?: string;
   notes?: string;
   items: Array<{ productId: string; qty: number; customizations?: unknown }>;
 };
@@ -42,11 +45,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const access = await requireUser();
-  if (!access.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const ip = getClientIp(request);
-  const limited = rateLimit({ key: `orders:create:${access.userId}:${ip}`, limit: 30, windowMs: 60_000 });
+  const access = await requireUser();
+  const rateKey = access.ok ? `orders:create:${access.userId}:${ip}` : `orders:create:guest:${ip}`;
+  const limited = rateLimit({ key: rateKey, limit: access.ok ? 30 : 10, windowMs: 60_000 });
   if (!limited.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please try again shortly." },
@@ -56,6 +58,15 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as Partial<CreateOrderBody>;
   if (!body.pickupName?.trim()) return NextResponse.json({ error: "Missing pickupName" }, { status: 400 });
+  const guestEmail = typeof body.guestEmail === "string" ? body.guestEmail.trim().toLowerCase() : "";
+  if (!access.ok) {
+    if (!guestEmail || !guestEmail.includes("@")) {
+      return NextResponse.json({ error: "Email is required for guest checkout." }, { status: 400 });
+    }
+    if (!isEmailConfigured()) {
+      return NextResponse.json({ error: "Guest checkout email is not configured yet." }, { status: 500 });
+    }
+  }
   if (!Array.isArray(body.items) || body.items.length === 0) {
     return NextResponse.json({ error: "Missing items" }, { status: 400 });
   }
@@ -82,9 +93,13 @@ export async function POST(request: Request) {
   });
   const estimatedReadyAt = new Date(Date.now() + prepSeconds * 1000);
 
+  const guestToken = !access.ok ? crypto.randomBytes(24).toString("base64url") : null;
+
   const created = await prisma.order.create({
     data: {
-      userId: access.userId,
+      userId: access.ok ? access.userId : null,
+      guestEmail: access.ok ? null : guestEmail,
+      guestToken,
       status: "received",
       totalCents,
       estimatedReadyAt,
@@ -98,9 +113,25 @@ export async function POST(request: Request) {
           customizations: i.customizations ?? undefined
         }))
       }
-    }
+    },
+    include: { items: { include: { product: true } } }
   });
 
   void notifyStaffNewOrder({ orderId: created.id, pickupName: created.pickupName, totalCents: created.totalCents });
-  return NextResponse.json({ id: created.id });
+
+  if (!access.ok && created.guestEmail && created.guestToken) {
+    const baseUrl = process.env.NEXTAUTH_URL?.trim() || request.headers.get("origin") || "http://localhost:3000";
+    const trackUrl = `${baseUrl}/orders/guest/${created.guestToken}`;
+    const lines = created.items
+      .map((i) => `${i.qty}× ${i.product.name}`)
+      .join("\n");
+
+    await sendGuestOrderReceipt({
+      to: created.guestEmail,
+      subject: "Your Craving House order",
+      text: `Thanks for your order!\n\nPickup name: ${created.pickupName}\nTotal: £${(created.totalCents / 100).toFixed(2)}\n\nItems:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
+    });
+  }
+
+  return NextResponse.json({ id: created.id, guestToken: created.guestToken ?? null });
 }

@@ -51,7 +51,9 @@ model Product {
 
 model Order {
   id         String   @id @default(cuid())
-  userId     String
+  userId     String?
+  guestEmail String?
+  guestToken String?  @unique
   status     String   @default("received")
   paymentStatus String @default("unpaid") // unpaid | pending | paid | failed | refunded
   paymentProvider String? // stripe
@@ -66,7 +68,7 @@ model Order {
   totalCents Int      @default(0)
   createdAt  DateTime @default(now())
 
-  user       User       @relation(fields: [userId], references: [id])
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   items      OrderItem[]
   stamps     LoyaltyStamp[]
   redemptions LoyaltyRedemption[]

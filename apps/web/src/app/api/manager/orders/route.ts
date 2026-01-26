@@ -22,7 +22,8 @@ export async function GET(request: Request) {
   if (q) {
     where.OR = [
       { pickupName: { contains: q, mode: "insensitive" } },
-      { user: { email: { contains: q, mode: "insensitive" } } }
+      { user: { email: { contains: q, mode: "insensitive" } } },
+      { guestEmail: { contains: q, mode: "insensitive" } }
     ];
   }
 
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
       collectedAtIso: o.collectedAt?.toISOString() ?? null,
       totalCents: o.totalCents,
       pickupName: o.pickupName,
-      customerEmail: o.user.email ?? null,
+      customerEmail: o.user?.email ?? o.guestEmail ?? null,
       lines: o.items.map((i) => ({
         itemId: i.productId,
         name: i.product.name,
@@ -55,4 +56,3 @@ export async function GET(request: Request) {
     }))
   });
 }
-

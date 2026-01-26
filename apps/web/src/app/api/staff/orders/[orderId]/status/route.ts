@@ -25,7 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
 
   const updated = await prisma.order.update({ where: { id: orderId }, data: update });
 
-  if (status === "ready") {
+  if (status === "ready" && updated.userId) {
     await notifyCustomerOrderReady({ userId: updated.userId, orderId: updated.id, pickupName: updated.pickupName });
   }
 

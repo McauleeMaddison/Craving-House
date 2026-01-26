@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson, apiPostJson } from "@/lib/api";
@@ -21,9 +22,12 @@ type ProductDto = {
 
 export function CheckoutClient() {
   const router = useRouter();
+  const { status: authStatus } = useSession();
+  const signedIn = authStatus === "authenticated";
   const cart = useCart();
   const [pickupName, setPickupName] = useState("");
   const [notes, setNotes] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
   const [payMethod, setPayMethod] = useState<"store" | "card">("store");
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductDto[]>([]);
@@ -64,30 +68,32 @@ export function CheckoutClient() {
 
   async function placeOrder() {
     if (!pickupName.trim()) return;
+    if (!signedIn && !guestEmail.trim()) {
+      setAuthError("Email is required for guest checkout.");
+      return;
+    }
     if (items.length === 0) return;
     setSubmitting(true);
     setAuthError("");
     try {
-      const res = await apiPostJson<{ id: string }>("/api/orders", {
+      const res = await apiPostJson<{ id: string; guestToken: string | null }>("/api/orders", {
         pickupName,
+        guestEmail: signedIn ? undefined : guestEmail.trim().toLowerCase(),
         notes,
         items: items.map((x) => ({ productId: x.item.id, qty: x.qty, customizations: x.customizations ?? null }))
       });
       if (!res.ok) {
-        if (res.status === 401) {
-          setAuthError("Please sign in to place an order.");
-          return;
-        }
         setAuthError(res.error);
         return;
       }
       const orderId = res.data.id;
+      const guestToken = res.data.guestToken;
 
       if (payMethod === "card") {
-        const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId });
+        const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId, guestToken: guestToken ?? undefined });
         if (!payRes.ok) {
           setAuthError(payRes.status === 401 ? "Please sign in to pay." : payRes.error);
-          router.push(`/orders/${orderId}`);
+          router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
           return;
         }
         cart.clear();
@@ -96,7 +102,7 @@ export function CheckoutClient() {
       }
 
       cart.clear();
-      router.push(`/orders/${orderId}`);
+      router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
     } finally {
       setSubmitting(false);
     }
@@ -176,6 +182,22 @@ export function CheckoutClient() {
               autoComplete="name"
             />
           </label>
+
+          {!signedIn ? (
+            <label className="u-grid-gap-8">
+              <span className="muted u-fs-13">
+                Email (for receipt + tracking)
+              </span>
+              <input
+                className="input"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                placeholder="you@example.com"
+                type="email"
+                autoComplete="email"
+              />
+            </label>
+          ) : null}
 
           <div className="surface surfaceInset u-pad-14">
             <div className="u-fw-800">Payment</div>

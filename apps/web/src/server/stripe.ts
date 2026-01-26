@@ -2,8 +2,9 @@ import crypto from "node:crypto";
 
 type StripeCreateSessionParams = {
   secretKey: string;
-  baseUrl: string;
   orderId: string;
+  successUrl: string;
+  cancelUrl: string;
   customerEmail?: string | null;
   lineItems: Array<{ name: string; unitAmountCents: number; qty: number }>;
 };
@@ -27,8 +28,8 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
   const pairs: Array<[string, string]> = [
     ["mode", "payment"],
     ["currency", "gbp"],
-    ["success_url", `${params.baseUrl}/orders/${params.orderId}?paid=1`],
-    ["cancel_url", `${params.baseUrl}/orders/${params.orderId}?pay=cancelled`],
+    ["success_url", params.successUrl],
+    ["cancel_url", params.cancelUrl],
     ["client_reference_id", params.orderId],
     ["metadata[orderId]", params.orderId]
   ];
@@ -114,4 +115,3 @@ export function verifyStripeWebhook(params: {
     return { ok: false, error: "Invalid JSON body" };
   }
 }
-

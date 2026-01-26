@@ -60,13 +60,15 @@ function startNext() {
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;
   const host = process.env.HOSTNAME ?? "0.0.0.0";
 
-  const candidates = [
+  const localBinCandidates = [
     path.join(__dirname, "..", "node_modules", ".bin", "next"),
     path.join(__dirname, "..", "..", "..", "node_modules", ".bin", "next")
   ];
-  const nextBin = candidates.find((candidate) => existsSync(candidate)) ?? "next";
+  const nextBin = localBinCandidates.find((candidate) => existsSync(candidate));
 
-  const child = spawn(nextBin, ["start", "-H", host, "-p", String(port)], {
+  const child = nextBin
+    ? spawn(nextBin, ["start", "-H", host, "-p", String(port)], { stdio: "inherit" })
+    : spawn(process.execPath, [path.join(__dirname, "next-bin.mjs"), "start", "-H", host, "-p", String(port)], {
     stdio: "inherit"
   });
 

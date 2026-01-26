@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -H 127.0.0.1 -p 3000",
-    "build": "prisma generate && next build",
+    "dev": "node scripts/next-bin.mjs dev -H 127.0.0.1 -p 3000",
+    "build": "prisma generate && node scripts/next-bin.mjs build",
     "start": "node scripts/start.mjs",
     "lint": "eslint . --max-warnings=0",
     "postinstall": "prisma generate",
@@ -20,6 +20,7 @@
     "@prisma/client": "^5.11.0",
     "next": "^16.1.4",
     "next-auth": "^4.24.7",
+    "nodemailer": "^6.9.15",
     "prisma": "^5.11.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@types/web-push": "^3.6.4",
