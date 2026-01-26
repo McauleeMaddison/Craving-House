@@ -20,7 +20,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/staff/orders";
+  const url = (event.notification.data && event.notification.data.url) || "/";
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
@@ -35,4 +35,3 @@ self.addEventListener("notificationclick", (event) => {
     })
   );
 });
-

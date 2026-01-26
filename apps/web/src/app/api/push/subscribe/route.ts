@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
-import { requireRole } from "@/server/access";
+import { requireUser } from "@/server/access";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,8 @@ type Body = {
 };
 
 export async function POST(request: Request) {
-  const access = await requireRole(["staff", "manager"]);
-  if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
+  const access = await requireUser();
+  if (!access.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const ua = request.headers.get("user-agent") ?? null;
   const body = (await request.json()) as Partial<Body>;
@@ -47,4 +47,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
-

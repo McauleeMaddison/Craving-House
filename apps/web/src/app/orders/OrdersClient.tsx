@@ -5,6 +5,7 @@ import Link from "next/link";
 import { apiGetJson } from "@/lib/api";
 import { formatMoneyGBP } from "@/lib/sample-data";
 import { useEffect, useState } from "react";
+import { CustomerNotificationsClient } from "@/app/orders/CustomerNotificationsClient";
 
 type OrderDto = {
   id: string;
@@ -73,6 +74,7 @@ export function OrdersClient() {
     <section className="surface u-pad-18">
       <h1 className="u-title-26">Orders</h1>
       <p className="muted u-mt-10 u-lh-16">Your recent orders.</p>
+      <CustomerNotificationsClient />
       <div className="u-mt-14 u-grid-gap-10">
         {orders.map((o) => (
           <Link

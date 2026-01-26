@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
+import { notifyCustomerOrderReady } from "@/server/push";
 
 type Body = { status: "received" | "accepted" | "ready" | "collected" | "canceled" };
 
@@ -19,6 +20,11 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
   const update: any = { status };
   if (status === "collected") update.collectedAt = new Date();
 
-  await prisma.order.update({ where: { id: orderId }, data: update });
+  const updated = await prisma.order.update({ where: { id: orderId }, data: update });
+
+  if (status === "ready") {
+    await notifyCustomerOrderReady({ userId: updated.userId, orderId: updated.id, pickupName: updated.pickupName });
+  }
+
   return NextResponse.json({ ok: true });
 }
