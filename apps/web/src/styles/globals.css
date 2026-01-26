@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --bg: #f2b705;
   --bg-gradient:
     radial-gradient(1200px 800px at 20% 0%, rgba(0, 0, 0, 0.12), transparent 55%),
@@ -659,11 +660,13 @@ code {
 }
 
 .input::placeholder {
-  color: rgba(10, 10, 12, 0.544);
+  color: rgba(255, 255, 255, 0.62);
 }
 
-html[data-theme="dark"] .input::placeholder {
-  color: rgba(255, 255, 255, 0.576);
+@supports (color-mix(in srgb, #000, #fff)) {
+  .input::placeholder {
+    color: color-mix(in srgb, var(--text) 66%, transparent);
+  }
 }
 
 .input:focus {
@@ -1802,6 +1805,7 @@ html[data-theme="dark"] .modalSheet {
   }
 }
 html[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0b0d12;
   --bg-gradient:
     radial-gradient(900px 700px at 18% 0%, rgba(242, 183, 5, 0.16), transparent 55%),
