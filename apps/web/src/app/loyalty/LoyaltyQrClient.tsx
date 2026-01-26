@@ -13,7 +13,7 @@ export function LoyaltyQrClient() {
   const [imgError, setImgError] = useState(false);
 
   async function refresh() {
-    const res = await apiGetJson<{ token: string; expiresInSeconds: number }>("/api/loyalty/qr");
+    const res = await apiGetJson<{ cardToken: string }>("/api/loyalty/card");
     if (!res.ok) {
       setToken("");
       setError(res.status === 401 ? "Sign in to view your QR." : res.error);
@@ -21,12 +21,24 @@ export function LoyaltyQrClient() {
     }
     setError("");
     setImgError(false);
-    setToken(res.data.token);
+    setToken(res.data.cardToken);
   }
 
   useEffect(() => {
     void refresh();
   }, []);
+
+  async function rotate() {
+    const res = await fetch("/api/loyalty/card/rotate", { method: "POST" });
+    const json = (await res.json().catch(() => null)) as any;
+    if (!res.ok) {
+      setError(json?.error ?? "Could not regenerate QR.");
+      return;
+    }
+    setError("");
+    setImgError(false);
+    setToken(String(json?.cardToken ?? ""));
+  }
 
   async function copy() {
     if (!token) return;
@@ -63,7 +75,10 @@ export function LoyaltyQrClient() {
           }}
           type="button"
         >
-          Refresh QR
+          Reload
+        </button>
+        <button className="btn btn-secondary" type="button" onClick={() => void rotate()} disabled={!token}>
+          Regenerate QR
         </button>
         <button className="btn btn-secondary" onClick={() => setShowLarge(true)} type="button" disabled={!token}>
           Fullscreen QR

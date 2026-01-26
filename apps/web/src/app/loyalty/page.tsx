@@ -42,7 +42,7 @@ export default async function LoyaltyPage() {
             <div className="surface surfaceInset u-pad-16">
             <div className="u-fw-800">Your QR</div>
             <div className="muted u-mt-10 u-lh-16">
-              This QR refreshes and is short-lived for security.
+              This is your personal loyalty QR. Staff can scan it to add stamps or redeem rewards.
             </div>
             <LoyaltyQrClient />
           </div>

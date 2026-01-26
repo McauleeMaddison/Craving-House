@@ -25,6 +25,7 @@ model User {
   loyaltyAccount LoyaltyAccount?
 
   stampsCreated LoyaltyStamp[] @relation("StampCreatedBy")
+  redemptionsCreated LoyaltyRedemption[] @relation("RedemptionCreatedBy")
 
   accounts Account[]
   sessions Session[]
@@ -68,6 +69,7 @@ model Order {
   user       User       @relation(fields: [userId], references: [id])
   items      OrderItem[]
   stamps     LoyaltyStamp[]
+  redemptions LoyaltyRedemption[]
 }
 
 model OrderItem {
@@ -91,12 +93,14 @@ model LoyaltyProgramSettings {
 model LoyaltyAccount {
   id             String   @id @default(cuid())
   userId         String   @unique
+  cardToken      String?  @unique
   stamps         Int      @default(0)
   rewardsRedeemed Int     @default(0)
   updatedAt      DateTime @updatedAt
 
   user      User          @relation(fields: [userId], references: [id])
   stampsLog LoyaltyStamp[]
+  redemptions LoyaltyRedemption[]
 }
 
 model LoyaltyStamp {
@@ -112,6 +116,19 @@ model LoyaltyStamp {
   loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id])
   order          Order?         @relation(fields: [orderId], references: [id])
   createdByStaff User?          @relation("StampCreatedBy", fields: [createdByStaffId], references: [id])
+}
+
+model LoyaltyRedemption {
+  id              String   @id @default(cuid())
+  loyaltyAccountId String
+  orderId         String?
+  idempotencyKey  String?  @unique
+  createdByStaffId String?
+  createdAt       DateTime @default(now())
+
+  loyaltyAccount LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id])
+  order          Order?         @relation(fields: [orderId], references: [id])
+  createdByStaff User?          @relation("RedemptionCreatedBy", fields: [createdByStaffId], references: [id])
 }
 
 model Account {

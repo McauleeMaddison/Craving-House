@@ -8,6 +8,10 @@ function randomKey() {
   return `stamp_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
 }
 
+function randomRedeemKey() {
+  return `redeem_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+}
+
 type StaffOrderDto = {
   id: string;
   pickupName: string;
@@ -23,7 +27,7 @@ function eligibleCount(order: StaffOrderDto) {
 export function LoyaltyScanClient() {
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
   const [orderId, setOrderId] = useState<string>("");
-  const [qrToken, setQrToken] = useState("");
+  const [cardToken, setCardToken] = useState("");
   const [eligibleItemCount, setEligibleItemCount] = useState<number>(1);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
@@ -61,7 +65,7 @@ export function LoyaltyScanClient() {
       const res = await apiPostJson<{ earned: number; totalStamps: number }>(
         "/api/loyalty/stamp",
         {
-          qrToken,
+          cardToken,
           eligibleItemCount,
           orderId: orderId || undefined,
           idempotencyKey: randomKey()
@@ -77,6 +81,31 @@ export function LoyaltyScanClient() {
     } catch {
       setStatus("error");
       setMessage("Stamp failed");
+    }
+  }
+
+  async function redeem() {
+    setStatus("sending");
+    setMessage("");
+    try {
+      const res = await apiPostJson<{ stamps: number; rewardsRedeemed: number; rewardStamps: number | null }>(
+        "/api/loyalty/redeem",
+        {
+          cardToken,
+          orderId: orderId || undefined,
+          idempotencyKey: randomRedeemKey()
+        }
+      );
+      if (!res.ok) {
+        setStatus("error");
+        setMessage(res.error ?? "Redeem failed");
+        return;
+      }
+      setStatus("ok");
+      setMessage(`Redeemed 1 reward. Remaining stamps: ${res.data.stamps}. Total rewards redeemed: ${res.data.rewardsRedeemed}.`);
+    } catch {
+      setStatus("error");
+      setMessage("Redeem failed");
     }
   }
 
@@ -131,7 +160,7 @@ export function LoyaltyScanClient() {
           const value = codes[0]?.rawValue ?? codes[0]?.data ?? "";
           if (!value) return;
 
-          setQrToken(String(value));
+          setCardToken(String(value));
           if (navigator.vibrate) navigator.vibrate(30);
           await stopScanner();
         } catch {
@@ -191,8 +220,8 @@ export function LoyaltyScanClient() {
             </span>
             <input
               className="input"
-              value={qrToken}
-              onChange={(e) => setQrToken(e.target.value)}
+              value={cardToken}
+              onChange={(e) => setCardToken(e.target.value)}
               placeholder="Paste scanned token"
               autoCapitalize="none"
               autoCorrect="off"
@@ -202,7 +231,7 @@ export function LoyaltyScanClient() {
             <button className="btn btn-secondary" type="button" onClick={startScanner}>
               Scan with camera
             </button>
-            <button className="btn btn-secondary" type="button" onClick={() => setQrToken("")} disabled={!qrToken}>
+            <button className="btn btn-secondary" type="button" onClick={() => setCardToken("")} disabled={!cardToken}>
               Clear
             </button>
           </div>
@@ -227,9 +256,18 @@ export function LoyaltyScanClient() {
           <button
             className="btn u-mt-12 u-w-full"
             onClick={submit}
-            disabled={status === "sending" || qrToken.trim().length === 0 || eligibleItemCount <= 0}
+            disabled={status === "sending" || cardToken.trim().length === 0 || eligibleItemCount <= 0}
           >
             {status === "sending" ? "Stamping..." : "Add stamps"}
+          </button>
+
+          <button
+            className="btn btn-secondary u-mt-10 u-w-full"
+            onClick={redeem}
+            disabled={status === "sending" || cardToken.trim().length === 0}
+            type="button"
+          >
+            {status === "sending" ? "Processing..." : "Redeem 1 free coffee"}
           </button>
 
           {message ? (

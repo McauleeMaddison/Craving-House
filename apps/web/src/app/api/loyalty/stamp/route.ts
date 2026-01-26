@@ -9,6 +9,7 @@ import { isSameOrigin } from "@/server/request-security";
 
 type StampRequest = {
   qrToken: string;
+  cardToken?: string;
   eligibleItemCount: number;
   orderId?: string;
   idempotencyKey?: string;
@@ -29,8 +30,10 @@ export async function POST(request: Request) {
   const staffUserId = session.user.id;
 
   const body = (await request.json()) as Partial<StampRequest>;
-  if (!body.qrToken || typeof body.qrToken !== "string") {
-    return NextResponse.json({ error: "Missing qrToken" }, { status: 400 });
+  const qrToken = typeof body.qrToken === "string" ? body.qrToken.trim() : "";
+  const cardToken = typeof body.cardToken === "string" ? body.cardToken.trim() : "";
+  if (!qrToken && !cardToken) {
+    return NextResponse.json({ error: "Missing qrToken/cardToken" }, { status: 400 });
   }
   if (
     !Number.isFinite(body.eligibleItemCount) ||
@@ -47,10 +50,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing QR_SECRET" }, { status: 500 });
   }
 
-  const { userId: customerUserId } = verifyCustomerQrToken({
-    token: body.qrToken,
-    secret
-  });
+  let customerUserId = "";
+  if (cardToken) {
+    const account = await prisma.loyaltyAccount.findFirst({ where: { cardToken }, select: { userId: true } });
+    customerUserId = account?.userId ?? "";
+  } else {
+    const verified = verifyCustomerQrToken({ token: qrToken, secret });
+    customerUserId = verified.userId;
+  }
+  if (!customerUserId) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
   const result = await prisma.$transaction(async (tx) => {
     const settings =
