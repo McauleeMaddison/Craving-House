@@ -31,6 +31,7 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [providers, setProviders] = useState<Record<string, unknown> | null>(null);
+  const [callbackUrl, setCallbackUrl] = useState("/");
 
   const googleAvailable = Boolean(providers && (providers as any).google);
 
@@ -38,6 +39,8 @@ export default function SignInPage() {
     const url = new URL(window.location.href);
     const err = url.searchParams.get("error");
     if (err) setMessage(authErrorToMessage(err));
+    const cb = url.searchParams.get("callbackUrl");
+    if (cb && cb.startsWith("/")) setCallbackUrl(cb);
   }, []);
 
   useEffect(() => {
@@ -88,7 +91,7 @@ export default function SignInPage() {
       email: cleanEmail,
       password,
       totp: totp.trim(),
-      callbackUrl: "/",
+      callbackUrl,
       redirect: false
     });
     if (!result) {
@@ -99,7 +102,8 @@ export default function SignInPage() {
       setMessage(authErrorToMessage(result.error));
       return;
     }
-    router.push(result.url || "/");
+    // Hard navigation ensures the new session cookie is picked up immediately.
+    window.location.assign(result.url || callbackUrl || "/");
   }
 
   return (
@@ -112,7 +116,7 @@ export default function SignInPage() {
 
         <div className="u-grid-gap-12 u-mt-16">
           {googleAvailable ? (
-            <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl: "/" })}>
+            <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl })}>
               Continue with Google
             </button>
           ) : (
