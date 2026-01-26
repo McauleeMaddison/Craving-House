@@ -1814,6 +1814,22 @@ html[data-theme="dark"] .modalSheet {
 .appFooterLink:hover {
   text-decoration-color: currentColor;
 }
+
+.appFooterLinkIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appFooterIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+}
 :where(a, button, input, textarea, select):focus-visible {
   outline: 2px solid rgba(242, 183, 5, 0.65);
   outline-offset: 2px;
