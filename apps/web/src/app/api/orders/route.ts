@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 import { notifyStaffNewOrder } from "@/server/push";
+import { getClientIp, rateLimit } from "@/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,15 @@ export async function GET() {
 export async function POST(request: Request) {
   const access = await requireUser();
   if (!access.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `orders:create:${access.userId}:${ip}`, limit: 30, windowMs: 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const body = (await request.json()) as Partial<CreateOrderBody>;
   if (!body.pickupName?.trim()) return NextResponse.json({ error: "Missing pickupName" }, { status: 400 });

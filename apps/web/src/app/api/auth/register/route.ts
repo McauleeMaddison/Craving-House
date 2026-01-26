@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { hashPassword, validatePasswordForSignup } from "@/server/password";
+import { getClientIp, rateLimit } from "@/server/rate-limit";
 
 type RegisterBody = {
   email: string;
@@ -20,6 +21,15 @@ function isReasonableEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `auth:register:${ip}`, limit: 10, windowMs: 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   const body = (await request.json()) as Partial<RegisterBody>;
   const email = normalizeEmail(String(body.email ?? ""));
   const password = String(body.password ?? "");
@@ -53,4 +63,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
-

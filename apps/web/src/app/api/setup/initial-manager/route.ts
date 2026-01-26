@@ -3,12 +3,22 @@ import { getServerSession } from "next-auth/next";
 
 import { prisma } from "@/server/db";
 import { authOptions } from "@/server/auth";
+import { getClientIp, rateLimit } from "@/server/rate-limit";
 
 type Body = { setupCode: string };
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `setup:initial-manager:${ip}`, limit: 10, windowMs: 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

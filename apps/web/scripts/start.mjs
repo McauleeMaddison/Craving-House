@@ -6,8 +6,39 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function validateProductionEnv() {
+  if (process.env.NODE_ENV !== "production") return;
+
+  const required = ["DATABASE_URL", "NEXTAUTH_URL", "NEXTAUTH_SECRET", "QR_SECRET"];
+  const missing = required.filter((k) => !process.env[k] || String(process.env[k]).trim().length === 0);
+  if (missing.length) {
+    console.error(`Missing required env var(s): ${missing.join(", ")}`);
+    process.exit(1);
+  }
+
+  if (process.env.DEV_AUTH_ENABLED === "true" || process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true") {
+    console.error("DEV_AUTH_ENABLED must be false in production.");
+    process.exit(1);
+  }
+
+  const url = String(process.env.NEXTAUTH_URL ?? "").trim();
+  if (url && !url.startsWith("https://")) {
+    console.warn("Warning: NEXTAUTH_URL is not https:// (recommended for production).");
+  }
+
+  const stripeSecret = String(process.env.STRIPE_SECRET_KEY ?? "").trim();
+  const stripeWebhook = String(process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
+  if ((stripeSecret && !stripeWebhook) || (!stripeSecret && stripeWebhook)) {
+    console.error("Stripe env mismatch: set both STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET, or neither.");
+    process.exit(1);
+  }
+}
+
 function runPrismaDeploy() {
-  if (process.env.SKIP_PRISMA_DEPLOY === "true") return;
+  if (process.env.SKIP_PRISMA_DEPLOY === "true") {
+    startNext();
+    return;
+  }
 
   const deployScript = path.join(__dirname, "..", "prisma", "deploy.cjs");
   const child = spawn(process.execPath, [deployScript], { stdio: "inherit" });
@@ -36,4 +67,5 @@ function startNext() {
   });
 }
 
+validateProductionEnv();
 runPrismaDeploy();

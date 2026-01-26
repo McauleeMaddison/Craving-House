@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+changed_files="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+blocked_env_regex='(^|/)\.env($|[.])'
+
+if echo "$changed_files" | grep -E -q "$blocked_env_regex"; then
+  echo "Blocked commit: .env files must never be committed."
+  echo ""
+  echo "Unstage the file(s) and retry:"
+  echo "  git restore --staged <path>"
+  echo ""
+  echo "If you intended to change templates, use '.env.example' instead."
+  exit 1
+fi
+
+# Basic secret-pattern scan (staged additions only).
+diff="$(git diff --cached -U0 --no-color || true)"
+added_lines="$(echo "$diff" | grep -E '^[+][^+]' || true)"
+
+if [ -n "${added_lines}" ]; then
+  # Ignore common placeholders.
+  sanitized="$(echo "$added_lines" | grep -Ev '(replace-me|example\.com|changeme|YOUR_|<your)' || true)"
+
+  secret_patterns=(
+    '-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----'
+    'GOCSPX-[0-9A-Za-z_-]+'
+    'AIza[0-9A-Za-z_-]{20,}'
+    'sk_(live|test)_[0-9A-Za-z]+'
+    'whsec_[0-9A-Za-z]+'
+    'xox[baprs]-[0-9A-Za-z-]+'
+    '(postgres(ql)?|mysql|mariadb)://[^[:space:]\"]+:[^[:space:]\"]+@'
+  )
+
+  for pattern in "${secret_patterns[@]}"; do
+    if echo "$sanitized" | grep -E -q -- "$pattern"; then
+      echo "Blocked commit: possible secret detected in staged changes."
+      echo "Pattern: $pattern"
+      echo ""
+      echo "Fix: remove the secret, rotate it if leaked, and store it in a non-tracked .env or your platform secret store."
+      exit 1
+    fi
+  done
+fi
+
+exit 0

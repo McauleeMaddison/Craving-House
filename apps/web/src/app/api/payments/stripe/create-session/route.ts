@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
 import { createStripeCheckoutSession } from "@/server/stripe";
+import { getClientIp, rateLimit } from "@/server/rate-limit";
 
 type Body = {
   orderId: string;
@@ -17,6 +18,15 @@ function getBaseUrl(request: Request) {
 export async function POST(request: Request) {
   const access = await requireUser();
   if (!access.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `payments:stripe:create-session:${access.userId}:${ip}`, limit: 20, windowMs: 60_000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
@@ -57,4 +67,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ url: session.url });
 }
-
