@@ -34,8 +34,16 @@ function validateProductionEnv() {
   }
 }
 
+function envFlagEnabled(key) {
+  const raw = process.env[key];
+  if (!raw) return false;
+  const v = String(raw).trim().toLowerCase();
+  return v === "true" || v === "1" || v === "yes" || v === "y" || v === "on";
+}
+
 function runPrismaDeploy() {
-  if (process.env.SKIP_PRISMA_DEPLOY === "true") {
+  if (envFlagEnabled("SKIP_PRISMA_DEPLOY")) {
+    console.log("SKIP_PRISMA_DEPLOY enabled; skipping prisma migrate deploy");
     startNext();
     return;
   }
