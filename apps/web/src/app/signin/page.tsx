@@ -28,6 +28,7 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [providers, setProviders] = useState<Record<string, unknown> | null>(null);
 
@@ -144,14 +145,22 @@ export default function SignInPage() {
                 autoCorrect="off"
               />
               <input
-                className="input"
+                className="input inputWithEndButton"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoCapitalize="none"
                 autoCorrect="off"
               />
+              <button
+                className="inputEndButton"
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
               <input
                 className="input"
                 value={totp}

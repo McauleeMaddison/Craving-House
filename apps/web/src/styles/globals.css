@@ -674,6 +674,32 @@ code {
   min-height: 44px;
 }
 
+.inputWithEndButton {
+  padding-right: 62px;
+}
+
+.inputEndButton {
+  position: relative;
+  margin-top: -38px;
+  margin-left: auto;
+  margin-right: 10px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--btn-secondary-border);
+  background: color-mix(in srgb, var(--btn-secondary-bg) 85%, transparent);
+  color: var(--btn-secondary-text);
+  font-weight: 850;
+  cursor: pointer;
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .inputEndButton:hover {
+    background: color-mix(in srgb, var(--btn-secondary-bg) 78%, white 10%);
+  }
+}
+
 .input::placeholder {
   color: rgba(255, 255, 255, 0.62);
 }
