@@ -559,6 +559,11 @@ code {
   color: var(--btn-secondary-text);
 }
 
+.btnIconOnly {
+  width: 44px;
+  padding: 0;
+}
+
 .btnActive {
   border-color: var(--btn-active-border);
   background: var(--btn-active-bg);
@@ -1815,10 +1820,9 @@ html[data-theme="dark"] .modalSheet {
   text-decoration-color: currentColor;
 }
 
-.appFooterLinkIcon {
+.appFooterLinkIconOnly {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
 }
 
 .appFooterIcon {
