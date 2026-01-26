@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
+import { isSameOrigin } from "@/server/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,8 @@ type Body = {
 };
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const access = await requireUser();
   if (!access.ok) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 

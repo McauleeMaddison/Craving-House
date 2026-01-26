@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
 import { hashPassword, validatePasswordForSignup } from "@/server/password";
+import { isSameOrigin } from "@/server/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,8 @@ function isReasonableEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const access = await requireRole(["manager"]);
   if (!access.ok) {
     return NextResponse.json(

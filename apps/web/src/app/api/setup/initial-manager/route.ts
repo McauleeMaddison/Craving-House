@@ -4,12 +4,16 @@ import { getServerSession } from "next-auth/next";
 import { prisma } from "@/server/db";
 import { authOptions } from "@/server/auth";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
+import { isSameOrigin } from "@/server/request-security";
+import crypto from "node:crypto";
 
 type Body = { setupCode: string };
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const ip = getClientIp(request);
   const limited = rateLimit({ key: `setup:initial-manager:${ip}`, limit: 10, windowMs: 60_000 });
   if (!limited.ok) {
@@ -38,7 +42,10 @@ export async function POST(request: Request) {
   if (!setupCode) {
     return NextResponse.json({ error: "Missing setupCode" }, { status: 400 });
   }
-  if (setupCode !== envCode) {
+  const a = Buffer.from(setupCode);
+  const b = Buffer.from(envCode);
+  const matches = a.length === b.length && crypto.timingSafeEqual(a, b);
+  if (!matches) {
     return NextResponse.json({ error: "Invalid setup code" }, { status: 403 });
   }
 

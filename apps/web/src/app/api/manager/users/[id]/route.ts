@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
 import { hashPassword, validatePasswordForSignup } from "@/server/password";
+import { isSameOrigin } from "@/server/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,8 @@ type PatchBody = Partial<{
 }>;
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const access = await requireRole(["manager"]);
   if (!access.ok) {
     return NextResponse.json(
@@ -30,6 +33,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     select: { id: true, role: true, disabledAt: true }
   });
   if (!target) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  const canMutateManagerRoleOrAccess =
+    target.role === "manager" &&
+    ((typeof body.role === "string" && body.role !== "manager") || body.disabled === true);
+  if (canMutateManagerRoleOrAccess) {
+    const managerCount = await prisma.user.count({ where: { role: "manager", disabledAt: null } });
+    if (managerCount <= 1) {
+      return NextResponse.json({ error: "Cannot remove or disable the last active manager." }, { status: 409 });
+    }
+  }
 
   const updates: Record<string, unknown> = {};
 
