@@ -8,6 +8,10 @@ function authErrorToMessage(error: string) {
   switch (error) {
     case "CredentialsSignin":
       return "Sign-in failed. Check your email/password.";
+    case "TOTPRequired":
+      return "Enter your 6-digit authenticator code to sign in.";
+    case "TOTPInvalid":
+      return "Invalid authenticator code. Try again.";
     case "OAuthSignin":
     case "OAuthCallback":
       return "Google sign-in failed. Check your Google OAuth configuration.";
@@ -23,6 +27,7 @@ export default function SignInPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [totp, setTotp] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [providers, setProviders] = useState<Record<string, unknown> | null>(null);
 
@@ -81,6 +86,7 @@ export default function SignInPage() {
     const result = await signIn("credentials", {
       email: cleanEmail,
       password,
+      totp: totp.trim(),
       callbackUrl: "/",
       redirect: false
     });
@@ -145,6 +151,14 @@ export default function SignInPage() {
                 type="password"
                 autoCapitalize="none"
                 autoCorrect="off"
+              />
+              <input
+                className="input"
+                value={totp}
+                onChange={(e) => setTotp(e.target.value)}
+                placeholder="Authenticator code (managers only)"
+                inputMode="numeric"
+                autoComplete="one-time-code"
               />
               {message ? <div className="pill">{message}</div> : null}
               <button

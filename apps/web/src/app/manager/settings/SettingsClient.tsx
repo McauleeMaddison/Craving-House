@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { apiGetJson } from "@/lib/api";
+import { ManagerMfaClient } from "@/app/manager/settings/ManagerMfaClient";
 
 export function SettingsClient() {
   const [rewardStamps, setRewardStamps] = useState<number>(5);
@@ -56,6 +57,8 @@ export function SettingsClient() {
         Control loyalty rules that affect all customers.
       </p>
 
+      <ManagerMfaClient />
+
       <div className="surface surfaceInset u-pad-16 u-mt-14">
         <div className="u-fw-900">Loyalty</div>
         <p className="muted u-mt-8 u-lh-16">
@@ -92,4 +95,3 @@ export function SettingsClient() {
     </section>
   );
 }
-

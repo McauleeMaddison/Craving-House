@@ -5,6 +5,8 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
 import { verifyPassword } from "@/server/password";
+import { decryptSecret } from "@/server/secret-box";
+import { verifyTotp } from "@/server/totp";
 
 type AppUserRole = "customer" | "staff" | "manager";
 
@@ -31,11 +33,13 @@ export const authOptions: NextAuthOptions = {
       name: "Email",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        totp: { label: "Authenticator code", type: "text" }
       },
       async authorize(credentials) {
         const email = String(credentials?.email ?? "").trim().toLowerCase();
         const password = String(credentials?.password ?? "");
+        const totp = String((credentials as any)?.totp ?? "").trim();
         if (!email || !password) return null;
 
         const user = await prisma.user.findUnique({
@@ -47,7 +51,9 @@ export const authOptions: NextAuthOptions = {
             image: true,
             role: true,
             disabledAt: true,
-            passwordHash: true
+            passwordHash: true,
+            mfaTotpSecret: true,
+            mfaTotpEnabledAt: true
           }
         });
         if (!user || user.disabledAt) return null;
@@ -55,6 +61,19 @@ export const authOptions: NextAuthOptions = {
 
         const ok = await verifyPassword({ password, stored: user.passwordHash });
         if (!ok) return null;
+
+        const isManager = normalizeRole(user.role) === "manager";
+        const mfaEnabled = Boolean(user.mfaTotpEnabledAt && user.mfaTotpSecret);
+        if (isManager && mfaEnabled) {
+          if (!totp) throw new Error("TOTPRequired");
+          try {
+            const secretBase32 = decryptSecret(user.mfaTotpSecret!);
+            const valid = verifyTotp({ secretBase32, token: totp });
+            if (!valid) throw new Error("TOTPInvalid");
+          } catch {
+            throw new Error("TOTPInvalid");
+          }
+        }
 
         return {
           id: user.id,
