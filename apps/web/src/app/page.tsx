@@ -1,12 +1,10 @@
 import { TutorialNudge } from "@/components/tutorial/TutorialNudge";
 import { store } from "@/lib/store";
 import Image from "next/image";
-import Link from "next/link";
 import { HomeDashboardClient } from "@/app/HomeDashboardClient";
-import { InstagramIcon } from "@/components/icons/InstagramIcon";
+import { HomeActionsClient } from "@/app/HomeActionsClient";
 
 export default function HomePage() {
-  const instagramUrl = `https://instagram.com/${store.instagramHandle.replace(/^@/, "")}`;
   return (
     <main className="container page">
       <section className="surface dashHero">
@@ -35,24 +33,7 @@ export default function HomePage() {
 
         <HomeDashboardClient />
 
-        <div className="dashFooter rowWrap">
-          <Link className="btn btn-secondary" href="/help">
-            Quick guide
-          </Link>
-          <Link className="btn" href="/signin">
-            Sign in
-          </Link>
-          <a
-            className="btn btn-secondary btnIconOnly"
-            href={instagramUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Instagram: ${store.instagramHandle}`}
-            title={store.instagramHandle}
-          >
-            <InstagramIcon size={18} />
-          </a>
-        </div>
+        <HomeActionsClient />
       </section>
 
       <TutorialNudge />
