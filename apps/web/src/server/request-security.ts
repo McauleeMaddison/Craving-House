@@ -2,7 +2,14 @@ function getConfiguredOrigin() {
   const base = process.env.NEXTAUTH_URL?.trim();
   if (!base) return null;
   try {
-    return new URL(base).origin;
+    const u = new URL(base);
+    // Render runs the app on an internal port (commonly 10000). If a URL with :10000
+    // accidentally gets configured, treat it as the canonical public origin.
+    if (u.port === "10000") u.port = "";
+    // Also normalize default ports.
+    if (u.protocol === "https:" && u.port === "443") u.port = "";
+    if (u.protocol === "http:" && u.port === "80") u.port = "";
+    return u.origin;
   } catch {
     return null;
   }
@@ -29,4 +36,3 @@ export function isSameOrigin(request: Request) {
 
   return reqOrigin === configured;
 }
-
