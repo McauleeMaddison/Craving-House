@@ -9,7 +9,24 @@ function getForwardedProto(request: NextRequest) {
   return null;
 }
 
-function getCanonicalOrigin() {
+function getForwardedHost(request: NextRequest) {
+  const raw = request.headers.get("x-forwarded-host");
+  if (!raw) return null;
+  const first = raw.split(",")[0]?.trim().toLowerCase();
+  return first || null;
+}
+
+function stripPort(host: string) {
+  // IPv6 host: [::1]:3000
+  if (host.startsWith("[")) {
+    const end = host.indexOf("]");
+    if (end === -1) return host;
+    return host.slice(0, end + 1);
+  }
+  return host.split(":")[0] ?? host;
+}
+
+function getCanonicalUrl() {
   const configured = process.env.NEXTAUTH_URL?.trim();
   if (!configured) return null;
   try {
@@ -20,37 +37,39 @@ function getCanonicalOrigin() {
     // Also normalize default ports.
     if (u.protocol === "https:" && u.port === "443") u.port = "";
     if (u.protocol === "http:" && u.port === "80") u.port = "";
-    return u.origin;
+    return u;
   } catch {
     return null;
   }
 }
 
 export function proxy(request: NextRequest) {
-  const canonicalOrigin = getCanonicalOrigin();
-  if (!canonicalOrigin) return NextResponse.next();
-
-  const canonical = new URL(canonicalOrigin);
-  const current = request.nextUrl;
-  const forwardedProto = getForwardedProto(request);
-  const effectiveProto = forwardedProto ?? current.protocol;
-
-  // Never downgrade to http when the public request is clearly https.
-  if (canonical.protocol === "http:" && effectiveProto === "https:") {
-    canonical.protocol = "https:";
-  }
+  const canonical = getCanonicalUrl();
+  if (!canonical) return NextResponse.next();
 
   // Only redirect browser navigations. Avoid breaking POSTs (e.g. auth callbacks, webhooks).
   if (request.method !== "GET" && request.method !== "HEAD") return NextResponse.next();
 
-  const sameHost = current.host === canonical.host;
-  const sameProto = effectiveProto === canonical.protocol;
+  const forwardedProto = getForwardedProto(request);
+  const effectiveProto = forwardedProto ?? request.nextUrl.protocol;
+
+  const forwardedHost = getForwardedHost(request);
+  const effectiveHost = forwardedHost ?? request.headers.get("host") ?? request.nextUrl.host;
+  const effectiveHostname = stripPort(effectiveHost);
+
+  let effectiveCanonicalProto = canonical.protocol;
+  // Never downgrade to http when the public request is clearly https.
+  if (effectiveCanonicalProto === "http:" && effectiveProto === "https:") {
+    effectiveCanonicalProto = "https:";
+  }
+
+  const sameHost = effectiveHostname === canonical.hostname;
+  const sameProto = effectiveProto === effectiveCanonicalProto;
   if (sameHost && sameProto) return NextResponse.next();
 
-  const url = new URL(request.url);
-  url.protocol = canonical.protocol;
-  url.host = canonical.host;
-  return NextResponse.redirect(url, 308);
+  const dest = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, canonical.origin);
+  dest.protocol = effectiveCanonicalProto;
+  return NextResponse.redirect(dest, 308);
 }
 
 export const config = {
