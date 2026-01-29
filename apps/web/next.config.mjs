@@ -32,6 +32,11 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Never cache auth endpoints (session/csrf/callbacks), especially behind CDNs.
+        source: "/api/auth/(.*)",
+        headers: [...securityHeaders, { key: "Cache-Control", value: "no-store" }]
+      },
+      {
         source: "/(.*)",
         headers: securityHeaders
       }
