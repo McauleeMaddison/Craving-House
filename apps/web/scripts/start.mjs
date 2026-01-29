@@ -73,7 +73,9 @@ function runPrismaDeploy() {
 
 function startNext() {
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-  const host = process.env.HOSTNAME ?? "0.0.0.0";
+  // Always bind on all interfaces. Some platforms (including Render) set HOSTNAME to a container name,
+  // and binding to that name can make the service unreachable from the platform proxy.
+  const host = "0.0.0.0";
 
   const localBinCandidates = [
     path.join(__dirname, "..", "node_modules", ".bin", "next"),
