@@ -20,6 +20,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "database" },
   pages: { signIn: "/signin" },
+  // Always use secure cookies in production (required for iOS/Safari to persist sessions on HTTPS).
+  useSecureCookies: process.env.NODE_ENV === "production",
   debug: process.env.NEXTAUTH_DEBUG === "true",
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
