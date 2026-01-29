@@ -23,7 +23,22 @@ function validateProductionEnv() {
 
   const url = String(process.env.NEXTAUTH_URL ?? "").trim();
   if (url && !url.startsWith("https://")) {
-    console.warn("Warning: NEXTAUTH_URL is not https:// (recommended for production).");
+    console.error("NEXTAUTH_URL must start with https:// in production.");
+    process.exit(1);
+  }
+  if (url) {
+    try {
+      const u = new URL(url);
+      // Common Render mistake: copying the internal port into NEXTAUTH_URL.
+      // Public URLs should not include a port (443 is implied for https).
+      if (u.port && u.port !== "443") {
+        console.error(`NEXTAUTH_URL must not include a port in production (got :${u.port}).`);
+        process.exit(1);
+      }
+    } catch {
+      console.error("NEXTAUTH_URL is not a valid URL.");
+      process.exit(1);
+    }
   }
 
   const stripeSecret = String(process.env.STRIPE_SECRET_KEY ?? "").trim();

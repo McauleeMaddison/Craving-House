@@ -8,7 +8,18 @@ function configureWebPush() {
   if (configured) return;
   const publicKey = process.env.VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT ?? "mailto:admin@localhost";
+  const subjectRaw = (process.env.VAPID_SUBJECT ?? "").trim();
+  const subjectCandidate = subjectRaw.endsWith(")") ? subjectRaw.slice(0, -1).trim() : subjectRaw;
+  const subjectFallback = process.env.NEXTAUTH_URL?.trim() || "mailto:admin@localhost";
+
+  let subject = subjectCandidate || subjectFallback;
+  try {
+    // `web-push` expects a valid URL or mailto URL.
+    // If invalid, fall back to a safe default.
+    new URL(subject);
+  } catch {
+    subject = "mailto:admin@localhost";
+  }
   if (!publicKey || !privateKey) {
     configured = true;
     return;

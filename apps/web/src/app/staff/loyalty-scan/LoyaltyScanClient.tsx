@@ -125,6 +125,11 @@ export function LoyaltyScanClient() {
   async function startScanner() {
     setScannerError("");
 
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setScannerError("Camera scanning requires HTTPS. Open the app using https:// and try again.");
+      return;
+    }
+
     const BarcodeDetectorCtor = (window as any).BarcodeDetector as
       | (new (opts?: { formats?: string[] }) => { detect: (image: CanvasImageSource) => Promise<any[]> })
       | undefined;

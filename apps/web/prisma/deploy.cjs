@@ -10,7 +10,10 @@ function hasMigrations() {
 }
 
 function runPrisma(args) {
-  execFileSync("npx", ["prisma", ...args], { stdio: "inherit" });
+  // Avoid `npx prisma` which can be slow and may try to download packages at runtime.
+  // Use the locally installed Prisma CLI from dependencies.
+  const prismaCli = require.resolve("prisma/build/index.js");
+  execFileSync(process.execPath, [prismaCli, ...args], { stdio: "inherit" });
 }
 
 if (hasMigrations()) {
@@ -19,4 +22,3 @@ if (hasMigrations()) {
   console.log("No prisma/migrations found; running `prisma db push` to sync schema.");
   runPrisma(["db", "push"]);
 }
-
