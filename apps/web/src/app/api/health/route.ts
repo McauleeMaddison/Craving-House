@@ -6,6 +6,19 @@ import { authOptions } from "@/server/auth";
 
 export const dynamic = "force-dynamic";
 
+function parseCookieHeader(header: string | null) {
+  const out = new Map<string, string>();
+  if (!header) return out;
+  for (const part of header.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx === -1) continue;
+    const k = part.slice(0, idx).trim();
+    const v = part.slice(idx + 1).trim();
+    if (k) out.set(k, v);
+  }
+  return out;
+}
+
 export async function GET(request: Request) {
   const configured = process.env.NEXTAUTH_URL?.trim() || null;
   let canonicalOrigin: string | null = null;
@@ -15,12 +28,43 @@ export async function GET(request: Request) {
     canonicalOrigin = null;
   }
 
+  const cookieHeader = request.headers.get("cookie");
+  const cookies = parseCookieHeader(cookieHeader);
+  const sessionCookieName =
+    cookies.has("__Secure-next-auth.session-token")
+      ? "__Secure-next-auth.session-token"
+      : cookies.has("next-auth.session-token")
+        ? "next-auth.session-token"
+        : null;
+  const csrfCookiePresent = cookies.has("__Host-next-auth.csrf-token") || cookies.has("next-auth.csrf-token");
+  const sessionCookiePresent = Boolean(sessionCookieName);
+
   let db = { ok: true as const };
   try {
     // Basic connectivity check. If this fails, sign-in/session will not work.
     await prisma.user.count({ take: 1 });
   } catch (err: any) {
     db = { ok: false as const, error: String(err?.code || err?.name || "db_error") } as any;
+  }
+
+  let sessionTokenRecord: { cookiePresent: boolean; inDb: boolean; expiresIso: string | null } = {
+    cookiePresent: sessionCookiePresent,
+    inDb: false,
+    expiresIso: null
+  };
+  if (sessionCookieName) {
+    const token = cookies.get(sessionCookieName) ?? "";
+    if (token) {
+      try {
+        const s = await prisma.session.findUnique({
+          where: { sessionToken: token },
+          select: { expires: true }
+        });
+        sessionTokenRecord = { cookiePresent: true, inDb: Boolean(s), expiresIso: s?.expires?.toISOString() ?? null };
+      } catch {
+        // ignore
+      }
+    }
   }
 
   let sessionInfo: { ok: true; signedIn: boolean; role?: string } | { ok: false; error: string };
@@ -40,6 +84,14 @@ export async function GET(request: Request) {
     ts: new Date().toISOString(),
     db,
     session: sessionInfo,
+    cookies: {
+      headerPresent: Boolean(cookieHeader),
+      sessionCookiePresent,
+      sessionCookieName,
+      csrfCookiePresent,
+      sessionTokenInDb: sessionTokenRecord.inDb,
+      sessionTokenExpiresIso: sessionTokenRecord.expiresIso
+    },
     env: {
       nextauthUrlConfigured: Boolean(configured),
       nextauthSecretConfigured: Boolean(process.env.NEXTAUTH_SECRET),
