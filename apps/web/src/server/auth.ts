@@ -15,6 +15,9 @@ function normalizeRole(role: unknown): AppUserRole {
   return "customer";
 }
 
+const forceSecureSessionCookieInProduction =
+  process.env.FORCE_SECURE_SESSION_COOKIE_IN_PRODUCTION !== "false";
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
@@ -22,6 +25,23 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: "/signin" },
   // Always use secure cookies in production (required for iOS/Safari to persist sessions on HTTPS).
   useSecureCookies: process.env.NODE_ENV === "production",
+  // On some proxy setups, `__Secure-*` prefixed cookies can fail to persist if the Secure attribute
+  // isn't applied as expected. Explicitly define the session cookie for production to avoid this.
+  ...(process.env.NODE_ENV === "production" && forceSecureSessionCookieInProduction
+    ? {
+        cookies: {
+          sessionToken: {
+            name: "next-auth.session-token",
+            options: {
+              httpOnly: true,
+              sameSite: "lax",
+              path: "/",
+              secure: true
+            }
+          }
+        }
+      }
+    : {}),
   debug: process.env.NEXTAUTH_DEBUG === "true",
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
