@@ -7,16 +7,13 @@ import { useSession } from "next-auth/react";
 import { store } from "@/lib/store";
 import { InstagramIcon } from "@/components/icons/InstagramIcon";
 
-function isAdminRole(role: unknown) {
-  return role === "staff" || role === "manager";
-}
-
 export function AppFooter() {
   const pathname = usePathname();
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const { data } = useSession();
-  const role = (data?.user as any)?.role;
-  const showAdmin = isAdminRole(role);
+  const role = (data?.user as any)?.role as unknown;
+  const canUseStaff = role === "staff" || role === "manager";
+  const canUseManager = role === "manager";
 
   if (isPortal) return null;
 
@@ -53,20 +50,24 @@ export function AppFooter() {
           <Link className="appFooterLink" href="/contact">
             Contact
           </Link>
-          {showAdmin ? (
+          {canUseStaff ? (
             <>
               <span aria-hidden="true">•</span>
               <Link className="appFooterLink" href="/staff">
                 Staff
               </Link>
-              <span aria-hidden="true">•</span>
-              <Link className="appFooterLink" href="/manager">
-                Manager
-              </Link>
-              <span aria-hidden="true">•</span>
-              <Link className="appFooterLink" href="/setup">
-                Setup
-              </Link>
+              {canUseManager ? (
+                <>
+                  <span aria-hidden="true">•</span>
+                  <Link className="appFooterLink" href="/manager">
+                    Manager
+                  </Link>
+                  <span aria-hidden="true">•</span>
+                  <Link className="appFooterLink" href="/setup">
+                    Setup
+                  </Link>
+                </>
+              ) : null}
             </>
           ) : null}
         </nav>

@@ -24,6 +24,8 @@ export function PortalHeader() {
   const canUseStaff = role === "staff" || role === "manager";
   const canUseManager = role === "manager";
   const inPortal = isPortalPath(pathname);
+  const inManagerPortal = Boolean(pathname?.startsWith("/manager"));
+  const inStaffPortal = Boolean(pathname?.startsWith("/staff"));
 
   if (!inPortal) return null;
 
@@ -46,6 +48,18 @@ export function PortalHeader() {
           <Link className="btn btn-secondary" href="/">
             Customer app
           </Link>
+
+          {canUseManager ? (
+            inManagerPortal ? (
+              <Link className="btn" href="/staff/loyalty-scan" title="Switch to staff tools">
+                Switch to staff
+              </Link>
+            ) : inStaffPortal ? (
+              <Link className="btn" href="/manager" title="Switch to manager tools">
+                Switch to manager
+              </Link>
+            ) : null
+          ) : null}
 
           {canUseStaff ? (
             <>
@@ -83,4 +97,3 @@ export function PortalHeader() {
     </header>
   );
 }
-
