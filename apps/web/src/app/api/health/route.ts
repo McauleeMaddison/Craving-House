@@ -47,6 +47,27 @@ export async function GET(request: Request) {
     db = { ok: false as const, error: String(err?.code || err?.name || "db_error") } as any;
   }
 
+  let dbSchema: Record<string, { ok: boolean; error?: string }> = {
+    User: { ok: true },
+    Session: { ok: true },
+    Account: { ok: true }
+  };
+  try {
+    await prisma.user.count({ take: 1 });
+  } catch (err: any) {
+    dbSchema.User = { ok: false, error: String(err?.code || err?.name || "User_error") };
+  }
+  try {
+    await prisma.session.count({ take: 1 });
+  } catch (err: any) {
+    dbSchema.Session = { ok: false, error: String(err?.code || err?.name || "Session_error") };
+  }
+  try {
+    await prisma.account.count({ take: 1 });
+  } catch (err: any) {
+    dbSchema.Account = { ok: false, error: String(err?.code || err?.name || "Account_error") };
+  }
+
   let sessionTokenRecord: { cookiePresent: boolean; inDb: boolean; expiresIso: string | null } = {
     cookiePresent: sessionCookiePresent,
     inDb: false,
@@ -83,6 +104,7 @@ export async function GET(request: Request) {
     ok: true,
     ts: new Date().toISOString(),
     db,
+    dbSchema,
     session: sessionInfo,
     cookies: {
       headerPresent: Boolean(cookieHeader),
