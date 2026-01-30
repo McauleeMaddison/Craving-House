@@ -6,6 +6,7 @@ import { calculatePrepSeconds } from "@/lib/prep-time";
 import { notifyStaffNewOrder } from "@/server/push";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
 import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/email";
+import { isSameOrigin } from "@/server/request-security";
 import crypto from "node:crypto";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const ip = getClientIp(request);
   const access = await requireUser();
   const rateKey = access.ok ? `orders:create:${access.userId}:${ip}` : `orders:create:guest:${ip}`;

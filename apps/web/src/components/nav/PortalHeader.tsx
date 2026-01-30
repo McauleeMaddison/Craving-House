@@ -80,6 +80,9 @@ export function PortalHeader() {
               <Link className="btn btn-secondary" href="/manager/users">
                 Users
               </Link>
+              <Link className="btn btn-secondary" href="/manager/feedback">
+                Feedback
+              </Link>
             </>
           ) : null}
 

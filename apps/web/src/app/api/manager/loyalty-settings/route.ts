@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
+import { isSameOrigin } from "@/server/request-security";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const access = await requireRole(["manager"]);
   if (!access.ok) {
     return NextResponse.json(
@@ -53,4 +56,3 @@ export async function PATCH(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
-

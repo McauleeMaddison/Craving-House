@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/access";
+import { isSameOrigin } from "@/server/request-security";
 
 type CreateBody = {
   name: string;
@@ -33,6 +34,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const access = await requireRole(["manager"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
 

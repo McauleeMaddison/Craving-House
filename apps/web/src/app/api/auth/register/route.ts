@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { hashPassword, validatePasswordForSignup } from "@/server/password";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
+import { isSameOrigin } from "@/server/request-security";
 
 type RegisterBody = {
   email: string;
@@ -21,6 +22,8 @@ function isReasonableEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
   const ip = getClientIp(request);
   const limited = rateLimit({ key: `auth:register:${ip}`, limit: 10, windowMs: 60_000 });
   if (!limited.ok) {

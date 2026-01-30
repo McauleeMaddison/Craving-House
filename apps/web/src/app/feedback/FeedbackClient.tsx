@@ -2,12 +2,25 @@
 
 import { useState } from "react";
 
+import { apiPostJson } from "@/lib/api";
+
 export function FeedbackClient() {
   const [rating, setRating] = useState<number>(5);
   const [message, setMessage] = useState<string>("");
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [error, setError] = useState<string>("");
 
-  function submit() {
+  async function submit() {
+    setStatus("sending");
+    setError("");
+
+    const res = await apiPostJson<{ ok: true }>("/api/feedback", { rating, message });
+    if (!res.ok) {
+      setStatus("error");
+      setError(res.error);
+      return;
+    }
+
     setStatus("sent");
     setMessage("");
     setTimeout(() => setStatus("idle"), 2200);
@@ -53,13 +66,19 @@ export function FeedbackClient() {
           />
         </label>
 
-        <button className="btn" onClick={submit} disabled={!message.trim()}>
-          Send feedback
+        <button className="btn" onClick={submit} disabled={!message.trim() || status === "sending"}>
+          {status === "sending" ? "Sending…" : "Send feedback"}
         </button>
 
         {status === "sent" ? (
           <p className="muted u-m-0">
             Sent. Thank you.
+          </p>
+        ) : null}
+
+        {status === "error" ? (
+          <p className="muted u-m-0 u-danger">
+            {error || "Could not send feedback. Please try again."}
           </p>
         ) : null}
       </div>
