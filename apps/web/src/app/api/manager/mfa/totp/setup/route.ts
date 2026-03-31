@@ -34,7 +34,6 @@ export async function POST(request: Request) {
     accountLabel: user.email ?? "manager",
     secretBase32
   });
-  const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=${encodeURIComponent(otpauthUrl)}`;
 
   await prisma.user.update({
     where: { id: access.userId },
@@ -44,6 +43,5 @@ export async function POST(request: Request) {
     }
   });
 
-  return NextResponse.json({ secretBase32, otpauthUrl, qrUrl });
+  return NextResponse.json({ secretBase32, otpauthUrl });
 }
-

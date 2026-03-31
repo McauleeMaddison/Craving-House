@@ -2,17 +2,19 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { buildQrDataUrl } from "@/lib/qr-image";
 
 type Status = { enabled: boolean; pending: boolean };
 
 export function ManagerMfaClient() {
   const [status, setStatus] = useState<Status>({ enabled: false, pending: false });
   const [loading, setLoading] = useState(true);
-  const [setup, setSetup] = useState<{ secretBase32: string; qrUrl: string } | null>(null);
+  const [setup, setSetup] = useState<{ secretBase32: string; otpauthUrl: string } | null>(null);
   const [code, setCode] = useState("");
   const [disableCode, setDisableCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState<"" | "setup" | "enable" | "disable">("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
 
   async function refresh() {
     const res = await fetch("/api/manager/mfa/totp/status", { cache: "no-store" });
@@ -33,6 +35,30 @@ export function ManagerMfaClient() {
     })();
   }, []);
 
+  useEffect(() => {
+    let canceled = false;
+    if (!setup?.otpauthUrl) {
+      setQrDataUrl("");
+      return;
+    }
+
+    void buildQrDataUrl({ text: setup.otpauthUrl, size: 440 })
+      .then((url) => {
+        if (!canceled) {
+          setQrDataUrl(url);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setQrDataUrl("");
+        }
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [setup?.otpauthUrl]);
+
   async function startSetup() {
     setBusy("setup");
     setError("");
@@ -41,7 +67,10 @@ export function ManagerMfaClient() {
       const res = await fetch("/api/manager/mfa/totp/setup", { method: "POST" });
       const json = (await res.json().catch(() => null)) as any;
       if (!res.ok) throw new Error(json?.error ?? "Setup failed");
-      setSetup({ secretBase32: String(json.secretBase32 ?? ""), qrUrl: String(json.qrUrl ?? "") });
+      setSetup({
+        secretBase32: String(json.secretBase32 ?? ""),
+        otpauthUrl: String(json.otpauthUrl ?? "")
+      });
       await refresh();
     } catch (e: any) {
       setError(String(e?.message ?? "Setup failed"));
@@ -127,7 +156,11 @@ export function ManagerMfaClient() {
             <div className="u-mt-12 u-grid-gap-10">
               <div className="u-fw-800">1) Scan QR</div>
               <div className="rowWrap">
-                <Image alt="Authenticator QR code" src={setup.qrUrl} width={220} height={220} />
+                {qrDataUrl ? (
+                  <Image alt="Authenticator QR code" src={qrDataUrl} width={220} height={220} unoptimized />
+                ) : (
+                  <div className="pill">QR preview unavailable. Use secret manually below.</div>
+                )}
               </div>
               <div className="muted u-fs-12 u-lh-16">
                 If you can’t scan, use this secret in your authenticator app: <code>{setup.secretBase32}</code>
@@ -181,4 +214,3 @@ export function ManagerMfaClient() {
     </div>
   );
 }
-

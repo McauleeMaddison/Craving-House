@@ -15,6 +15,12 @@ function authErrorToMessage(error: string) {
     case "OAuthSignin":
     case "OAuthCallback":
       return "Google sign-in failed. Check your Google OAuth configuration.";
+    case "OAuthAccountNotLinked":
+      return "This email is linked to another sign-in method. Use email + password for this account.";
+    case "GoogleEmailNotVerified":
+      return "Google sign-in requires a verified Google email address.";
+    case "Configuration":
+      return "Sign-in is not configured correctly on the server.";
     case "ManagerEmailOnly":
       return "Manager accounts must sign in with email + password (and authenticator code if enabled).";
     default:
@@ -34,6 +40,7 @@ export default function SignInPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [providers, setProviders] = useState<Record<string, unknown> | null>(null);
   const [callbackUrl, setCallbackUrl] = useState("/");
+  const [oauthBusy, setOauthBusy] = useState(false);
 
   const googleAvailable = Boolean(providers && (providers as any).google);
   const managerMode = callbackUrl.startsWith("/manager");
@@ -115,6 +122,29 @@ export default function SignInPage() {
     window.location.assign(result.url || callbackUrl || "/");
   }
 
+  async function onGoogleSignIn() {
+    setMessage(null);
+    setOauthBusy(true);
+    try {
+      const result = await signIn("google", { callbackUrl, redirect: false });
+      if (!result) {
+        setMessage("Google sign-in failed. Please try again.");
+        return;
+      }
+      if (result.error) {
+        setMessage(authErrorToMessage(result.error));
+        return;
+      }
+      if (!result.url) {
+        setMessage("Google sign-in failed. Please try again.");
+        return;
+      }
+      window.location.assign(result.url);
+    } finally {
+      setOauthBusy(false);
+    }
+  }
+
   return (
     <main className="container page">
       <section className="surface u-pad-18 u-maxw-560">
@@ -128,15 +158,15 @@ export default function SignInPage() {
 
         <div className="u-grid-gap-12 u-mt-16">
           {googleAvailable && !managerMode ? (
-            <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl })}>
-              Continue with Google
+            <button className="btn btn-secondary" onClick={() => void onGoogleSignIn()} disabled={oauthBusy}>
+              {oauthBusy ? "Redirecting…" : "Continue with Google"}
             </button>
           ) : managerMode ? (
             <div className="pill">
               Manager sign-in uses email + password (plus authenticator code if enabled).
             </div>
           ) : (
-            <div className="pill">Google sign-in not available yet.</div>
+            <div className="pill">Google sign-in not available. Set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.</div>
           )}
 
           <div className="surface surfaceFlat u-pad-14">

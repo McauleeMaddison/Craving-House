@@ -50,7 +50,12 @@ export const authOptions: NextAuthOptions = {
           GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            allowDangerousEmailAccountLinking: true
+            allowDangerousEmailAccountLinking: true,
+            authorization: {
+              params: {
+                prompt: "select_account"
+              }
+            }
           })
         ]
       : []),
@@ -152,11 +157,15 @@ export const authOptions: NextAuthOptions = {
       : [])
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (account?.provider !== "google") return true;
 
       const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
       if (!email) return true;
+      const emailVerified = (profile as any)?.email_verified;
+      if (emailVerified === false) {
+        return "/signin?error=GoogleEmailNotVerified";
+      }
 
       const existing = await prisma.user.findUnique({
         where: { email },

@@ -47,6 +47,17 @@ function validateProductionEnv() {
     console.error("Stripe env mismatch: set both STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET, or neither.");
     process.exit(1);
   }
+
+  const googleClientId = String(process.env.GOOGLE_CLIENT_ID ?? "").trim();
+  const googleClientSecret = String(process.env.GOOGLE_CLIENT_SECRET ?? "").trim();
+  if ((googleClientId && !googleClientSecret) || (!googleClientId && googleClientSecret)) {
+    console.error("Google OAuth env mismatch: set both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, or neither.");
+    process.exit(1);
+  }
+  if (googleClientId && !googleClientId.endsWith(".apps.googleusercontent.com")) {
+    console.error("GOOGLE_CLIENT_ID looks invalid. Expected a value ending with .apps.googleusercontent.com.");
+    process.exit(1);
+  }
 }
 
 function envFlagEnabled(key) {

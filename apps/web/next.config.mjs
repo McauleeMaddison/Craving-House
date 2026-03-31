@@ -16,15 +16,6 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "chart.googleapis.com",
-        pathname: "/chart"
-      }
-    ]
-  },
   turbopack: {
     root: path.resolve(__dirname, "..", "..")
   },

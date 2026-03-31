@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { apiGetJson } from "@/lib/api";
+import { buildQrDataUrl } from "@/lib/qr-image";
 
 export function LoyaltyQrClient() {
   const [token, setToken] = useState<string>("");
@@ -11,6 +12,7 @@ export function LoyaltyQrClient() {
   const [copied, setCopied] = useState(false);
   const [showLarge, setShowLarge] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState("");
 
   async function refresh() {
     const res = await apiGetJson<{ cardToken: string }>("/api/loyalty/card");
@@ -27,6 +29,32 @@ export function LoyaltyQrClient() {
   useEffect(() => {
     void refresh();
   }, []);
+
+  useEffect(() => {
+    let canceled = false;
+    if (!token) {
+      setQrDataUrl("");
+      return;
+    }
+
+    setImgError(false);
+    void buildQrDataUrl({ text: token, size: 720 })
+      .then((url) => {
+        if (!canceled) {
+          setQrDataUrl(url);
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setImgError(true);
+          setQrDataUrl("");
+        }
+      });
+
+    return () => {
+      canceled = true;
+    };
+  }, [token]);
 
   async function rotate() {
     const res = await fetch("/api/loyalty/card/rotate", { method: "POST" });
@@ -50,12 +78,6 @@ export function LoyaltyQrClient() {
       // ignore
     }
   }
-
-  const qrImageUrl = useMemo(() => {
-    if (!token) return "";
-    const data = encodeURIComponent(token);
-    return `https://chart.googleapis.com/chart?cht=qr&chs=240x240&chld=M|0&chl=${data}`;
-  }, [token]);
 
   return (
     <div className="u-mt-12">
@@ -88,15 +110,15 @@ export function LoyaltyQrClient() {
         </button>
       </div>
 
-      {token && !imgError ? (
+      {token && qrDataUrl && !imgError ? (
         <div className="qrFrame u-mt-12">
-          {/* External QR render for MVP; replace with first-party QR generation later if desired */}
           <Image
             className="qrImage"
-            src={qrImageUrl}
+            src={qrDataUrl}
             alt="Your loyalty QR code"
             width={240}
             height={240}
+            unoptimized
             onError={() => setImgError(true)}
             onClick={() => setShowLarge(true)}
           />
@@ -126,9 +148,17 @@ export function LoyaltyQrClient() {
                 </span>
               </button>
             </div>
-            {!imgError ? (
+            {!imgError && qrDataUrl ? (
               <div className="qrFrame u-mt-12">
-                <Image className="qrImage" src={qrImageUrl} alt="Your loyalty QR code" width={360} height={360} />
+                <Image
+                  className="qrImage"
+                  src={qrDataUrl}
+                  alt="Your loyalty QR code"
+                  width={360}
+                  height={360}
+                  unoptimized
+                  onError={() => setImgError(true)}
+                />
               </div>
             ) : null}
             <div className="muted u-mt-12 u-lh-16">
