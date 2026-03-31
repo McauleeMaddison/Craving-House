@@ -1,32 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#18110A" />
+    <radialGradient id="bg" cx="35%" cy="20%" r="95%">
+      <stop offset="0" stop-color="#23170E" />
       <stop offset="1" stop-color="#070707" />
-    </linearGradient>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F8E7C5" />
-      <stop offset="1" stop-color="#BD9256" />
+    </radialGradient>
+    <linearGradient id="medal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE8BE" />
+      <stop offset="0.52" stop-color="#E1B16E" />
+      <stop offset="1" stop-color="#9D6029" />
     </linearGradient>
     <linearGradient id="bean" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2A2A2A" />
-      <stop offset="0.55" stop-color="#090909" />
-      <stop offset="1" stop-color="#171717" />
+      <stop offset="0" stop-color="#2E2E2E" />
+      <stop offset="0.45" stop-color="#0F0F0F" />
+      <stop offset="1" stop-color="#000000" />
     </linearGradient>
   </defs>
 
-  <rect width="256" height="256" rx="64" fill="url(#bg)" />
-  <rect x="18" y="18" width="220" height="220" rx="56" fill="#FFFFFF0A" stroke="#FFFFFF1F" stroke-width="2" />
+  <rect width="256" height="256" rx="62" fill="url(#bg)" />
+  <rect x="14" y="14" width="228" height="228" rx="54" fill="#FFFFFF08" stroke="#FFFFFF24" stroke-width="2" />
 
-  <circle cx="128" cy="128" r="88" fill="#0B0B0B" stroke="url(#ring)" stroke-width="8" />
-  <circle cx="128" cy="128" r="78" fill="#FFFFFF08" />
+  <circle cx="128" cy="128" r="92" fill="#0A0A0A" stroke="url(#medal)" stroke-width="10" />
+  <circle cx="128" cy="128" r="80" fill="#FFFFFF08" />
 
-  <g transform="rotate(-18 128 130)">
-    <ellipse cx="128" cy="130" rx="50" ry="72" fill="url(#bean)" stroke="#FFFFFF22" stroke-width="2" />
-    <path d="M117 66C97 93 94 138 113 174C120 188 130 194 140 188C126 156 126 108 142 79C146 71 140 60 131 59C126 59 121 61 117 66Z" fill="#A77A47B0" />
-    <path d="M114 68C96 95 93 138 112 171" fill="none" stroke="#F4D7A0B5" stroke-width="4" stroke-linecap="round" />
-    <path d="M102 86C96 104 96 126 101 145" fill="none" stroke="#FFFFFF30" stroke-width="3" stroke-linecap="round" />
+  <g transform="rotate(-16 128 128)">
+    <ellipse cx="128" cy="130" rx="50" ry="70" fill="url(#bean)" stroke="#FFFFFF26" stroke-width="2" />
+    <path d="M120 65C97 95 95 141 113 176C121 191 132 195 142 187C128 154 128 109 145 80C149 73 143 62 134 61C129 60 124 62 120 65Z" fill="#B07D46CC" />
+    <path d="M117 68C98 97 96 139 114 172" fill="none" stroke="#FFE0AECC" stroke-width="4" stroke-linecap="round" />
+    <path d="M101 90C95 108 95 127 100 145" fill="none" stroke="#FFFFFF3B" stroke-width="3" stroke-linecap="round" />
   </g>
 
-  <circle cx="89" cy="78" r="8" fill="#FFE4B9" opacity="0.9" />
+  <path d="M184 72l7 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z" fill="#F7E6C4" opacity="0.95" />
 </svg>
