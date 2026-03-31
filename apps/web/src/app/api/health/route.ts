@@ -21,6 +21,15 @@ function parseCookieHeader(header: string | null) {
 
 export async function GET(request: Request) {
   const configured = process.env.NEXTAUTH_URL?.trim() || null;
+  const stripeSecret = process.env.STRIPE_SECRET_KEY?.trim() || "";
+  const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim() || "";
+  const stripeMode = stripeSecret.startsWith("sk_live_")
+    ? "live"
+    : stripeSecret.startsWith("sk_test_")
+      ? "test"
+      : stripeSecret
+        ? "unknown"
+        : "unset";
   let canonicalOrigin: string | null = null;
   try {
     canonicalOrigin = configured ? new URL(configured).origin : null;
@@ -119,6 +128,10 @@ export async function GET(request: Request) {
       nextauthSecretConfigured: Boolean(process.env.NEXTAUTH_SECRET),
       canonicalOrigin,
       googleConfigured: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      stripeSecretConfigured: Boolean(stripeSecret),
+      stripeWebhookConfigured: Boolean(stripeWebhookSecret),
+      stripeEnabled: Boolean(stripeSecret && stripeWebhookSecret),
+      stripeMode,
       devAuthEnabled:
         process.env.DEV_AUTH_ENABLED === "true" || process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true"
     },

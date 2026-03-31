@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 
+const STRIPE_API_VERSION = "2026-02-25.clover";
+
 type StripeCreateSessionParams = {
   secretKey: string;
   orderId: string;
@@ -52,6 +54,7 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     method: "POST",
     headers: {
       authorization: `Bearer ${params.secretKey}`,
+      "stripe-version": STRIPE_API_VERSION,
       "content-type": "application/x-www-form-urlencoded"
     },
     body
