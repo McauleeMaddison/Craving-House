@@ -88,7 +88,7 @@ export function HomeDashboardClient() {
       return {
         href: "/checkout",
         title: "Checkout",
-        sub: "Pay in store or by card."
+        sub: "Secure card payment at checkout."
       };
     }
     return {

@@ -20,6 +20,15 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
   const status = body.status;
   if (!status) return NextResponse.json({ error: "Missing status" }, { status: 400 });
 
+  const current = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { paymentStatus: true }
+  });
+  if (!current) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  if (status !== "canceled" && current.paymentStatus !== "paid") {
+    return NextResponse.json({ error: "Order has not been paid yet." }, { status: 409 });
+  }
+
   const update: any = { status };
   if (status === "collected") update.collectedAt = new Date();
 

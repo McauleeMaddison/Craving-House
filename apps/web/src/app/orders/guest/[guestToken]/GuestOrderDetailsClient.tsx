@@ -112,7 +112,7 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
       ? "Paid"
       : order.paymentStatus === "pending"
         ? "Payment pending"
-        : "Pay in store";
+        : "Awaiting payment";
 
   return (
     <>

@@ -10,7 +10,7 @@ export async function GET() {
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
 
   const orders = await prisma.order.findMany({
-    where: { status: { in: ["received", "accepted", "ready"] } },
+    where: { status: { in: ["received", "accepted", "ready"] }, paymentStatus: "paid" },
     orderBy: { createdAt: "asc" },
     include: { items: { include: { product: true } } }
   });

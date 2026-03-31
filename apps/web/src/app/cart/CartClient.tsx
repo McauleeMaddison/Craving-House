@@ -114,7 +114,7 @@ export function CartClient() {
           <div>
             <h1 className="u-title-26">Cart</h1>
             <p className="muted u-mt-10 u-lh-16">
-              Pay in store. Estimated prep based on manager-set prep times.
+              Pay securely at checkout. Estimated prep is based on manager-set prep times.
             </p>
             {notice ? (
               <p className="muted u-mt-8 u-lh-16">

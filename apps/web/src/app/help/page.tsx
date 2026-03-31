@@ -9,7 +9,7 @@ export default function HelpPage() {
         <div className="rowWrap">
           <span className="pill">Minimal</span>
           <span className="pill">Mobile-first</span>
-          <span className="pill">Pay in store</span>
+          <span className="pill">Pay at checkout</span>
         </div>
 
         <h1 className="helpTitle u-mt-12">
@@ -34,7 +34,7 @@ export default function HelpPage() {
               </li>
               <li>
                 Go to <Link href="/checkout">Checkout</Link> and place the order (pay
-                in store).
+                online).
               </li>
               <li>
                 Track progress in <Link href="/orders">Orders</Link>.

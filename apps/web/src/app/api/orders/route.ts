@@ -3,9 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
 import { calculatePrepSeconds } from "@/lib/prep-time";
-import { notifyStaffNewOrder } from "@/server/push";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
-import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/email";
 import { isSameOrigin } from "@/server/request-security";
 import crypto from "node:crypto";
 
@@ -47,6 +45,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
+  const stripeEnabled = Boolean(process.env.STRIPE_SECRET_KEY?.trim() && process.env.STRIPE_WEBHOOK_SECRET?.trim());
+  if (!stripeEnabled) {
+    return NextResponse.json(
+      { error: "Card payments are currently unavailable. Please try again shortly." },
+      { status: 503 }
+    );
+  }
 
   const ip = getClientIp(request);
   const access = await requireUser();
@@ -116,24 +122,6 @@ export async function POST(request: Request) {
     },
     include: { items: { include: { product: true } } }
   });
-
-  void notifyStaffNewOrder({ orderId: created.id, pickupName: created.pickupName, totalCents: created.totalCents });
-
-  if (!access.ok && created.guestEmail && created.guestToken && isEmailConfigured()) {
-    const baseUrl = process.env.NEXTAUTH_URL?.trim() || request.headers.get("origin") || "http://localhost:3000";
-    const trackUrl = `${baseUrl}/orders/guest/${created.guestToken}`;
-    const lines = created.items
-      .map((i) => `${i.qty}× ${i.product.name}`)
-      .join("\n");
-
-    void sendGuestOrderReceipt({
-      to: created.guestEmail,
-      subject: "Your Craving House order",
-      text: `Thanks for your order!\n\nPickup name: ${created.pickupName}\nTotal: £${(created.totalCents / 100).toFixed(2)}\n\nItems:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
-    }).catch((error) => {
-      console.error("Failed to send guest order receipt", error);
-    });
-  }
 
   return NextResponse.json({ id: created.id, guestToken: created.guestToken ?? null });
 }

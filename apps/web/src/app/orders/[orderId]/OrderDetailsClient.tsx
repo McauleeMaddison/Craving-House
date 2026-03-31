@@ -135,7 +135,7 @@ export function OrderDetailsClient(props: { orderId: string }) {
       ? "Paid online"
       : order.paymentStatus === "pending"
         ? "Payment pending"
-        : "Pay in store";
+        : "Awaiting payment";
 
   return (
     <>

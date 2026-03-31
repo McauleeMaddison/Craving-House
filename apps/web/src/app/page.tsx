@@ -20,7 +20,7 @@ export default function HomePage() {
 
         <div className="dashMeta rowScroll">
           <span className="pill">{store.openingHours.summary}</span>
-          <span className="pill">Pay in store</span>
+          <span className="pill">Pay securely online</span>
           <span className="pill">Buy 5 get 1 free</span>
         </div>
 

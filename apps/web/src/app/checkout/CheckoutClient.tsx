@@ -28,7 +28,6 @@ export function CheckoutClient() {
   const [pickupName, setPickupName] = useState("");
   const [notes, setNotes] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [payMethod, setPayMethod] = useState<"store" | "card">("store");
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [catalogReady, setCatalogReady] = useState(false);
@@ -89,12 +88,10 @@ export function CheckoutClient() {
       const json = (await res.json().catch(() => null)) as any;
       if (!mounted) return;
       setStripeEnabled(Boolean(json?.enabled));
-      if (!json?.enabled && payMethod === "card") setPayMethod("store");
     })();
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const subtotalCents = items.reduce((sum, x) => sum + x.qty * x.item.priceCents, 0);
@@ -121,6 +118,10 @@ export function CheckoutClient() {
       setAuthError("Email is required for guest checkout.");
       return;
     }
+    if (!stripeEnabled) {
+      setAuthError("Card payments are currently unavailable. Please try again shortly.");
+      return;
+    }
     if (items.length === 0) {
       setAuthError("Your cart is empty.");
       return;
@@ -140,20 +141,15 @@ export function CheckoutClient() {
       const orderId = res.data.id;
       const guestToken = res.data.guestToken;
 
-      if (payMethod === "card") {
-        const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId, guestToken: guestToken ?? undefined });
-        if (!payRes.ok) {
-          setAuthError(payRes.status === 401 ? "Please sign in to pay." : payRes.error);
-          router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
-          return;
-        }
-        cart.clear();
-        window.location.href = payRes.data.url;
+      const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId, guestToken: guestToken ?? undefined });
+      if (!payRes.ok) {
+        setAuthError(payRes.status === 401 ? "Please sign in to pay." : payRes.error);
+        router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
         return;
       }
 
       cart.clear();
-      router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
+      window.location.href = payRes.data.url;
     } finally {
       setSubmitting(false);
     }
@@ -183,7 +179,7 @@ export function CheckoutClient() {
       <section className="surface u-pad-18">
         <h1 className="u-title-26">Checkout</h1>
         <p className="muted u-mt-10 u-lh-16">
-          Choose how you want to pay. We’ll prepare your order and you’ll collect it when it’s ready.
+          Pay at checkout to confirm your order. We’ll prepare it once payment is successful.
         </p>
         {cartNotice ? (
           <p className="muted u-mt-8 u-lh-16">
@@ -269,35 +265,17 @@ export function CheckoutClient() {
           <div className="surface surfaceInset u-pad-14">
             <div className="u-fw-800">Payment</div>
             <div className="muted u-mt-8 u-lh-16">
-              Pay in store (fastest) or pay now by card.
+              Card payment is required at checkout.
             </div>
-            <div className="rowWrap u-mt-10">
-              <button
-                className={`btn btn-secondary ${payMethod === "store" ? "btnActive" : ""}`}
-                type="button"
-                onClick={() => setPayMethod("store")}
-              >
-                Pay in store
-              </button>
-              {stripeEnabled ? (
-                <button
-                  className={`btn btn-secondary ${payMethod === "card" ? "btnActive" : ""}`}
-                  type="button"
-                  onClick={() => setPayMethod("card")}
-                >
-                  Pay by card
-                </button>
-              ) : null}
-            </div>
-            {payMethod === "card" ? (
+            {stripeEnabled ? (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
                 You’ll be redirected to Stripe Checkout to pay securely.
               </p>
-            ) : !stripeEnabled ? (
+            ) : (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
                 Card payments aren’t enabled yet.
               </p>
-            ) : null}
+            )}
           </div>
 
           <label className="u-grid-gap-8">
@@ -320,7 +298,7 @@ export function CheckoutClient() {
           <div>
             <div className="u-fw-800">Total</div>
             <div className="muted u-mt-6 u-fs-13">
-              {payMethod === "card" ? "Pay online (card)" : "Pay in store"}
+              Payment required
             </div>
           </div>
           <div className="u-fw-900 u-fs-18">{formatMoneyGBP(subtotalCents)}</div>
@@ -329,9 +307,9 @@ export function CheckoutClient() {
         <button
           className="btn u-mt-14 u-w-full"
           onClick={placeOrder}
-          disabled={submitting}
+          disabled={submitting || !stripeEnabled}
         >
-          {submitting ? "Processing..." : payMethod === "card" ? "Pay now" : "Place order"}
+          {submitting ? "Processing..." : "Pay now"}
         </button>
         {authError ? (
           <p className="muted u-mt-10 u-danger">
