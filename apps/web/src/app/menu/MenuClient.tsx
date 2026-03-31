@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
@@ -22,20 +22,35 @@ type ProductDto = {
 
 function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
   const [burstKey, setBurstKey] = useState(0);
+  const [added, setAdded] = useState(false);
   const disabled = Boolean(props.disabled);
+  const resetTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+    };
+  }, []);
 
   return (
     <button
-      className="btn btn-burst"
+      className={`btn btn-burst ${added ? "btn-burst-added" : ""}`}
       disabled={disabled}
       onClick={() => {
         if (disabled) return;
         setBurstKey((k) => k + 1);
+        setAdded(true);
+        if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = window.setTimeout(() => setAdded(false), 900);
         props.onAdd();
       }}
       type="button"
     >
-      {disabled ? "Unavailable" : "Add to cart"}
+      <span className="btnBurstText">{disabled ? "Unavailable" : added ? "Added" : "Add to cart"}</span>
+      <span className="btnBurstIcon" aria-hidden="true">
+        {added ? "✓" : "+"}
+      </span>
+      {!disabled ? <span key={`pulse-${burstKey}`} className="beanPulse" aria-hidden="true" /> : null}
       {!disabled ? <span key={burstKey} className="beanBurst" aria-hidden="true" /> : null}
     </button>
   );

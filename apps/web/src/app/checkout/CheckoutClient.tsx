@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -35,6 +35,7 @@ export function CheckoutClient() {
   const [cartNotice, setCartNotice] = useState("");
   const [authError, setAuthError] = useState<string>("");
   const [stripeEnabled, setStripeEnabled] = useState(false);
+  const pickupNameInputRef = useRef<HTMLInputElement | null>(null);
 
   const items = useMemo(() => {
     return cart.lines
@@ -107,16 +108,24 @@ export function CheckoutClient() {
     const minutes = Math.max(1, Math.round(prepSeconds / 60));
     return `${minutes} min`;
   }, [prepSeconds]);
+  const authErrorNeedsSignIn = /sign in|unauthorized/i.test(authError);
 
   async function placeOrder() {
-    if (!pickupName.trim()) return;
+    setAuthError("");
+    if (!pickupName.trim()) {
+      setAuthError("Please enter a name for pickup.");
+      pickupNameInputRef.current?.focus();
+      return;
+    }
     if (!signedIn && !guestEmail.trim()) {
       setAuthError("Email is required for guest checkout.");
       return;
     }
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      setAuthError("Your cart is empty.");
+      return;
+    }
     setSubmitting(true);
-    setAuthError("");
     try {
       const res = await apiPostJson<{ id: string; guestToken: string | null }>("/api/orders", {
         pickupName,
@@ -227,9 +236,15 @@ export function CheckoutClient() {
               Name for pickup
             </span>
             <input
+              ref={pickupNameInputRef}
               className="input"
               value={pickupName}
-              onChange={(e) => setPickupName(e.target.value)}
+              onChange={(e) => {
+                setPickupName(e.target.value);
+                if (authError === "Please enter a name for pickup." && e.target.value.trim()) {
+                  setAuthError("");
+                }
+              }}
               placeholder="e.g. Sam"
               autoComplete="name"
             />
@@ -314,16 +329,21 @@ export function CheckoutClient() {
         <button
           className="btn u-mt-14 u-w-full"
           onClick={placeOrder}
-          disabled={submitting || pickupName.trim().length === 0}
+          disabled={submitting}
         >
           {submitting ? "Processing..." : payMethod === "card" ? "Pay now" : "Place order"}
         </button>
         {authError ? (
           <p className="muted u-mt-10 u-danger">
-            {authError}{" "}
-            <a href="/signin" className="u-underline">
-              Sign in
-            </a>
+            {authError}
+            {authErrorNeedsSignIn ? (
+              <>
+                {" "}
+                <a href="/signin" className="u-underline">
+                  Sign in
+                </a>
+              </>
+            ) : null}
           </p>
         ) : null}
         <p className="muted u-mt-10 u-fs-12 u-lh-16">
