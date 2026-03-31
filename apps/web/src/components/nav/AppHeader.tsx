@@ -15,6 +15,35 @@ const links: Array<{ href: string; label: string }> = [
   { href: "/feedback", label: "Feedback" }
 ];
 
+function ThemeToggleButton(props: {
+  theme: "poster" | "dark";
+  onToggle: () => void;
+  compact?: boolean;
+}) {
+  const isDark = props.theme === "dark";
+  return (
+    <button
+      className={`themeToggle ${isDark ? "themeToggleDark" : "themeTogglePoster"} ${props.compact ? "themeToggleCompact" : ""}`}
+      type="button"
+      onClick={props.onToggle}
+      aria-pressed={isDark}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      <span className="themeToggleOrb" aria-hidden="true">
+        <span className="themeToggleSun" />
+        <span className="themeToggleMoon" />
+        <span className="themeToggleSpark themeToggleSparkA" />
+        <span className="themeToggleSpark themeToggleSparkB" />
+      </span>
+      <span className="themeToggleText">
+        <span className="themeToggleTitle">{isDark ? "Light mode" : "Dark mode"}</span>
+        <span className="themeToggleSub">{isDark ? "Midnight active" : "Golden hour"}</span>
+      </span>
+    </button>
+  );
+}
+
 export function AppHeader() {
   const pathname = usePathname();
   const { data, status } = useSession();
@@ -318,9 +347,7 @@ export function AppHeader() {
                     {link.label}
                   </Link>
                 ))}
-            <button className="btn btn-secondary" type="button" onClick={toggleTheme}>
-              {theme === "poster" ? "Dark mode" : "Light mode"}
-            </button>
+            <ThemeToggleButton theme={theme} onToggle={toggleTheme} />
             {signedIn ? (
               <Link
                 className="btn btn-secondary"
@@ -399,9 +426,7 @@ export function AppHeader() {
 
         <div className="rowWrap rowWrapTight">
           <span className="pill">{store.openingHours.summary}</span>
-          <button className="pill pillButton" type="button" onClick={toggleTheme}>
-            {theme === "poster" ? "Dark mode" : "Light mode"}
-          </button>
+          <ThemeToggleButton theme={theme} onToggle={toggleTheme} compact />
           {signedIn ? (
             <span className="pill">
               Signed in: {displayName}
