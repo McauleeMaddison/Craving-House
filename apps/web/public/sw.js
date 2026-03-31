@@ -10,8 +10,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "Craving House";
   const options = {
     body: payload.body || "",
-    icon: payload.icon || "/ch-favicon.jpeg",
-    badge: payload.badge || "/ch-favicon.jpeg",
+    icon: payload.icon || "/icon.svg",
+    badge: payload.badge || "/icon.svg",
     data: payload.data || {}
   };
 

@@ -10,9 +10,9 @@ export const metadata: Metadata = {
   title: "Craving House",
   description: "Order ahead + loyalty rewards",
   icons: {
-    icon: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }],
-    shortcut: ["/ch-favicon.jpeg"],
-    apple: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }]
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }]
   }
 };
 

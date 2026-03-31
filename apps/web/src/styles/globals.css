@@ -677,27 +677,35 @@ code {
 .beanBurst::before {
   content: "";
   position: absolute;
-  inset: 7px 2px 0 2px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--btn-text) 85%, #73431a);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.22);
+  inset: 6px 2px 1px 2px;
+  border-radius: 58% 42% 56% 44% / 58% 44% 56% 42%;
+  background:
+    radial-gradient(120% 95% at 30% 24%, rgba(255, 255, 255, 0.14), transparent 44%),
+    radial-gradient(90% 120% at 72% 80%, rgba(0, 0, 0, 0.55), transparent 62%),
+    linear-gradient(102deg, transparent 44%, rgba(168, 125, 77, 0.38) 50%, transparent 57%),
+    linear-gradient(130deg, #2a2a2a 0%, #0e0e0e 45%, #000000 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.36);
   transform: rotate(-10deg) scale(0.98);
 }
 
 .beanBurst::after {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 0px;
-  width: 14px;
-  height: 12px;
-  opacity: 0.9;
-  filter: blur(0.2px);
-  background:
-    radial-gradient(8px 10px at 50% 100%, rgba(255, 255, 255, 0.6), transparent 70%),
-    radial-gradient(8px 10px at 20% 100%, rgba(255, 255, 255, 0.55), transparent 70%),
-    radial-gradient(8px 10px at 80% 100%, rgba(255, 255, 255, 0.55), transparent 70%);
-  animation: beanSteam 760ms cubic-bezier(0.16, 0.76, 0.3, 1) forwards;
+  left: 2px;
+  top: 2px;
+  width: 9px;
+  height: 13px;
+  border-radius: 58% 42% 56% 44% / 58% 44% 56% 42%;
+  opacity: 0;
+  background: linear-gradient(130deg, #1f1f1f 0%, #050505 100%);
+  box-shadow:
+    10px -2px 0 0 #0b0b0b,
+    16px 8px 0 -1px #181818;
+  transform: translateY(9px) scale(0.78) rotate(8deg);
+  animation: beanTrail 760ms cubic-bezier(0.16, 0.76, 0.3, 1) forwards;
 }
 
 @keyframes beanBurstPop {
@@ -718,17 +726,17 @@ code {
   }
 }
 
-@keyframes beanSteam {
+@keyframes beanTrail {
   0% {
     opacity: 0;
-    transform: translateY(10px) scale(0.85);
+    transform: translateY(10px) scale(0.78) rotate(8deg);
   }
   25% {
-    opacity: 0.85;
+    opacity: 0.88;
   }
   100% {
     opacity: 0;
-    transform: translateY(-16px) scale(1.04);
+    transform: translateY(-18px) scale(1.04) rotate(-8deg);
   }
 }
 
