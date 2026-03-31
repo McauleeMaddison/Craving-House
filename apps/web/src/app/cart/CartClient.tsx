@@ -22,18 +22,43 @@ type ProductDto = {
 export function CartClient() {
   const cart = useCart();
   const [products, setProducts] = useState<ProductDto[]>([]);
+  const [catalogReady, setCatalogReady] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       const res = await apiGetJson<{ products: ProductDto[] }>("/api/menu");
       if (!mounted) return;
-      if (res.ok) setProducts(res.data.products);
+      if (res.ok) {
+        setProducts(res.data.products);
+        setCatalogReady(true);
+      }
     })();
     return () => {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!catalogReady) return;
+
+    const productById = new Map(products.map((product) => [product.id, product]));
+    const invalidLines = cart.lines.filter((line) => {
+      const product = productById.get(line.itemId);
+      return !product || !product.available;
+    });
+    if (invalidLines.length === 0) return;
+
+    invalidLines.forEach((line) => {
+      cart.remove(line.id);
+    });
+    setNotice(
+      invalidLines.length === 1
+        ? "1 unavailable item was removed from your cart."
+        : `${invalidLines.length} unavailable items were removed from your cart.`
+    );
+  }, [catalogReady, products, cart]);
 
   function findItem(itemId: string) {
     return products.find((x) => x.id === itemId);
@@ -44,7 +69,7 @@ export function CartClient() {
       const item = findItem(l.itemId);
       return { line: l, item };
     })
-    .filter((x) => x.item);
+    .filter((x): x is { line: typeof cart.lines[number]; item: ProductDto } => Boolean(x.item && x.item.available));
 
   const subtotalCents = detailed.reduce((sum, x) => {
     return sum + (x.item!.priceCents ?? 0) * x.line.qty;
@@ -70,6 +95,11 @@ export function CartClient() {
         <p className="muted u-mt-10 u-lh-16">
           Your cart is empty.
         </p>
+        {notice ? (
+          <p className="muted u-mt-8 u-lh-16">
+            {notice}
+          </p>
+        ) : null}
         <Link className="btn u-mt-10" href="/menu">
           Browse menu
         </Link>
@@ -86,6 +116,11 @@ export function CartClient() {
             <p className="muted u-mt-10 u-lh-16">
               Pay in store. Estimated prep based on manager-set prep times.
             </p>
+            {notice ? (
+              <p className="muted u-mt-8 u-lh-16">
+                {notice}
+              </p>
+            ) : null}
           </div>
           <div className="u-flex-wrap-gap-10-center">
             <div className="pill">

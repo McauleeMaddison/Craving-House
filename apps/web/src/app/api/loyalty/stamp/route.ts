@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
 
 import { calculateEarnedStampsFromEligibleItems } from "@/lib/loyalty";
 import { prisma } from "@/server/db";
 import { verifyCustomerQrToken } from "@/server/qr";
-import { authOptions } from "@/server/auth";
+import { requireRole } from "@/server/access";
 import { isSameOrigin } from "@/server/request-security";
 
 type StampRequest = {
@@ -20,14 +19,14 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const access = await requireRole(["staff", "manager"]);
+  if (!access.ok) {
+    return NextResponse.json(
+      { error: access.reason },
+      { status: access.reason === "unauthorized" ? 401 : 403 }
+    );
   }
-  if (session.user.role !== "staff" && session.user.role !== "manager") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-  const staffUserId = session.user.id;
+  const staffUserId = access.userId;
 
   const body = (await request.json()) as Partial<StampRequest>;
   const qrToken = typeof body.qrToken === "string" ? body.qrToken.trim() : "";
@@ -45,25 +44,36 @@ export async function POST(request: Request) {
     );
   }
 
-  const secret = process.env.QR_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: "Missing QR_SECRET" }, { status: 500 });
-  }
-
   let customerUserId = "";
   if (cardToken) {
     const account = await prisma.loyaltyAccount.findFirst({ where: { cardToken }, select: { userId: true } });
     customerUserId = account?.userId ?? "";
   } else {
-    const verified = verifyCustomerQrToken({ token: qrToken, secret });
-    customerUserId = verified.userId;
+    const secret = process.env.QR_SECRET;
+    if (!secret) {
+      return NextResponse.json({ error: "Missing QR_SECRET" }, { status: 500 });
+    }
+    try {
+      const verified = verifyCustomerQrToken({ token: qrToken, secret });
+      customerUserId = verified.userId;
+    } catch {
+      return NextResponse.json({ error: "Invalid or expired qrToken" }, { status: 400 });
+    }
   }
   if (!customerUserId) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
   const result = await prisma.$transaction(async (tx) => {
-    const settings =
-      (await tx.loyaltyProgramSettings.findFirst()) ??
-      (await tx.loyaltyProgramSettings.create({ data: {} }));
+    const idempotencyKey = body.idempotencyKey?.trim() || "";
+    if (idempotencyKey) {
+      const existing = await tx.loyaltyStamp.findUnique({ where: { idempotencyKey } });
+      if (existing) {
+        const account = await tx.loyaltyAccount.findUnique({ where: { id: existing.loyaltyAccountId } });
+        return {
+          earned: calculateEarnedStampsFromEligibleItems({ eligibleItemCount: existing.eligibleItemCount }),
+          totalStamps: account?.stamps ?? 0
+        };
+      }
+    }
 
     const earned = calculateEarnedStampsFromEligibleItems({
       eligibleItemCount: body.eligibleItemCount!
@@ -87,7 +97,7 @@ export async function POST(request: Request) {
         orderId: body.orderId ?? null,
         eligibleItemCount: body.eligibleItemCount!,
         createdByStaffId: staffUserId,
-        idempotencyKey: body.idempotencyKey ?? null,
+        idempotencyKey: idempotencyKey || null,
         source: "scan"
       }
     });

@@ -2,8 +2,11 @@ import Link from "next/link";
 
 import { requireRole } from "@/server/require-role";
 import { ManagerDashboardClient } from "@/app/manager/ManagerDashboardClient";
+import { prisma } from "@/server/db";
 
 export default async function ManagerHomePage() {
+  const managerCount = await prisma.user.count({ where: { role: "manager", disabledAt: null } });
+  const noManagers = managerCount === 0;
   const access = await requireRole(["manager"]);
   if (!access.ok) {
     return (
@@ -11,12 +14,21 @@ export default async function ManagerHomePage() {
         <section className="surface u-pad-18 u-maxw-720">
           <h1 className="u-title-26">Manager Portal</h1>
           <p className="muted u-mt-10 u-lh-16">
-            {access.reason === "unauthorized" ? "You need to sign in." : "You don’t have manager access."}
+            {noManagers
+              ? "No manager account exists yet. Complete one-time setup to create your first manager."
+              : access.reason === "unauthorized"
+                ? "You need to sign in."
+                : "You don’t have manager access."}
           </p>
           <div className="u-flex-wrap-gap-10 u-mt-10">
             <Link className="btn" href="/signin?callbackUrl=/manager">
               Manager sign-in
             </Link>
+            {noManagers ? (
+              <Link className="btn btn-secondary" href="/setup">
+                Create first manager
+              </Link>
+            ) : null}
             <Link className="btn btn-secondary" href="/">
               Back to customer app
             </Link>

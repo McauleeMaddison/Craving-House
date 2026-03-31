@@ -15,6 +15,8 @@ function authErrorToMessage(error: string) {
     case "OAuthSignin":
     case "OAuthCallback":
       return "Google sign-in failed. Check your Google OAuth configuration.";
+    case "ManagerEmailOnly":
+      return "Manager accounts must sign in with email + password (and authenticator code if enabled).";
     default:
       return "Sign-in failed. Please try again.";
   }
@@ -34,6 +36,7 @@ export default function SignInPage() {
   const [callbackUrl, setCallbackUrl] = useState("/");
 
   const googleAvailable = Boolean(providers && (providers as any).google);
+  const managerMode = callbackUrl.startsWith("/manager");
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -42,6 +45,12 @@ export default function SignInPage() {
     const cb = url.searchParams.get("callbackUrl");
     if (cb && cb.startsWith("/")) setCallbackUrl(cb);
   }, []);
+
+  useEffect(() => {
+    if (managerMode && mode === "signup") {
+      setMode("signin");
+    }
+  }, [managerMode, mode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,29 +122,40 @@ export default function SignInPage() {
         <p className="muted u-mt-10 u-lh-16">
           Sign in with Google or with your email + password.
         </p>
+        <p className="muted u-mt-8 u-lh-16">
+          Staff and manager use the same sign-in page and account credentials.
+        </p>
 
         <div className="u-grid-gap-12 u-mt-16">
-          {googleAvailable ? (
+          {googleAvailable && !managerMode ? (
             <button className="btn btn-secondary" onClick={() => signIn("google", { callbackUrl })}>
               Continue with Google
             </button>
+          ) : managerMode ? (
+            <div className="pill">
+              Manager sign-in uses email + password (plus authenticator code if enabled).
+            </div>
           ) : (
             <div className="pill">Google sign-in not available yet.</div>
           )}
 
           <div className="surface surfaceFlat u-pad-14">
             <div className="rowWrap u-justify-between">
-              <div className="u-fw-950">{mode === "signin" ? "Email sign in" : "Create account"}</div>
-              <button
-                className="btn btn-secondary btnCompact"
-                type="button"
-                onClick={() => {
-                  setMessage(null);
-                  setMode((m) => (m === "signin" ? "signup" : "signin"));
-                }}
-              >
-                {mode === "signin" ? "Create account" : "I have an account"}
-              </button>
+              <div className="u-fw-950">
+                {managerMode ? "Manager email sign in" : mode === "signin" ? "Email sign in" : "Create account"}
+              </div>
+              {!managerMode ? (
+                <button
+                  className="btn btn-secondary btnCompact"
+                  type="button"
+                  onClick={() => {
+                    setMessage(null);
+                    setMode((m) => (m === "signin" ? "signup" : "signin"));
+                  }}
+                >
+                  {mode === "signin" ? "Create account" : "I have an account"}
+                </button>
+              ) : null}
             </div>
 
             <div className="u-grid-gap-10 u-mt-12">

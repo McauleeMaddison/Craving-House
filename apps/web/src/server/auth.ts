@@ -21,7 +21,8 @@ const forceSecureSessionCookieInProduction =
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" },
+  // Credentials auth is designed around JWT sessions.
+  session: { strategy: "jwt" },
   pages: { signIn: "/signin" },
   // Always use secure cookies in production (required for iOS/Safari to persist sessions on HTTPS).
   useSecureCookies: process.env.NODE_ENV === "production",
@@ -151,10 +152,33 @@ export const authOptions: NextAuthOptions = {
       : [])
   ],
   callbacks: {
-    async session({ session, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") return true;
+
+      const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
+      if (!email) return true;
+
+      const existing = await prisma.user.findUnique({
+        where: { email },
+        select: { role: true }
+      });
+      if (existing && normalizeRole(existing.role) === "manager") {
+        return "/signin?error=ManagerEmailOnly";
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+        (token as any).role = normalizeRole((user as any).role);
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = user.id;
-        session.user.role = normalizeRole((user as any).role);
+        session.user.id = String(token.sub ?? "");
+        session.user.role = normalizeRole((token as any).role);
       }
       return session;
     }

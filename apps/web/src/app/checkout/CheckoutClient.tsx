@@ -31,6 +31,8 @@ export function CheckoutClient() {
   const [payMethod, setPayMethod] = useState<"store" | "card">("store");
   const [submitting, setSubmitting] = useState(false);
   const [products, setProducts] = useState<ProductDto[]>([]);
+  const [catalogReady, setCatalogReady] = useState(false);
+  const [cartNotice, setCartNotice] = useState("");
   const [authError, setAuthError] = useState<string>("");
   const [stripeEnabled, setStripeEnabled] = useState(false);
 
@@ -38,7 +40,8 @@ export function CheckoutClient() {
     return cart.lines
       .map((l) => {
         const item = products.find((x) => x.id === l.itemId);
-        return item ? { item, qty: l.qty, customizations: l.customizations } : null;
+        if (!item || !item.available) return null;
+        return { item, qty: l.qty, customizations: l.customizations };
       })
       .filter((x): x is NonNullable<typeof x> => Boolean(x));
   }, [cart.lines, products]);
@@ -48,12 +51,35 @@ export function CheckoutClient() {
     (async () => {
       const res = await apiGetJson<{ products: ProductDto[] }>("/api/menu");
       if (!mounted) return;
-      if (res.ok) setProducts(res.data.products);
+      if (res.ok) {
+        setProducts(res.data.products);
+        setCatalogReady(true);
+      }
     })();
     return () => {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!catalogReady) return;
+
+    const productById = new Map(products.map((product) => [product.id, product]));
+    const invalidLines = cart.lines.filter((line) => {
+      const product = productById.get(line.itemId);
+      return !product || !product.available;
+    });
+    if (invalidLines.length === 0) return;
+
+    invalidLines.forEach((line) => {
+      cart.remove(line.id);
+    });
+    setCartNotice(
+      invalidLines.length === 1
+        ? "1 unavailable item was removed from your cart."
+        : `${invalidLines.length} unavailable items were removed from your cart.`
+    );
+  }, [catalogReady, products, cart]);
 
   useEffect(() => {
     let mounted = true;
@@ -131,6 +157,11 @@ export function CheckoutClient() {
         <p className="muted u-mt-10 u-lh-16">
           Your cart is empty.
         </p>
+        {cartNotice ? (
+          <p className="muted u-mt-8 u-lh-16">
+            {cartNotice}
+          </p>
+        ) : null}
         <a className="btn u-mt-10" href="/menu">
           Browse menu
         </a>
@@ -145,6 +176,11 @@ export function CheckoutClient() {
         <p className="muted u-mt-10 u-lh-16">
           Choose how you want to pay. We’ll prepare your order and you’ll collect it when it’s ready.
         </p>
+        {cartNotice ? (
+          <p className="muted u-mt-8 u-lh-16">
+            {cartNotice}
+          </p>
+        ) : null}
 
         <div className="grid-2 u-mt-14">
           <div className="surface surfaceInset u-pad-16">

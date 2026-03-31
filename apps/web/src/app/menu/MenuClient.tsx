@@ -20,20 +20,23 @@ type ProductDto = {
   loyaltyEligible: boolean;
 };
 
-function AddToCartButton(props: { onAdd: () => void }) {
+function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
   const [burstKey, setBurstKey] = useState(0);
+  const disabled = Boolean(props.disabled);
 
   return (
     <button
       className="btn btn-burst"
+      disabled={disabled}
       onClick={() => {
+        if (disabled) return;
         setBurstKey((k) => k + 1);
         props.onAdd();
       }}
       type="button"
     >
-      Add to cart
-      <span key={burstKey} className="beanBurst" aria-hidden="true" />
+      {disabled ? "Unavailable" : "Add to cart"}
+      {!disabled ? <span key={burstKey} className="beanBurst" aria-hidden="true" /> : null}
     </button>
   );
 }
@@ -55,7 +58,7 @@ export function MenuClient() {
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const list = products.filter((p) => p.available);
+    const list = products;
     if (!q) return list;
     return list.filter((x) => {
       return (
@@ -85,7 +88,7 @@ export function MenuClient() {
           <div>
             <h1 className="u-title-26">Menu</h1>
             <p className="muted u-mt-8 u-lh-16">
-              Manager-controlled prep times and loyalty eligibility. (Sample data for now.)
+              Manager-controlled availability, prep times, and loyalty eligibility.
             </p>
           </div>
           <div className="menuSearchWrap">
@@ -107,9 +110,9 @@ export function MenuClient() {
         </section>
       ) : items.length === 0 ? (
         <section className="surface u-pad-16 u-mt-12">
-          <div className="u-fw-900">No items available</div>
+          <div className="u-fw-900">No matching items</div>
           <p className="muted u-mt-8 u-lh-16">
-            The menu hasn’t been set up yet, or all items are marked unavailable.
+            Try a different search, or check back shortly.
           </p>
           {isManager ? (
             <div className="u-flex-wrap-gap-10 u-mt-10">
@@ -146,22 +149,37 @@ export function MenuClient() {
               </div>
 
               <div className="u-flex-between-wrap u-mt-14">
-                <div className="pill">
-                  {item.loyaltyEligible ? "Earns stamp" : "No stamp"}
+                <div className="rowWrap">
+                  <div className="pill">
+                    {item.available ? "Available now" : "Temporarily unavailable"}
+                  </div>
+                  <div className="pill">
+                    {item.loyaltyEligible ? "Earns stamp" : "No stamp"}
+                  </div>
                 </div>
                 <div className="u-flex-wrap-gap-10-center">
                   <button
                     className="btn btn-secondary"
                     type="button"
+                    disabled={!item.available}
                     onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
                   >
                     Customise
                   </button>
-                  <AddToCartButton onAdd={() => cart.add(item.id, 1, custom[item.id] ?? null)} />
+                  <AddToCartButton
+                    disabled={!item.available}
+                    onAdd={() => cart.add(item.id, 1, custom[item.id] ?? null)}
+                  />
                 </div>
               </div>
 
-              {expanded[item.id] ? (
+              {!item.available ? (
+                <p className="muted u-mt-10 u-fs-12 u-lh-16">
+                  This item is visible but cannot be ordered until it’s marked available by admin.
+                </p>
+              ) : null}
+
+              {expanded[item.id] && item.available ? (
                 <div className="surface surfaceInset u-pad-14 u-mt-12">
                   <div className="u-fw-900">Customise your drink</div>
                   <div className="muted u-mt-8 u-lh-16">

@@ -66,9 +66,6 @@ export async function POST(request: Request) {
     if (!guestEmail || !guestEmail.includes("@")) {
       return NextResponse.json({ error: "Email is required for guest checkout." }, { status: 400 });
     }
-    if (!isEmailConfigured()) {
-      return NextResponse.json({ error: "Guest checkout email is not configured yet." }, { status: 500 });
-    }
   }
   if (!Array.isArray(body.items) || body.items.length === 0) {
     return NextResponse.json({ error: "Missing items" }, { status: 400 });
@@ -122,17 +119,19 @@ export async function POST(request: Request) {
 
   void notifyStaffNewOrder({ orderId: created.id, pickupName: created.pickupName, totalCents: created.totalCents });
 
-  if (!access.ok && created.guestEmail && created.guestToken) {
+  if (!access.ok && created.guestEmail && created.guestToken && isEmailConfigured()) {
     const baseUrl = process.env.NEXTAUTH_URL?.trim() || request.headers.get("origin") || "http://localhost:3000";
     const trackUrl = `${baseUrl}/orders/guest/${created.guestToken}`;
     const lines = created.items
       .map((i) => `${i.qty}× ${i.product.name}`)
       .join("\n");
 
-    await sendGuestOrderReceipt({
+    void sendGuestOrderReceipt({
       to: created.guestEmail,
       subject: "Your Craving House order",
       text: `Thanks for your order!\n\nPickup name: ${created.pickupName}\nTotal: £${(created.totalCents / 100).toFixed(2)}\n\nItems:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
+    }).catch((error) => {
+      console.error("Failed to send guest order receipt", error);
     });
   }
 
