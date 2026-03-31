@@ -317,7 +317,7 @@ export function AppHeader() {
         <div className="container appHeaderInner">
           <Link href="/" className="brandLink" aria-label={store.name}>
             <span className="brandMark" aria-hidden="true">
-              <Image src="/icon.svg" alt="" width={34} height={34} priority />
+              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
             </span>
             <span className="brandText">
               <span className="brandName">
@@ -402,7 +402,7 @@ export function AppHeader() {
         <div className="drawerTop">
           <Link href="/" className="brandLink" aria-label={store.name} onClick={() => setOpen(false)}>
             <span className="brandMark" aria-hidden="true">
-              <Image src="/icon.svg" alt="" width={34} height={34} />
+              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} />
             </span>
             <span className="brandText">
               <span className="brandName">

@@ -10,7 +10,7 @@ export default function HomePage() {
       <section className="surface dashHero">
         <div className="dashHeader">
           <div className="dashLogo" aria-hidden="true">
-            <Image src="/icon.svg" alt="" width={56} height={56} priority />
+            <Image src="/ch-favicon.jpeg" alt="" width={56} height={56} priority />
           </div>
           <div className="dashTitleBlock">
             <div className="dashName">{store.name}</div>

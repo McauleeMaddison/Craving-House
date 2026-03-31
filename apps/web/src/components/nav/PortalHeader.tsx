@@ -36,7 +36,7 @@ export function PortalHeader() {
       <div className="container appHeaderInner portalHeaderInner">
         <Link className="brandLink" href={pathname?.startsWith("/manager") ? "/manager" : "/staff"}>
           <span className="brandMark portalBrandMark" aria-hidden="true">
-            <Image alt="" src="/icon.svg" width={40} height={40} />
+            <Image alt="" src="/ch-favicon.jpeg" width={40} height={40} />
           </span>
           <span className="brandText">
             <span className="brandName">{store.name}</span>
