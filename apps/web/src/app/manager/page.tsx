@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
-import { requireRole } from "@/server/require-role";
+import { requireRole } from "@/server/auth/access";
 import { ManagerDashboardClient } from "@/app/manager/ManagerDashboardClient";
 import { prisma } from "@/server/db";
 
 export default async function ManagerHomePage() {
+  await connection();
   const managerCount = await prisma.user.count({ where: { role: "manager", disabledAt: null } });
   const noManagers = managerCount === 0;
   const access = await requireRole(["manager"]);

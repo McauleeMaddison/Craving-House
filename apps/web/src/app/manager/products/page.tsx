@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { ProductsClient } from "@/app/manager/products/ProductsClient";
-import { requireRole } from "@/server/require-role";
+import { requireRole } from "@/server/auth/access";
 
 export default async function ManagerProductsPage() {
   const access = await requireRole(["manager"]);

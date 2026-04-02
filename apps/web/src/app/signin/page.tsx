@@ -4,7 +4,16 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+function formatRetryDelay(seconds: number) {
+  if (seconds >= 120) return `${Math.ceil(seconds / 60)} minutes`;
+  if (seconds >= 60) return "about 1 minute";
+  return `${seconds} seconds`;
+}
+
 function authErrorToMessage(error: string) {
+  const [code, retryAfterRaw] = error.split(":");
+  const retryAfterSeconds = Number(retryAfterRaw ?? "");
+
   switch (error) {
     case "CredentialsSignin":
       return "Sign-in failed. Check your email/password.";
@@ -23,6 +32,13 @@ function authErrorToMessage(error: string) {
       return "Sign-in is not configured correctly on the server.";
     case "ManagerEmailOnly":
       return "Manager accounts must sign in with email + password (and authenticator code if enabled).";
+  }
+
+  switch (code) {
+    case "TooManyAttempts":
+      return Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+        ? `Too many sign-in attempts. Please wait ${formatRetryDelay(retryAfterSeconds)} and try again.`
+        : "Too many sign-in attempts. Please wait a moment and try again.";
     default:
       return "Sign-in failed. Please try again.";
   }
@@ -236,7 +252,7 @@ export default function SignInPage() {
               </button>
               {mode === "signup" ? (
                 <p className="muted u-m-0 u-fs-12 u-lh-16">
-                  Password must be at least 10 characters.
+                  Password must be at least 12 characters.
                 </p>
               ) : null}
             </div>

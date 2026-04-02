@@ -3,8 +3,11 @@ set -euo pipefail
 
 changed_files="$(git diff --cached --name-only --diff-filter=ACMR || true)"
 blocked_env_regex='(^|/)\.env($|[.])'
+allowed_env_template_regex='(^|/)\.env\.example$'
 
-if echo "$changed_files" | grep -E -q "$blocked_env_regex"; then
+blocked_env_files="$(echo "$changed_files" | grep -E "$blocked_env_regex" | grep -Ev "$allowed_env_template_regex" || true)"
+
+if [ -n "$blocked_env_files" ]; then
   echo "Blocked commit: .env files must never be committed."
   echo ""
   echo "Unstage the file(s) and retry:"

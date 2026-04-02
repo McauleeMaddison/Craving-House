@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { OrderQueueClient } from "@/app/staff/orders/OrderQueueClient";
-import { requireRole } from "@/server/require-role";
+import { requireRole } from "@/server/auth/access";
 
 export default async function StaffOrdersPage() {
   const access = await requireRole(["staff", "manager"]);

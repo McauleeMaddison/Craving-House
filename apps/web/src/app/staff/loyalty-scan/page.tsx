@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { LoyaltyScanClient } from "@/app/staff/loyalty-scan/LoyaltyScanClient";
-import { requireRole } from "@/server/require-role";
+import { requireRole } from "@/server/auth/access";
 
 export default async function StaffLoyaltyScanPage() {
   const access = await requireRole(["staff", "manager"]);

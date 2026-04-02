@@ -26,6 +26,7 @@ As of April 2, 2026, Node.js `25.9.0` is the latest release, but `24.14.1` is th
    - `npm install`
 2. Configure env:
    - `cp apps/web/.env.example apps/web/.env` and fill in values
+   - Use a dedicated `MFA_ENCRYPTION_KEY`; do not reuse `NEXTAUTH_SECRET`
 3. Initialize DB (dev):
    - `npm run dev:setup -w apps/web`
 
@@ -34,6 +35,7 @@ As of April 2, 2026, Node.js `25.9.0` is the latest release, but `24.14.1` is th
 1. Add env vars in your deployment platform for `apps/web`:
    - `STRIPE_SECRET_KEY`
    - `STRIPE_WEBHOOK_SECRET`
+   - Optional: `STRIPE_WEBHOOK_IP_ALLOWLIST` as a comma-separated list if your host preserves the source IP correctly
 2. In Stripe Dashboard, create a webhook endpoint:
    - URL: `https://YOUR_DOMAIN/api/webhooks/stripe`
    - Events: `checkout.session.completed`, `checkout.session.expired`
@@ -41,7 +43,7 @@ As of April 2, 2026, Node.js `25.9.0` is the latest release, but `24.14.1` is th
 4. Redeploy the app.
 5. Verify:
    - `GET /api/payments/stripe/enabled` returns `{ "enabled": true }`
-   - `GET /api/health` shows Stripe env as configured.
+   - `GET /api/health?verbose=1` from a manager session shows Stripe env as configured.
 
 Test mode:
 - Use Stripe test secret key (`sk_test_...`) and test webhook secret.
@@ -77,6 +79,18 @@ The app now reads its canonical public URL from `NEXTAUTH_URL` in one place and 
 - Lint: `npm run lint`
 - Test: `npm run test`
 
+## Health Endpoint
+
+- `GET /api/health` is intentionally minimal and safe for public uptime checks.
+- `GET /api/health?verbose=1` is restricted to a signed-in manager session or a matching `HEALTHCHECK_TOKEN` header.
+- Example header: `x-healthcheck-token: YOUR_TOKEN`
+
 ## Security note
 
 Do not commit secrets (API keys, private keys, `.env` files). If secrets were ever committed, rotate them and purge them from git history.
+
+Production launch basics:
+- Keep `DEV_AUTH_ENABLED=false` and `NEXT_PUBLIC_DEV_AUTH_ENABLED=false`
+- Keep `NEXTAUTH_DEBUG=false`
+- Set `MFA_ENCRYPTION_KEY` and make it different from `NEXTAUTH_SECRET`
+- Use HTTPS for `NEXTAUTH_URL`

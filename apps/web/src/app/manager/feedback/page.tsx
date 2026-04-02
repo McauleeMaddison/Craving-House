@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { requireRole } from "@/server/require-role";
+import { requireRole } from "@/server/auth/access";
 import { FeedbackListClient } from "@/app/manager/feedback/FeedbackListClient";
 
 export default async function ManagerFeedbackPage() {

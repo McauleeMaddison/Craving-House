@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 function validateProductionEnv() {
   if (process.env.NODE_ENV !== "production") return;
 
-  const required = ["DATABASE_URL", "NEXTAUTH_URL", "NEXTAUTH_SECRET", "QR_SECRET"];
+  const required = ["DATABASE_URL", "NEXTAUTH_URL", "NEXTAUTH_SECRET", "QR_SECRET", "MFA_ENCRYPTION_KEY"];
   const missing = required.filter((k) => !process.env[k] || String(process.env[k]).trim().length === 0);
   if (missing.length) {
     console.error(`Missing required env var(s): ${missing.join(", ")}`);
@@ -18,6 +18,17 @@ function validateProductionEnv() {
 
   if (process.env.DEV_AUTH_ENABLED === "true" || process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true") {
     console.error("DEV_AUTH_ENABLED must be false in production.");
+    process.exit(1);
+  }
+  if (process.env.NEXTAUTH_DEBUG === "true") {
+    console.error("NEXTAUTH_DEBUG must be false in production.");
+    process.exit(1);
+  }
+
+  const nextAuthSecret = String(process.env.NEXTAUTH_SECRET ?? "").trim();
+  const mfaEncryptionKey = String(process.env.MFA_ENCRYPTION_KEY ?? "").trim();
+  if (nextAuthSecret && mfaEncryptionKey && nextAuthSecret === mfaEncryptionKey) {
+    console.error("MFA_ENCRYPTION_KEY must be different from NEXTAUTH_SECRET in production.");
     process.exit(1);
   }
 

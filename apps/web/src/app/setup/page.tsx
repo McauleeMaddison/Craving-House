@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
 
 import { prisma } from "@/server/db";
-import { authOptions } from "@/server/auth";
+import { authOptions } from "@/server/auth/config";
 import { SetupClient } from "@/app/setup/SetupClient";
 
 export default async function SetupPage() {
+  await connection();
   const session = await getServerSession(authOptions);
   const managerCount = await prisma.user.count({ where: { role: "manager" } });
 
