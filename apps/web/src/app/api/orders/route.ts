@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
+import { getProductCustomizationKind, normalizeCustomizations } from "@/lib/drink-customizations";
 import { calculatePrepSeconds } from "@/lib/prep-time";
+import { getLineUnitPriceCents, getPickupSmallOrderFeeCents } from "@/lib/order-pricing";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
 import { isSameOrigin } from "@/server/request-security";
+import { getStripeRuntimeConfig } from "@/server/stripe";
 import crypto from "node:crypto";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +49,7 @@ export async function GET() {
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const stripeEnabled = Boolean(process.env.STRIPE_SECRET_KEY?.trim() && process.env.STRIPE_WEBHOOK_SECRET?.trim());
+  const stripeEnabled = getStripeRuntimeConfig().enabled;
   if (!stripeEnabled) {
     return NextResponse.json(
       { error: "Card payments are currently unavailable. Please try again shortly." },
@@ -92,7 +95,21 @@ export async function POST(request: Request) {
     if (!p.available) return NextResponse.json({ error: `Unavailable: ${p.name}` }, { status: 409 });
   }
 
-  const totalCents = items.reduce((sum, i) => sum + i.qty * (productById.get(i.productId)!.priceCents ?? 0), 0);
+  const pricedItems = items.map((i) => {
+    const product = productById.get(i.productId)!;
+    const cleanedCustomizations = getProductCustomizationKind(product)
+      ? normalizeCustomizations(i.customizations)
+      : null;
+
+    return {
+      ...i,
+      customizations: cleanedCustomizations,
+      unitCents: getLineUnitPriceCents(product.priceCents, cleanedCustomizations)
+    };
+  });
+
+  const itemsSubtotalCents = pricedItems.reduce((sum, i) => sum + i.qty * i.unitCents, 0);
+  const totalCents = itemsSubtotalCents + getPickupSmallOrderFeeCents(itemsSubtotalCents);
   const prepSeconds = calculatePrepSeconds({
     baseSeconds: 120,
     items: items.map((i) => ({ qty: i.qty, prepSeconds: productById.get(i.productId)!.prepSeconds }))
@@ -112,10 +129,10 @@ export async function POST(request: Request) {
       pickupName: body.pickupName.trim(),
       notes: body.notes?.trim() || null,
       items: {
-        create: items.map((i) => ({
+        create: pricedItems.map((i) => ({
           productId: i.productId,
           qty: i.qty,
-          unitCents: productById.get(i.productId)!.priceCents,
+          unitCents: i.unitCents,
           customizations: i.customizations ?? undefined
         }))
       }

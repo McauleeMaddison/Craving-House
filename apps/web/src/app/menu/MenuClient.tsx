@@ -6,8 +6,24 @@ import { useSession } from "next-auth/react";
 
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson } from "@/lib/api";
-import type { DrinkCustomizations, Syrup } from "@/lib/drink-customizations";
-import { SYRUP_OPTIONS } from "@/lib/drink-customizations";
+import type {
+  DrinkCustomizations,
+  DrinkExtra,
+  HotDogAddOn,
+  MealAddOn,
+  ProductCustomizationKind,
+  Syrup,
+  WaffleTopping
+} from "@/lib/drink-customizations";
+import {
+  EXTRA_OPTIONS,
+  getCustomizationUiCopy,
+  getProductCustomizationKind,
+  HOT_DOG_ADD_ON_OPTIONS,
+  MEAL_ADD_ON_OPTIONS,
+  SYRUP_OPTIONS,
+  WAFFLE_TOPPING_OPTIONS
+} from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
 
 type ProductDto = {
@@ -21,7 +37,6 @@ type ProductDto = {
 };
 
 function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
-  const [burstKey, setBurstKey] = useState(0);
   const [added, setAdded] = useState(false);
   const disabled = Boolean(props.disabled);
   const resetTimerRef = useRef<number | null>(null);
@@ -38,7 +53,6 @@ function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
       disabled={disabled}
       onClick={() => {
         if (disabled) return;
-        setBurstKey((k) => k + 1);
         setAdded(true);
         if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
         resetTimerRef.current = window.setTimeout(() => setAdded(false), 900);
@@ -46,12 +60,10 @@ function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
       }}
       type="button"
     >
-      <span className="btnBurstText">{disabled ? "Unavailable" : added ? "Added" : "Add to cart"}</span>
+      <span className="btnBurstText">{disabled ? "Unavailable" : added ? "Added to cart" : "Add to cart"}</span>
       <span className="btnBurstIcon" aria-hidden="true">
         {added ? "✓" : "+"}
       </span>
-      {!disabled ? <span key={`pulse-${burstKey}`} className="beanPulse" aria-hidden="true" /> : null}
-      {!disabled ? <span key={burstKey} className="beanBurst" aria-hidden="true" /> : null}
     </button>
   );
 }
@@ -69,6 +81,22 @@ export function MenuClient() {
 
   function updateCustom(productId: string, next: DrinkCustomizations) {
     setCustom((prev) => ({ ...prev, [productId]: next }));
+  }
+
+  function toggleArrayOption<K extends keyof DrinkCustomizations>(
+    productId: string,
+    field: K,
+    key: NonNullable<DrinkCustomizations[K]> extends Array<infer T> ? T : never
+  ) {
+    const current = (custom[productId]?.[field] as string[] | undefined) ?? [];
+    const next = current.includes(String(key))
+      ? current.filter((x) => x !== String(key))
+      : [...current, String(key)];
+
+    updateCustom(productId, {
+      ...(custom[productId] ?? {}),
+      [field]: next
+    } as DrinkCustomizations);
   }
 
   const items = useMemo(() => {
@@ -146,8 +174,12 @@ export function MenuClient() {
         </section>
       ) : (
         <section className="grid-2 u-mt-12">
-          {items.map((item) => (
-            <article key={item.id} className="surface u-pad-16">
+          {items.map((item) => {
+            const customizationKind = getProductCustomizationKind(item);
+            const canCustomize = customizationKind !== null;
+            const uiCopy = customizationKind ? getCustomizationUiCopy(customizationKind) : null;
+            return (
+              <article key={item.id} className="surface u-pad-16">
               <div className="u-flex-between">
                 <div>
                   <div className="u-fw-800">{item.name}</div>
@@ -173,17 +205,19 @@ export function MenuClient() {
                   </div>
                 </div>
                 <div className="u-flex-wrap-gap-10-center">
-                  <button
-                    className="btn btn-secondary"
-                    type="button"
-                    disabled={!item.available}
-                    onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
-                  >
-                    Customise
-                  </button>
+                  {canCustomize ? (
+                    <button
+                      className="btn btn-secondary"
+                      type="button"
+                      disabled={!item.available}
+                      onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
+                    >
+                      {uiCopy?.buttonLabel}
+                    </button>
+                  ) : null}
                   <AddToCartButton
                     disabled={!item.available}
-                    onAdd={() => cart.add(item.id, 1, custom[item.id] ?? null)}
+                    onAdd={() => cart.add(item.id, 1, canCustomize ? custom[item.id] ?? null : null)}
                   />
                 </div>
               </div>
@@ -194,61 +228,145 @@ export function MenuClient() {
                 </p>
               ) : null}
 
-              {expanded[item.id] && item.available ? (
+              {canCustomize && customizationKind && expanded[item.id] && item.available ? (
                 <div className="surface surfaceInset u-pad-14 u-mt-12">
-                  <div className="u-fw-900">Customise your drink</div>
+                  <div className="u-fw-900">{uiCopy?.title}</div>
                   <div className="muted u-mt-8 u-lh-16">
-                    Choose sugar and syrup. (Applies to the whole quantity you add.)
+                    {uiCopy?.help}
                   </div>
 
                   <div className="u-mt-12 u-grid-gap-12">
-                    <label className="u-grid-gap-8">
-                      <span className="muted u-fs-13">Sugar</span>
-                      <select
-                        className="input"
-                        value={String(custom[item.id]?.sugar ?? 0)}
-                        onChange={(e) => {
-                          const sugar = Number(e.target.value) as 0 | 1 | 2 | 3 | 4;
-                          updateCustom(item.id, { ...(custom[item.id] ?? {}), sugar });
-                        }}
-                      >
-                        <option value="0">0 (none)</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                      </select>
-                    </label>
+                    {customizationKind === "drink" ? (
+                      <>
+                        <label className="u-grid-gap-8">
+                          <span className="muted u-fs-13">Sugar</span>
+                          <select
+                            className="input"
+                            value={String(custom[item.id]?.sugar ?? 0)}
+                            onChange={(e) => {
+                              const sugar = Number(e.target.value) as 0 | 1 | 2 | 3 | 4;
+                              const next = { ...(custom[item.id] ?? {}) };
+                              if (sugar === 0) delete next.sugar;
+                              else next.sugar = sugar;
+                              updateCustom(item.id, next);
+                            }}
+                          >
+                            <option value="0">0 (none)</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                          </select>
+                        </label>
 
-                    <div className="u-grid-gap-8">
-                      <span className="muted u-fs-13">Syrups</span>
-                      <div className="rowWrap">
-                        {SYRUP_OPTIONS.map((s) => {
-                          const selected = Boolean(custom[item.id]?.syrups?.includes(s.key));
-                          return (
-                            <button
-                              key={s.key}
-                              type="button"
-                              className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                              onClick={() => {
-                                const current = custom[item.id]?.syrups ?? [];
-                                const next = selected
-                                  ? current.filter((x) => x !== s.key)
-                                  : [...current, s.key as Syrup];
-                                updateCustom(item.id, { ...(custom[item.id] ?? {}), syrups: next });
-                              }}
-                            >
-                              {s.label}
-                            </button>
-                          );
-                        })}
+                        <div className="u-grid-gap-8">
+                          <span className="muted u-fs-13">Syrups</span>
+                          <div className="rowWrap">
+                            {SYRUP_OPTIONS.map((s) => {
+                              const selected = Boolean(custom[item.id]?.syrups?.includes(s.key));
+                              return (
+                                <button
+                                  key={s.key}
+                                  type="button"
+                                  className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                  onClick={() => toggleArrayOption(item.id, "syrups", s.key as Syrup)}
+                                >
+                                  {s.label} (+{formatMoneyGBP(s.priceCents)})
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="u-grid-gap-8">
+                          <span className="muted u-fs-13">Coffee add-ons</span>
+                          <div className="rowWrap">
+                            {EXTRA_OPTIONS.map((extra) => {
+                              const selected = Boolean(custom[item.id]?.extras?.includes(extra.key));
+                              return (
+                                <button
+                                  key={extra.key}
+                                  type="button"
+                                  className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                  onClick={() => toggleArrayOption(item.id, "extras", extra.key as DrinkExtra)}
+                                >
+                                  {extra.label} (+{formatMoneyGBP(extra.priceCents)})
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </>
+                    ) : null}
+
+                    {customizationKind === "hotdog" ? (
+                      <div className="u-grid-gap-8">
+                        <span className="muted u-fs-13">Hot dog add-ons</span>
+                        <div className="rowWrap">
+                          {HOT_DOG_ADD_ON_OPTIONS.map((option) => {
+                            const selected = Boolean(custom[item.id]?.hotDogAddOns?.includes(option.key));
+                            return (
+                              <button
+                                key={option.key}
+                                type="button"
+                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                onClick={() => toggleArrayOption(item.id, "hotDogAddOns", option.key as HotDogAddOn)}
+                              >
+                                {option.label} (+{formatMoneyGBP(option.priceCents)})
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
+                    ) : null}
+
+                    {customizationKind === "waffle" ? (
+                      <div className="u-grid-gap-8">
+                        <span className="muted u-fs-13">Waffle toppings</span>
+                        <div className="rowWrap">
+                          {WAFFLE_TOPPING_OPTIONS.map((option) => {
+                            const selected = Boolean(custom[item.id]?.waffleToppings?.includes(option.key));
+                            return (
+                              <button
+                                key={option.key}
+                                type="button"
+                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                onClick={() => toggleArrayOption(item.id, "waffleToppings", option.key as WaffleTopping)}
+                              >
+                                {option.label} (+{formatMoneyGBP(option.priceCents)})
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {customizationKind === "meal" ? (
+                      <div className="u-grid-gap-8">
+                        <span className="muted u-fs-13">Meal add-ons</span>
+                        <div className="rowWrap">
+                          {MEAL_ADD_ON_OPTIONS.map((option) => {
+                            const selected = Boolean(custom[item.id]?.mealAddOns?.includes(option.key));
+                            return (
+                              <button
+                                key={option.key}
+                                type="button"
+                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                onClick={() => toggleArrayOption(item.id, "mealAddOns", option.key as MealAddOn)}
+                              >
+                                {option.label} (+{formatMoneyGBP(option.priceCents)})
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               ) : null}
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </section>
       )}
     </>

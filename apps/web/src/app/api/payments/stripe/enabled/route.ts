@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { getStripeRuntimeConfig } from "@/server/stripe";
+
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const enabled = Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
+  const { enabled } = getStripeRuntimeConfig();
   return NextResponse.json({ enabled });
 }
-

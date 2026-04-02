@@ -4,7 +4,8 @@ Monorepo for Craving House.
 
 ## Apps
 
-- `apps/web`: Next.js 14 web app (NextAuth + Prisma)
+- `apps/web`: Next.js 16 web app (NextAuth + Prisma)
+  - Stripe Checkout and webhook handling included
 
 ## Prereqs
 
@@ -38,12 +39,35 @@ Test mode:
 - Use Stripe test secret key (`sk_test_...`) and test webhook secret.
 - Use test card `4242 4242 4242 4242` with any future date/CVC/ZIP.
 
+## Custom Domain Cutover
+
+When the client moves from the current hosted URL to a custom domain such as `cravinghouse.com` or `cravinghouse.co.uk`, update these items together:
+
+1. DNS / hosting:
+   - Point the new domain at the hosting provider.
+   - Enable HTTPS before switching traffic.
+2. App env:
+   - Set `NEXTAUTH_URL` to the final public `https://...` domain.
+   - Set `VAPID_SUBJECT` to the same public `https://...` domain, or a valid `mailto:` address.
+   - Keep `NEXTAUTH_SECRET` the same unless you intentionally want to invalidate existing sessions.
+3. OAuth:
+   - Add the new origin and callback URL to Google OAuth if Google sign-in is enabled.
+4. Stripe:
+   - Update the Stripe webhook endpoint to `https://YOUR_DOMAIN/api/webhooks/stripe`.
+   - Keep listening for `checkout.session.completed` and `checkout.session.expired`.
+5. Validation:
+   - Check `GET /api/health` for `canonicalOrigin`, `nextauthUrlValid`, `nextauthUrlHttps`, and `vapidSubjectMatchesCanonical`.
+   - Confirm `robots.txt` and `sitemap.xml` now advertise the custom domain.
+
+The app now reads its canonical public URL from `NEXTAUTH_URL` in one place and reuses it for redirects, sitemap generation, security checks, Stripe return URLs, receipt links, and metadata.
+
 ## Run
 
 - Dev: `npm run dev`
 - Build: `npm run build`
 - Start: `npm run start`
 - Lint: `npm run lint`
+- Test: `npm run test`
 
 ## Security note
 

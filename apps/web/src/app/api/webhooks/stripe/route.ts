@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { prisma } from "@/server/db";
-import { verifyStripeWebhook } from "@/server/stripe";
+import { getStripeRuntimeConfig, verifyStripeWebhook } from "@/server/stripe";
 import { notifyStaffNewOrder } from "@/server/push";
 import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/email";
+import { getConfiguredPublicOrigin } from "@/lib/public-url";
+import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const { webhookSecret } = getStripeRuntimeConfig();
   if (!webhookSecret) {
     return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
   }
@@ -36,11 +39,13 @@ export async function POST(request: Request) {
     if (!orderId || !sessionId) return NextResponse.json({ ok: true });
 
     const updated = await prisma.order.updateMany({
-      where: { id: orderId, stripeCheckoutSessionId: sessionId, paymentStatus: { not: "paid" } },
+      // Customers can reopen checkout and complete an older still-valid session.
+      where: { id: orderId, paymentStatus: { not: "paid" } },
       data: {
         paymentStatus: "paid",
         paidAt: new Date(),
         paymentProvider: "stripe",
+        stripeCheckoutSessionId: sessionId,
         stripePaymentIntentId: paymentIntentId
       }
     });
@@ -51,6 +56,8 @@ export async function POST(request: Request) {
         include: { items: { include: { product: true } } }
       });
       if (order) {
+        const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
+        const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
         void notifyStaffNewOrder({
           orderId: order.id,
           pickupName: order.pickupName,
@@ -58,15 +65,21 @@ export async function POST(request: Request) {
         });
 
         if (order.guestEmail && order.guestToken && isEmailConfigured()) {
-          const baseUrl = process.env.NEXTAUTH_URL?.trim() || "";
+          const baseUrl = getConfiguredPublicOrigin() || "";
           if (baseUrl) {
             const trackUrl = `${baseUrl}/orders/guest/${order.guestToken}`;
-            const lines = order.items.map((i) => `${i.qty}× ${i.product.name}`).join("\n");
+            const lines = order.items
+              .map((i) => {
+                const customizations = formatCustomizations(i.customizations);
+                return `${i.qty}× ${i.product.name}${customizations ? ` (${customizations})` : ""} - £${((i.unitCents * i.qty) / 100).toFixed(2)}`;
+              })
+              .join("\n");
+            const feeLine = serviceFeeCents > 0 ? `\nPickup small-order fee: £${(serviceFeeCents / 100).toFixed(2)}\n` : "\n";
 
             void sendGuestOrderReceipt({
               to: order.guestEmail,
               subject: "Your Craving House order",
-              text: `Thanks for your order!\n\nPickup name: ${order.pickupName}\nTotal: £${(order.totalCents / 100).toFixed(2)}\n\nItems:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
+              text: `Thanks for your order!\n\nPickup name: ${order.pickupName}\nTotal: £${(order.totalCents / 100).toFixed(2)}\n${feeLine}Items:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
             }).catch((error) => {
               console.error("Failed to send guest order receipt", error);
             });

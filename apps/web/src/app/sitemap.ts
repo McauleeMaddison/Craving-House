@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 
+import { getConfiguredPublicOrigin } from "@/lib/public-url";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const baseUrl = getConfiguredPublicOrigin() ?? "http://localhost:3000";
   const now = new Date();
   return [
     { url: `${baseUrl}/`, lastModified: now },
@@ -17,4 +19,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/contact`, lastModified: now }
   ];
 }
-

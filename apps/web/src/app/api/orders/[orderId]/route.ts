@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole, requireUser } from "@/server/access";
+import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,9 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
   });
   if (!order) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
+  const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
+
   return NextResponse.json({
     id: order.id,
     createdAtIso: order.createdAt.toISOString(),
@@ -29,6 +33,8 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
     paidAtIso: order.paidAt?.toISOString() ?? null,
     estimatedReadyAtIso: order.estimatedReadyAt?.toISOString() ?? null,
     collectedAtIso: order.collectedAt?.toISOString() ?? null,
+    subtotalCents: itemsSubtotalCents,
+    serviceFeeCents,
     totalCents: order.totalCents,
     pickupName: order.pickupName,
     notes: order.notes ?? null,

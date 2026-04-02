@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 
+import { formatCustomizations } from "@/lib/drink-customizations";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/access";
-import { createStripeCheckoutSession } from "@/server/stripe";
+import { createStripeCheckoutSession, getStripeRuntimeConfig } from "@/server/stripe";
 import { getClientIp, rateLimit } from "@/server/rate-limit";
 import { isSameOrigin } from "@/server/request-security";
+import { getConfiguredPublicOrigin } from "@/lib/public-url";
+import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
 
 type Body = {
   orderId: string;
@@ -12,7 +15,7 @@ type Body = {
 };
 
 function getBaseUrl(request: Request) {
-  const configured = process.env.NEXTAUTH_URL?.trim();
+  const configured = getConfiguredPublicOrigin();
   if (configured) return configured;
   return request.headers.get("origin") ?? "http://localhost:3000";
 }
@@ -31,7 +34,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const { secretKey } = getStripeRuntimeConfig();
   if (!secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
 
   const body = (await request.json()) as Partial<Body>;
@@ -50,19 +53,37 @@ export async function POST(request: Request) {
 
   const baseUrl = getBaseUrl(request);
   const returnPath = order.guestToken ? `/orders/guest/${order.guestToken}` : `/orders/${order.id}`;
+  const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
+  const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
 
-  const session = await createStripeCheckoutSession({
-    secretKey,
-    orderId: order.id,
-    successUrl: `${baseUrl}${returnPath}?paid=1`,
-    cancelUrl: `${baseUrl}${returnPath}?pay=cancelled`,
-    customerEmail: order.user?.email ?? order.guestEmail ?? null,
-    lineItems: order.items.map((i) => ({
-      name: i.product.name,
-      unitAmountCents: i.unitCents,
-      qty: i.qty
-    }))
-  });
+  let session: { id: string; url: string };
+  try {
+    session = await createStripeCheckoutSession({
+      secretKey,
+      orderId: order.id,
+      successUrl: `${baseUrl}${returnPath}?paid=1`,
+      cancelUrl: `${baseUrl}${returnPath}?pay=cancelled`,
+      customerEmail: order.user?.email ?? order.guestEmail ?? null,
+      lineItems: [
+        ...order.items.map((i) => ({
+          name: formatCustomizations(i.customizations)
+            ? `${i.product.name} (${formatCustomizations(i.customizations)})`
+            : i.product.name,
+          unitAmountCents: i.unitCents,
+          qty: i.qty
+        })),
+        ...(serviceFeeCents > 0
+          ? [{ name: "Pickup small-order fee", unitAmountCents: serviceFeeCents, qty: 1 }]
+          : [])
+      ]
+    });
+  } catch (error) {
+    console.error("Failed to create Stripe Checkout session", error);
+    return NextResponse.json(
+      { error: "Unable to start card payment right now. Please try again shortly." },
+      { status: 502 }
+    );
+  }
 
   await prisma.order.update({
     where: { id: order.id },

@@ -9,6 +9,7 @@
     "build": "npm run build -w apps/web",
     "start": "npm run start -w apps/web",
     "lint": "npm run lint -w apps/web",
+    "test": "npm run test -w apps/web",
     "prepare": "node scripts/setup-githooks.mjs"
   }
 }

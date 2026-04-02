@@ -18,6 +18,8 @@ type OrderDto = {
   paidAtIso: string | null;
   estimatedReadyAtIso: string | null;
   collectedAtIso: string | null;
+  subtotalCents: number;
+  serviceFeeCents: number;
   totalCents: number;
   pickupName: string;
   notes: string | null;
@@ -199,8 +201,8 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
       <section className="surface u-pad-18 u-mt-12">
         <div className="u-fw-800">Items</div>
         <div className="u-mt-12 u-grid-gap-10">
-          {order.lines.map((l) => (
-            <div key={l.itemId} className="surface surfaceInset u-pad-14">
+          {order.lines.map((l, index) => (
+            <div key={`${l.itemId}:${index}:${formatCustomizations(l.customizations)}`} className="surface surfaceInset u-pad-14">
               <div className="u-flex-between">
                 <div>
                   <div className="u-fw-800">{l.name}</div>
@@ -215,6 +217,22 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
               </div>
             </div>
           ))}
+        </div>
+        <div className="u-mt-12 u-grid-gap-8">
+          <div className="u-flex-between">
+            <div className="muted">Items subtotal</div>
+            <div className="u-fw-800">{formatMoneyGBP(order.subtotalCents)}</div>
+          </div>
+          {order.serviceFeeCents > 0 ? (
+            <div className="u-flex-between">
+              <div className="muted">Pickup small-order fee</div>
+              <div className="u-fw-800">{formatMoneyGBP(order.serviceFeeCents)}</div>
+            </div>
+          ) : null}
+          <div className="u-flex-between">
+            <div className="u-fw-900">Total</div>
+            <div className="u-fw-900">{formatMoneyGBP(order.totalCents)}</div>
+          </div>
         </div>
       </section>
     </>

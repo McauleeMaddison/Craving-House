@@ -7,6 +7,7 @@
     "build": "prisma generate && node scripts/next-bin.mjs build",
     "start": "node scripts/start.mjs",
     "lint": "eslint . --max-warnings=0",
+    "test": "node --experimental-strip-types --test ./src/server/stripe.test.ts ./src/lib/public-url.test.ts ./src/lib/order-pricing.test.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

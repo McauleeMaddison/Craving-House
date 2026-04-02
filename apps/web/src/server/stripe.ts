@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 
 const STRIPE_API_VERSION = "2026-02-25.clover";
 
+type StripeRuntimeEnv = Partial<Pick<NodeJS.ProcessEnv, "STRIPE_SECRET_KEY" | "STRIPE_WEBHOOK_SECRET">>;
+
 type StripeCreateSessionParams = {
   secretKey: string;
   orderId: string;
@@ -10,6 +12,36 @@ type StripeCreateSessionParams = {
   customerEmail?: string | null;
   lineItems: Array<{ name: string; unitAmountCents: number; qty: number }>;
 };
+
+function normalizeEnvValue(value: string | undefined) {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+export function getStripeRuntimeConfig(env?: StripeRuntimeEnv) {
+  const runtimeEnv = env ?? {
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET
+  };
+
+  const secretKey = normalizeEnvValue(runtimeEnv.STRIPE_SECRET_KEY);
+  const webhookSecret = normalizeEnvValue(runtimeEnv.STRIPE_WEBHOOK_SECRET);
+
+  const mode = secretKey?.startsWith("sk_live_")
+    ? "live"
+    : secretKey?.startsWith("sk_test_")
+      ? "test"
+      : secretKey
+        ? "unknown"
+        : "unset";
+
+  return {
+    secretKey,
+    webhookSecret,
+    enabled: Boolean(secretKey && webhookSecret),
+    mode
+  } as const;
+}
 
 function clampName(input: string) {
   const name = input.trim().replace(/\s+/g, " ");
@@ -33,7 +65,8 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     ["success_url", params.successUrl],
     ["cancel_url", params.cancelUrl],
     ["client_reference_id", params.orderId],
-    ["metadata[orderId]", params.orderId]
+    ["metadata[orderId]", params.orderId],
+    ["payment_intent_data[metadata][orderId]", params.orderId]
   ];
 
   if (params.customerEmail) {

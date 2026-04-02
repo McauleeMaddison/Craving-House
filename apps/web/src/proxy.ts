@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+import { getConfiguredPublicUrl } from "@/lib/public-url";
+
 function getForwardedProto(request: NextRequest) {
   const raw = request.headers.get("x-forwarded-proto");
   if (!raw) return null;
@@ -26,25 +28,8 @@ function stripPort(host: string) {
   return host.split(":")[0] ?? host;
 }
 
-function getCanonicalUrl() {
-  const configured = process.env.NEXTAUTH_URL?.trim();
-  if (!configured) return null;
-  try {
-    const u = new URL(configured);
-    // Render runs the app on an internal port (commonly 10000). If a URL with :10000
-    // accidentally gets configured, treat it as the canonical public origin.
-    if (u.port === "10000") u.port = "";
-    // Also normalize default ports.
-    if (u.protocol === "https:" && u.port === "443") u.port = "";
-    if (u.protocol === "http:" && u.port === "80") u.port = "";
-    return u;
-  } catch {
-    return null;
-  }
-}
-
 export function proxy(request: NextRequest) {
-  const canonical = getCanonicalUrl();
+  const canonical = getConfiguredPublicUrl();
   if (!canonical) return NextResponse.next();
 
   // Only redirect browser navigations. Avoid breaking POSTs (e.g. auth callbacks, webhooks).

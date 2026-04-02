@@ -5,8 +5,10 @@ import "../styles/globals.css";
 import { AppProviders } from "@/app/providers";
 import { AppChrome } from "@/components/nav/AppChrome";
 import { AppFooter } from "@/components/nav/AppFooter";
+import { getConfiguredPublicUrl } from "@/lib/public-url";
 
 export const metadata: Metadata = {
+  metadataBase: getConfiguredPublicUrl() ?? undefined,
   title: "Craving House",
   description: "Order ahead + loyalty rewards",
   icons: {

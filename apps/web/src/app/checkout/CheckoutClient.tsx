@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson, apiPostJson } from "@/lib/api";
 import { formatCustomizations } from "@/lib/drink-customizations";
+import { getLineUnitPriceCents, getPickupSmallOrderFeeCents, PICKUP_SMALL_ORDER_THRESHOLD_CENTS } from "@/lib/order-pricing";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 import { formatMoneyGBP } from "@/lib/sample-data";
 
@@ -41,7 +42,12 @@ export function CheckoutClient() {
       .map((l) => {
         const item = products.find((x) => x.id === l.itemId);
         if (!item || !item.available) return null;
-        return { item, qty: l.qty, customizations: l.customizations };
+        return {
+          item,
+          qty: l.qty,
+          customizations: l.customizations,
+          unitPriceCents: getLineUnitPriceCents(item.priceCents, l.customizations)
+        };
       })
       .filter((x): x is NonNullable<typeof x> => Boolean(x));
   }, [cart.lines, products]);
@@ -94,7 +100,9 @@ export function CheckoutClient() {
     };
   }, []);
 
-  const subtotalCents = items.reduce((sum, x) => sum + x.qty * x.item.priceCents, 0);
+  const subtotalCents = items.reduce((sum, x) => sum + x.qty * x.unitPriceCents, 0);
+  const serviceFeeCents = getPickupSmallOrderFeeCents(subtotalCents);
+  const totalCents = subtotalCents + serviceFeeCents;
   const prepSeconds = calculatePrepSeconds({
     baseSeconds: 120,
     items: items.map((x) => ({ qty: x.qty, prepSeconds: x.item.prepSeconds }))
@@ -221,7 +229,9 @@ export function CheckoutClient() {
                   <span className="u-text u-fw-900">
                     {x.qty}× {x.item.name}
                   </span>
-                  <span>{formatCustomizations(x.customizations) || "No customisations"}</span>
+                  <span>
+                    {formatCustomizations(x.customizations) || "No customisations"} • {formatMoneyGBP(x.unitPriceCents * x.qty)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -276,6 +286,10 @@ export function CheckoutClient() {
                 Card payments aren’t enabled yet.
               </p>
             )}
+            <p className="muted u-mt-10 u-fs-12 u-lh-16">
+              Pickup-only pricing. A {formatMoneyGBP(75)} small-order fee applies to baskets under{" "}
+              {formatMoneyGBP(PICKUP_SMALL_ORDER_THRESHOLD_CENTS)}.
+            </p>
           </div>
 
           <label className="u-grid-gap-8">
@@ -296,12 +310,29 @@ export function CheckoutClient() {
       <section className="surface u-pad-18 u-mt-12">
         <div className="u-flex-between-wrap">
           <div>
-            <div className="u-fw-800">Total</div>
+            <div className="u-fw-800">Items subtotal</div>
             <div className="muted u-mt-6 u-fs-13">
               Payment required
             </div>
           </div>
           <div className="u-fw-900 u-fs-18">{formatMoneyGBP(subtotalCents)}</div>
+        </div>
+
+        {serviceFeeCents > 0 ? (
+          <div className="u-flex-between-wrap u-mt-10">
+            <div>
+              <div className="u-fw-800">Pickup small-order fee</div>
+              <div className="muted u-mt-6 u-fs-13">
+                Applied because the basket is below {formatMoneyGBP(PICKUP_SMALL_ORDER_THRESHOLD_CENTS)}.
+              </div>
+            </div>
+            <div className="u-fw-900">{formatMoneyGBP(serviceFeeCents)}</div>
+          </div>
+        ) : null}
+
+        <div className="u-flex-between-wrap u-mt-10">
+          <div className="u-fw-800">Total</div>
+          <div className="u-fw-900 u-fs-18">{formatMoneyGBP(totalCents)}</div>
         </div>
 
         <button

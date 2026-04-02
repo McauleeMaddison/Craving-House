@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 
 import { prisma } from "@/server/db";
 import { authOptions } from "@/server/auth";
+import { getStripeRuntimeConfig } from "@/server/stripe";
+import { getConfiguredPublicOrigin, getConfiguredPublicUrl, getConfiguredVapidSubject } from "@/lib/public-url";
 
 export const dynamic = "force-dynamic";
 
@@ -21,21 +23,13 @@ function parseCookieHeader(header: string | null) {
 
 export async function GET(request: Request) {
   const configured = process.env.NEXTAUTH_URL?.trim() || null;
-  const stripeSecret = process.env.STRIPE_SECRET_KEY?.trim() || "";
-  const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim() || "";
-  const stripeMode = stripeSecret.startsWith("sk_live_")
-    ? "live"
-    : stripeSecret.startsWith("sk_test_")
-      ? "test"
-      : stripeSecret
-        ? "unknown"
-        : "unset";
-  let canonicalOrigin: string | null = null;
-  try {
-    canonicalOrigin = configured ? new URL(configured).origin : null;
-  } catch {
-    canonicalOrigin = null;
-  }
+  const { secretKey: stripeSecret, webhookSecret: stripeWebhookSecret, enabled: stripeEnabled, mode: stripeMode } =
+    getStripeRuntimeConfig();
+  const canonicalUrl = getConfiguredPublicUrl();
+  const canonicalOrigin = getConfiguredPublicOrigin();
+  const vapidSubject = getConfiguredVapidSubject();
+  const vapidIsMailto = vapidSubject.startsWith("mailto:");
+  const vapidMatchesCanonical = vapidIsMailto || (canonicalOrigin ? vapidSubject === canonicalOrigin : false);
 
   const cookieHeader = request.headers.get("cookie");
   const cookies = parseCookieHeader(cookieHeader);
@@ -125,13 +119,18 @@ export async function GET(request: Request) {
     },
     env: {
       nextauthUrlConfigured: Boolean(configured),
+      nextauthUrlValid: Boolean(canonicalUrl),
+      nextauthUrlHttps: Boolean(canonicalUrl && canonicalUrl.protocol === "https:"),
       nextauthSecretConfigured: Boolean(process.env.NEXTAUTH_SECRET),
       canonicalOrigin,
       googleConfigured: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
       stripeSecretConfigured: Boolean(stripeSecret),
       stripeWebhookConfigured: Boolean(stripeWebhookSecret),
-      stripeEnabled: Boolean(stripeSecret && stripeWebhookSecret),
+      stripeEnabled,
       stripeMode,
+      vapidSubjectConfigured: Boolean(process.env.VAPID_SUBJECT?.trim()),
+      vapidSubjectValid: Boolean(vapidSubject),
+      vapidSubjectMatchesCanonical: vapidMatchesCanonical,
       devAuthEnabled:
         process.env.DEV_AUTH_ENABLED === "true" || process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true"
     },

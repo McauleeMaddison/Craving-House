@@ -588,17 +588,6 @@ code {
   color: var(--text);
 }
 
-.btn-burst {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.btn-burst > * {
-  position: relative;
-  z-index: 2;
-}
-
 .btnBurstText {
   transition: transform 180ms ease, opacity 180ms ease;
 }
@@ -633,143 +622,9 @@ code {
   transform: scale(1.08);
 }
 
-.btn-burst-added::after {
-  content: "";
-  position: absolute;
-  inset: -35%;
-  background: linear-gradient(
-    110deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.32) 42%,
-    transparent 64%
-  );
-  transform: translateX(-135%) skewX(-18deg);
-  animation: cartSheen 560ms cubic-bezier(0.2, 0.75, 0.3, 1) forwards;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.beanPulse {
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-  border: 1px solid rgba(47, 228, 171, 0.6);
-  opacity: 0;
-  transform: scale(0.9);
-  animation: cartPulse 620ms cubic-bezier(0.18, 0.72, 0.26, 1) forwards;
-  z-index: 1;
-}
-
-.beanBurst {
-  position: absolute;
-  right: 16px;
-  bottom: 8px;
-  width: 20px;
-  height: 24px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(0) scale(0.9) rotate(-6deg);
-  animation: beanBurstPop 760ms cubic-bezier(0.16, 0.76, 0.3, 1) forwards;
-  z-index: 1;
-}
-
-.beanBurst::before {
-  content: "";
-  position: absolute;
-  inset: 6px 2px 1px 2px;
-  border-radius: 58% 42% 56% 44% / 58% 44% 56% 42%;
-  background:
-    radial-gradient(120% 95% at 30% 24%, rgba(255, 255, 255, 0.14), transparent 44%),
-    radial-gradient(90% 120% at 72% 80%, rgba(0, 0, 0, 0.55), transparent 62%),
-    linear-gradient(102deg, transparent 44%, rgba(168, 125, 77, 0.38) 50%, transparent 57%),
-    linear-gradient(130deg, #2a2a2a 0%, #0e0e0e 45%, #000000 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-    inset 0 0 0 2px rgba(0, 0, 0, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.36);
-  transform: rotate(-10deg) scale(0.98);
-}
-
-.beanBurst::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  width: 9px;
-  height: 13px;
-  border-radius: 58% 42% 56% 44% / 58% 44% 56% 42%;
-  opacity: 0;
-  background: linear-gradient(130deg, #1f1f1f 0%, #050505 100%);
-  box-shadow:
-    10px -2px 0 0 #0b0b0b,
-    16px 8px 0 -1px #181818;
-  transform: translateY(9px) scale(0.78) rotate(8deg);
-  animation: beanTrail 760ms cubic-bezier(0.16, 0.76, 0.3, 1) forwards;
-}
-
-@keyframes beanBurstPop {
-  0% {
-    opacity: 0;
-    transform: translateY(2px) scale(0.84) rotate(-12deg);
-  }
-  18% {
-    opacity: 0.95;
-  }
-  56% {
-    opacity: 1;
-    transform: translateY(-18px) scale(1) rotate(-3deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-27px) scale(1.04) rotate(4deg);
-  }
-}
-
-@keyframes beanTrail {
-  0% {
-    opacity: 0;
-    transform: translateY(10px) scale(0.78) rotate(8deg);
-  }
-  25% {
-    opacity: 0.88;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-18px) scale(1.04) rotate(-8deg);
-  }
-}
-
-@keyframes cartPulse {
-  0% {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-  26% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.09);
-  }
-}
-
-@keyframes cartSheen {
-  0% {
-    transform: translateX(-135%) skewX(-18deg);
-  }
-  100% {
-    transform: translateX(135%) skewX(-18deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .btnBurstText,
-  .btnBurstIcon,
-  .btn-burst-added::after,
-  .beanPulse,
-  .beanBurst,
-  .beanBurst::after {
+  .btnBurstIcon {
     animation: none;
     transition: none;
   }
