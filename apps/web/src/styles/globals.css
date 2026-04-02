@@ -588,46 +588,13 @@ code {
   color: var(--text);
 }
 
-.btnBurstText {
-  transition: transform 180ms ease, opacity 180ms ease;
-}
-
-.btnBurstIcon {
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 950;
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 200ms ease, background 200ms ease, border-color 200ms ease, color 200ms ease;
-}
-
-.btn-burst-added {
+.btnAdded {
   border-color: rgba(47, 228, 171, 0.45);
   background: linear-gradient(
     120deg,
     rgba(47, 228, 171, 0.2),
     color-mix(in srgb, var(--btn-secondary-bg) 82%, rgba(47, 228, 171, 0.14))
   );
-}
-
-.btn-burst-added .btnBurstIcon {
-  color: #d9fff1;
-  border-color: rgba(47, 228, 171, 0.65);
-  background: rgba(47, 228, 171, 0.24);
-  transform: scale(1.08);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btnBurstText,
-  .btnBurstIcon {
-    animation: none;
-    transition: none;
-  }
 }
 
 .input {

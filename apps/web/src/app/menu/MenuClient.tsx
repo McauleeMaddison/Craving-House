@@ -49,7 +49,7 @@ function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
 
   return (
     <button
-      className={`btn btn-burst ${added ? "btn-burst-added" : ""}`}
+      className={`btn ${added ? "btnAdded" : ""}`}
       disabled={disabled}
       onClick={() => {
         if (disabled) return;
@@ -60,10 +60,7 @@ function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
       }}
       type="button"
     >
-      <span className="btnBurstText">{disabled ? "Unavailable" : added ? "Added to cart" : "Add to cart"}</span>
-      <span className="btnBurstIcon" aria-hidden="true">
-        {added ? "✓" : "+"}
-      </span>
+      {disabled ? "Unavailable" : added ? "Added to cart" : "Add to cart"}
     </button>
   );
 }
