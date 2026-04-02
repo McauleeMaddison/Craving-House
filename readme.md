@@ -9,12 +9,20 @@ Monorepo for Craving House.
 
 ## Prereqs
 
-- Node.js (20+ recommended)
+- Node.js `24.14.1` LTS recommended
 - A database supported by Prisma (see `apps/web/prisma/schema.prisma`)
+
+This repo pins Node in three places on purpose:
+- `.nvmrc` for local `nvm` users
+- `.node-version` for deployment platforms such as Render
+- `package.json` `engines.node` as an additional guardrail
+
+As of April 2, 2026, Node.js `25.9.0` is the latest release, but `24.14.1` is the latest LTS. This app is pinned to the LTS line for deployment stability.
 
 ## Setup
 
 1. Install deps:
+   - If you use `nvm`: `nvm install && nvm use`
    - `npm install`
 2. Configure env:
    - `cp apps/web/.env.example apps/web/.env` and fill in values
