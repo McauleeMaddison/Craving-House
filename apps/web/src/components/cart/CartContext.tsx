@@ -2,9 +2,10 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import type { CartLine } from "@/components/cart/cart-storage";
-import { loadCart, saveCart } from "@/components/cart/cart-storage";
+import { getGuestCartStorage, getUserCartStorage, loadCart, saveCart } from "@/components/cart/cart-storage";
 import type { DrinkCustomizations } from "@/lib/drink-customizations";
 import { customizationsKey, normalizeCustomizations } from "@/lib/drink-customizations";
 
@@ -19,11 +20,25 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [lines, setLines] = useState<CartLine[]>(() => loadCart());
+  const { data, status } = useSession();
+  const [lines, setLines] = useState<CartLine[]>([]);
+  const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null);
+
+  const storageTarget = useMemo(() => {
+    const userId = status === "authenticated" ? (data?.user as any)?.id : null;
+    return typeof userId === "string" && userId ? getUserCartStorage(userId) : getGuestCartStorage();
+  }, [data, status]);
 
   useEffect(() => {
-    saveCart(lines);
-  }, [lines]);
+    if (status === "loading") return;
+    setLines(loadCart(storageTarget));
+    setLoadedStorageKey(`${storageTarget.scope}:${storageTarget.key}`);
+  }, [status, storageTarget]);
+
+  useEffect(() => {
+    if (loadedStorageKey !== `${storageTarget.scope}:${storageTarget.key}`) return;
+    saveCart(lines, storageTarget);
+  }, [lines, loadedStorageKey, storageTarget]);
 
   const value = useMemo<CartContextValue>(() => {
     return {
