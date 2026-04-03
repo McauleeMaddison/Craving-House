@@ -11,8 +11,8 @@ import {
 
 test("getLineUnitPriceCents includes paid modifiers", () => {
   assert.equal(
-    getLineUnitPriceCents(325, { sugar: 1, syrups: ["vanilla"], extras: ["extra-shot"] }),
-    565
+    getLineUnitPriceCents(325, { sugar: 1, syrups: ["vanilla"], extras: ["extra-shot"], drinkToppings: ["sprinkles"] }),
+    675
   );
 });
 

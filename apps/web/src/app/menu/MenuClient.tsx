@@ -9,6 +9,7 @@ import { apiGetJson } from "@/lib/api";
 import type {
   DrinkCustomizations,
   DrinkExtra,
+  DrinkTopping,
   HotDogAddOn,
   MealAddOn,
   ProductCustomizationKind,
@@ -16,12 +17,14 @@ import type {
   WaffleTopping
 } from "@/lib/drink-customizations";
 import {
+  DRINK_TOPPING_OPTIONS,
   EXTRA_OPTIONS,
   getCustomizationUiCopy,
   getProductCustomizationKind,
   HOT_DOG_ADD_ON_OPTIONS,
   MEAL_ADD_ON_OPTIONS,
   SYRUP_OPTIONS,
+  supportsDrinkToppings,
   WAFFLE_TOPPING_OPTIONS
 } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
@@ -174,6 +177,7 @@ export function MenuClient() {
           {items.map((item) => {
             const customizationKind = getProductCustomizationKind(item);
             const canCustomize = customizationKind !== null;
+            const canAddDrinkToppings = supportsDrinkToppings(item);
             const uiCopy = customizationKind ? getCustomizationUiCopy(customizationKind) : null;
             return (
               <article key={item.id} className="surface u-pad-16">
@@ -293,6 +297,27 @@ export function MenuClient() {
                             })}
                           </div>
                         </div>
+
+                        {canAddDrinkToppings ? (
+                          <div className="u-grid-gap-8">
+                            <span className="muted u-fs-13">Coffee & hot chocolate toppings</span>
+                            <div className="rowWrap">
+                              {DRINK_TOPPING_OPTIONS.map((option) => {
+                                const selected = Boolean(custom[item.id]?.drinkToppings?.includes(option.key));
+                                return (
+                                  <button
+                                    key={option.key}
+                                    type="button"
+                                    className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                                    onClick={() => toggleArrayOption(item.id, "drinkToppings", option.key as DrinkTopping)}
+                                  >
+                                    {option.label} (+{formatMoneyGBP(option.priceCents)})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : null}
                       </>
                     ) : null}
 

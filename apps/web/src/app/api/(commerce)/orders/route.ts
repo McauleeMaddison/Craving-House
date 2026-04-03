@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/auth/access";
-import { getProductCustomizationKind, normalizeCustomizations } from "@/lib/drink-customizations";
+import { normalizeCustomizationsForProduct } from "@/lib/drink-customizations";
 import { calculatePrepSeconds } from "@/lib/prep-time";
 import { getLineUnitPriceCents, getPickupSmallOrderFeeCents } from "@/lib/order-pricing";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
@@ -97,9 +97,7 @@ export async function POST(request: Request) {
 
   const pricedItems = items.map((i) => {
     const product = productById.get(i.productId)!;
-    const cleanedCustomizations = getProductCustomizationKind(product)
-      ? normalizeCustomizations(i.customizations)
-      : null;
+    const cleanedCustomizations = normalizeCustomizationsForProduct(product, i.customizations);
 
     return {
       ...i,

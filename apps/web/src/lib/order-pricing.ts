@@ -19,7 +19,7 @@ const PRICE_BY_MODIFIER_KEY = new Map<string, number>([
   ["soft-ice-cream", 150],
   ["add-chips", 350]
 ]);
-const MODIFIER_FIELDS = ["syrups", "extras", "hotDogAddOns", "waffleToppings", "mealAddOns"] as const;
+const MODIFIER_FIELDS = ["syrups", "extras", "drinkToppings", "hotDogAddOns", "waffleToppings", "mealAddOns"] as const;
 
 function getCustomizationPriceCents(customizations: unknown) {
   if (!customizations || typeof customizations !== "object") return 0;

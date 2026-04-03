@@ -4,13 +4,16 @@ export type DrinkExtra = "extra-shot" | "oat-milk" | "whipped-cream";
 
 export type HotDogAddOn = "mozzarella" | "shoestring-potatoes";
 
-export type WaffleTopping =
+export type DrinkTopping =
   | "biscuit-crumbs"
   | "nutella"
   | "dulce-de-leche"
   | "sprinkles"
   | "chocolate-chips"
-  | "mini-marshmallows"
+  | "mini-marshmallows";
+
+export type WaffleTopping =
+  | DrinkTopping
   | "soft-ice-cream";
 
 export type MealAddOn = "add-chips";
@@ -21,6 +24,7 @@ export type DrinkCustomizations = {
   sugar?: 0 | 1 | 2 | 3 | 4;
   syrups?: Syrup[];
   extras?: DrinkExtra[];
+  drinkToppings?: DrinkTopping[];
   hotDogAddOns?: HotDogAddOn[];
   waffleToppings?: WaffleTopping[];
   mealAddOns?: MealAddOn[];
@@ -46,13 +50,17 @@ export const HOT_DOG_ADD_ON_OPTIONS: Array<{ key: HotDogAddOn; label: string; pr
   { key: "shoestring-potatoes", label: "Shoestring potatoes", priceCents: 100 }
 ];
 
-export const WAFFLE_TOPPING_OPTIONS: Array<{ key: WaffleTopping; label: string; priceCents: number }> = [
+export const DRINK_TOPPING_OPTIONS: Array<{ key: DrinkTopping; label: string; priceCents: number }> = [
   { key: "biscuit-crumbs", label: "Biscuit crumbs", priceCents: 110 },
   { key: "nutella", label: "Nutella", priceCents: 110 },
   { key: "dulce-de-leche", label: "Dulce de Leche", priceCents: 130 },
   { key: "sprinkles", label: "Sprinkles", priceCents: 110 },
   { key: "chocolate-chips", label: "Chocolate chips", priceCents: 120 },
-  { key: "mini-marshmallows", label: "Mini marshmallows", priceCents: 120 },
+  { key: "mini-marshmallows", label: "Mini marshmallows", priceCents: 120 }
+];
+
+export const WAFFLE_TOPPING_OPTIONS: Array<{ key: WaffleTopping; label: string; priceCents: number }> = [
+  ...DRINK_TOPPING_OPTIONS,
   { key: "soft-ice-cream", label: "Soft ice cream", priceCents: 150 }
 ];
 
@@ -63,8 +71,21 @@ export const MEAL_ADD_ON_OPTIONS: Array<{ key: MealAddOn; label: string; priceCe
 const syrupLabelByKey = new Map(SYRUP_OPTIONS.map((x) => [x.key, x.label]));
 const extraLabelByKey = new Map(EXTRA_OPTIONS.map((x) => [x.key, x.label]));
 const hotDogAddOnLabelByKey = new Map(HOT_DOG_ADD_ON_OPTIONS.map((x) => [x.key, x.label]));
+const drinkToppingLabelByKey = new Map(DRINK_TOPPING_OPTIONS.map((x) => [x.key, x.label]));
 const waffleToppingLabelByKey = new Map(WAFFLE_TOPPING_OPTIONS.map((x) => [x.key, x.label]));
 const mealAddOnLabelByKey = new Map(MEAL_ADD_ON_OPTIONS.map((x) => [x.key, x.label]));
+
+function normalizeProductText(input: string | null | undefined) {
+  return (input ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+const standaloneModifierNames = new Set(
+  [...HOT_DOG_ADD_ON_OPTIONS, ...WAFFLE_TOPPING_OPTIONS, ...MEAL_ADD_ON_OPTIONS].map((x) => normalizeProductText(x.label))
+);
 
 function normalizeStringArray<T extends string>(input: unknown, allowed: Set<T>) {
   if (!Array.isArray(input)) return [] as T[];
@@ -86,6 +107,7 @@ export function normalizeCustomizations(input: unknown): DrinkCustomizations | n
 
   const syrups = normalizeStringArray(raw.syrups, new Set(SYRUP_OPTIONS.map((x) => x.key)));
   const extras = normalizeStringArray(raw.extras, new Set(EXTRA_OPTIONS.map((x) => x.key)));
+  const drinkToppings = normalizeStringArray(raw.drinkToppings, new Set(DRINK_TOPPING_OPTIONS.map((x) => x.key)));
   const hotDogAddOns = normalizeStringArray(raw.hotDogAddOns, new Set(HOT_DOG_ADD_ON_OPTIONS.map((x) => x.key)));
   const waffleToppings = normalizeStringArray(raw.waffleToppings, new Set(WAFFLE_TOPPING_OPTIONS.map((x) => x.key)));
   const mealAddOns = normalizeStringArray(raw.mealAddOns, new Set(MEAL_ADD_ON_OPTIONS.map((x) => x.key)));
@@ -94,6 +116,7 @@ export function normalizeCustomizations(input: unknown): DrinkCustomizations | n
   if (typeof sugar === "number") cleaned.sugar = sugar;
   if (syrups.length) cleaned.syrups = syrups;
   if (extras.length) cleaned.extras = extras;
+  if (drinkToppings.length) cleaned.drinkToppings = drinkToppings;
   if (hotDogAddOns.length) cleaned.hotDogAddOns = hotDogAddOns;
   if (waffleToppings.length) cleaned.waffleToppings = waffleToppings;
   if (mealAddOns.length) cleaned.mealAddOns = mealAddOns;
@@ -107,10 +130,11 @@ export function customizationsKey(custom: DrinkCustomizations | null | undefined
   const sugar = typeof normalized.sugar === "number" ? normalized.sugar : "";
   const syrups = normalized.syrups ? [...normalized.syrups].sort().join(",") : "";
   const extras = normalized.extras ? [...normalized.extras].sort().join(",") : "";
+  const drinkToppings = normalized.drinkToppings ? [...normalized.drinkToppings].sort().join(",") : "";
   const hotDogAddOns = normalized.hotDogAddOns ? [...normalized.hotDogAddOns].sort().join(",") : "";
   const waffleToppings = normalized.waffleToppings ? [...normalized.waffleToppings].sort().join(",") : "";
   const mealAddOns = normalized.mealAddOns ? [...normalized.mealAddOns].sort().join(",") : "";
-  return `s${sugar}|y${syrups}|e${extras}|h${hotDogAddOns}|w${waffleToppings}|m${mealAddOns}`;
+  return `s${sugar}|y${syrups}|e${extras}|t${drinkToppings}|h${hotDogAddOns}|w${waffleToppings}|m${mealAddOns}`;
 }
 
 export function getCustomizationPriceCents(custom: unknown): number {
@@ -120,15 +144,22 @@ export function getCustomizationPriceCents(custom: unknown): number {
   return (
     getOptionPriceCents(normalized.syrups, SYRUP_OPTIONS) +
     getOptionPriceCents(normalized.extras, EXTRA_OPTIONS) +
+    getOptionPriceCents(normalized.drinkToppings, DRINK_TOPPING_OPTIONS) +
     getOptionPriceCents(normalized.hotDogAddOns, HOT_DOG_ADD_ON_OPTIONS) +
     getOptionPriceCents(normalized.waffleToppings, WAFFLE_TOPPING_OPTIONS) +
     getOptionPriceCents(normalized.mealAddOns, MEAL_ADD_ON_OPTIONS)
   );
 }
 
-export function isStandaloneModifierProduct(product: { description?: string | null }) {
-  const description = (product.description ?? "").toLowerCase();
-  return description === "hot dogs add-on" || description === "waffle topping" || description === "meals add-on";
+export function isStandaloneModifierProduct(product: { name?: string | null; description?: string | null }) {
+  const name = normalizeProductText(product.name);
+  const description = normalizeProductText(product.description);
+
+  return (
+    standaloneModifierNames.has(name) ||
+    /^(hot ?dogs?|meals?) add ?ons?$/.test(description) ||
+    /^waffles? toppings?$/.test(description)
+  );
 }
 
 export function getProductCustomizationKind(product: {
@@ -136,8 +167,8 @@ export function getProductCustomizationKind(product: {
   description?: string | null;
   loyaltyEligible?: boolean;
 }): ProductCustomizationKind | null {
-  const name = product.name.toLowerCase();
-  const description = (product.description ?? "").toLowerCase();
+  const name = normalizeProductText(product.name);
+  const description = normalizeProductText(product.description);
 
   if (isStandaloneModifierProduct(product)) return null;
 
@@ -149,9 +180,9 @@ export function getProductCustomizationKind(product: {
     return "drink";
   }
 
-  if (description === "hot dogs") return "hotdog";
-  if (description === "waffles") return "waffle";
-  if (description === "meals" && !/\bwith chips\b/i.test(name)) return "meal";
+  if (/^hot ?dogs?$/.test(description)) return "hotdog";
+  if (/^waffles?$/.test(description)) return "waffle";
+  if (/^meals?$/.test(description) && !/\bwith chips\b/i.test(name)) return "meal";
 
   return null;
 }
@@ -162,6 +193,56 @@ export function supportsProductCustomizations(product: {
   loyaltyEligible?: boolean;
 }) {
   return getProductCustomizationKind(product) !== null;
+}
+
+export function supportsDrinkToppings(product: {
+  name: string;
+  description?: string | null;
+  loyaltyEligible?: boolean;
+}) {
+  if (getProductCustomizationKind(product) !== "drink") return false;
+
+  const name = normalizeProductText(product.name);
+  const description = normalizeProductText(product.description);
+  return (
+    /hot drinks?/.test(description) &&
+    !/\b(chai|turmeric|tea)\b/.test(name) &&
+    /\b(hot chocolate|espresso|coffee|cappuccino|americano|flat white|mocha|cortado|latte)\b/.test(name)
+  );
+}
+
+export function normalizeCustomizationsForProduct(
+  product: { name: string; description?: string | null; loyaltyEligible?: boolean },
+  input: unknown
+): DrinkCustomizations | null {
+  const normalized = normalizeCustomizations(input);
+  const kind = getProductCustomizationKind(product);
+  if (!normalized || !kind) return null;
+
+  const cleaned: DrinkCustomizations = {};
+
+  if (kind === "drink") {
+    if (typeof normalized.sugar === "number") cleaned.sugar = normalized.sugar;
+    if (normalized.syrups?.length) cleaned.syrups = normalized.syrups;
+    if (normalized.extras?.length) cleaned.extras = normalized.extras;
+    if (supportsDrinkToppings(product) && normalized.drinkToppings?.length) {
+      cleaned.drinkToppings = normalized.drinkToppings;
+    }
+  }
+
+  if (kind === "hotdog" && normalized.hotDogAddOns?.length) {
+    cleaned.hotDogAddOns = normalized.hotDogAddOns;
+  }
+
+  if (kind === "waffle" && normalized.waffleToppings?.length) {
+    cleaned.waffleToppings = normalized.waffleToppings;
+  }
+
+  if (kind === "meal" && normalized.mealAddOns?.length) {
+    cleaned.mealAddOns = normalized.mealAddOns;
+  }
+
+  return Object.keys(cleaned).length ? cleaned : null;
 }
 
 export function getCustomizationUiCopy(kind: ProductCustomizationKind) {
@@ -204,6 +285,9 @@ export function formatCustomizations(custom: unknown): string {
   }
   if (normalized.extras?.length) {
     parts.push(`Extras: ${normalized.extras.map((x) => extraLabelByKey.get(x) ?? x).join(", ")}`);
+  }
+  if (normalized.drinkToppings?.length) {
+    parts.push(`Drink toppings: ${normalized.drinkToppings.map((x) => drinkToppingLabelByKey.get(x) ?? x).join(", ")}`);
   }
   if (normalized.hotDogAddOns?.length) {
     parts.push(`Hot dog add-ons: ${normalized.hotDogAddOns.map((x) => hotDogAddOnLabelByKey.get(x) ?? x).join(", ")}`);
