@@ -5,7 +5,10 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useCart } from "@/components/cart/CartContext";
 import { store } from "@/lib/store";
+
+type DrawerLink = { href: string; label: string; badge?: number };
 
 const links: Array<{ href: string; label: string }> = [
   { href: "/menu", label: "Menu" },
@@ -47,10 +50,12 @@ function ThemeToggleButton(props: {
 export function AppHeader() {
   const pathname = usePathname();
   const { data, status } = useSession();
+  const { lines } = useCart();
   const signedIn = status === "authenticated";
   const role = (data?.user as any)?.role as string | undefined;
   const canUseStaff = role === "staff" || role === "manager";
   const canUseManager = role === "manager";
+  const cartCount = useMemo(() => lines.reduce((sum, line) => sum + line.qty, 0), [lines]);
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const portalKind = pathname?.startsWith("/manager") ? "manager" : "staff";
   const portalCallbackUrl = useMemo(() => {
@@ -181,14 +186,20 @@ export function AppHeader() {
     return list;
   }, [canUseManager, canUseStaff]);
 
-  const drawerLinks = useMemo(() => {
-    if (isPortal) return portalLinks;
+  const drawerLinks: DrawerLink[] = useMemo(() => {
+    if (isPortal) return portalLinks.map((link) => ({ ...link }));
     return links.map((l) => {
+      if (l.href === "/cart") {
+        return {
+          ...l,
+          badge: cartCount > 0 ? cartCount : undefined
+        };
+      }
       if (signedIn && l.href === "/loyalty") return { ...l, label: "My QR (loyalty)" };
       if (signedIn && l.href === "/orders") return { ...l, label: "Track orders" };
-      return l;
+      return { ...l };
     });
-  }, [isPortal, portalLinks, signedIn]);
+  }, [cartCount, isPortal, portalLinks, signedIn]);
 
   const isRunning = roundEndAt > 0 && Date.now() < roundEndAt;
   const timeLeftMs = Math.max(0, roundEndAt - Date.now());
@@ -381,6 +392,11 @@ export function AppHeader() {
             ) : (
               <span className="iconLines" aria-hidden="true" />
             )}
+            {!isPortal && cartCount > 0 ? (
+              <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
+                {cartCount}
+              </span>
+            ) : null}
           </button>
         </div>
       </header>
@@ -446,7 +462,10 @@ export function AppHeader() {
                 }`}
                 onClick={() => setOpen(false)}
               >
-                {link.label}
+                <span className="drawerLinkLabel">
+                  <span>{link.label}</span>
+                  {link.badge ? <span className="drawerLinkBadge">{link.badge}</span> : null}
+                </span>
               </Link>
             ))}
             {signedIn ? (

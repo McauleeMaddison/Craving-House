@@ -1359,6 +1359,28 @@ code {
 
 .navMobileButton {
   display: none;
+  position: relative;
+}
+
+.navMobileBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 183, 5, 0.36);
+  background: rgba(242, 183, 5, 0.95);
+  color: rgba(11, 13, 18, 0.96);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
 }
 
 .iconButton {
@@ -1603,6 +1625,29 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerLink:first-child {
   border-top: 0;
+}
+
+.drawerLinkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.drawerLinkBadge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--drawer-border);
+  background: color-mix(in srgb, rgba(242, 183, 5, 0.24) 60%, var(--drawer-solid));
+  color: var(--drawer-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
 }
 
 .drawerLink::after {

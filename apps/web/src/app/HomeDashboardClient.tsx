@@ -83,12 +83,25 @@ export function HomeDashboardClient() {
     };
   }, [signedIn]);
 
+  const menuCard = useMemo(() => {
+    if (cartCount > 0) {
+      return {
+        value: `${cartCount}`,
+        hint: `${cartCount} ${cartCount === 1 ? "item is" : "items are"} already in your cart.`
+      };
+    }
+    return {
+      value: "Open",
+      hint: "Browse drinks, bites, and add-ons."
+    };
+  }, [cartCount]);
+
   const primaryCta = useMemo(() => {
     if (cartCount > 0) {
       return {
-        href: "/checkout",
-        title: "Checkout",
-        sub: "Secure card payment at checkout."
+        href: "/cart",
+        title: "View cart",
+        sub: "Review items and continue to checkout."
       };
     }
     return {
@@ -108,14 +121,12 @@ export function HomeDashboardClient() {
   return (
     <>
       <div className="dashWidgets">
-        <Link className="widgetCard" href={cartCount > 0 ? "/cart" : "/menu"}>
+        <Link className="widgetCard" href="/menu">
           <div className="widgetTop">
-            <div className="widgetTitle">Your cart</div>
-            <div className="widgetValue">{cartCount > 0 ? `${cartCount}` : "—"}</div>
+            <div className="widgetTitle">Menu</div>
+            <div className="widgetValue">{menuCard.value}</div>
           </div>
-          <div className="muted widgetHint">
-            {cartCount > 0 ? "Items ready to checkout." : "Tap Menu to start an order."}
-          </div>
+          <div className="muted widgetHint">{menuCard.hint}</div>
         </Link>
 
         <Link className="widgetCard" href={signedIn ? "/loyalty" : "/signin"}>
