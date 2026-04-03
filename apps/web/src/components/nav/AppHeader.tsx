@@ -188,7 +188,7 @@ export function AppHeader() {
 
   const drawerLinks: DrawerLink[] = useMemo(() => {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
-    return links.map((l) => {
+    return links.filter((l) => l.href !== "/menu").map((l) => {
       if (l.href === "/cart") {
         return {
           ...l,
