@@ -10,7 +10,7 @@
     "build": "prisma generate && node scripts/next-bin.mjs build",
     "start": "node scripts/start.mjs",
     "lint": "eslint . --max-warnings=0",
-    "test": "node --experimental-strip-types --test ./src/server/auth/*.test.ts ./src/server/payments/*.test.ts ./src/lib/*.test.ts",
+    "test": "node --test --import ./scripts/test-register.mjs ./src/server/auth/*.test.ts ./src/server/payments/*.test.ts ./src/lib/*.test.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
