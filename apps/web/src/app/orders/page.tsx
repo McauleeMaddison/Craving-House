@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { OrdersClient } from "@/app/orders/OrdersClient";
+import { OrdersClient } from "@/features/orders/OrdersClient";
 
 export default function OrdersPage() {
   return (

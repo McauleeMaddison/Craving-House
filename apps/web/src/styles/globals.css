@@ -987,8 +987,8 @@ code {
 
 .pillButton {
   cursor: pointer;
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .themeToggle {
@@ -1603,8 +1603,8 @@ html[data-theme="dark"] .modalSheet {
 }
 
 .drawerLinks button.drawerLink {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   font: inherit;
 }
 

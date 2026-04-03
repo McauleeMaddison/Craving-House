@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { LoyaltyScanClient } from "@/app/staff/loyalty-scan/LoyaltyScanClient";
+import { LoyaltyScanClient } from "@/features/staff/LoyaltyScanClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function StaffLoyaltyScanPage() {

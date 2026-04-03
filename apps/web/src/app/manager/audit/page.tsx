@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/auth/access";
-import { RoleChangesClient } from "@/app/manager/audit/RoleChangesClient";
+import { RoleChangesClient } from "@/features/manager/RoleChangesClient";
 
 export default async function ManagerAuditPage() {
   const access = await requireRole(["manager"]);

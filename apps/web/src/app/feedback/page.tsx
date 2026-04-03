@@ -1,4 +1,4 @@
-import { FeedbackClient } from "@/app/feedback/FeedbackClient";
+import { FeedbackClient } from "@/features/feedback/FeedbackClient";
 
 export default function FeedbackPage() {
   return (

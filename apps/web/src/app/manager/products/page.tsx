@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ProductsClient } from "@/app/manager/products/ProductsClient";
+import { ProductsClient } from "@/features/manager/ProductsClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function ManagerProductsPage() {

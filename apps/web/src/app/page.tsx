@@ -1,8 +1,8 @@
 import { TutorialNudge } from "@/components/tutorial/TutorialNudge";
 import { store } from "@/lib/store";
 import Image from "next/image";
-import { HomeDashboardClient } from "@/app/HomeDashboardClient";
-import { HomeActionsClient } from "@/app/HomeActionsClient";
+import { HomeDashboardClient } from "@/features/home/HomeDashboardClient";
+import { HomeActionsClient } from "@/features/home/HomeActionsClient";
 
 export default function HomePage() {
   return (

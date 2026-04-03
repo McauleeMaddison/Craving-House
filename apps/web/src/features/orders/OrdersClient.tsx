@@ -5,7 +5,7 @@ import Link from "next/link";
 import { apiGetJson } from "@/lib/api";
 import { formatMoneyGBP } from "@/lib/sample-data";
 import { useEffect, useState } from "react";
-import { CustomerNotificationsClient } from "@/app/orders/CustomerNotificationsClient";
+import { CustomerNotificationsClient } from "@/features/orders/CustomerNotificationsClient";
 
 type OrderDto = {
   id: string;

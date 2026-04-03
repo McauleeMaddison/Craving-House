@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { apiGetJson } from "@/lib/api";
-import { ManagerMfaClient } from "@/app/manager/settings/ManagerMfaClient";
+import { ManagerMfaClient } from "@/features/manager/ManagerMfaClient";
 
 export function SettingsClient() {
   const [rewardStamps, setRewardStamps] = useState<number>(5);

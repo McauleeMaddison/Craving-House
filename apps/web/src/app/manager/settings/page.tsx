@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/auth/access";
-import { SettingsClient } from "@/app/manager/settings/SettingsClient";
+import { SettingsClient } from "@/features/manager/SettingsClient";
 
 export default async function ManagerSettingsPage() {
   const access = await requireRole(["manager"]);

@@ -1,4 +1,4 @@
-import { GuestOrderDetailsClient } from "@/app/orders/guest/[guestToken]/GuestOrderDetailsClient";
+import { GuestOrderDetailsClient } from "@/features/orders/GuestOrderDetailsClient";
 
 export default async function GuestOrderDetailsPage({
   params

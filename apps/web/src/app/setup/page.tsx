@@ -5,7 +5,7 @@ import { connection } from "next/server";
 
 import { prisma } from "@/server/db";
 import { authOptions } from "@/server/auth/config";
-import { SetupClient } from "@/app/setup/SetupClient";
+import { SetupClient } from "@/features/setup/SetupClient";
 
 export default async function SetupPage() {
   await connection();

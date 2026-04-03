@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { UsersClient } from "@/app/manager/users/UsersClient";
+import { UsersClient } from "@/features/manager/UsersClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function ManagerUsersPage() {

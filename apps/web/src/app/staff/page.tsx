@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/auth/access";
-import { StaffDashboardClient } from "@/app/staff/StaffDashboardClient";
+import { StaffDashboardClient } from "@/features/staff/StaffDashboardClient";
 
 export default async function StaffHomePage() {
   const access = await requireRole(["staff", "manager"]);

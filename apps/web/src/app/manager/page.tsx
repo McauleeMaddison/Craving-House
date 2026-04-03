@@ -2,7 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 
 import { requireRole } from "@/server/auth/access";
-import { ManagerDashboardClient } from "@/app/manager/ManagerDashboardClient";
+import { ManagerDashboardClient } from "@/features/manager/ManagerDashboardClient";
 import { prisma } from "@/server/db";
 
 export default async function ManagerHomePage() {

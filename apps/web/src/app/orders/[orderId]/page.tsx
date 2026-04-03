@@ -1,4 +1,4 @@
-import { OrderDetailsClient } from "@/app/orders/[orderId]/OrderDetailsClient";
+import { OrderDetailsClient } from "@/features/orders/OrderDetailsClient";
 
 export default async function OrderDetailsPage({
   params

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { store } from "@/lib/store";
-import { LoyaltyQrClient } from "@/app/loyalty/LoyaltyQrClient";
-import { LoyaltySummaryClient } from "@/app/loyalty/LoyaltySummaryClient";
+import { LoyaltyQrClient } from "@/features/loyalty/LoyaltyQrClient";
+import { LoyaltySummaryClient } from "@/features/loyalty/LoyaltySummaryClient";
 import { authOptions } from "@/server/auth/config";
 
 export default async function LoyaltyPage() {

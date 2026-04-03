@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MenuClient } from "@/app/menu/MenuClient";
+import { MenuClient } from "@/features/menu/MenuClient";
 
 export default function MenuPage() {
   return (

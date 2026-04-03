@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/auth/access";
-import { FeedbackListClient } from "@/app/manager/feedback/FeedbackListClient";
+import { FeedbackListClient } from "@/features/manager/FeedbackListClient";
 
 export default async function ManagerFeedbackPage() {
   const access = await requireRole(["manager"]);

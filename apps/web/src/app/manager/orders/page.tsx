@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { requireRole } from "@/server/auth/access";
-import { ManagerOrdersClient } from "@/app/manager/orders/ManagerOrdersClient";
+import { ManagerOrdersClient } from "@/features/manager/ManagerOrdersClient";
 
 export default async function ManagerOrdersPage() {
   const access = await requireRole(["manager"]);

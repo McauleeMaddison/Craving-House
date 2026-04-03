@@ -1,4 +1,4 @@
-import { CheckoutClient } from "@/app/checkout/CheckoutClient";
+import { CheckoutClient } from "@/features/checkout/CheckoutClient";
 
 export default function CheckoutPage() {
   return (

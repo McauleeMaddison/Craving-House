@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { OrderQueueClient } from "@/app/staff/orders/OrderQueueClient";
+import { OrderQueueClient } from "@/features/staff/OrderQueueClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function StaffOrdersPage() {
