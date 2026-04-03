@@ -232,15 +232,15 @@ export function AppHeader() {
       <div
         className={`drawerOverlay ${open ? "drawerOverlayOpen" : ""}`}
         onClick={open ? () => setOpen(false) : undefined}
-        aria-hidden={open ? "false" : "true"}
+        aria-hidden={!open}
       />
 
       <aside
         id="mobile-drawer"
         className={`drawer ${open ? "drawerOpen" : ""}`}
-        aria-hidden={open ? "false" : "true"}
+        aria-hidden={!open}
         role="dialog"
-        aria-modal={open ? "true" : "false"}
+        aria-modal={open}
         aria-label="Menu"
       >
         <div className="drawerTop">
