@@ -135,20 +135,37 @@ export function AppHeader() {
     return list;
   }, [canUseManager, canUseStaff]);
 
+  const customerDrawerLinks = useMemo(() => {
+    const list: DrawerLink[] = links
+      .filter((link) => link.href !== "/menu")
+      .map((link) => {
+        if (link.href === "/cart") {
+          return {
+            ...link,
+            badge: cartCount > 0 ? cartCount : undefined
+          };
+        }
+        if (signedIn && link.href === "/loyalty") return { ...link, label: "My QR (loyalty)" };
+        if (signedIn && link.href === "/orders") return { ...link, label: "Track orders" };
+        return { ...link };
+      });
+
+    const ordersIndex = list.findIndex((link) => link.href === "/orders");
+    const boilerBusterLink: DrawerLink = { href: "/boiler-buster", label: "Boiler Buster" };
+
+    if (ordersIndex === -1) {
+      list.push(boilerBusterLink);
+    } else {
+      list.splice(ordersIndex + 1, 0, boilerBusterLink);
+    }
+
+    return list;
+  }, [cartCount, signedIn]);
+
   const drawerLinks: DrawerLink[] = useMemo(() => {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
-    return links.filter((l) => l.href !== "/menu").map((l) => {
-      if (l.href === "/cart") {
-        return {
-          ...l,
-          badge: cartCount > 0 ? cartCount : undefined
-        };
-      }
-      if (signedIn && l.href === "/loyalty") return { ...l, label: "My QR (loyalty)" };
-      if (signedIn && l.href === "/orders") return { ...l, label: "Track orders" };
-      return { ...l };
-    });
-  }, [cartCount, isPortal, portalLinks, signedIn]);
+    return customerDrawerLinks;
+  }, [customerDrawerLinks, isPortal, portalLinks]);
 
   return (
     <>
@@ -286,7 +303,7 @@ export function AppHeader() {
                 key={link.href}
                 href={link.href}
                 className={`drawerLink ${
-                  (isPortal ? pathname?.startsWith(link.href) : activeHref === link.href) ? "drawerLinkActive" : ""
+                  pathname?.startsWith(link.href) ? "drawerLinkActive" : ""
                 }`}
                 onClick={() => setOpen(false)}
               >

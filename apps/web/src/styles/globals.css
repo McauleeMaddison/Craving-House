@@ -1286,6 +1286,511 @@ code {
   flex-wrap: wrap;
 }
 
+.boilerBusterHero {
+  padding: clamp(18px, 4vw, 24px);
+  display: grid;
+  gap: 16px;
+}
+
+.boilerBusterHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.boilerBusterHeading {
+  display: grid;
+  gap: 10px;
+}
+
+.boilerBusterTitle {
+  font-size: clamp(30px, 6vw, 46px);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+}
+
+.boilerBusterLead {
+  max-width: 60ch;
+  line-height: 1.7;
+}
+
+.boilerBusterStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boilerBusterStatusPlaying {
+  border-color: rgba(242, 183, 5, 0.42);
+  background: rgba(242, 183, 5, 0.16);
+}
+
+.boilerBusterStatusWon {
+  border-color: rgba(47, 228, 171, 0.4);
+  background: rgba(47, 228, 171, 0.12);
+}
+
+.boilerBusterStatusLost {
+  border-color: rgba(255, 92, 115, 0.42);
+  background: rgba(255, 92, 115, 0.14);
+}
+
+.boilerBusterLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.boilerBusterBoard,
+.boilerBusterNote {
+  padding: 16px;
+}
+
+.boilerBusterSide {
+  display: grid;
+  gap: 12px;
+}
+
+.boilerBusterStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.boilerBusterStat {
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+}
+
+.boilerBusterStatLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.boilerBusterStatValue {
+  margin-top: 8px;
+  font-size: clamp(20px, 4.8vw, 28px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+}
+
+.boilerBusterMeterCard {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(242, 183, 5, 0.12), transparent 50%),
+    color-mix(in srgb, var(--panel) 76%, transparent);
+}
+
+.boilerBusterMeterTop {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.boilerBusterMeterTopSecondary {
+  margin-top: 12px;
+}
+
+.boilerBusterMeterLabel {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.boilerBusterMeterHint {
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.boilerBusterMeterValue {
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 950;
+}
+
+.boilerBusterMeter {
+  margin-top: 10px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.boilerBusterMeterSecondary {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.boilerBusterMeterFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(47, 228, 171, 0.95), rgba(242, 183, 5, 0.95), rgba(255, 92, 115, 0.95));
+  transition: width 180ms ease;
+}
+
+.boilerBusterMeterFillSecondary {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(242, 183, 5, 0.95));
+}
+
+.boilerBusterTapZone {
+  width: 100%;
+  margin-top: 12px;
+  min-height: 300px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(70% 70% at 50% 0%, rgba(255, 255, 255, 0.12), transparent 56%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.08), rgba(11, 13, 18, 0.18));
+  color: var(--text);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 120ms ease, border-color 140ms ease, background 180ms ease;
+}
+
+.boilerBusterTapZonePlaying {
+  border-color: rgba(242, 183, 5, 0.42);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.12), rgba(11, 13, 18, 0.22));
+}
+
+.boilerBusterTapZoneWon {
+  border-color: rgba(47, 228, 171, 0.42);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(47, 228, 171, 0.16), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.1), rgba(11, 13, 18, 0.18));
+}
+
+.boilerBusterTapZoneLost {
+  border-color: rgba(255, 92, 115, 0.5);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(255, 92, 115, 0.18), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.14), rgba(11, 13, 18, 0.22));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .boilerBusterTapZone:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.boilerBusterTapZone:active {
+  transform: scale(0.992);
+}
+
+.boilerBusterMachine {
+  position: relative;
+  width: min(100%, 260px);
+  height: 190px;
+}
+
+.boilerBusterMachineGlow {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 54px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(242, 183, 5, 0.45), transparent 72%);
+  filter: blur(18px);
+}
+
+.boilerBusterMachineTop {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  width: 112px;
+  height: 62px;
+  transform: translateX(-50%);
+  border-radius: 30px 30px 18px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.06)),
+    linear-gradient(120deg, rgba(62, 71, 85, 0.98), rgba(20, 24, 32, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.boilerBusterMachineBody {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 186px;
+  height: 112px;
+  transform: translateX(-50%);
+  border-radius: 42px 42px 28px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
+    linear-gradient(180deg, rgba(71, 82, 98, 0.98), rgba(19, 23, 31, 0.98));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -16px 32px rgba(0, 0, 0, 0.24),
+    0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
+.boilerBusterGauge {
+  position: absolute;
+  top: 34px;
+  right: 34px;
+  width: 66px;
+  height: 66px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(212, 217, 227, 0.94) 70%, rgba(170, 177, 189, 0.96));
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.34),
+    0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.boilerBusterGaugeDot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(11, 13, 18, 0.94);
+  transform: translate(-50%, -50%);
+}
+
+.boilerBusterNeedle {
+  position: absolute;
+  left: 33px;
+  top: 32px;
+  width: 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--danger);
+  transform-origin: 0% 50%;
+  transition: transform 180ms ease;
+  box-shadow: 0 0 12px rgba(255, 92, 115, 0.55);
+}
+
+.boilerBusterNeedle::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: -3px;
+  border-left: 8px solid var(--danger);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.boilerBusterValve {
+  position: absolute;
+  left: 48px;
+  top: 58px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.05)),
+    linear-gradient(120deg, rgba(90, 67, 24, 0.98), rgba(181, 134, 40, 0.96));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.boilerBusterValve::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 15px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 231, 167, 0.92);
+}
+
+.boilerBusterValve::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 15px;
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(255, 231, 167, 0.92);
+}
+
+.boilerBusterSteam {
+  position: absolute;
+  width: 44px;
+  height: 96px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08) 72%, transparent);
+  filter: blur(2px);
+  opacity: 0.16;
+  animation: boilerBusterSteam 1.6s ease-in-out infinite;
+}
+
+.boilerBusterTapZonePlaying .boilerBusterSteam {
+  opacity: 0.72;
+}
+
+.boilerBusterTapZoneWon .boilerBusterSteam {
+  opacity: 0.4;
+}
+
+.boilerBusterTapZoneLost .boilerBusterSteam {
+  opacity: 0.92;
+}
+
+.boilerBusterSteamA {
+  left: 42px;
+  top: 2px;
+  animation-delay: 0s;
+}
+
+.boilerBusterSteamB {
+  left: 108px;
+  top: -8px;
+  animation-delay: 0.24s;
+}
+
+.boilerBusterSteamC {
+  right: 34px;
+  top: 6px;
+  animation-delay: 0.48s;
+}
+
+@keyframes boilerBusterSteam {
+  0% {
+    transform: translateY(18px) scale(0.84);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(-18px) scale(1.08);
+    opacity: 0;
+  }
+}
+
+.boilerBusterTapCopy {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 36ch;
+}
+
+.boilerBusterTapTitle {
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 950;
+}
+
+.boilerBusterTapSub {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.boilerBusterActions {
+  margin-top: 14px;
+}
+
+.boilerBusterChecklist {
+  display: grid;
+  gap: 8px;
+}
+
+.boilerBusterChecklistItem {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.boilerBusterMeta {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 920px) {
+  .boilerBusterLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .boilerBusterStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .boilerBusterTapZone {
+    min-height: 280px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .boilerBusterStatus {
+    width: 100%;
+  }
+
+  .boilerBusterMachine {
+    height: 174px;
+  }
+
+  .boilerBusterMachineTop {
+    width: 102px;
+  }
+
+  .boilerBusterMachineBody {
+    width: 170px;
+    height: 104px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boilerBusterTapZone,
+  .boilerBusterMeterFill,
+  .boilerBusterNeedle,
+  .boilerBusterSteam {
+    transition: none;
+    animation: none;
+  }
+}
+
 /* App header + mobile drawer */
 .appHeader {
   padding: calc(10px + env(safe-area-inset-top, 0px)) 0 10px;
