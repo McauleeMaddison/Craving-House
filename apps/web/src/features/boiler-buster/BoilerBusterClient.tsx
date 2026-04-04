@@ -18,6 +18,21 @@ type GameState = {
   taps: number;
 };
 
+type PressureLevel = {
+  key: "Calm" | "Steady" | "Rising" | "Danger" | "Critical";
+  label: string;
+  range: string;
+  hint: string;
+};
+
+const PRESSURE_LEVELS: PressureLevel[] = [
+  { key: "Calm", label: "Calm", range: "0-24%", hint: "Easy cruising" },
+  { key: "Steady", label: "Steady", range: "25-49%", hint: "Safe working range" },
+  { key: "Rising", label: "Rising", range: "50-69%", hint: "Needs attention soon" },
+  { key: "Danger", label: "Danger", range: "70-84%", hint: "Vent now" },
+  { key: "Critical", label: "Critical", range: "85-100%", hint: "Red zone" }
+];
+
 function createGameState(phase: GamePhase = "idle"): GameState {
   return {
     phase,
@@ -53,6 +68,14 @@ function getStatusCopy(game: GameState) {
     return "Tap the boiler to vent steam before it spikes.";
   }
   return "Tap the boiler when your order is in and keep the machine steady for 20 seconds.";
+}
+
+function getPressureLevel(pressure: number): PressureLevel {
+  if (pressure >= 85) return PRESSURE_LEVELS[4];
+  if (pressure >= 70) return PRESSURE_LEVELS[3];
+  if (pressure >= 50) return PRESSURE_LEVELS[2];
+  if (pressure >= 25) return PRESSURE_LEVELS[1];
+  return PRESSURE_LEVELS[0];
 }
 
 export function BoilerBusterClient() {
@@ -133,7 +156,7 @@ export function BoilerBusterClient() {
 
   const timeLeftSeconds = Math.ceil(game.timeLeftMs / 1000);
   const queueProgress = Math.round(((GAME_DURATION_MS - game.timeLeftMs) / GAME_DURATION_MS) * 100);
-  const pressureLabel = game.pressure >= 85 ? "Critical" : game.pressure >= 60 ? "Running hot" : "Stable";
+  const pressureLevel = getPressureLevel(game.pressure);
   const phaseClassName =
     game.phase === "playing"
       ? "boilerBusterStatusPlaying"
@@ -211,16 +234,40 @@ export function BoilerBusterClient() {
             </div>
           </div>
 
-          <div className="boilerBusterMeterCard">
+          <div className={`boilerBusterMeterCard boilerBusterMeterCard${pressureLevel.key}`}>
             <div className="boilerBusterMeterTop">
               <div>
-                <div className="boilerBusterMeterLabel">Boiler pressure</div>
-                <div className="muted boilerBusterMeterHint">{pressureLabel}</div>
+                <div className="boilerBusterMeterLabelRow">
+                  <div className="boilerBusterMeterLabel">Boiler pressure</div>
+                  <span className={`boilerBusterPressurePill boilerBusterPressurePill${pressureLevel.key}`}>
+                    {pressureLevel.label}
+                  </span>
+                </div>
+                <div className="muted boilerBusterMeterHint">
+                  {pressureLevel.range} · {pressureLevel.hint}
+                </div>
               </div>
               <div className="boilerBusterMeterValue">{Math.round(game.pressure)}%</div>
             </div>
             <div className="boilerBusterMeter" aria-hidden="true">
-              <div className="boilerBusterMeterFill" style={{ width: `${game.pressure}%` }} />
+              <div
+                className={`boilerBusterMeterFill boilerBusterMeterFillPressure boilerBusterMeterFill${pressureLevel.key}`}
+                style={{ width: `${game.pressure}%` }}
+              />
+            </div>
+            <div className="boilerBusterPressureScale" aria-hidden="true">
+              {PRESSURE_LEVELS.map((level) => (
+                <span
+                  key={level.key}
+                  className={`boilerBusterPressureScaleItem ${
+                    pressureLevel.key === level.key ? "boilerBusterPressureScaleItemActive" : ""
+                  }`}
+                >
+                  <span className={`boilerBusterPressureScaleSwatch boilerBusterPressureScaleSwatch${level.key}`} />
+                  <span>{level.label}</span>
+                  <span className="boilerBusterPressureScaleRange">{level.range}</span>
+                </span>
+              ))}
             </div>
             <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
               <div>
@@ -244,10 +291,10 @@ export function BoilerBusterClient() {
               <span className="boilerBusterMachineGlow" />
               <span className="boilerBusterMachineTop" />
               <span className="boilerBusterMachineBody" />
-              <span className="boilerBusterGauge">
+              <span className={`boilerBusterGauge boilerBusterGauge${pressureLevel.key}`}>
                 <span className="boilerBusterGaugeDot" />
                 <span
-                  className="boilerBusterNeedle"
+                  className={`boilerBusterNeedle boilerBusterNeedle${pressureLevel.key}`}
                   style={{ transform: `rotate(${boilerNeedleRotation}deg)` }}
                 />
               </span>

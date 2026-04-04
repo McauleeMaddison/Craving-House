@@ -1409,6 +1409,13 @@ code {
   gap: 12px;
 }
 
+.boilerBusterMeterLabelRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .boilerBusterMeterTopSecondary {
   margin-top: 12px;
 }
@@ -1416,6 +1423,49 @@ code {
 .boilerBusterMeterLabel {
   font-size: 13px;
   font-weight: 900;
+}
+
+.boilerBusterPressurePill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boilerBusterPressurePillCalm {
+  border-color: rgba(47, 228, 171, 0.4);
+  background: rgba(47, 228, 171, 0.12);
+  color: rgba(170, 255, 228, 0.94);
+}
+
+.boilerBusterPressurePillSteady {
+  border-color: rgba(147, 211, 99, 0.42);
+  background: rgba(147, 211, 99, 0.14);
+  color: rgba(221, 255, 181, 0.96);
+}
+
+.boilerBusterPressurePillRising {
+  border-color: rgba(242, 183, 5, 0.44);
+  background: rgba(242, 183, 5, 0.14);
+  color: rgba(255, 234, 161, 0.97);
+}
+
+.boilerBusterPressurePillDanger {
+  border-color: rgba(255, 146, 43, 0.46);
+  background: rgba(255, 146, 43, 0.15);
+  color: rgba(255, 217, 168, 0.98);
+}
+
+.boilerBusterPressurePillCritical {
+  border-color: rgba(255, 92, 115, 0.48);
+  background: rgba(255, 92, 115, 0.14);
+  color: rgba(255, 201, 211, 0.98);
 }
 
 .boilerBusterMeterHint {
@@ -1451,8 +1501,90 @@ code {
   transition: width 180ms ease;
 }
 
+.boilerBusterMeterFillPressure {
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
+}
+
+.boilerBusterMeterFillCalm {
+  background: linear-gradient(90deg, rgba(47, 228, 171, 0.94), rgba(77, 242, 193, 0.92));
+}
+
+.boilerBusterMeterFillSteady {
+  background: linear-gradient(90deg, rgba(122, 220, 98, 0.94), rgba(188, 224, 94, 0.92));
+}
+
+.boilerBusterMeterFillRising {
+  background: linear-gradient(90deg, rgba(224, 214, 76, 0.94), rgba(242, 183, 5, 0.94));
+}
+
+.boilerBusterMeterFillDanger {
+  background: linear-gradient(90deg, rgba(255, 184, 59, 0.96), rgba(255, 131, 54, 0.94));
+}
+
+.boilerBusterMeterFillCritical {
+  background: linear-gradient(90deg, rgba(255, 116, 96, 0.96), rgba(255, 92, 115, 0.96));
+}
+
 .boilerBusterMeterFillSecondary {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(242, 183, 5, 0.95));
+}
+
+.boilerBusterPressureScale {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.boilerBusterPressureScaleItem {
+  padding: 8px 8px 9px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.boilerBusterPressureScaleItemActive {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.boilerBusterPressureScaleSwatch {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.boilerBusterPressureScaleSwatchCalm {
+  background: rgba(47, 228, 171, 0.96);
+}
+
+.boilerBusterPressureScaleSwatchSteady {
+  background: rgba(147, 211, 99, 0.96);
+}
+
+.boilerBusterPressureScaleSwatchRising {
+  background: rgba(242, 183, 5, 0.96);
+}
+
+.boilerBusterPressureScaleSwatchDanger {
+  background: rgba(255, 146, 43, 0.96);
+}
+
+.boilerBusterPressureScaleSwatchCritical {
+  background: rgba(255, 92, 115, 0.98);
+}
+
+.boilerBusterPressureScaleRange {
+  font-size: 10px;
+  color: var(--muted);
 }
 
 .boilerBusterTapZone {
@@ -1561,6 +1693,7 @@ code {
 }
 
 .boilerBusterGauge {
+  --boiler-gauge-accent: rgba(47, 228, 171, 0.96);
   position: absolute;
   top: 34px;
   right: 34px;
@@ -1569,10 +1702,40 @@ code {
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background:
-    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(212, 217, 227, 0.94) 70%, rgba(170, 177, 189, 0.96));
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(212, 217, 227, 0.94) 58%, rgba(170, 177, 189, 0.96) 60%, transparent 61%),
+    conic-gradient(
+      from 220deg,
+      rgba(47, 228, 171, 0.98) 0deg 62deg,
+      rgba(147, 211, 99, 0.98) 62deg 116deg,
+      rgba(242, 183, 5, 0.98) 116deg 156deg,
+      rgba(255, 146, 43, 0.98) 156deg 194deg,
+      rgba(255, 92, 115, 0.98) 194deg 320deg,
+      rgba(255, 255, 255, 0.82) 320deg 360deg
+    );
   box-shadow:
     inset 0 2px 2px rgba(255, 255, 255, 0.34),
-    0 8px 16px rgba(0, 0, 0, 0.2);
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 3px color-mix(in srgb, var(--boiler-gauge-accent) 16%, transparent);
+}
+
+.boilerBusterGaugeCalm {
+  --boiler-gauge-accent: rgba(47, 228, 171, 0.96);
+}
+
+.boilerBusterGaugeSteady {
+  --boiler-gauge-accent: rgba(147, 211, 99, 0.96);
+}
+
+.boilerBusterGaugeRising {
+  --boiler-gauge-accent: rgba(242, 183, 5, 0.96);
+}
+
+.boilerBusterGaugeDanger {
+  --boiler-gauge-accent: rgba(255, 146, 43, 0.96);
+}
+
+.boilerBusterGaugeCritical {
+  --boiler-gauge-accent: rgba(255, 92, 115, 0.98);
 }
 
 .boilerBusterGaugeDot {
@@ -1587,16 +1750,37 @@ code {
 }
 
 .boilerBusterNeedle {
+  --boiler-gauge-accent: var(--danger);
   position: absolute;
   left: 33px;
   top: 32px;
   width: 28px;
   height: 2px;
   border-radius: 999px;
-  background: var(--danger);
+  background: var(--boiler-gauge-accent);
   transform-origin: 0% 50%;
   transition: transform 180ms ease;
-  box-shadow: 0 0 12px rgba(255, 92, 115, 0.55);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--boiler-gauge-accent) 68%, transparent);
+}
+
+.boilerBusterNeedleCalm {
+  --boiler-gauge-accent: rgba(47, 228, 171, 0.98);
+}
+
+.boilerBusterNeedleSteady {
+  --boiler-gauge-accent: rgba(147, 211, 99, 0.98);
+}
+
+.boilerBusterNeedleRising {
+  --boiler-gauge-accent: rgba(242, 183, 5, 0.98);
+}
+
+.boilerBusterNeedleDanger {
+  --boiler-gauge-accent: rgba(255, 146, 43, 0.98);
+}
+
+.boilerBusterNeedleCritical {
+  --boiler-gauge-accent: rgba(255, 92, 115, 0.98);
 }
 
 .boilerBusterNeedle::after {
@@ -1604,9 +1788,29 @@ code {
   position: absolute;
   right: -5px;
   top: -3px;
-  border-left: 8px solid var(--danger);
+  border-left: 8px solid var(--boiler-gauge-accent);
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
+}
+
+.boilerBusterMeterCardCalm {
+  border-color: rgba(47, 228, 171, 0.18);
+}
+
+.boilerBusterMeterCardSteady {
+  border-color: rgba(147, 211, 99, 0.18);
+}
+
+.boilerBusterMeterCardRising {
+  border-color: rgba(242, 183, 5, 0.2);
+}
+
+.boilerBusterMeterCardDanger {
+  border-color: rgba(255, 146, 43, 0.22);
+}
+
+.boilerBusterMeterCardCritical {
+  border-color: rgba(255, 92, 115, 0.24);
 }
 
 .boilerBusterValve {
@@ -1756,6 +1960,10 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .boilerBusterPressureScale {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .boilerBusterTapZone {
     min-height: 280px;
     padding: 16px;
@@ -1778,6 +1986,10 @@ code {
   .boilerBusterMachineBody {
     width: 170px;
     height: 104px;
+  }
+
+  .boilerBusterPressureScale {
+    grid-template-columns: 1fr;
   }
 }
 
