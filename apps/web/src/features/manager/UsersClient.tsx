@@ -181,7 +181,7 @@ export function UsersClient() {
               className="input"
               value={createPassword}
               onChange={(e) => setCreatePassword(e.target.value)}
-              placeholder="Temporary password (min 12 chars)"
+              placeholder="Temporary password (min 9 chars)"
               type="password"
               autoComplete="new-password"
             />
@@ -190,7 +190,7 @@ export function UsersClient() {
             className="btn u-mt-10"
             type="button"
             onClick={createUser}
-            disabled={creating || !createEmail.trim() || createPassword.trim().length < 12}
+            disabled={creating || !createEmail.trim() || createPassword.trim().length < 9}
           >
             {creating ? "Creating…" : "Create account"}
           </button>
@@ -275,7 +275,7 @@ export function UsersClient() {
                       className="input"
                       value={pwValue}
                       onChange={(e) => setPwValue(e.target.value)}
-                      placeholder="New password (min 12 chars)"
+                      placeholder="New password (min 9 chars)"
                       type="password"
                       autoComplete="new-password"
                     />
@@ -283,7 +283,7 @@ export function UsersClient() {
                       className="btn"
                       type="button"
                       onClick={() => void setPassword(u.id)}
-                      disabled={savingId === u.id || pwValue.trim().length < 12}
+                      disabled={savingId === u.id || pwValue.trim().length < 9}
                     >
                       Set password
                     </button>

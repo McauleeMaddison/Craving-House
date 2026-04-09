@@ -51,7 +51,7 @@ export function getRegisterErrorMessage(result: RegisterErrorResponse) {
     case "InvalidEmail":
       return "Enter a valid email address.";
     case "InvalidPassword":
-      return typeof result.error === "string" && result.error.trim() ? result.error : "Password must be at least 12 characters.";
+      return typeof result.error === "string" && result.error.trim() ? result.error : "Password must be at least 9 characters.";
     case "SignInInstead":
       return "We couldn't create that account. Sign in instead if you already have one.";
     case "TooManyRequests":

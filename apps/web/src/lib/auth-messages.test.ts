@@ -29,8 +29,8 @@ test("getRegisterErrorMessage keeps duplicate-account failures privacy-safe", ()
 
 test("getRegisterErrorMessage returns password validation feedback", () => {
   assert.equal(
-    getRegisterErrorMessage({ code: "InvalidPassword", error: "Password must be at least 12 characters." }),
-    "Password must be at least 12 characters."
+    getRegisterErrorMessage({ code: "InvalidPassword", error: "Password must be at least 9 characters." }),
+    "Password must be at least 9 characters."
   );
 });
 

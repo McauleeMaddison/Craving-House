@@ -212,7 +212,7 @@ export default function SignInPage() {
               </button>
               {mode === "signup" ? (
                 <p className="muted u-m-0 u-fs-12 u-lh-16">
-                  Password must be at least 12 characters.
+                  Password must be at least 9 characters.
                 </p>
               ) : null}
             </div>
