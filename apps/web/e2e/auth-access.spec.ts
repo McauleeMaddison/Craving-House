@@ -42,7 +42,7 @@ test("manager can access manager tools and staff tools", async ({ page }) => {
   await page.goto("/manager/users");
   await expect(page.getByRole("heading", { name: "Users & roles" })).toBeVisible();
   await page.locator("select").first().selectOption("customer");
-  await page.getByRole("button", { name: "Search" }).click();
+  await page.getByRole("button", { name: "Apply filters" }).click();
   await expect(page.getByText("E2E Customer")).toBeVisible();
 
   await page.goto("/manager/orders");

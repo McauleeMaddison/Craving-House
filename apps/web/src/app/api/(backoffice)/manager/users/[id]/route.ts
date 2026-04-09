@@ -34,6 +34,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   });
   if (!target) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  const isSelfTarget = targetUserId === access.userId;
+  if (isSelfTarget) {
+    if (body.disabled === true) {
+      return NextResponse.json({ error: "You cannot disable your own manager account." }, { status: 409 });
+    }
+    if (typeof body.role === "string" && body.role !== "manager") {
+      return NextResponse.json({ error: "You cannot remove your own manager role." }, { status: 409 });
+    }
+  }
+
   const canMutateManagerRoleOrAccess =
     target.role === "manager" &&
     ((typeof body.role === "string" && body.role !== "manager") || body.disabled === true);

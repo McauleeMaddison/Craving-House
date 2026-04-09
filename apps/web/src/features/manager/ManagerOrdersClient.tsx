@@ -7,6 +7,7 @@ import { formatCustomizations } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
 
 type OrderStatus = "received" | "accepted" | "ready" | "collected" | "canceled";
+type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
 
 type ManagerOrderDto = {
   id: string;
@@ -52,23 +53,48 @@ function nextActions(status: OrderStatus): Array<{ label: string; status: OrderS
 
 export function ManagerOrdersClient() {
   const [orders, setOrders] = useState<ManagerOrderDto[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [notice, setNotice] = useState("");
+  const [updatingId, setUpdatingId] = useState("");
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<OrderStatus | "">("");
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
 
-  async function refresh() {
+  async function refresh(overrides?: {
+    paymentStatus?: PaymentStatus | "";
+    q?: string;
+    status?: OrderStatus | "";
+  }) {
+    setLoading(true);
     setError("");
+    const queryValue = overrides?.q ?? q;
+    const statusValue = overrides?.status ?? status;
+    const paymentValue = overrides?.paymentStatus ?? paymentStatus;
     const qs = new URLSearchParams();
-    if (q.trim()) qs.set("q", q.trim());
-    if (status) qs.set("status", status);
+    if (queryValue.trim()) qs.set("q", queryValue.trim());
+    if (statusValue) qs.set("status", statusValue);
+    if (paymentValue) qs.set("paymentStatus", paymentValue);
     qs.set("limit", "100");
     const res = await apiGetJson<{ orders: ManagerOrderDto[] }>(`/api/manager/orders?${qs.toString()}`);
     if (!res.ok) {
       setError(res.status === 401 ? "Sign in as manager." : res.error);
       setOrders([]);
+      setLoading(false);
       return;
     }
     setOrders(res.data.orders);
+    setLoading(false);
+  }
+
+  function resetFilters() {
+    const cleared = { q: "", status: "" as const, paymentStatus: "" as const };
+    setQ(cleared.q);
+    setStatus(cleared.status);
+    setPaymentStatus(cleared.paymentStatus);
+    setError("");
+    setNotice("");
+    void refresh(cleared);
   }
 
   useEffect(() => {
@@ -81,12 +107,19 @@ export function ManagerOrdersClient() {
 
   function updateStatus(orderId: string, next: OrderStatus) {
     void (async () => {
+      if (next === "canceled" && !confirm("Cancel this order?")) return;
+      setUpdatingId(orderId);
+      setError("");
+      setNotice("");
       const res = await apiPostJson<{ ok: true }>(`/api/staff/orders/${orderId}/status`, { status: next });
       if (!res.ok) {
         setError(res.error);
+        setUpdatingId("");
         return;
       }
       await refresh();
+      setUpdatingId("");
+      setNotice(`Order updated to ${next}.`);
     })();
   }
 
@@ -99,29 +132,55 @@ export function ManagerOrdersClient() {
             <p className="muted u-mt-10 u-lh-16">
               Search across pickup names and customer emails. Managers can also update statuses.
             </p>
-            {error ? <p className="muted u-mt-10 u-danger">{error}</p> : null}
+            {error ? <p className="muted u-mt-10 u-danger" role="alert">{error}</p> : null}
+            {notice ? <p className="muted u-mt-10" aria-live="polite">{notice}</p> : null}
           </div>
-          <button className="btn btn-secondary" type="button" onClick={refresh}>
-            Refresh
+          <button className="btn btn-secondary" type="button" onClick={() => void refresh()} disabled={loading}>
+            {loading ? "Refreshing…" : "Refresh"}
           </button>
         </div>
 
         <div className="grid-2 u-mt-12">
-          <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search pickup / email…" />
-          <select className="input" value={status} onChange={(e) => setStatus(e.target.value as any)}>
-            <option value="">All statuses</option>
-            <option value="received">received</option>
-            <option value="accepted">accepted</option>
-            <option value="ready">ready</option>
-            <option value="collected">collected</option>
-            <option value="canceled">canceled</option>
-          </select>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Search orders</span>
+            <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search pickup / email…" />
+          </label>
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Status filter</span>
+            <select className="input" value={status} onChange={(e) => setStatus(e.target.value as OrderStatus | "")}>
+              <option value="">All statuses</option>
+              <option value="received">received</option>
+              <option value="accepted">accepted</option>
+              <option value="ready">ready</option>
+              <option value="collected">collected</option>
+              <option value="canceled">canceled</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="grid-2 u-mt-10">
+          <label className="u-grid-gap-8">
+            <span className="muted u-fs-12">Payment filter</span>
+            <select className="input" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus | "")}>
+              <option value="">All payments</option>
+              <option value="paid">paid</option>
+              <option value="pending">pending</option>
+              <option value="unpaid">unpaid</option>
+              <option value="failed">failed</option>
+              <option value="refunded">refunded</option>
+            </select>
+          </label>
+          <div className="u-flex-wrap-gap-10">
+            <button className="btn" type="button" onClick={() => void refresh()} disabled={loading}>
+              Apply filters
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={resetFilters} disabled={loading}>
+              Reset
+            </button>
+          </div>
         </div>
 
         <div className="rowWrap u-mt-10">
-          <button className="btn" type="button" onClick={refresh}>
-            Search
-          </button>
           <span className="pill">Active: {active.length}</span>
           <span className="pill">Completed: {done.length}</span>
         </div>
@@ -129,7 +188,12 @@ export function ManagerOrdersClient() {
 
       <section className="u-mt-12">
         <h2 className="sectionLabel">Active</h2>
-        {active.length === 0 ? (
+        {loading ? (
+          <div className="surface u-pad-16">
+            <p className="muted u-m-0" aria-live="polite">Loading orders…</p>
+          </div>
+        ) : null}
+        {!loading && active.length === 0 ? (
           <div className="surface u-pad-16">
             <p className="muted u-m-0">No active orders.</p>
           </div>
@@ -157,8 +221,9 @@ export function ManagerOrdersClient() {
                         className={a.kind === "danger" ? "btn btn-danger" : "btn"}
                         type="button"
                         onClick={() => updateStatus(o.id, a.status)}
+                        disabled={updatingId === o.id}
                       >
-                        {a.label}
+                        {updatingId === o.id ? "Saving…" : a.label}
                       </button>
                     ))}
                   </div>
@@ -189,7 +254,7 @@ export function ManagerOrdersClient() {
 
       <section className="u-mt-16">
         <h2 className="sectionLabel">Completed</h2>
-        {done.length === 0 ? (
+        {!loading && done.length === 0 ? (
           <div className="surface u-pad-16">
             <p className="muted u-m-0">None yet.</p>
           </div>
@@ -212,4 +277,3 @@ export function ManagerOrdersClient() {
     </>
   );
 }
-

@@ -195,6 +195,8 @@ export async function GET(request: Request) {
         smtpConfigured: emailConfigured,
         operationsAlertConfigured: operationsAlert.enabled,
         operationsAlertEmailConfigured: Boolean(operationsAlert.emailTo),
+        operationsAlertWebhookConfigured: Boolean(operationsAlert.webhookUrl),
+        operationsAlertCooldownSeconds: operationsAlert.cooldownSeconds,
         passwordResetConfigured: emailConfigured,
         passwordResetTtlMinutes: getPasswordResetTtlMinutes(),
         vapidSubjectConfigured: Boolean(process.env.VAPID_SUBJECT?.trim()),

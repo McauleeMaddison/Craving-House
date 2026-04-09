@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-import { prisma } from "@/server/db";
+import { prisma } from "../db.ts";
 
 export type RateLimitResult =
   | { ok: true; remaining: number; resetAtMs: number }

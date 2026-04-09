@@ -189,6 +189,7 @@ export function AppHeader() {
                     key={link.href}
                     className={`btn btn-secondary ${pathname?.startsWith(link.href) ? "btnActive" : ""}`}
                     href={link.href}
+                    aria-current={pathname?.startsWith(link.href) ? "page" : undefined}
                   >
                     {link.label}
                   </Link>
@@ -198,6 +199,7 @@ export function AppHeader() {
                     key={link.href}
                     className={`btn btn-secondary ${activeHref === link.href ? "btnActive" : ""}`}
                     href={link.href}
+                    aria-current={activeHref === link.href ? "page" : undefined}
                   >
                     {link.label}
                   </Link>
@@ -304,6 +306,7 @@ export function AppHeader() {
                 className={`drawerLink ${
                   pathname?.startsWith(link.href) ? "drawerLinkActive" : ""
                 }`}
+                aria-current={pathname?.startsWith(link.href) ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
                 <span className="drawerLinkLabel">

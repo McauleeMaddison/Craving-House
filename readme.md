@@ -85,7 +85,7 @@ The app now reads its canonical public URL from `NEXTAUTH_URL` in one place and 
 - `GET /api/health?verbose=1` is restricted to a signed-in manager session or a matching `HEALTHCHECK_TOKEN` header.
 - Example header: `x-healthcheck-token: YOUR_TOKEN`
 
-Verbose health diagnostics now also report whether SMTP, operational alert email, and password reset configuration are available.
+Verbose health diagnostics now also report whether SMTP, operational alert email/webhook, alert cooldown, and password reset configuration are available.
 
 ## Password Reset
 
@@ -97,12 +97,17 @@ Verbose health diagnostics now also report whether SMTP, operational alert email
 
 ## Operational Alerts
 
-- Optional env: `OPERATIONS_ALERT_EMAIL`
-- When SMTP is configured, the app can send alert emails for critical failures such as:
+- Optional env:
+  - `OPERATIONS_ALERT_EMAIL`
+  - `OPERATIONS_ALERT_WEBHOOK_URL`
+  - `OPERATIONS_ALERT_COOLDOWN_SECONDS`
+- When configured, the app can send throttled operational alerts for critical failures such as:
   - Stripe Checkout session creation failures
   - unexpected Stripe webhook processing failures
   - failed guest receipt emails
   - failed password reset emails
+  - staff order status update failures
+- The alert cooldown prevents the same incident from spamming the inbox/webhook repeatedly during an outage.
 
 ## Security note
 
