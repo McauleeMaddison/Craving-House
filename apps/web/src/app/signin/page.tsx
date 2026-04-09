@@ -16,7 +16,7 @@ function authErrorToMessage(error: string) {
 
   switch (error) {
     case "CredentialsSignin":
-      return "Sign-in failed. Check your email/password.";
+      return "Incorrect password.";
     case "TOTPRequired":
       return "Enter your 6-digit authenticator code to sign in.";
     case "TOTPInvalid":
