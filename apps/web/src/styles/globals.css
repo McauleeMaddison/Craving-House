@@ -1287,14 +1287,14 @@ code {
 }
 
 .boilerBusterHero {
-  padding: clamp(18px, 4vw, 24px);
+  padding: clamp(16px, 4vw, 22px);
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .boilerBusterHeader {
   display: flex;
-  align-items: flex-start;
+  align-items: end;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
@@ -1302,31 +1302,32 @@ code {
 
 .boilerBusterHeading {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .boilerBusterTitle {
-  font-size: clamp(30px, 6vw, 46px);
-  line-height: 0.96;
+  font-size: clamp(28px, 5vw, 40px);
+  line-height: 0.98;
   letter-spacing: -0.04em;
   font-weight: 950;
 }
 
 .boilerBusterLead {
-  max-width: 60ch;
-  line-height: 1.7;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .boilerBusterStatus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 7px 11px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--panel) 72%, transparent);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1347,48 +1348,38 @@ code {
   background: rgba(255, 92, 115, 0.14);
 }
 
-.boilerBusterLayout {
+.boilerBusterBoard {
+  padding: 14px;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr);
-  gap: 12px;
-  align-items: start;
-}
-
-.boilerBusterBoard,
-.boilerBusterNote {
-  padding: 16px;
-}
-
-.boilerBusterSide {
-  display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .boilerBusterStats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .boilerBusterStat {
   position: relative;
-  padding: 12px;
-  border-radius: 16px;
+  min-height: 76px;
+  padding: 10px;
+  border-radius: 14px;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
   overflow: hidden;
 }
 
 .boilerBusterStatLabel {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .boilerBusterStatValue {
-  margin-top: 8px;
-  font-size: clamp(20px, 4.8vw, 28px);
+  margin-top: 6px;
+  font-size: clamp(18px, 4.8vw, 24px);
   line-height: 1;
   letter-spacing: -0.04em;
   font-weight: 950;
@@ -1401,17 +1392,17 @@ code {
 
 .boilerBusterBestRibbon {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
-  min-height: 20px;
-  padding: 3px 7px;
+  min-height: 18px;
+  padding: 2px 6px;
   border-radius: 999px;
   border: 1px solid rgba(242, 183, 5, 0.24);
   background: rgba(242, 183, 5, 0.14);
   color: rgba(255, 234, 161, 0.98);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1437,13 +1428,14 @@ code {
 }
 
 .boilerBusterMeterCard {
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 20px;
+  padding: 12px;
+  border-radius: 18px;
   border: 1px solid var(--border);
   background:
-    radial-gradient(120% 120% at 0% 0%, rgba(242, 183, 5, 0.12), transparent 50%),
-    color-mix(in srgb, var(--panel) 76%, transparent);
+    radial-gradient(120% 120% at 0% 0%, rgba(242, 183, 5, 0.08), transparent 48%),
+    color-mix(in srgb, var(--panel) 82%, transparent);
+  display: grid;
+  gap: 10px;
 }
 
 .boilerBusterMeterTop {
@@ -1453,81 +1445,30 @@ code {
   gap: 12px;
 }
 
-.boilerBusterMeterLabelRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
 .boilerBusterMeterTopSecondary {
-  margin-top: 12px;
+  margin-top: 2px;
 }
 
 .boilerBusterMeterLabel {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 
-.boilerBusterPressurePill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.boilerBusterPressurePillCalm {
-  border-color: rgba(47, 228, 171, 0.4);
-  background: rgba(47, 228, 171, 0.12);
-  color: rgba(170, 255, 228, 0.94);
-}
-
-.boilerBusterPressurePillSteady {
-  border-color: rgba(147, 211, 99, 0.42);
-  background: rgba(147, 211, 99, 0.14);
-  color: rgba(221, 255, 181, 0.96);
-}
-
-.boilerBusterPressurePillRising {
-  border-color: rgba(242, 183, 5, 0.44);
-  background: rgba(242, 183, 5, 0.14);
-  color: rgba(255, 234, 161, 0.97);
-}
-
-.boilerBusterPressurePillDanger {
-  border-color: rgba(255, 146, 43, 0.46);
-  background: rgba(255, 146, 43, 0.15);
-  color: rgba(255, 217, 168, 0.98);
-}
-
-.boilerBusterPressurePillCritical {
-  border-color: rgba(255, 92, 115, 0.48);
-  background: rgba(255, 92, 115, 0.14);
-  color: rgba(255, 201, 211, 0.98);
-}
-
 .boilerBusterMeterHint {
-  margin-top: 3px;
-  font-size: 12px;
-  line-height: 1.55;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .boilerBusterMeterValue {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
   letter-spacing: -0.03em;
   font-weight: 950;
 }
 
 .boilerBusterMeter {
-  margin-top: 10px;
-  height: 14px;
+  height: 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.08);
@@ -1573,79 +1514,20 @@ code {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(242, 183, 5, 0.95));
 }
 
-.boilerBusterPressureScale {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.boilerBusterPressureScaleItem {
-  padding: 8px 8px 9px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  display: grid;
-  justify-items: start;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.boilerBusterPressureScaleItemActive {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
-}
-
-.boilerBusterPressureScaleSwatch {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-}
-
-.boilerBusterPressureScaleSwatchCalm {
-  background: rgba(47, 228, 171, 0.96);
-}
-
-.boilerBusterPressureScaleSwatchSteady {
-  background: rgba(147, 211, 99, 0.96);
-}
-
-.boilerBusterPressureScaleSwatchRising {
-  background: rgba(242, 183, 5, 0.96);
-}
-
-.boilerBusterPressureScaleSwatchDanger {
-  background: rgba(255, 146, 43, 0.96);
-}
-
-.boilerBusterPressureScaleSwatchCritical {
-  background: rgba(255, 92, 115, 0.98);
-}
-
-.boilerBusterPressureScaleRange {
-  font-size: 10px;
-  color: var(--muted);
-}
-
 .boilerBusterTapZone {
   width: 100%;
-  margin-top: 12px;
-  min-height: 300px;
-  padding: 18px;
-  border-radius: 24px;
+  min-height: 248px;
+  padding: 16px;
+  border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background:
-    radial-gradient(70% 70% at 50% 0%, rgba(255, 255, 255, 0.12), transparent 56%),
-    linear-gradient(180deg, rgba(11, 13, 18, 0.08), rgba(11, 13, 18, 0.18));
+    radial-gradient(72% 72% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 56%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.07), rgba(11, 13, 18, 0.16));
   color: var(--text);
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 18px;
+  gap: 12px;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -1655,24 +1537,24 @@ code {
 
 .boilerBusterTutorial {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
+  top: 12px;
+  left: 12px;
   z-index: 2;
   display: grid;
-  gap: 4px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  gap: 2px;
+  max-width: min(220px, calc(100% - 24px));
+  padding: 9px 11px;
+  border-radius: 14px;
   border: 1px solid rgba(242, 183, 5, 0.22);
   background:
-    linear-gradient(135deg, rgba(242, 183, 5, 0.18), rgba(255, 255, 255, 0.05)),
+    linear-gradient(135deg, rgba(242, 183, 5, 0.12), rgba(255, 255, 255, 0.04)),
     rgba(11, 13, 18, 0.82);
   text-align: left;
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.2);
 }
 
 .boilerBusterTutorialTitle {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1680,49 +1562,48 @@ code {
 }
 
 .boilerBusterTutorialBody {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .boilerBusterTutorialHint {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
 }
 
 .boilerBusterNearMiss {
   position: absolute;
-  top: 92px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 12px;
+  right: 12px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 6px 12px;
+  min-height: 24px;
+  padding: 5px 9px;
   border-radius: 999px;
   border: 1px solid rgba(255, 146, 43, 0.34);
   background: rgba(255, 146, 43, 0.16);
   color: rgba(255, 220, 176, 0.98);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
   animation: boilerBusterNearMissPulse 820ms ease;
 }
 
 @keyframes boilerBusterNearMissPulse {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-4px) scale(0.96);
+    transform: translateY(-4px) scale(0.96);
   }
   20% {
     opacity: 1;
   }
   100% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -1771,30 +1652,30 @@ code {
 
 .boilerBusterMachine {
   position: relative;
-  width: min(100%, 260px);
-  height: 190px;
+  width: min(100%, 220px);
+  height: 144px;
   z-index: 1;
 }
 
 .boilerBusterMachineGlow {
   position: absolute;
-  left: 18px;
-  right: 18px;
+  left: 22px;
+  right: 22px;
   bottom: 0;
-  height: 54px;
+  height: 36px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(242, 183, 5, 0.45), transparent 72%);
-  filter: blur(18px);
+  background: radial-gradient(circle, rgba(242, 183, 5, 0.36), transparent 72%);
+  filter: blur(14px);
 }
 
 .boilerBusterMachineTop {
   position: absolute;
   left: 50%;
-  top: 18px;
-  width: 112px;
-  height: 62px;
+  top: 14px;
+  width: 100px;
+  height: 52px;
   transform: translateX(-50%);
-  border-radius: 30px 30px 18px 18px;
+  border-radius: 26px 26px 16px 16px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.06)),
@@ -1807,11 +1688,11 @@ code {
 .boilerBusterMachineBody {
   position: absolute;
   left: 50%;
-  bottom: 18px;
-  width: 186px;
-  height: 112px;
+  bottom: 12px;
+  width: 172px;
+  height: 94px;
   transform: translateX(-50%);
-  border-radius: 42px 42px 28px 28px;
+  border-radius: 38px 38px 24px 24px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background:
     radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
@@ -1825,10 +1706,10 @@ code {
 .boilerBusterGauge {
   --boiler-gauge-accent: rgba(47, 228, 171, 0.96);
   position: absolute;
-  top: 34px;
-  right: 34px;
-  width: 66px;
-  height: 66px;
+  top: 26px;
+  right: 28px;
+  width: 58px;
+  height: 58px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background:
@@ -1872,8 +1753,8 @@ code {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
   background: rgba(11, 13, 18, 0.94);
   transform: translate(-50%, -50%);
@@ -1882,9 +1763,9 @@ code {
 .boilerBusterNeedle {
   --boiler-gauge-accent: var(--danger);
   position: absolute;
-  left: 33px;
-  top: 32px;
-  width: 28px;
+  left: 29px;
+  top: 28px;
+  width: 24px;
   height: 2px;
   border-radius: 999px;
   background: var(--boiler-gauge-accent);
@@ -1916,9 +1797,9 @@ code {
 .boilerBusterNeedle::after {
   content: "";
   position: absolute;
-  right: -5px;
+  right: -4px;
   top: -3px;
-  border-left: 8px solid var(--boiler-gauge-accent);
+  border-left: 7px solid var(--boiler-gauge-accent);
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
 }
@@ -1945,10 +1826,10 @@ code {
 
 .boilerBusterValve {
   position: absolute;
-  left: 48px;
-  top: 58px;
-  width: 34px;
-  height: 34px;
+  left: 44px;
+  top: 46px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background:
@@ -1962,7 +1843,7 @@ code {
   position: absolute;
   left: -4px;
   right: -4px;
-  top: 15px;
+  top: 13px;
   height: 4px;
   border-radius: 999px;
   background: rgba(255, 231, 167, 0.92);
@@ -1973,7 +1854,7 @@ code {
   position: absolute;
   top: -4px;
   bottom: -4px;
-  left: 15px;
+  left: 13px;
   width: 4px;
   border-radius: 999px;
   background: rgba(255, 231, 167, 0.92);
@@ -1981,8 +1862,8 @@ code {
 
 .boilerBusterSteam {
   position: absolute;
-  width: 44px;
-  height: 96px;
+  width: 34px;
+  height: 76px;
   border-radius: 999px;
   background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08) 72%, transparent);
   filter: blur(2px);
@@ -2003,29 +1884,29 @@ code {
 }
 
 .boilerBusterSteamA {
-  left: 42px;
-  top: 2px;
+  left: 46px;
+  top: 0;
   animation-delay: 0s;
 }
 
 .boilerBusterSteamB {
-  left: 108px;
-  top: -8px;
+  left: 94px;
+  top: -6px;
   animation-delay: 0.24s;
 }
 
 .boilerBusterSteamC {
-  right: 34px;
-  top: 6px;
+  right: 30px;
+  top: 2px;
   animation-delay: 0.48s;
 }
 
 .boilerBusterSteamBurst {
   position: absolute;
-  width: 18px;
-  height: 18px;
-  margin-left: -9px;
-  margin-top: -9px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
   border-radius: 999px;
   pointer-events: none;
   background:
@@ -2063,36 +1944,37 @@ code {
 .boilerBusterTapCopy {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  max-width: 36ch;
+  gap: 4px;
+  max-width: 28ch;
 }
 
 .boilerBusterTapTitle {
-  font-size: clamp(24px, 5vw, 32px);
-  line-height: 0.98;
+  font-size: clamp(22px, 5vw, 28px);
+  line-height: 1;
   letter-spacing: -0.03em;
   font-weight: 950;
 }
 
 .boilerBusterTapSub {
-  font-size: 13px;
-  line-height: 1.65;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--muted);
 }
 
 .boilerBusterActions {
-  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.boilerBusterActionsLost {
-  margin-top: 14px;
-  display: grid;
-  gap: 10px;
+.boilerBusterActionSecondary {
+  min-height: 44px;
 }
 
 .boilerBusterRestartPrimary {
-  width: 100%;
-  min-height: 52px;
+  min-height: 46px;
   background: rgba(255, 92, 115, 0.16);
   border-color: rgba(255, 92, 115, 0.34);
   color: rgba(255, 228, 233, 0.98);
@@ -2100,13 +1982,13 @@ code {
 
 .boilerBusterAuxLinks {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 14px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
 .boilerBusterAuxLink {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--muted);
   text-decoration: underline;
@@ -2117,84 +1999,96 @@ code {
   color: var(--text);
 }
 
-.boilerBusterChecklist {
+.boilerBusterFooter {
   display: grid;
   gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.boilerBusterChecklistItem {
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--panel) 72%, transparent);
+.boilerBusterFooterCopy {
+  margin: 0;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .boilerBusterMeta {
-  margin-top: 12px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-@media (max-width: 920px) {
-  .boilerBusterLayout {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 720px) {
-  .boilerBusterStats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .boilerBusterPressureScale {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .boilerBusterHeader {
+    align-items: flex-start;
   }
 
   .boilerBusterTapZone {
-    min-height: 280px;
-    padding: 16px;
-  }
-
-  .boilerBusterNearMiss {
-    top: 102px;
+    min-height: 232px;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .boilerBusterStatus {
     width: 100%;
   }
 
+  .boilerBusterNearMiss {
+    top: 60px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 420px) {
   .boilerBusterMachine {
-    height: 174px;
+    width: min(100%, 196px);
+    height: 128px;
   }
 
   .boilerBusterMachineTop {
-    width: 102px;
+    width: 92px;
+    height: 46px;
   }
 
   .boilerBusterMachineBody {
-    width: 170px;
-    height: 104px;
+    width: 154px;
+    height: 86px;
   }
 
-  .boilerBusterPressureScale {
-    grid-template-columns: 1fr;
+  .boilerBusterGauge {
+    top: 22px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
   }
 
   .boilerBusterTutorial {
     left: 10px;
-    right: 10px;
+    max-width: calc(100% - 20px);
+  }
+}
+
+@media (max-width: 380px) {
+  .boilerBusterStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .boilerBusterActions {
+    align-items: stretch;
+  }
+
+  .boilerBusterActions .btn {
+    width: 100%;
+  }
+
+  .boilerBusterAuxLinks {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .boilerBusterNearMiss {
-    left: 10px;
+    top: 60px;
     right: 10px;
-    transform: none;
-    justify-content: center;
   }
 }
 

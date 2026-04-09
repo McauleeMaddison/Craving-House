@@ -23,26 +23,13 @@ type GameState = {
   taps: number;
 };
 
-type PressureLevel = {
-  key: "Calm" | "Steady" | "Rising" | "Danger" | "Critical";
-  label: string;
-  range: string;
-  hint: string;
-};
+type PressureLevelKey = "Calm" | "Steady" | "Rising" | "Danger" | "Critical";
 
 type SteamBurst = {
   id: number;
   x: number;
   y: number;
 };
-
-const PRESSURE_LEVELS: PressureLevel[] = [
-  { key: "Calm", label: "Calm", range: "0-24%", hint: "Easy cruising" },
-  { key: "Steady", label: "Steady", range: "25-49%", hint: "Safe working range" },
-  { key: "Rising", label: "Rising", range: "50-69%", hint: "Needs attention soon" },
-  { key: "Danger", label: "Danger", range: "70-84%", hint: "Vent now" },
-  { key: "Critical", label: "Critical", range: "85-100%", hint: "Red zone" }
-];
 
 function createGameState(phase: GamePhase = "idle"): GameState {
   return {
@@ -70,23 +57,27 @@ function applyVent(state: GameState): GameState {
 
 function getStatusCopy(game: GameState) {
   if (game.phase === "won") {
-    return "Shift clear. You held the pressure long enough for the order queue to settle.";
+    return "Queue clear. Your drinks should be nearly up.";
   }
   if (game.phase === "lost") {
-    return "Overheated. Fire up another shift and keep the gauge out of the red.";
+    return "Overheated. Restart and keep the gauge out of the red.";
   }
   if (game.phase === "playing") {
-    return "Tap the boiler to vent steam before it spikes.";
+    return "Tap the boiler to bleed pressure before it spikes.";
   }
-  return "Tap the boiler when your order is in and keep the machine steady for 20 seconds.";
+  return "Tap the boiler and hold steady for 20 seconds.";
 }
 
-function getPressureLevel(pressure: number): PressureLevel {
-  if (pressure >= 85) return PRESSURE_LEVELS[4];
-  if (pressure >= 70) return PRESSURE_LEVELS[3];
-  if (pressure >= 50) return PRESSURE_LEVELS[2];
-  if (pressure >= 25) return PRESSURE_LEVELS[1];
-  return PRESSURE_LEVELS[0];
+function getPressureLevelKey(pressure: number): PressureLevelKey {
+  if (pressure >= 85) return "Critical";
+  if (pressure >= 70) return "Danger";
+  if (pressure >= 50) return "Rising";
+  if (pressure >= 25) return "Steady";
+  return "Calm";
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function BoilerBusterClient() {
@@ -98,6 +89,7 @@ export function BoilerBusterClient() {
   const [personalBestFlash, setPersonalBestFlash] = useState(false);
   const [newBestThisRound, setNewBestThisRound] = useState(false);
   const burstIdRef = useRef(0);
+  const machineRef = useRef<HTMLSpanElement | null>(null);
   const nearMissCooldownRef = useRef(false);
   const nearMissTimeoutRef = useRef<number | null>(null);
   const personalBestTimeoutRef = useRef<number | null>(null);
@@ -247,13 +239,15 @@ export function BoilerBusterClient() {
     if (game.phase === "lost") return;
     if (showTutorial) dismissTutorial();
 
-    const rect = event?.currentTarget.getBoundingClientRect();
+    const rect = machineRef.current?.getBoundingClientRect();
     if (rect) {
-      const x = (((event?.clientX ?? rect.left + rect.width * 0.5) - rect.left) / rect.width) * 100;
-      const y = (((event?.clientY ?? rect.top + rect.height * 0.46) - rect.top) / rect.height) * 100;
+      const rawX = (((event?.clientX ?? rect.left + rect.width * 0.5) - rect.left) / rect.width) * 100;
+      const rawY = (((event?.clientY ?? rect.top + rect.height * 0.62) - rect.top) / rect.height) * 100;
+      const x = clamp(rawX, 28, 72);
+      const y = clamp(rawY, 46, 78);
       spawnSteamBurst(x, y);
     } else {
-      spawnSteamBurst(50, 46);
+      spawnSteamBurst(50, 62);
     }
 
     setGame((current) => {
@@ -266,7 +260,7 @@ export function BoilerBusterClient() {
 
   const timeLeftSeconds = Math.ceil(game.timeLeftMs / 1000);
   const queueProgress = Math.round(((GAME_DURATION_MS - game.timeLeftMs) / GAME_DURATION_MS) * 100);
-  const pressureLevel = getPressureLevel(game.pressure);
+  const pressureLevelKey = getPressureLevelKey(game.pressure);
   const bestRibbonLabel = personalBestFlash ? "New best" : bestScore > 0 ? "Record" : null;
   const phaseClassName =
     game.phase === "playing"
@@ -286,228 +280,165 @@ export function BoilerBusterClient() {
           : "";
   const tapTitle =
     game.phase === "playing"
-      ? "Vent steam"
+      ? "Tap to vent"
       : game.phase === "won"
-        ? "Shift cleared"
+        ? "Queue clear"
         : game.phase === "lost"
           ? "Boiler overheated"
-          : "Start shift";
+          : "Tap to start";
   const tapSubline =
     game.phase === "playing"
-      ? "Rapid taps drop the pressure and build score."
+      ? "Orange and red mean tap faster."
       : game.phase === "won"
-        ? "Your drinks should be nearly ready. Want another run?"
+        ? "You kept the shift under control."
         : game.phase === "lost"
-          ? "Use the restart button below to jump straight back in."
-          : "Keep the machine calm until the timer reaches zero.";
+          ? "Use restart below to jump back in."
+          : "Hold the boiler below 100% for 20 seconds.";
   const statusLabel =
-    game.phase === "playing" ? "Live shift" : game.phase === "won" ? "Order nearly ready" : game.phase === "lost" ? "Overheated" : "Standby";
+    game.phase === "playing" ? "Live" : game.phase === "won" ? "Clear" : game.phase === "lost" ? "Overheated" : "Ready";
   const boilerNeedleRotation = -78 + game.pressure * 1.56;
   const shouldEmphasizeRestart = game.phase === "lost";
+  const roundButtonLabel =
+    game.phase === "playing" ? "Reset round" : game.phase === "won" ? "Play again" : game.phase === "lost" ? "Restart shift" : "Start round";
 
   return (
-    <section className="surface boilerBusterHero u-maxw-980">
-      <div className="rowWrap">
-        <span className="pill">Customer mini-game</span>
-        <span className="pill">Tap while you wait</span>
-        <span className="pill">Mobile friendly</span>
-      </div>
-
+    <section className="surface boilerBusterHero u-maxw-760">
       <div className="boilerBusterHeader">
         <div className="boilerBusterHeading">
           <h1 className="boilerBusterTitle">Boiler Buster</h1>
-          <p className="muted boilerBusterLead">
-            A quick tap game for customers waiting on their drinks. Keep the boiler under control for 20 seconds
-            and clear the shift before it blows.
-          </p>
+          <p className="muted boilerBusterLead">Tap to vent steam while your order is on the way.</p>
         </div>
 
         <div className={`boilerBusterStatus ${phaseClassName}`}>{statusLabel}</div>
       </div>
 
-      <div className="boilerBusterLayout">
-        <div className="surface surfaceFlat boilerBusterBoard">
-          <div className="boilerBusterStats">
-            <div className="boilerBusterStat">
-              <div className="boilerBusterStatLabel">Score</div>
-              <div className="boilerBusterStatValue">{game.score}</div>
-            </div>
-            <div className="boilerBusterStat">
-              <div className="boilerBusterStatLabel">Best</div>
-              <div className={`boilerBusterStatValue ${personalBestFlash ? "boilerBusterStatValueFlash" : ""}`}>
-                {bestScore}
-              </div>
-              {bestRibbonLabel ? (
-                <span className={`boilerBusterBestRibbon ${personalBestFlash ? "boilerBusterBestRibbonFlash" : ""}`}>
-                  {bestRibbonLabel}
-                </span>
-              ) : null}
-            </div>
-            <div className="boilerBusterStat">
-              <div className="boilerBusterStatLabel">Time</div>
-              <div className="boilerBusterStatValue">{timeLeftSeconds}s</div>
-            </div>
-            <div className="boilerBusterStat">
-              <div className="boilerBusterStatLabel">Combo</div>
-              <div className="boilerBusterStatValue">x{Math.max(game.combo, 1)}</div>
-            </div>
+      <div className="surface surfaceFlat boilerBusterBoard">
+        <div className="boilerBusterStats">
+          <div className="boilerBusterStat">
+            <div className="boilerBusterStatLabel">Score</div>
+            <div className="boilerBusterStatValue">{game.score}</div>
           </div>
-
-          <div className={`boilerBusterMeterCard boilerBusterMeterCard${pressureLevel.key}`}>
-            <div className="boilerBusterMeterTop">
-              <div>
-                <div className="boilerBusterMeterLabelRow">
-                  <div className="boilerBusterMeterLabel">Boiler pressure</div>
-                  <span className={`boilerBusterPressurePill boilerBusterPressurePill${pressureLevel.key}`}>
-                    {pressureLevel.label}
-                  </span>
-                </div>
-                <div className="muted boilerBusterMeterHint">
-                  {pressureLevel.range} · {pressureLevel.hint}
-                </div>
-              </div>
-              <div className="boilerBusterMeterValue">{Math.round(game.pressure)}%</div>
+          <div className="boilerBusterStat">
+            <div className="boilerBusterStatLabel">Best</div>
+            <div className={`boilerBusterStatValue ${personalBestFlash ? "boilerBusterStatValueFlash" : ""}`}>
+              {bestScore}
             </div>
-            <div className="boilerBusterMeter" aria-hidden="true">
-              <div
-                className={`boilerBusterMeterFill boilerBusterMeterFillPressure boilerBusterMeterFill${pressureLevel.key}`}
-                style={{ width: `${game.pressure}%` }}
-              />
-            </div>
-            <div className="boilerBusterPressureScale" aria-hidden="true">
-              {PRESSURE_LEVELS.map((level) => (
-                <span
-                  key={level.key}
-                  className={`boilerBusterPressureScaleItem ${
-                    pressureLevel.key === level.key ? "boilerBusterPressureScaleItemActive" : ""
-                  }`}
-                >
-                  <span className={`boilerBusterPressureScaleSwatch boilerBusterPressureScaleSwatch${level.key}`} />
-                  <span>{level.label}</span>
-                  <span className="boilerBusterPressureScaleRange">{level.range}</span>
-                </span>
-              ))}
-            </div>
-            <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
-              <div>
-                <div className="boilerBusterMeterLabel">Order progress</div>
-                <div className="muted boilerBusterMeterHint">Hold the line until the queue clears.</div>
-              </div>
-              <div className="boilerBusterMeterValue">{queueProgress}%</div>
-            </div>
-            <div className="boilerBusterMeter boilerBusterMeterSecondary" aria-hidden="true">
-              <div className="boilerBusterMeterFill boilerBusterMeterFillSecondary" style={{ width: `${queueProgress}%` }} />
-            </div>
-          </div>
-
-          <button
-            className={`boilerBusterTapZone ${tapZoneClassName} ${shouldEmphasizeRestart ? "boilerBusterTapZoneStatic" : ""}`}
-            type="button"
-            onClick={handleTap}
-            aria-label={game.phase === "playing" ? "Vent steam" : shouldEmphasizeRestart ? "Boiler overheated" : "Start Boiler Buster"}
-            disabled={shouldEmphasizeRestart}
-          >
-            {showTutorial ? (
-              <span className="boilerBusterTutorial" role="status" aria-live="polite">
-                <span className="boilerBusterTutorialTitle">Quick tip</span>
-                <span className="boilerBusterTutorialBody">Tap fast when orange or red.</span>
-                <span className="boilerBusterTutorialHint">First visit only</span>
+            {bestRibbonLabel ? (
+              <span className={`boilerBusterBestRibbon ${personalBestFlash ? "boilerBusterBestRibbonFlash" : ""}`}>
+                {bestRibbonLabel}
               </span>
             ) : null}
-
-            {nearMissWarning ? (
-              <span className="boilerBusterNearMiss" role="status" aria-live="polite">
-                Near miss. Vent now.
-              </span>
-            ) : null}
-
-            <span className="boilerBusterMachine" aria-hidden="true">
-              <span className="boilerBusterMachineGlow" />
-              <span className="boilerBusterMachineTop" />
-              <span className="boilerBusterMachineBody" />
-              <span className={`boilerBusterGauge boilerBusterGauge${pressureLevel.key}`}>
-                <span className="boilerBusterGaugeDot" />
-                <span
-                  className={`boilerBusterNeedle boilerBusterNeedle${pressureLevel.key}`}
-                  style={{ transform: `rotate(${boilerNeedleRotation}deg)` }}
-                />
-              </span>
-              <span className="boilerBusterValve" />
-              <span className="boilerBusterSteam boilerBusterSteamA" />
-              <span className="boilerBusterSteam boilerBusterSteamB" />
-              <span className="boilerBusterSteam boilerBusterSteamC" />
-              {steamBursts.map((burst) => (
-                <span
-                  key={burst.id}
-                  className="boilerBusterSteamBurst"
-                  style={{ left: `${burst.x}%`, top: `${burst.y}%` }}
-                />
-              ))}
-            </span>
-
-            <span className="boilerBusterTapCopy">
-              <span className="boilerBusterTapTitle">{tapTitle}</span>
-              <span className="boilerBusterTapSub">{tapSubline}</span>
-            </span>
-          </button>
-
-          {shouldEmphasizeRestart ? (
-            <div className="boilerBusterActions boilerBusterActionsLost">
-              <button className="btn boilerBusterRestartPrimary" type="button" onClick={startFreshShift}>
-                Restart shift
-              </button>
-              <div className="boilerBusterAuxLinks">
-                <Link className="boilerBusterAuxLink" href="/orders">
-                  Track orders
-                </Link>
-                <Link className="boilerBusterAuxLink" href="/menu">
-                  Back to menu
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="rowWrap boilerBusterActions">
-              <button className="btn" type="button" onClick={startFreshShift}>
-                {game.phase === "playing" ? "Restart shift" : "Fresh shift"}
-              </button>
-              <Link className="btn btn-secondary" href="/orders">
-                Track orders
-              </Link>
-              <Link className="btn btn-secondary" href="/menu">
-                Back to menu
-              </Link>
-            </div>
-          )}
+          </div>
+          <div className="boilerBusterStat">
+            <div className="boilerBusterStatLabel">Time</div>
+            <div className="boilerBusterStatValue">{timeLeftSeconds}s</div>
+          </div>
+          <div className="boilerBusterStat">
+            <div className="boilerBusterStatLabel">Combo</div>
+            <div className="boilerBusterStatValue">x{Math.max(game.combo, 1)}</div>
+          </div>
         </div>
 
-        <div className="boilerBusterSide">
-          <div className="surface surfaceFlat boilerBusterNote">
-            <div className="cardTitle">How to play</div>
-            <p className="muted cardBody">
-              Tap the boiler to release steam, keep the pressure below 100%, and survive until the timer runs out.
-              Hotter saves score more points, but they are riskier.
-            </p>
-          </div>
-
-          <div className="surface surfaceFlat boilerBusterNote">
-            <div className="cardTitle">Shift notes</div>
-            <div className="boilerBusterChecklist">
-              <div className="boilerBusterChecklistItem">20-second rounds keep it short enough for customers in the queue.</div>
-              <div className="boilerBusterChecklistItem">Best score saves on this device so returning customers can chase it.</div>
-              <div className="boilerBusterChecklistItem">Order progress rises as the round runs, so the finish line is always clear.</div>
+        <div className={`boilerBusterMeterCard boilerBusterMeterCard${pressureLevelKey}`}>
+          <div className="boilerBusterMeterTop">
+            <div>
+              <div className="boilerBusterMeterLabel">Boiler pressure</div>
+              <div className="muted boilerBusterMeterHint">Keep it below 100%.</div>
             </div>
+            <div className="boilerBusterMeterValue">{Math.round(game.pressure)}%</div>
           </div>
+          <div className="boilerBusterMeter" aria-hidden="true">
+            <div
+              className={`boilerBusterMeterFill boilerBusterMeterFillPressure boilerBusterMeterFill${pressureLevelKey}`}
+              style={{ width: `${game.pressure}%` }}
+            />
+          </div>
+          <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
+            <div className="boilerBusterMeterLabel">Order progress</div>
+            <div className="boilerBusterMeterValue">{queueProgress}%</div>
+          </div>
+          <div className="boilerBusterMeter boilerBusterMeterSecondary" aria-hidden="true">
+            <div className="boilerBusterMeterFill boilerBusterMeterFillSecondary" style={{ width: `${queueProgress}%` }} />
+          </div>
+        </div>
 
-          <div className="surface surfaceFlat boilerBusterNote">
-            <div className="cardTitle">Shift status</div>
-            <p className="muted cardBody" aria-live="polite">
-              {getStatusCopy(game)}
-            </p>
-            <div className="boilerBusterMeta">
-              {newBestThisRound ? <span className="pill">Personal best this round</span> : null}
-              <span className="pill">Taps: {game.taps}</span>
-              <span className="pill">Pressure: {Math.round(game.pressure)}%</span>
-            </div>
+        <button
+          className={`boilerBusterTapZone ${tapZoneClassName} ${shouldEmphasizeRestart ? "boilerBusterTapZoneStatic" : ""}`}
+          type="button"
+          onClick={handleTap}
+          aria-label={game.phase === "playing" ? "Vent steam" : shouldEmphasizeRestart ? "Boiler overheated" : "Start Boiler Buster"}
+          disabled={shouldEmphasizeRestart}
+        >
+          {showTutorial ? (
+            <span className="boilerBusterTutorial" role="status" aria-live="polite">
+              <span className="boilerBusterTutorialTitle">Quick tip</span>
+              <span className="boilerBusterTutorialBody">Tap fast when orange or red.</span>
+              <span className="boilerBusterTutorialHint">First visit only</span>
+            </span>
+          ) : null}
+
+          {nearMissWarning ? (
+            <span className="boilerBusterNearMiss" role="status" aria-live="polite">
+              Near miss
+            </span>
+          ) : null}
+
+          <span className="boilerBusterMachine" aria-hidden="true" ref={machineRef}>
+            <span className="boilerBusterMachineGlow" />
+            <span className="boilerBusterMachineTop" />
+            <span className="boilerBusterMachineBody" />
+            <span className={`boilerBusterGauge boilerBusterGauge${pressureLevelKey}`}>
+              <span className="boilerBusterGaugeDot" />
+              <span
+                className={`boilerBusterNeedle boilerBusterNeedle${pressureLevelKey}`}
+                style={{ transform: `rotate(${boilerNeedleRotation}deg)` }}
+              />
+            </span>
+            <span className="boilerBusterValve" />
+            <span className="boilerBusterSteam boilerBusterSteamA" />
+            <span className="boilerBusterSteam boilerBusterSteamB" />
+            <span className="boilerBusterSteam boilerBusterSteamC" />
+            {steamBursts.map((burst) => (
+              <span
+                key={burst.id}
+                className="boilerBusterSteamBurst"
+                style={{ left: `${burst.x}%`, top: `${burst.y}%` }}
+              />
+            ))}
+          </span>
+
+          <span className="boilerBusterTapCopy">
+            <span className="boilerBusterTapTitle">{tapTitle}</span>
+            <span className="boilerBusterTapSub">{tapSubline}</span>
+          </span>
+        </button>
+
+        <div className="boilerBusterActions">
+          <button
+            className={`btn ${shouldEmphasizeRestart ? "boilerBusterRestartPrimary" : "btn-secondary boilerBusterActionSecondary"}`}
+            type="button"
+            onClick={startFreshShift}
+          >
+            {roundButtonLabel}
+          </button>
+          <div className="boilerBusterAuxLinks">
+            <Link className="boilerBusterAuxLink" href="/orders">
+              Orders
+            </Link>
+            <Link className="boilerBusterAuxLink" href="/menu">
+              Menu
+            </Link>
+          </div>
+        </div>
+
+        <div className="boilerBusterFooter">
+          <p className="muted boilerBusterFooterCopy" aria-live="polite">
+            {getStatusCopy(game)}
+          </p>
+          <div className="boilerBusterMeta">
+            {newBestThisRound ? <span className="pill">Personal best</span> : null}
+            <span className="pill">Taps {game.taps}</span>
+            <span className="pill">{Math.round(game.pressure)}% pressure</span>
           </div>
         </div>
       </div>

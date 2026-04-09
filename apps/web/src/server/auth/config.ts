@@ -4,18 +4,12 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
+import { authorizeCredentialsSignIn, normalizeRole } from "@/server/auth/credentials";
 import { clearCredentialSignInFailures, formatTooManyAttemptsError, getCredentialSignInBlockStatus, registerCredentialSignInFailure } from "@/server/auth/rate-limit";
 import { getClientIp } from "@/server/security/rate-limit";
 import { hashPassword, passwordHashNeedsRehash, verifyPassword } from "@/server/auth/password";
 import { decryptSecret } from "@/server/auth/secret-box";
 import { verifyTotp } from "@/server/auth/totp";
-
-type AppUserRole = "customer" | "staff" | "manager";
-
-function normalizeRole(role: unknown): AppUserRole {
-  if (role === "staff" || role === "manager") return role;
-  return "customer";
-}
 
 const forceSecureSessionCookieInProduction =
   process.env.FORCE_SECURE_SESSION_COOKIE_IN_PRODUCTION !== "false";
@@ -70,79 +64,47 @@ export const authOptions: NextAuthOptions = {
         totp: { label: "Authenticator code", type: "text" }
       },
       async authorize(credentials, req) {
-        const email = String(credentials?.email ?? "").trim().toLowerCase();
-        const password = String(credentials?.password ?? "");
-        const totp = String((credentials as any)?.totp ?? "").trim();
         const ip = getClientIp((req as any)?.headers);
-        if (!email || !password) return null;
-
-        const fail = async (errorCode?: string) => {
-          const failed = await registerCredentialSignInFailure({ email, ip });
-          if (failed.blocked) throw new Error(formatTooManyAttemptsError(failed.retryAfterSeconds));
-          if (errorCode) throw new Error(errorCode);
-          return null;
-        };
-
-        const blocked = await getCredentialSignInBlockStatus({ email, ip });
-        if (blocked.blocked) {
-          throw new Error(formatTooManyAttemptsError(blocked.retryAfterSeconds));
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            image: true,
-            role: true,
-            disabledAt: true,
-            passwordHash: true,
-            mfaTotpSecret: true,
-            mfaTotpEnabledAt: true
-          }
-        });
-        if (!user || user.disabledAt) return fail();
-        if (!user.passwordHash) return fail();
-
-        const ok = await verifyPassword({ password, stored: user.passwordHash });
-        if (!ok) return fail();
-
-        const isManager = normalizeRole(user.role) === "manager";
-        const mfaEnabled = Boolean(user.mfaTotpEnabledAt && user.mfaTotpSecret);
-        if (isManager && mfaEnabled) {
-          if (!totp) return fail("TOTPRequired");
-          try {
-            const secretBase32 = decryptSecret(user.mfaTotpSecret!);
-            const valid = verifyTotp({ secretBase32, token: totp });
-            if (!valid) return fail("TOTPInvalid");
-          } catch {
-            return fail("TOTPInvalid");
-          }
-        }
-
-        await clearCredentialSignInFailures({ email, ip });
-
-        if (passwordHashNeedsRehash(user.passwordHash)) {
-          void hashPassword(password)
-            .then((passwordHash) =>
+        return (await authorizeCredentialsSignIn({
+          email: String(credentials?.email ?? ""),
+          password: String(credentials?.password ?? ""),
+          totp: String((credentials as any)?.totp ?? ""),
+          ip,
+          deps: {
+            clearCredentialSignInFailures,
+            decryptSecret,
+            findUserByEmail: (email) =>
+              prisma.user.findUnique({
+                where: { email },
+                select: {
+                  id: true,
+                  email: true,
+                  name: true,
+                  image: true,
+                  role: true,
+                  disabledAt: true,
+                  passwordHash: true,
+                  mfaTotpSecret: true,
+                  mfaTotpEnabledAt: true
+                }
+              }),
+            formatTooManyAttemptsError,
+            getCredentialSignInBlockStatus,
+            hashPassword,
+            logError: (message, error) => {
+              console.error(message, error);
+            },
+            passwordHashNeedsRehash,
+            registerCredentialSignInFailure,
+            updateUserPasswordHash: ({ userId, passwordHash }) =>
               prisma.user.update({
-                where: { id: user.id },
+                where: { id: userId },
                 data: { passwordHash }
-              })
-            )
-            .catch((error) => {
-              console.error("Failed to rehash password after sign-in", error);
-            });
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          role: normalizeRole(user.role)
-        } as any;
+              }),
+            verifyPassword,
+            verifyTotp
+          }
+        })) as any;
       }
     }),
     ...(process.env.DEV_AUTH_ENABLED === "true"
