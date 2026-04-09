@@ -55,6 +55,7 @@ Last audited: 2026-04-09
    - Staff queue and loyalty scan flow.
    - Manager product/settings/users/audit flow.
 3. Do the final client-facing polish pass.
+   - Use [`docs/phone-qa-script.md`](/Users/user/Desktop/Craving House Coffee App/docs/phone-qa-script.md) for the fast mobile/non-Stripe manual pass.
    - Mobile spacing/tap-target review.
    - Copy consistency review.
    - Empty/loading/error state review.
