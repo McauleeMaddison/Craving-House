@@ -2,7 +2,7 @@ export type AppUserRole = "customer" | "staff" | "manager";
 
 export type CredentialSignInUser = {
   id: string;
-  email: string;
+  email: string | null;
   name: string | null;
   image: string | null;
   role: unknown;
@@ -109,7 +109,7 @@ export async function authorizeCredentialsSignIn(params: {
 
   return {
     id: user.id,
-    email: user.email,
+    email: user.email ?? email,
     name: user.name,
     image: user.image,
     role: normalizeRole(user.role)

@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
-import { authorizeCredentialsSignIn, normalizeRole } from "@/server/auth/credentials";
+import { authorizeCredentialsSignIn, normalizeRole, type AppUserRole } from "@/server/auth/credentials";
 import { clearCredentialSignInFailures, formatTooManyAttemptsError, getCredentialSignInBlockStatus, registerCredentialSignInFailure } from "@/server/auth/rate-limit";
 import { getClientIp } from "@/server/security/rate-limit";
 import { hashPassword, passwordHashNeedsRehash, verifyPassword } from "@/server/auth/password";
