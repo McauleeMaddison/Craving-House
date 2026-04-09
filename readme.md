@@ -85,6 +85,25 @@ The app now reads its canonical public URL from `NEXTAUTH_URL` in one place and 
 - `GET /api/health?verbose=1` is restricted to a signed-in manager session or a matching `HEALTHCHECK_TOKEN` header.
 - Example header: `x-healthcheck-token: YOUR_TOKEN`
 
+Verbose health diagnostics now also report whether SMTP, operational alert email, and password reset configuration are available.
+
+## Password Reset
+
+- Customer accounts now support password reset at `/reset-password`.
+- The flow sends reset links by email when SMTP is configured.
+- In non-production environments, the reset request response may include a `debugResetUrl` to make local testing easier without a real mailbox.
+- Optional env:
+  - `PASSWORD_RESET_TOKEN_TTL_MINUTES` to control reset link lifetime (defaults to `30`)
+
+## Operational Alerts
+
+- Optional env: `OPERATIONS_ALERT_EMAIL`
+- When SMTP is configured, the app can send alert emails for critical failures such as:
+  - Stripe Checkout session creation failures
+  - unexpected Stripe webhook processing failures
+  - failed guest receipt emails
+  - failed password reset emails
+
 ## Security note
 
 Do not commit secrets (API keys, private keys, `.env` files). If secrets were ever committed, rotate them and purge them from git history.

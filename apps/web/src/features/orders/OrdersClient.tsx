@@ -24,6 +24,7 @@ function formatDateTime(iso: string) {
 export function OrdersClient() {
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -33,9 +34,11 @@ export function OrdersClient() {
       if (!res.ok) {
         setError(res.status === 401 ? "Please sign in to view your orders." : res.error);
         setOrders([]);
+        setLoading(false);
         return;
       }
       setOrders(res.data.orders);
+      setLoading(false);
     })();
     return () => {
       mounted = false;
@@ -52,6 +55,15 @@ export function OrdersClient() {
         <Link className="btn u-mt-10" href="/signin">
           Sign in
         </Link>
+      </section>
+    );
+  }
+
+  if (loading) {
+    return (
+      <section className="surface u-pad-18">
+        <h1 className="u-title-26">Orders</h1>
+        <p className="muted u-mt-10 u-lh-16">Loading your recent orders…</p>
       </section>
     );
   }

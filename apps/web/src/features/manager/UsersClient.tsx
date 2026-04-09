@@ -29,6 +29,8 @@ function formatDate(iso: string) {
 
 export function UsersClient() {
   const [q, setQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"" | UserRole>("");
+  const [statusFilter, setStatusFilter] = useState<"" | "active" | "disabled">("");
   const [users, setUsers] = useState<UserDto[]>([]);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState("");
@@ -43,8 +45,12 @@ export function UsersClient() {
 
   async function refresh() {
     setError("");
-    const qs = q.trim() ? `?q=${encodeURIComponent(q.trim())}` : "";
-    const res = await apiGetJson<{ users: UserDto[] }>(`/api/manager/users${qs}`);
+    const qs = new URLSearchParams();
+    if (q.trim()) qs.set("q", q.trim());
+    if (roleFilter) qs.set("role", roleFilter);
+    if (statusFilter) qs.set("status", statusFilter);
+    const suffix = qs.size > 0 ? `?${qs.toString()}` : "";
+    const res = await apiGetJson<{ users: UserDto[] }>(`/api/manager/users${suffix}`);
     if (!res.ok) {
       setError(res.status === 401 ? "Sign in as manager." : res.error);
       setUsers([]);
@@ -151,6 +157,24 @@ export function UsersClient() {
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search by email or name…"
           />
+          <select className="input" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as "" | UserRole)}>
+            <option value="">All roles</option>
+            <option value="customer">customer</option>
+            <option value="staff">staff</option>
+            <option value="manager">manager</option>
+          </select>
+        </div>
+
+        <div className="grid-2 u-mt-10">
+          <select
+            className="input"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "" | "active" | "disabled")}
+          >
+            <option value="">All statuses</option>
+            <option value="active">active</option>
+            <option value="disabled">disabled</option>
+          </select>
           <button className="btn btn-secondary" onClick={refresh} type="button">
             Search
           </button>

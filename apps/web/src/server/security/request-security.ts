@@ -1,4 +1,4 @@
-import { getConfiguredPublicOrigin } from "@/lib/public-url";
+import { getConfiguredPublicOrigin } from "../../lib/public-url.ts";
 
 function getRequestOrigin(request: Request) {
   const origin = request.headers.get("origin");
@@ -12,12 +12,26 @@ function getRequestOrigin(request: Request) {
   }
 }
 
-export function isSameOrigin(request: Request) {
-  const configured = getConfiguredPublicOrigin();
-  if (!configured) return true; // no baseline, don't block
+function isLoopbackOrigin(origin: string) {
+  try {
+    const url = new URL(origin);
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+  } catch {
+    return false;
+  }
+}
 
+export function isSameOrigin(request: Request) {
   const reqOrigin = getRequestOrigin(request);
   if (!reqOrigin) return true; // allow non-browser / missing origin
 
-  return reqOrigin === configured;
+  const requestOrigin = new URL(request.url).origin;
+  const configuredOrigin = getConfiguredPublicOrigin();
+  if (reqOrigin === requestOrigin || reqOrigin === configuredOrigin) return true;
+
+  if (process.env.NODE_ENV !== "production" && isLoopbackOrigin(reqOrigin) && isLoopbackOrigin(requestOrigin)) {
+    return true;
+  }
+
+  return false;
 }

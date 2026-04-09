@@ -12,6 +12,7 @@ test("getStripeRuntimeConfig trims values and detects test mode", () => {
   });
 
   assert.deepEqual(config, {
+    fake: false,
     secretKey: "sk_test_123",
     webhookSecret: "stripe_webhook_secret_123",
     webhookIpAllowlist: ["203.0.113.10", "203.0.113.11"],

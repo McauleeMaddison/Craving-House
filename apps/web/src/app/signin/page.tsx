@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import { getRegisterErrorMessage, getSignInErrorMessage, type RegisterErrorResponse } from "@/lib/auth-messages";
@@ -53,6 +53,15 @@ export default function SignInPage() {
     };
   }, []);
 
+  async function waitForSessionReady() {
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const session = await getSession();
+      if (session?.user?.id) return true;
+      await new Promise((resolve) => window.setTimeout(resolve, 150));
+    }
+    return false;
+  }
+
   async function onEmailSubmit() {
     setMessage(null);
     const cleanEmail = email.trim().toLowerCase();
@@ -94,6 +103,7 @@ export default function SignInPage() {
       setMessage(getSignInErrorMessage(result.error));
       return;
     }
+    await waitForSessionReady();
     // Hard navigation ensures the new session cookie is picked up immediately.
     window.location.assign(result.url || callbackUrl || "/");
   }
@@ -210,6 +220,13 @@ export default function SignInPage() {
               >
                 {mode === "signin" ? "Sign in" : "Create account + sign in"}
               </button>
+              {mode === "signin" ? (
+                <p className="muted u-m-0 u-fs-12 u-lh-16">
+                  <a className="u-underline" href="/reset-password">
+                    Forgot your password?
+                  </a>
+                </p>
+              ) : null}
               {mode === "signup" ? (
                 <p className="muted u-m-0 u-fs-12 u-lh-16">
                   Password must be at least 9 characters.

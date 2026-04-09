@@ -8,104 +8,125 @@ import { notifyStaffNewOrder } from "@/server/notifications/push";
 import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/notifications/email";
 import { getConfiguredPublicOrigin } from "@/lib/public-url";
 import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
+import { sendOperationsAlert } from "@/server/monitoring/alerts";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const { webhookSecret, webhookIpAllowlist } = getStripeRuntimeConfig();
-  if (!webhookSecret) {
-    return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
-  }
+  try {
+    const { webhookSecret, webhookIpAllowlist } = getStripeRuntimeConfig();
+    if (!webhookSecret) {
+      return NextResponse.json({ error: "Missing STRIPE_WEBHOOK_SECRET" }, { status: 500 });
+    }
 
-  const requestIp = getClientIp(request);
-  if (!isStripeWebhookIpAllowed({ ip: requestIp, allowlist: webhookIpAllowlist })) {
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  }
+    const requestIp = getClientIp(request);
+    if (!isStripeWebhookIpAllowed({ ip: requestIp, allowlist: webhookIpAllowlist })) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
 
-  const rawBody = await request.text();
-  const signature = request.headers.get("stripe-signature");
+    const rawBody = await request.text();
+    const signature = request.headers.get("stripe-signature");
 
-  const verified = verifyStripeWebhook({
-    rawBody,
-    signatureHeader: signature,
-    webhookSecret
-  });
-  if (!verified.ok) {
-    return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
-  }
-
-  const event = verified.event as any;
-  const type = String(event?.type ?? "");
-
-  if (type === "checkout.session.completed") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
-    const sessionId = String(session?.id ?? "");
-    const paymentIntentId = session?.payment_intent ? String(session.payment_intent) : null;
-    if (!orderId || !sessionId) return NextResponse.json({ ok: true });
-
-    const updated = await prisma.order.updateMany({
-      // Customers can reopen checkout and complete an older still-valid session.
-      where: { id: orderId, paymentStatus: { not: "paid" } },
-      data: {
-        paymentStatus: "paid",
-        paidAt: new Date(),
-        paymentProvider: "stripe",
-        stripeCheckoutSessionId: sessionId,
-        stripePaymentIntentId: paymentIntentId
-      }
+    const verified = verifyStripeWebhook({
+      rawBody,
+      signatureHeader: signature,
+      webhookSecret
     });
+    if (!verified.ok) {
+      return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
+    }
 
-    if (updated.count > 0) {
-      const order = await prisma.order.findUnique({
-        where: { id: orderId },
-        include: { items: { include: { product: true } } }
+    const event = verified.event as any;
+    const type = String(event?.type ?? "");
+
+    if (type === "checkout.session.completed") {
+      const session = event?.data?.object;
+      const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+      const sessionId = String(session?.id ?? "");
+      const paymentIntentId = session?.payment_intent ? String(session.payment_intent) : null;
+      if (!orderId || !sessionId) return NextResponse.json({ ok: true });
+
+      const updated = await prisma.order.updateMany({
+        // Customers can reopen checkout and complete an older still-valid session.
+        where: { id: orderId, paymentStatus: { not: "paid" } },
+        data: {
+          paymentStatus: "paid",
+          paidAt: new Date(),
+          paymentProvider: "stripe",
+          stripeCheckoutSessionId: sessionId,
+          stripePaymentIntentId: paymentIntentId
+        }
       });
-      if (order) {
-        const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
-        const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
-        void notifyStaffNewOrder({
-          orderId: order.id,
-          pickupName: order.pickupName,
-          totalCents: order.totalCents
+
+      if (updated.count > 0) {
+        const order = await prisma.order.findUnique({
+          where: { id: orderId },
+          include: { items: { include: { product: true } } }
         });
+        if (order) {
+          const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
+          const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
+          void notifyStaffNewOrder({
+            orderId: order.id,
+            pickupName: order.pickupName,
+            totalCents: order.totalCents
+          });
 
-        if (order.guestEmail && order.guestToken && isEmailConfigured()) {
-          const baseUrl = getConfiguredPublicOrigin() || "";
-          if (baseUrl) {
-            const trackUrl = `${baseUrl}/orders/guest/${order.guestToken}`;
-            const lines = order.items
-              .map((i) => {
-                const customizations = formatCustomizations(i.customizations);
-                return `${i.qty}× ${i.product.name}${customizations ? ` (${customizations})` : ""} - £${((i.unitCents * i.qty) / 100).toFixed(2)}`;
-              })
-              .join("\n");
-            const feeLine = serviceFeeCents > 0 ? `\nPickup small-order fee: £${(serviceFeeCents / 100).toFixed(2)}\n` : "\n";
+          if (order.guestEmail && order.guestToken && isEmailConfigured()) {
+            const baseUrl = getConfiguredPublicOrigin() || "";
+            if (baseUrl) {
+              const trackUrl = `${baseUrl}/orders/guest/${order.guestToken}`;
+              const lines = order.items
+                .map((i) => {
+                  const customizations = formatCustomizations(i.customizations);
+                  return `${i.qty}× ${i.product.name}${customizations ? ` (${customizations})` : ""} - £${((i.unitCents * i.qty) / 100).toFixed(2)}`;
+                })
+                .join("\n");
+              const feeLine = serviceFeeCents > 0 ? `\nPickup small-order fee: £${(serviceFeeCents / 100).toFixed(2)}\n` : "\n";
 
-            void sendGuestOrderReceipt({
-              to: order.guestEmail,
-              subject: "Your Craving House order",
-              text: `Thanks for your order!\n\nPickup name: ${order.pickupName}\nTotal: £${(order.totalCents / 100).toFixed(2)}\n${feeLine}Items:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
-            }).catch((error) => {
-              console.error("Failed to send guest order receipt", error);
-            });
+              void sendGuestOrderReceipt({
+                to: order.guestEmail,
+                subject: "Your Craving House order",
+                text: `Thanks for your order!\n\nPickup name: ${order.pickupName}\nTotal: £${(order.totalCents / 100).toFixed(2)}\n${feeLine}Items:\n${lines}\n\nTrack your order:\n${trackUrl}\n`
+              }).catch((error) => {
+                console.error("Failed to send guest order receipt", error);
+                void sendOperationsAlert({
+                  area: "guest_order_receipt",
+                  subject: "Guest order receipt email failed",
+                  message: "A paid guest order could not send its receipt email.",
+                  details: {
+                    orderId: order.id,
+                    guestEmail: order.guestEmail
+                  },
+                  error
+                });
+              });
+            }
           }
         }
       }
     }
-  }
 
-  if (type === "checkout.session.expired") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
-    const sessionId = String(session?.id ?? "");
-    if (orderId && sessionId) {
-      await prisma.order.updateMany({
-        where: { id: orderId, stripeCheckoutSessionId: sessionId, paymentStatus: "pending" },
-        data: { paymentStatus: "unpaid" }
-      });
+    if (type === "checkout.session.expired") {
+      const session = event?.data?.object;
+      const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+      const sessionId = String(session?.id ?? "");
+      if (orderId && sessionId) {
+        await prisma.order.updateMany({
+          where: { id: orderId, stripeCheckoutSessionId: sessionId, paymentStatus: "pending" },
+          data: { paymentStatus: "unpaid" }
+        });
+      }
     }
-  }
 
-  return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    await sendOperationsAlert({
+      area: "stripe_webhook",
+      subject: "Stripe webhook processing failed",
+      message: "The Stripe webhook route hit an unexpected error while processing an event.",
+      error
+    });
+    return NextResponse.json({ error: "webhook_processing_failed" }, { status: 500 });
+  }
 }

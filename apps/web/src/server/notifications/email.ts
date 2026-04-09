@@ -24,7 +24,7 @@ export function isEmailConfigured() {
   return Boolean(getSmtpConfig());
 }
 
-export async function sendGuestOrderReceipt(params: { to: string; subject: string; text: string }) {
+async function sendTextEmail(params: { to: string; subject: string; text: string }) {
   const cfg = getSmtpConfig();
   if (!cfg) throw new Error("Email not configured");
 
@@ -43,3 +43,25 @@ export async function sendGuestOrderReceipt(params: { to: string; subject: strin
   });
 }
 
+export async function sendGuestOrderReceipt(params: { to: string; subject: string; text: string }) {
+  await sendTextEmail(params);
+}
+
+export async function sendPasswordResetEmail(params: { to: string; resetUrl: string; ttlMinutes: number }) {
+  await sendTextEmail({
+    to: params.to,
+    subject: "Reset your Craving House password",
+    text: [
+      "We received a request to reset your Craving House password.",
+      "",
+      `Use this link within ${params.ttlMinutes} minutes:`,
+      params.resetUrl,
+      "",
+      "If you did not request this, you can ignore this email."
+    ].join("\n")
+  });
+}
+
+export async function sendOperationsAlertEmail(params: { to: string; subject: string; text: string }) {
+  await sendTextEmail(params);
+}

@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/orders`, lastModified: now },
     { url: `${baseUrl}/feedback`, lastModified: now },
     { url: `${baseUrl}/signin`, lastModified: now },
+    { url: `${baseUrl}/reset-password`, lastModified: now },
     { url: `${baseUrl}/privacy`, lastModified: now },
     { url: `${baseUrl}/terms`, lastModified: now },
     { url: `${baseUrl}/contact`, lastModified: now }
