@@ -20,6 +20,14 @@ export type AuthorizedUser = {
   role: AppUserRole;
 };
 
+export type CredentialErrorCode =
+  | "InvalidCredentials"
+  | "IncorrectPassword"
+  | "AccountDisabled"
+  | "PasswordSignInUnavailable"
+  | "TOTPRequired"
+  | "TOTPInvalid";
+
 type SignInBlockStatus = {
   blocked: boolean;
   retryAfterSeconds: number;
@@ -45,6 +53,23 @@ export function normalizeRole(role: unknown): AppUserRole {
   return "customer";
 }
 
+export function normalizeCredentialErrorCode(error: unknown): CredentialErrorCode | null {
+  if (!(error instanceof Error)) return null;
+
+  switch (error.message) {
+    case "IncorrectPassword":
+    case "AccountDisabled":
+    case "PasswordSignInUnavailable":
+      return "InvalidCredentials";
+    case "InvalidCredentials":
+    case "TOTPRequired":
+    case "TOTPInvalid":
+      return error.message;
+    default:
+      return null;
+  }
+}
+
 export async function authorizeCredentialsSignIn(params: {
   deps: CredentialSignInDeps;
   email: string;
@@ -59,11 +84,10 @@ export async function authorizeCredentialsSignIn(params: {
 
   if (!email || !password) return null;
 
-  const fail = async (errorCode?: string) => {
+  const fail = async (errorCode: CredentialErrorCode) => {
     const failed = await deps.registerCredentialSignInFailure({ email, ip });
     if (failed.blocked) throw new Error(deps.formatTooManyAttemptsError(failed.retryAfterSeconds));
-    if (errorCode) throw new Error(errorCode);
-    return null;
+    throw new Error(errorCode);
   };
 
   const blocked = await deps.getCredentialSignInBlockStatus({ email, ip });
@@ -72,11 +96,12 @@ export async function authorizeCredentialsSignIn(params: {
   }
 
   const user = await deps.findUserByEmail(email);
-  if (!user || user.disabledAt) return fail();
-  if (!user.passwordHash) return fail();
+  if (!user) return fail("InvalidCredentials");
+  if (user.disabledAt) return fail("AccountDisabled");
+  if (!user.passwordHash) return fail("PasswordSignInUnavailable");
 
   const ok = await deps.verifyPassword({ password, stored: user.passwordHash });
-  if (!ok) return fail();
+  if (!ok) return fail("IncorrectPassword");
 
   const isManager = normalizeRole(user.role) === "manager";
   const mfaEnabled = Boolean(user.mfaTotpEnabledAt && user.mfaTotpSecret);

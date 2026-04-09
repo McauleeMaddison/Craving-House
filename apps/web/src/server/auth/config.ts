@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { prisma } from "@/server/db";
-import { authorizeCredentialsSignIn, normalizeRole, type AppUserRole } from "@/server/auth/credentials";
+import { authorizeCredentialsSignIn, normalizeCredentialErrorCode, normalizeRole, type AppUserRole } from "@/server/auth/credentials";
 import { clearCredentialSignInFailures, formatTooManyAttemptsError, getCredentialSignInBlockStatus, registerCredentialSignInFailure } from "@/server/auth/rate-limit";
 import { getClientIp } from "@/server/security/rate-limit";
 import { hashPassword, passwordHashNeedsRehash, verifyPassword } from "@/server/auth/password";
@@ -65,46 +65,54 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         const ip = getClientIp((req as any)?.headers);
-        return (await authorizeCredentialsSignIn({
-          email: String(credentials?.email ?? ""),
-          password: String(credentials?.password ?? ""),
-          totp: String((credentials as any)?.totp ?? ""),
-          ip,
-          deps: {
-            clearCredentialSignInFailures,
-            decryptSecret,
-            findUserByEmail: (email) =>
-              prisma.user.findUnique({
-                where: { email },
-                select: {
-                  id: true,
-                  email: true,
-                  name: true,
-                  image: true,
-                  role: true,
-                  disabledAt: true,
-                  passwordHash: true,
-                  mfaTotpSecret: true,
-                  mfaTotpEnabledAt: true
-                }
-              }),
-            formatTooManyAttemptsError,
-            getCredentialSignInBlockStatus,
-            hashPassword,
-            logError: (message, error) => {
-              console.error(message, error);
-            },
-            passwordHashNeedsRehash,
-            registerCredentialSignInFailure,
-            updateUserPasswordHash: ({ userId, passwordHash }) =>
-              prisma.user.update({
-                where: { id: userId },
-                data: { passwordHash }
-              }),
-            verifyPassword,
-            verifyTotp
+        try {
+          return (await authorizeCredentialsSignIn({
+            email: String(credentials?.email ?? ""),
+            password: String(credentials?.password ?? ""),
+            totp: String((credentials as any)?.totp ?? ""),
+            ip,
+            deps: {
+              clearCredentialSignInFailures,
+              decryptSecret,
+              findUserByEmail: (email) =>
+                prisma.user.findUnique({
+                  where: { email },
+                  select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    image: true,
+                    role: true,
+                    disabledAt: true,
+                    passwordHash: true,
+                    mfaTotpSecret: true,
+                    mfaTotpEnabledAt: true
+                  }
+                }),
+              formatTooManyAttemptsError,
+              getCredentialSignInBlockStatus,
+              hashPassword,
+              logError: (message, error) => {
+                console.error(message, error);
+              },
+              passwordHashNeedsRehash,
+              registerCredentialSignInFailure,
+              updateUserPasswordHash: ({ userId, passwordHash }) =>
+                prisma.user.update({
+                  where: { id: userId },
+                  data: { passwordHash }
+                }),
+              verifyPassword,
+              verifyTotp
+            }
+          })) as any;
+        } catch (error) {
+          const normalizedErrorCode = normalizeCredentialErrorCode(error);
+          if (normalizedErrorCode) {
+            throw new Error(normalizedErrorCode);
           }
-        })) as any;
+          throw error;
+        }
       }
     }),
     ...(process.env.DEV_AUTH_ENABLED === "true"

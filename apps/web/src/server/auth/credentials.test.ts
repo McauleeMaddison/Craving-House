@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { authorizeCredentialsSignIn, type CredentialSignInUser, normalizeRole } from "./credentials.ts";
+import {
+  authorizeCredentialsSignIn,
+  type CredentialSignInUser,
+  normalizeCredentialErrorCode,
+  normalizeRole
+} from "./credentials.ts";
 
 function makeUser(overrides: Partial<CredentialSignInUser> = {}): CredentialSignInUser {
   return {
@@ -105,14 +110,82 @@ test("authorizeCredentialsSignIn registers a failure for an invalid password", a
     }
   });
 
-  const result = await authorizeCredentialsSignIn({
-    deps,
-    email: "test@example.com",
-    password: "wrong-password",
-    ip: "127.0.0.1"
+  await assert.rejects(
+    () =>
+      authorizeCredentialsSignIn({
+        deps,
+        email: "test@example.com",
+        password: "wrong-password",
+        ip: "127.0.0.1"
+      }),
+    { message: "IncorrectPassword" }
+  );
+  assert.deepEqual(calls.failures, [{ email: "test@example.com", ip: "127.0.0.1" }]);
+  assert.equal(calls.cleared.length, 0);
+});
+
+test("authorizeCredentialsSignIn registers a failure for an unknown email", async () => {
+  const { deps, calls } = makeDeps({
+    findUserByEmail: async () => null
   });
 
-  assert.equal(result, null);
+  await assert.rejects(
+    () =>
+      authorizeCredentialsSignIn({
+        deps,
+        email: "missing@example.com",
+        password: "wrong-password",
+        ip: "127.0.0.1"
+      }),
+    { message: "InvalidCredentials" }
+  );
+
+  assert.deepEqual(calls.failures, [{ email: "missing@example.com", ip: "127.0.0.1" }]);
+  assert.equal(calls.cleared.length, 0);
+});
+
+test("authorizeCredentialsSignIn rejects disabled users with an internal auth code", async () => {
+  const { deps, calls } = makeDeps({
+    findUserByEmail: async () =>
+      makeUser({
+        disabledAt: new Date("2026-04-09T12:00:00.000Z")
+      })
+  });
+
+  await assert.rejects(
+    () =>
+      authorizeCredentialsSignIn({
+        deps,
+        email: "test@example.com",
+        password: "correct-password",
+        ip: "127.0.0.1"
+      }),
+    { message: "AccountDisabled" }
+  );
+
+  assert.deepEqual(calls.failures, [{ email: "test@example.com", ip: "127.0.0.1" }]);
+  assert.equal(calls.cleared.length, 0);
+});
+
+test("authorizeCredentialsSignIn rejects password sign-in when the account has no password hash", async () => {
+  const { deps, calls } = makeDeps({
+    findUserByEmail: async () =>
+      makeUser({
+        passwordHash: null
+      })
+  });
+
+  await assert.rejects(
+    () =>
+      authorizeCredentialsSignIn({
+        deps,
+        email: "test@example.com",
+        password: "correct-password",
+        ip: "127.0.0.1"
+      }),
+    { message: "PasswordSignInUnavailable" }
+  );
+
   assert.deepEqual(calls.failures, [{ email: "test@example.com", ip: "127.0.0.1" }]);
   assert.equal(calls.cleared.length, 0);
 });
@@ -210,4 +283,15 @@ test("authorizeCredentialsSignIn surfaces a rate-limit error once a failure bloc
       }),
     { message: "TooManyAttempts:120" }
   );
+});
+
+test("normalizeCredentialErrorCode collapses sensitive backend auth codes to public-safe codes", () => {
+  assert.equal(normalizeCredentialErrorCode(new Error("IncorrectPassword")), "InvalidCredentials");
+  assert.equal(normalizeCredentialErrorCode(new Error("AccountDisabled")), "InvalidCredentials");
+  assert.equal(normalizeCredentialErrorCode(new Error("PasswordSignInUnavailable")), "InvalidCredentials");
+  assert.equal(normalizeCredentialErrorCode(new Error("InvalidCredentials")), "InvalidCredentials");
+  assert.equal(normalizeCredentialErrorCode(new Error("TOTPRequired")), "TOTPRequired");
+  assert.equal(normalizeCredentialErrorCode(new Error("TOTPInvalid")), "TOTPInvalid");
+  assert.equal(normalizeCredentialErrorCode(new Error("SomethingElse")), null);
+  assert.equal(normalizeCredentialErrorCode("not-an-error"), null);
 });

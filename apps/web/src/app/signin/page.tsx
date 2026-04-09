@@ -15,8 +15,9 @@ function authErrorToMessage(error: string) {
   const retryAfterSeconds = Number(retryAfterRaw ?? "");
 
   switch (error) {
+    case "InvalidCredentials":
     case "CredentialsSignin":
-      return "Incorrect password.";
+      return "Incorrect email or password.";
     case "TOTPRequired":
       return "Enter your 6-digit authenticator code to sign in.";
     case "TOTPInvalid":
