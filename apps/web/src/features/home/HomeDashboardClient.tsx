@@ -138,7 +138,7 @@ export function HomeDashboardClient() {
           </div>
           <div className="muted widgetHint">
             {signedIn && loyalty
-              ? "Show your QR at collection to collect beans."
+              ? "Show your QR at collection to collect stamps."
               : "Sign in to get your personal QR card."}
           </div>
           {loyaltyProgress ? (

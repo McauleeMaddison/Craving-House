@@ -137,7 +137,6 @@ export function AppHeader() {
 
   const customerDrawerLinks = useMemo(() => {
     const list: DrawerLink[] = links
-      .filter((link) => link.href !== "/menu")
       .map((link) => {
         if (link.href === "/cart") {
           return {

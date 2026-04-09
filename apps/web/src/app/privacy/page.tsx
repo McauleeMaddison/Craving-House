@@ -2,7 +2,7 @@ import { store } from "@/lib/store";
 
 export default function PrivacyPage() {
   const supportEmail = store.supportEmail;
-  const hasSupportEmail = Boolean(supportEmail) && supportEmail !== "replace-me@example.com";
+  const hasSupportEmail = Boolean(supportEmail);
 
   return (
     <main className="container page">
@@ -18,8 +18,8 @@ export default function PrivacyPage() {
             participate in loyalty rewards.
           </p>
           <p className="muted u-m-0">
-            <strong className="u-text">Data we store:</strong> your Google account identifier (used to sign
-            you in), your orders (items, timestamps, status), and your loyalty stamp totals.
+            <strong className="u-text">Data we store:</strong> your email address, secure account identifiers
+            used for sign-in, your orders (items, timestamps, status), and your loyalty stamp totals.
           </p>
           <p className="muted u-m-0">
             <strong className="u-text">How we use it:</strong> to operate the service (orders + pickup), to

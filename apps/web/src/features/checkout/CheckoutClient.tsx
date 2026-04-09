@@ -196,13 +196,13 @@ export function CheckoutClient() {
         ) : null}
 
         <div className="grid-2 u-mt-14">
-          <div className="surface surfaceInset u-pad-16">
+            <div className="surface surfaceInset u-pad-16">
             <div className="u-fw-800">Pickup</div>
             <div className="muted u-mt-8 u-lh-16">
               ASAP estimate based on items: <span className="orderInlineName">{etaText}</span>
             </div>
             <div className="pill u-mt-10">
-              Prep times are manager-managed
+              Prep times are kept up to date by the team
             </div>
           </div>
 
@@ -356,7 +356,7 @@ export function CheckoutClient() {
           </p>
         ) : null}
         <p className="muted u-mt-10 u-fs-12 u-lh-16">
-          Orders are stored in the shared database so staff devices can see the queue.
+          Once paid, your order appears in the collection queue for the team.
         </p>
       </section>
     </>

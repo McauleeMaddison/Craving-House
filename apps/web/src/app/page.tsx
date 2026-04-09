@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="dashLead">
           <div className="dashLeadTitle">Order ahead. Collect when ready.</div>
           <div className="muted dashLeadSub">
-            Place your order for collection, then show your loyalty QR at pickup to earn beans.
+            Place your order for collection, then show your loyalty QR at pickup to earn stamps.
           </div>
         </div>
 

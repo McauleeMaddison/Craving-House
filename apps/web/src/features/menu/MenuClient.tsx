@@ -131,7 +131,7 @@ export function MenuClient() {
           <div>
             <h1 className="u-title-26">Menu</h1>
             <p className="muted u-mt-8 u-lh-16">
-              Manager-controlled availability, prep times, and loyalty eligibility.
+              Availability, prep times, and loyalty info update with the current menu.
             </p>
           </div>
           <div className="menuSearchWrap">
@@ -225,7 +225,7 @@ export function MenuClient() {
 
               {!item.available ? (
                 <p className="muted u-mt-10 u-fs-12 u-lh-16">
-                  This item is visible but cannot be ordered until it’s marked available by admin.
+                  This item is visible but cannot be ordered until it’s available again.
                 </p>
               ) : null}
 

@@ -2,7 +2,7 @@ import { store } from "@/lib/store";
 
 export default function ContactPage() {
   const supportEmail = store.supportEmail;
-  const hasSupportEmail = Boolean(supportEmail) && supportEmail !== "replace-me@example.com";
+  const hasSupportEmail = Boolean(supportEmail);
 
   return (
     <main className="container page">
@@ -31,7 +31,7 @@ export default function ContactPage() {
                   </a>
                 ) : (
                   <span>
-                    Set <code>NEXT_PUBLIC_SUPPORT_EMAIL</code> in your Render environment variables.
+                    Email support is being updated. Please message us on Instagram or visit the shop for help.
                   </span>
                 )}
               </div>
