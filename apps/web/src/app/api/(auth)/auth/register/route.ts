@@ -11,6 +11,8 @@ type RegisterBody = {
   name?: string;
 };
 
+type RegisterErrorCode = "InvalidEmail" | "InvalidPassword" | "SignInInstead" | "TooManyRequests";
+
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -21,15 +23,21 @@ function isReasonableEmail(email: string) {
   return true;
 }
 
+function errorResponse(code: RegisterErrorCode, error: string, status: number, headers?: HeadersInit) {
+  return NextResponse.json({ code, error }, { status, headers });
+}
+
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const ip = getClientIp(request);
   const limited = await rateLimit({ key: `auth:register:${ip}`, limit: 10, windowMs: 60_000 });
   if (!limited.ok) {
-    return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    return errorResponse(
+      "TooManyRequests",
+      "Too many sign-up attempts. Please wait a moment and try again.",
+      429,
+      { "Retry-After": String(limited.retryAfterSeconds) }
     );
   }
 
@@ -39,17 +47,17 @@ export async function POST(request: Request) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
 
   if (!isReasonableEmail(email)) {
-    return NextResponse.json({ error: "Invalid email." }, { status: 400 });
+    return errorResponse("InvalidEmail", "Enter a valid email address.", 400);
   }
 
   const passwordError = validatePasswordForSignup(password);
   if (passwordError) {
-    return NextResponse.json({ error: passwordError }, { status: 400 });
+    return errorResponse("InvalidPassword", passwordError, 400);
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
+    return errorResponse("SignInInstead", "We couldn't create that account. Sign in instead if you already have one.", 409);
   }
 
   const passwordHash = await hashPassword(password);

@@ -13,6 +13,15 @@ type UserDto = {
   createdAtIso: string;
 };
 
+type UserRole = "customer" | "staff" | "manager";
+
+type UserPatchBody = {
+  disabled?: boolean;
+  newPassword?: string;
+  note?: string;
+  role?: UserRole;
+};
+
 function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
@@ -26,7 +35,7 @@ export function UsersClient() {
   const [note, setNote] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [createName, setCreateName] = useState("");
-  const [createRole, setCreateRole] = useState<"customer" | "staff" | "manager">("staff");
+  const [createRole, setCreateRole] = useState<UserRole>("staff");
   const [createPassword, setCreatePassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [pwUserId, setPwUserId] = useState("");
@@ -57,7 +66,7 @@ export function UsersClient() {
     return { total, staff, managers, disabled };
   }, [users]);
 
-  async function patch(userId: string, body: any) {
+  async function patch(userId: string, body: UserPatchBody) {
     setSavingId(userId);
     setError("");
     try {
@@ -163,7 +172,7 @@ export function UsersClient() {
             <input className="input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Name (optional)" />
           </div>
           <div className="grid-2 u-mt-10">
-            <select className="input" value={createRole} onChange={(e) => setCreateRole(e.target.value as any)}>
+            <select className="input" value={createRole} onChange={(e) => setCreateRole(e.target.value as UserRole)}>
               <option value="customer">customer</option>
               <option value="staff">staff</option>
               <option value="manager">manager</option>
@@ -172,7 +181,7 @@ export function UsersClient() {
               className="input"
               value={createPassword}
               onChange={(e) => setCreatePassword(e.target.value)}
-              placeholder="Temporary password (min 10 chars)"
+              placeholder="Temporary password (min 12 chars)"
               type="password"
               autoComplete="new-password"
             />
@@ -181,7 +190,7 @@ export function UsersClient() {
             className="btn u-mt-10"
             type="button"
             onClick={createUser}
-            disabled={creating || !createEmail.trim() || createPassword.trim().length < 10}
+            disabled={creating || !createEmail.trim() || createPassword.trim().length < 12}
           >
             {creating ? "Creating…" : "Create account"}
           </button>
@@ -266,11 +275,16 @@ export function UsersClient() {
                       className="input"
                       value={pwValue}
                       onChange={(e) => setPwValue(e.target.value)}
-                      placeholder="New password (min 10 chars)"
+                      placeholder="New password (min 12 chars)"
                       type="password"
                       autoComplete="new-password"
                     />
-                    <button className="btn" type="button" onClick={() => void setPassword(u.id)} disabled={savingId === u.id}>
+                    <button
+                      className="btn"
+                      type="button"
+                      onClick={() => void setPassword(u.id)}
+                      disabled={savingId === u.id || pwValue.trim().length < 12}
+                    >
                       Set password
                     </button>
                   </div>

@@ -1,52 +1,11 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function formatRetryDelay(seconds: number) {
-  if (seconds >= 120) return `${Math.ceil(seconds / 60)} minutes`;
-  if (seconds >= 60) return "about 1 minute";
-  return `${seconds} seconds`;
-}
-
-function authErrorToMessage(error: string) {
-  const [code, retryAfterRaw] = error.split(":");
-  const retryAfterSeconds = Number(retryAfterRaw ?? "");
-
-  switch (error) {
-    case "InvalidCredentials":
-    case "CredentialsSignin":
-      return "Incorrect email or password.";
-    case "TOTPRequired":
-      return "Enter your 6-digit authenticator code to sign in.";
-    case "TOTPInvalid":
-      return "Invalid authenticator code. Try again.";
-    case "OAuthSignin":
-    case "OAuthCallback":
-      return "Google sign-in failed. Check your Google OAuth configuration.";
-    case "OAuthAccountNotLinked":
-      return "This email is linked to another sign-in method. Use email + password for this account.";
-    case "GoogleEmailNotVerified":
-      return "Google sign-in requires a verified Google email address.";
-    case "Configuration":
-      return "Sign-in is not configured correctly on the server.";
-    case "ManagerEmailOnly":
-      return "Manager accounts must sign in with email + password (and authenticator code if enabled).";
-  }
-
-  switch (code) {
-    case "TooManyAttempts":
-      return Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
-        ? `Too many sign-in attempts. Please wait ${formatRetryDelay(retryAfterSeconds)} and try again.`
-        : "Too many sign-in attempts. Please wait a moment and try again.";
-    default:
-      return "Sign-in failed. Please try again.";
-  }
-}
+import { getRegisterErrorMessage, getSignInErrorMessage, type RegisterErrorResponse } from "@/lib/auth-messages";
 
 export default function SignInPage() {
-  const router = useRouter();
   const devEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true";
   const [devCode, setDevCode] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -59,13 +18,13 @@ export default function SignInPage() {
   const [callbackUrl, setCallbackUrl] = useState("/");
   const [oauthBusy, setOauthBusy] = useState(false);
 
-  const googleAvailable = Boolean(providers && (providers as any).google);
+  const googleAvailable = Boolean(providers?.google);
   const managerMode = callbackUrl.startsWith("/manager");
 
   useEffect(() => {
     const url = new URL(window.location.href);
     const err = url.searchParams.get("error");
-    if (err) setMessage(authErrorToMessage(err));
+    if (err) setMessage(getSignInErrorMessage(err));
     const cb = url.searchParams.get("callbackUrl");
     if (cb && cb.startsWith("/")) setCallbackUrl(cb);
   }, []);
@@ -109,13 +68,13 @@ export default function SignInPage() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ email: cleanEmail, password })
         });
-        const json = (await res.json().catch(() => ({}))) as any;
+        const json = (await res.json().catch(() => null)) as RegisterErrorResponse;
         if (!res.ok) {
-          setMessage(json?.error || "Could not create account.");
+          setMessage(getRegisterErrorMessage(json));
           return;
         }
       } catch {
-        setMessage("Could not create account.");
+        setMessage("Could not create account. Please try again.");
         return;
       }
     }
@@ -132,7 +91,7 @@ export default function SignInPage() {
       return;
     }
     if (result.error) {
-      setMessage(authErrorToMessage(result.error));
+      setMessage(getSignInErrorMessage(result.error));
       return;
     }
     // Hard navigation ensures the new session cookie is picked up immediately.
@@ -149,7 +108,7 @@ export default function SignInPage() {
         return;
       }
       if (result.error) {
-        setMessage(authErrorToMessage(result.error));
+        setMessage(getSignInErrorMessage(result.error));
         return;
       }
       if (!result.url) {
