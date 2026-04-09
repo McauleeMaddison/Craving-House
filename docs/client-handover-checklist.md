@@ -28,6 +28,11 @@ Last audited: 2026-04-09
 - Live sign-out clears the session successfully.
 - `GET /api/health?verbose=1` now works from a live manager session.
 - Protected manager API access now verifies as `401` unauthenticated, `403` for customer/staff, and `200` for manager.
+- Live loyalty checks now pass for the signed-in handover customer: loyalty summary loads, QR token loads, and the loyalty page renders correctly.
+- Live manager tools now return expected data for products, users, orders, loyalty settings, and role-change audit.
+- Live staff tools now load correctly: order queue returns an empty-state payload and loyalty scan renders its token-entry flow.
+- Live customer menu keeps known modifier/add-on products hidden from standalone browsing.
+- Live contact page no longer leaks deployment-only setup instructions, and the mobile drawer now exposes the `Menu` link.
 - Local authenticated walkthrough now passes for all three roles after fixing the credentials callback route.
 - Rollback and failed-deploy recovery steps are now documented in [`docs/deploy-rollback-recovery.md`](/Users/user/Desktop/Craving House Coffee App/docs/deploy-rollback-recovery.md).
 
@@ -36,6 +41,7 @@ Last audited: 2026-04-09
 1. Stripe is not enabled on the live Render deployment right now.
 2. No live payment walkthrough has been completed yet for guest or signed-in checkout.
 3. No human mobile QA pass has been completed yet on iPhone-sized viewports.
+4. Render deploy-log cleanliness and migration success still need confirmation in the Render dashboard.
 
 ## Necessary Steps To Reach 100%
 
@@ -82,7 +88,7 @@ Last audited: 2026-04-09
 ### Guest Customer Flow
 
 - [x] Guest can browse menu.
-- [-] Hidden add-on products do not appear as standalone menu items.
+- [x] Hidden add-on products do not appear as standalone menu items.
 - [-] Guest can customise supported items.
 - [-] Guest can add items to cart.
 - [-] Cart totals update correctly.
@@ -98,16 +104,16 @@ Last audited: 2026-04-09
 - [-] Signed-in user sees correct dashboard state.
 - [-] Menu, cart, and checkout work while signed in.
 - [ ] Signed-in user can place an order successfully.
-- [-] Signed-in user can view order history.
+- [x] Signed-in user can view order history.
 - [-] Signed-in user can open an individual order detail page.
 - [x] Sign out works cleanly.
 - [-] Signed-out user cannot access customer-only pages that require auth.
 
 ### Loyalty
 
-- [-] Signed-in customer can access loyalty page.
-- [-] QR card loads correctly.
-- [-] Loyalty stamps display correctly.
+- [x] Signed-in customer can access loyalty page.
+- [x] QR card loads correctly.
+- [x] Loyalty stamps display correctly.
 - [ ] Loyalty progress updates correctly after eligible purchase.
 - [ ] Non-eligible items do not incorrectly affect loyalty.
 - [-] Staff loyalty scan flow works.
@@ -141,7 +147,7 @@ Last audited: 2026-04-09
 ### Staff Flow
 
 - [x] Staff can sign in.
-- [-] Staff can access order queue.
+- [x] Staff can access order queue.
 - [ ] New paid orders appear in the queue.
 - [-] Staff can change order status.
 - [ ] Status changes are reflected for the customer.
@@ -152,13 +158,13 @@ Last audited: 2026-04-09
 
 - [x] Manager can sign in.
 - [x] Manager dashboard loads.
-- [-] Manager can view orders.
+- [x] Manager can view orders.
 - [-] Manager can create/edit products.
 - [-] Manager can change availability.
-- [-] Manager can verify hidden modifier/add-on items are not exposed on customer menu.
+- [x] Manager can verify hidden modifier/add-on items are not exposed on customer menu.
 - [-] Manager can manage users/roles if intended.
 - [-] Manager settings page loads and saves correctly.
-- [-] Audit page loads and is readable.
+- [x] Audit page loads and is readable.
 
 ### Auth / Access Control
 
@@ -187,8 +193,8 @@ Last audited: 2026-04-09
 - [ ] Copy is consistent across dashboard, menu, cart, checkout, and orders.
 - [-] Currency formatting is correct everywhere.
 - [ ] Prep time messaging is consistent.
-- [ ] Loyalty wording is consistent.
-- [ ] No placeholder text or internal/admin wording leaks into customer pages.
+- [x] Loyalty wording is consistent.
+- [x] No placeholder text or internal/admin wording leaks into customer pages.
 - [x] Privacy, terms, contact, and help pages load correctly.
 
 ### Operational Confidence
