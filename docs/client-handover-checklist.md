@@ -23,38 +23,38 @@ Last audited: 2026-04-09
   - `npm run lint --workspace apps/web`
   - `../../node_modules/.bin/tsc --noEmit -p apps/web/tsconfig.json`
   - `npm run build --workspace apps/web`
+- Handover role accounts exist in the deployment database for customer, staff, and manager.
+- Local authenticated walkthrough now passes for all three roles after fixing the credentials callback route.
+- Rollback and failed-deploy recovery steps are now documented in [`docs/deploy-rollback-recovery.md`](/Users/user/Desktop/Craving House Coffee App/docs/deploy-rollback-recovery.md).
 
 ## Current Blockers To 100%
 
-1. Stripe is not enabled on the live Render deployment right now.
-2. No live authenticated walkthrough has been completed yet for customer, staff, or manager accounts.
+1. The live Render deployment still needs the current auth fix deployed and re-verified.
+2. Stripe is not enabled on the live Render deployment right now.
 3. No live payment walkthrough has been completed yet for guest or signed-in checkout.
 4. No human mobile QA pass has been completed yet on iPhone-sized viewports.
-5. Render deploy-log cleanliness, migration success, rollback steps, and recovery steps are not yet documented.
 
 ## Necessary Steps To Reach 100%
 
-1. Enable live test payments on Render.
+1. Deploy the current auth fix to Render and re-run the live role walkthrough.
+   - Confirm customer, staff, and manager credentials sign in cleanly on `https://craving-house.onrender.com`.
+   - Confirm the protected role pages show the correct access state after sign-in.
+2. Enable live test payments on Render.
    - Set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` on Render.
    - Confirm `GET /api/payments/stripe/enabled` returns `{"enabled":true}`.
    - Confirm Stripe is intentionally in test mode before any client handover demo.
-2. Verify live role accounts.
-   - Confirm working customer, staff, and manager test accounts in the deployed database.
-   - Confirm manager MFA path if it is required for handover.
 3. Run the full live flow walkthrough on `https://craving-house.onrender.com`.
    - Guest order flow with test card.
    - Signed-in customer order flow.
    - Staff queue and loyalty scan flow.
    - Manager product/settings/users/audit flow.
-4. Finish operational handover documentation.
-   - Record Render env vars and which ones are mandatory.
-   - Record rollback steps and failed-deploy recovery steps.
-   - Record webhook configuration steps in Stripe Dashboard.
-5. Do the final client-facing polish pass.
+4. Do the final client-facing polish pass.
    - Mobile spacing/tap-target review.
    - Copy consistency review.
    - Empty/loading/error state review.
    - Final sign-off pass with no launch blockers remaining.
+5. Use the rollback/recovery runbook during release sign-off.
+   - Confirm the operator handover matches [`docs/deploy-rollback-recovery.md`](/Users/user/Desktop/Craving House Coffee App/docs/deploy-rollback-recovery.md).
 
 ## Checklist
 
@@ -64,8 +64,8 @@ Last audited: 2026-04-09
 - [x] `GET /api/health` returns `ok: true`.
 - [ ] Stripe is in the intended mode for testing.
 - [-] Required env vars are present and app boots cleanly after deploy.
-- [ ] Test accounts are available for customer, staff, and manager roles.
-- [ ] Test card available: `4242 4242 4242 4242`.
+- [x] Test accounts are available for customer, staff, and manager roles.
+- [x] Test card available: `4242 4242 4242 4242`.
 
 ### Smoke Test
 
@@ -197,10 +197,10 @@ Last audited: 2026-04-09
 - [-] `verbose=1` health diagnostics work for manager or token access.
 - [ ] Render deploy logs are clean after successful deploy.
 - [ ] Database migration step completes cleanly on deploy.
-- [ ] Rollback path is understood and documented.
+- [x] Rollback path is understood and documented.
 - [ ] Stripe webhook endpoint is configured correctly in Stripe Dashboard.
 - [x] Environment variables are documented and current.
-- [ ] Recovery steps for failed deploy are documented.
+- [x] Recovery steps for failed deploy are documented.
 
 ### Release Sign-Off
 

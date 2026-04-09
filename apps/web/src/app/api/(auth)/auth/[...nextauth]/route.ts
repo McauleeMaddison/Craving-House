@@ -8,6 +8,11 @@ import { getClientIp } from "@/server/security/rate-limit";
 export const dynamic = "force-dynamic";
 
 const handler = NextAuth(authOptions);
+type RouteHandlerContext = {
+  params: Promise<{
+    nextauth: string[];
+  }>;
+};
 
 async function extractCredentialEmail(request: Request) {
   const contentType = request.headers.get("content-type") ?? "";
@@ -42,7 +47,7 @@ function buildTooManyAttemptsResponse(request: Request, retryAfterSeconds: numbe
   );
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request, context: RouteHandlerContext) {
   const url = new URL(request.url);
   if (url.pathname.endsWith("/callback/credentials")) {
     const ip = getClientIp(request);
@@ -58,7 +63,7 @@ export async function POST(request: Request) {
     }
   }
 
-  return handler(request);
+  return handler(request, context);
 }
 
 export { handler as GET };
