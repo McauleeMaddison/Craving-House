@@ -127,7 +127,7 @@ export function CheckoutClient() {
       return;
     }
     if (!stripeEnabled) {
-      setAuthError("Card payments are currently unavailable. Please try again shortly.");
+      setAuthError("Online payments are currently unavailable. Please try again shortly.");
       return;
     }
     if (items.length === 0) {
@@ -275,17 +275,29 @@ export function CheckoutClient() {
           <div className="surface surfaceInset u-pad-14">
             <div className="u-fw-800">Payment</div>
             <div className="muted u-mt-8 u-lh-16">
-              Card payment is required at checkout.
+              Online payment is required at checkout.
             </div>
             {stripeEnabled ? (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
-                You’ll be redirected to Stripe Checkout to pay securely.
+                {signedIn
+                  ? "You’ll be redirected to Stripe Checkout to pay by card or bank transfer, and you can choose to save your card for future orders."
+                  : "You’ll be redirected to Stripe Checkout to pay by card or bank transfer."}
               </p>
             ) : (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
-                Card payments aren’t enabled yet.
+                Online payments aren’t enabled yet.
               </p>
             )}
+            {stripeEnabled ? (
+              <p className="muted u-mt-10 u-fs-12 u-lh-16">
+                {signedIn
+                  ? "Saved cards stay with Stripe and can be offered again the next time you order while signed in."
+                  : "Guest checkout supports card and bank transfer payments, but saved cards are only available to signed-in customers."}
+              </p>
+            ) : null}
+            <p className="muted u-mt-10 u-fs-12 u-lh-16">
+              Bank transfer orders stay pending until Stripe confirms the funds have arrived.
+            </p>
             <p className="muted u-mt-10 u-fs-12 u-lh-16">
               Pickup-only pricing. A {formatMoneyGBP(75)} small-order fee applies to baskets under{" "}
               {formatMoneyGBP(PICKUP_SMALL_ORDER_THRESHOLD_CENTS)}.
@@ -340,7 +352,7 @@ export function CheckoutClient() {
           onClick={placeOrder}
           disabled={submitting || !stripeEnabled}
         >
-          {submitting ? "Processing..." : "Pay now"}
+          {submitting ? "Processing..." : "Continue to payment"}
         </button>
         {authError ? (
           <p className="muted u-mt-10 u-danger">

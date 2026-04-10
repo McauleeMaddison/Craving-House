@@ -112,6 +112,8 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
   const paymentLabel =
     order.paymentStatus === "paid"
       ? "Paid"
+      : order.paymentStatus === "failed"
+        ? "Payment failed"
       : order.paymentStatus === "pending"
         ? "Payment pending"
         : "Awaiting payment";
@@ -189,12 +191,17 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
                 }
               }}
               disabled={paying}
-              title="Pay securely with card"
+              title="Pay securely with Stripe"
             >
-              {paying ? "Opening Stripe..." : "Pay by card"}
+              {paying ? "Opening Stripe..." : "Pay online"}
             </button>
           ) : null}
         </div>
+        {order.paymentStatus === "pending" ? (
+          <p className="muted u-mt-10 u-lh-16">
+            If you chose bank transfer, this order will stay pending until Stripe confirms the funds.
+          </p>
+        ) : null}
         {payError ? <p className="muted u-mt-10 u-danger">{payError}</p> : null}
       </section>
 

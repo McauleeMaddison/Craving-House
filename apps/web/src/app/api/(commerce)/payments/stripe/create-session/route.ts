@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { formatCustomizations } from "@/lib/drink-customizations";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/auth/access";
-import { createStripeCheckoutSession, getStripeRuntimeConfig } from "@/server/payments/stripe";
+import { createStripeCheckoutSession, ensureStripeCustomer, getStripeRuntimeConfig } from "@/server/payments/stripe";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getConfiguredPublicOrigin } from "@/lib/public-url";
@@ -60,14 +60,26 @@ export async function POST(request: Request) {
   const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
   const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
 
+  let stripeCustomerId: string | null = null;
   let session: { id: string; url: string };
   try {
+    const customer = await ensureStripeCustomer({
+      secretKey,
+      stripeCustomerId: order.user?.stripeCustomerId ?? order.stripeCustomerId ?? null,
+      email: order.user?.email ?? order.guestEmail ?? null,
+      name: order.user?.name ?? order.pickupName,
+      metadata: access.ok && order.userId ? { userId: order.userId } : { orderId: order.id, guestOrder: "true" }
+    });
+    stripeCustomerId = customer.id;
+
     session = await createStripeCheckoutSession({
       secretKey,
       orderId: order.id,
       successUrl: `${baseUrl}${returnPath}?paid=1`,
       cancelUrl: `${baseUrl}${returnPath}?pay=cancelled`,
-      customerEmail: order.user?.email ?? order.guestEmail ?? null,
+      customerId: stripeCustomerId,
+      allowSavedPaymentMethods: Boolean(access.ok && stripeCustomerId),
+      allowBankTransfers: true,
       lineItems: [
         ...order.items.map((i) => ({
           name: formatCustomizations(i.customizations)
@@ -84,18 +96,28 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Failed to create Stripe Checkout session", error);
     return NextResponse.json(
-      { error: "Unable to start card payment right now. Please try again shortly." },
+      { error: "Unable to start Stripe payment right now. Please try again shortly." },
       { status: 502 }
     );
   }
 
-  await prisma.order.update({
-    where: { id: order.id },
-    data: {
-      paymentProvider: "stripe",
-      paymentStatus: "pending",
-      stripeCheckoutSessionId: session.id
+  await prisma.$transaction(async (tx) => {
+    if (stripeCustomerId && order.userId && order.user?.stripeCustomerId !== stripeCustomerId) {
+      await tx.user.update({
+        where: { id: order.userId },
+        data: { stripeCustomerId }
+      });
     }
+
+    await tx.order.update({
+      where: { id: order.id },
+      data: {
+        paymentProvider: "stripe",
+        paymentStatus: "pending",
+        stripeCheckoutSessionId: session.id,
+        stripeCustomerId
+      }
+    });
   });
 
   return NextResponse.json({ url: session.url });

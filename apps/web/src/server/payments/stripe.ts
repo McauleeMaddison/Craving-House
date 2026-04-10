@@ -10,7 +10,18 @@ type StripeCreateSessionParams = {
   successUrl: string;
   cancelUrl: string;
   customerEmail?: string | null;
+  customerId?: string | null;
+  allowSavedPaymentMethods?: boolean;
+  allowBankTransfers?: boolean;
   lineItems: Array<{ name: string; unitAmountCents: number; qty: number }>;
+};
+
+type StripeEnsureCustomerParams = {
+  secretKey: string;
+  stripeCustomerId?: string | null;
+  email?: string | null;
+  name?: string | null;
+  metadata?: Record<string, string | null | undefined>;
 };
 
 function normalizeEnvValue(value: string | undefined) {
@@ -64,6 +75,77 @@ function formEncode(pairs: Array<[string, string]>) {
   return params.toString();
 }
 
+class StripeRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "StripeRequestError";
+    this.status = status;
+  }
+}
+
+async function stripeFormPost(path: string, secretKey: string, pairs: Array<[string, string]>) {
+  const res = await fetch(`https://api.stripe.com${path}`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${secretKey}`,
+      "stripe-version": STRIPE_API_VERSION,
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    body: formEncode(pairs)
+  });
+
+  const json = (await res.json().catch(() => null)) as any;
+  if (!res.ok) {
+    const msg = json?.error?.message || "Stripe error";
+    throw new StripeRequestError(msg, res.status);
+  }
+
+  return json;
+}
+
+function normalizePersonName(input: string | null | undefined) {
+  const name = input?.trim().replace(/\s+/g, " ") ?? "";
+  return name.length > 0 ? name : null;
+}
+
+function appendMetadataPairs(pairs: Array<[string, string]>, metadata: Record<string, string | null | undefined> | undefined) {
+  if (!metadata) return;
+  for (const [key, rawValue] of Object.entries(metadata)) {
+    const trimmedKey = key.trim();
+    const value = rawValue?.trim();
+    if (!trimmedKey || !value) continue;
+    pairs.push([`metadata[${trimmedKey}]`, value]);
+  }
+}
+
+export async function ensureStripeCustomer(params: StripeEnsureCustomerParams): Promise<{ id: string }> {
+  const pairs: Array<[string, string]> = [];
+  const email = normalizeEnvValue(params.email ?? undefined);
+  const name = normalizePersonName(params.name);
+
+  if (email) pairs.push(["email", email]);
+  if (name) pairs.push(["name", name]);
+  appendMetadataPairs(pairs, params.metadata);
+
+  if (params.stripeCustomerId) {
+    try {
+      const customer = await stripeFormPost(`/v1/customers/${encodeURIComponent(params.stripeCustomerId)}`, params.secretKey, pairs);
+      if (!customer?.id) throw new Error("Invalid Stripe customer response");
+      return { id: String(customer.id) };
+    } catch (error) {
+      if (!(error instanceof StripeRequestError) || error.status !== 404) {
+        throw error;
+      }
+    }
+  }
+
+  const customer = await stripeFormPost("/v1/customers", params.secretKey, pairs);
+  if (!customer?.id) throw new Error("Invalid Stripe customer response");
+  return { id: String(customer.id) };
+}
+
 export async function createStripeCheckoutSession(params: StripeCreateSessionParams): Promise<{ id: string; url: string }> {
   const pairs: Array<[string, string]> = [
     ["mode", "payment"],
@@ -75,7 +157,22 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     ["payment_intent_data[metadata][orderId]", params.orderId]
   ];
 
-  if (params.customerEmail) {
+  if (params.allowBankTransfers) {
+    pairs.push(["payment_method_types[0]", "card"]);
+    pairs.push(["payment_method_types[1]", "customer_balance"]);
+    pairs.push(["payment_method_options[customer_balance][funding_type]", "bank_transfer"]);
+    pairs.push(["payment_method_options[customer_balance][bank_transfer][type]", "gb_bank_transfer"]);
+  }
+
+  if (params.customerId) {
+    pairs.push(["customer", params.customerId]);
+    pairs.push(["customer_update[name]", "auto"]);
+
+    if (params.allowSavedPaymentMethods) {
+      pairs.push(["saved_payment_method_options[payment_method_save]", "enabled"]);
+      pairs.push(["saved_payment_method_options[payment_method_remove]", "enabled"]);
+    }
+  } else if (params.customerEmail) {
     pairs.push(["customer_email", params.customerEmail]);
   }
 
@@ -87,26 +184,13 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     pairs.push([`line_items[${i}][price_data][product_data][name]`, clampName(li.name)]);
   });
 
-  const body = formEncode(pairs);
-
-  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${params.secretKey}`,
-      "stripe-version": STRIPE_API_VERSION,
-      "content-type": "application/x-www-form-urlencoded"
-    },
-    body
-  });
-
-  const json = (await res.json().catch(() => null)) as any;
-  if (!res.ok) {
-    const msg = json?.error?.message || "Stripe error";
-    throw new Error(msg);
-  }
-
+  const json = await stripeFormPost("/v1/checkout/sessions", params.secretKey, pairs);
   if (!json?.id || !json?.url) throw new Error("Invalid Stripe response");
   return { id: String(json.id), url: String(json.url) };
+}
+
+export function isStripeCheckoutSessionPaid(session: { payment_status?: unknown } | null | undefined) {
+  return String(session?.payment_status ?? "") === "paid";
 }
 
 export function verifyStripeWebhook(params: {

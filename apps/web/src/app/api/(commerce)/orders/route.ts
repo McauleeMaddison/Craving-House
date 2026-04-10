@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   const stripeEnabled = getStripeRuntimeConfig().enabled;
   if (!stripeEnabled) {
     return NextResponse.json(
-      { error: "Card payments are currently unavailable. Please try again shortly." },
+      { error: "Online payments are currently unavailable. Please try again shortly." },
       { status: 503 }
     );
   }

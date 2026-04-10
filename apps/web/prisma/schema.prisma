@@ -20,6 +20,7 @@ model User {
   mfaTotpEnabledAt DateTime?
   disabledAt DateTime?
   createdAt DateTime @default(now())
+  stripeCustomerId String? @unique
 
   orders         Order[]
   loyaltyAccount LoyaltyAccount?
@@ -60,6 +61,7 @@ model Order {
   paymentProvider String? // stripe
   stripeCheckoutSessionId String? @unique
   stripePaymentIntentId   String? @unique
+  stripeCustomerId String?
   paidAt     DateTime?
   pickupName String
   notes      String?
@@ -73,6 +75,8 @@ model Order {
   items      OrderItem[]
   stamps     LoyaltyStamp[]
   redemptions LoyaltyRedemption[]
+
+  @@index([stripeCustomerId])
 }
 
 model OrderItem {

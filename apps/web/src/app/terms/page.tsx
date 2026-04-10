@@ -7,7 +7,7 @@ export default function TermsPage() {
         <h1 className="u-title-26">Terms</h1>
         <p className="muted u-mt-10 u-lh-17 u-maxch-78">
           By using this app, you agree to the terms below. These terms are written for a single-store,
-          card-payment-first order-ahead service.
+          online-payment-first order-ahead service.
         </p>
 
         <div className="u-mt-14 u-grid-gap-10 u-lh-17">
@@ -17,7 +17,7 @@ export default function TermsPage() {
             items if something sells out.
           </p>
           <p className="muted u-m-0">
-            <strong className="u-text">Payment:</strong> orders are confirmed after successful card payment at checkout.
+            <strong className="u-text">Payment:</strong> orders are confirmed after successful online payment at checkout. If you choose bank transfer, the order stays pending until Stripe confirms the funds.
           </p>
           <p className="muted u-m-0">
             <strong className="u-text">Pickup times:</strong> estimates are based on prep times and current
