@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 
 import { store } from "@/lib/store";
@@ -11,18 +10,7 @@ export function HomeActionsClient() {
   const { data, status } = useSession();
   const signedIn = status === "authenticated";
 
-  const displayName = useMemo(() => {
-    const user = data?.user as any;
-    const name = typeof user?.name === "string" ? user.name.trim() : "";
-    const email = typeof user?.email === "string" ? user.email.trim() : "";
-    if (name) return name;
-    if (email) return email.split("@")[0] || "Account";
-    return "Account";
-  }, [data?.user]);
-
-  const instagramUrl = useMemo(() => {
-    return `https://instagram.com/${store.instagramHandle.replace(/^@/, "")}`;
-  }, []);
+  const instagramUrl = `https://instagram.com/${store.instagramHandle.replace(/^@/, "")}`;
 
   return (
     <div className="dashFooter rowWrap">
@@ -32,7 +20,7 @@ export function HomeActionsClient() {
 
       {signedIn ? (
         <Link className="btn" href="/loyalty" title="Account">
-          {displayName}
+          My account
         </Link>
       ) : (
         <Link className="btn" href="/signin">
@@ -53,4 +41,3 @@ export function HomeActionsClient() {
     </div>
   );
 }
-
