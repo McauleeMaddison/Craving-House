@@ -19,9 +19,8 @@ export function PortalHeader() {
   const signedIn = status === "authenticated";
   const role = (data?.user as any)?.role as string | undefined;
   const displayName = ((data?.user as any)?.name || (data?.user as any)?.email || "Account").toString();
-  const canUseStaff = role === "staff" || role === "manager";
+  const canUseStaff = role === "staff";
   const canUseManager = role === "manager";
-  const inManagerPortal = Boolean(pathname?.startsWith("/manager"));
   const inStaffPortal = Boolean(pathname?.startsWith("/staff"));
   const [open, setOpen] = useState(false);
   const openButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -30,10 +29,16 @@ export function PortalHeader() {
 
   const title = portalTitle(pathname);
   const drawerLinks = useMemo(() => {
-    const links: Array<{ href: string; label: string }> = [{ href: "/", label: "Customer app" }];
+    const links: Array<{ href: string; label: string }> = [];
+
+    if (!canUseManager) {
+      links.push({ href: "/", label: "Customer app" });
+    }
 
     if (canUseManager) {
-      links.push({ href: inManagerPortal ? "/staff" : "/manager", label: inManagerPortal ? "Switch to staff" : "Switch to manager" });
+      if (inStaffPortal) {
+        links.push({ href: "/manager", label: "Switch to manager" });
+      }
     }
 
     if (canUseStaff) {
@@ -48,7 +53,7 @@ export function PortalHeader() {
     }
 
     return links;
-  }, [canUseManager, canUseStaff, inManagerPortal]);
+  }, [canUseManager, canUseStaff, inStaffPortal]);
 
   useEffect(() => {
     setOpen(false);
@@ -100,16 +105,14 @@ export function PortalHeader() {
           </Link>
 
           <nav className="navDesktop portalNav" aria-label="Portal">
-            <Link className="btn btn-secondary" href="/">
-              Customer app
-            </Link>
+            {!canUseManager ? (
+              <Link className="btn btn-secondary" href="/">
+                Customer app
+              </Link>
+            ) : null}
 
             {canUseManager ? (
-              inManagerPortal ? (
-                <Link className="btn" href="/staff" title="Switch to staff tools">
-                  Switch to staff
-                </Link>
-              ) : inStaffPortal ? (
+              inStaffPortal ? (
                 <Link className="btn" href="/manager" title="Switch to manager tools">
                   Switch to manager
                 </Link>

@@ -11,9 +11,8 @@ export function ManagerMfaClient() {
   const [loading, setLoading] = useState(true);
   const [setup, setSetup] = useState<{ secretBase32: string; otpauthUrl: string } | null>(null);
   const [code, setCode] = useState("");
-  const [disableCode, setDisableCode] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState<"" | "setup" | "enable" | "disable">("");
+  const [busy, setBusy] = useState<"" | "setup" | "enable">("");
   const [qrDataUrl, setQrDataUrl] = useState("");
 
   async function refresh() {
@@ -93,29 +92,9 @@ export function ManagerMfaClient() {
       setCode("");
       setSetup(null);
       await refresh();
+      window.location.assign("/manager");
     } catch (e: any) {
       setError(String(e?.message ?? "Enable failed"));
-    } finally {
-      setBusy("");
-    }
-  }
-
-  async function disable() {
-    setBusy("disable");
-    setError("");
-    try {
-      const res = await fetch("/api/manager/mfa/totp/disable", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ code: disableCode })
-      });
-      const json = (await res.json().catch(() => null)) as any;
-      if (!res.ok) throw new Error(json?.error ?? "Disable failed");
-      setDisableCode("");
-      setSetup(null);
-      await refresh();
-    } catch (e: any) {
-      setError(String(e?.message ?? "Disable failed"));
     } finally {
       setBusy("");
     }
@@ -136,7 +115,7 @@ export function ManagerMfaClient() {
         <div>
           <div className="u-fw-900">Security</div>
           <p className="muted u-mt-8 u-lh-16">
-            Enable 2FA for manager sign-in using an authenticator app (TOTP).
+            2FA is required for every manager account. Use an authenticator app for manager sign-in.
           </p>
         </div>
         <span className="pill">{status.enabled ? "2FA Enabled" : status.pending ? "2FA Setup pending" : "2FA Off"}</span>
@@ -186,29 +165,16 @@ export function ManagerMfaClient() {
             </div>
           ) : (
             <p className="muted u-mt-10 u-fs-12 u-lh-16">
-              Use Google Authenticator, Microsoft Authenticator, 1Password, or any TOTP app.
+              Set this up now to unlock the rest of the manager portal. Use Google Authenticator, Microsoft Authenticator, 1Password, or any TOTP app.
             </p>
           )}
         </>
       ) : (
         <div className="u-mt-12 u-grid-gap-10">
-          <div className="u-fw-800">Disable 2FA</div>
+          <div className="u-fw-800">2FA is active</div>
           <p className="muted u-m-0 u-fs-12 u-lh-16">
-            Enter a current authenticator code to disable 2FA for your manager account.
+            Manager accounts must keep 2FA enabled. Use your authenticator code each time you sign in.
           </p>
-          <div className="grid-2">
-            <input
-              className="input"
-              value={disableCode}
-              onChange={(e) => setDisableCode(e.target.value)}
-              placeholder="6-digit code"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-            />
-            <button className="btn btn-danger" type="button" onClick={() => void disable()} disabled={busy !== "" || disableCode.trim().length === 0}>
-              {busy === "disable" ? "Disabling…" : "Disable 2FA"}
-            </button>
-          </div>
         </div>
       )}
     </div>

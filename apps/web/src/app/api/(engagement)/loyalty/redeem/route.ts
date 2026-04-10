@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const access = await requireRole(["staff", "manager"]);
+  const access = await requireRole(["staff"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
 
   const body = (await request.json().catch(() => null)) as Partial<Body> | null;
@@ -75,4 +75,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true, alreadyProcessed: result.alreadyProcessed, rewardStamps: (result as any).rewardStamps ?? null, stamps: result.stamps, rewardsRedeemed: result.rewardsRedeemed });
 }
-

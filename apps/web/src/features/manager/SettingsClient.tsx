@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import { apiGetJson } from "@/lib/api";
 import { ManagerMfaClient } from "@/features/manager/ManagerMfaClient";
 
-export function SettingsClient() {
+export function SettingsClient(props: { mfaEnabled: boolean }) {
   const [rewardStamps, setRewardStamps] = useState<number>(5);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    if (!props.mfaEnabled) return;
+
     let mounted = true;
     (async () => {
       const res = await apiGetJson<{ rewardStamps: number }>("/api/manager/loyalty-settings");
@@ -25,7 +27,7 @@ export function SettingsClient() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [props.mfaEnabled]);
 
   async function save() {
     setStatus("saving");
@@ -59,39 +61,48 @@ export function SettingsClient() {
 
       <ManagerMfaClient />
 
-      <div className="surface surfaceInset u-pad-16 u-mt-14">
-        <div className="u-fw-900">Loyalty</div>
-        <p className="muted u-mt-8 u-lh-16">
-          “Buy N eligible coffees, get 1 reward”.
-        </p>
-
-        <label className="u-grid-gap-8 u-mt-12">
-          <span className="muted u-fs-13">Reward stamps (N)</span>
-          <input
-            className="input"
-            type="number"
-            min={1}
-            max={20}
-            value={rewardStamps}
-            onChange={(e) => setRewardStamps(Number(e.target.value))}
-          />
-        </label>
-
-        <div className="u-flex-wrap-gap-10 u-mt-12">
-          <button className="btn" type="button" onClick={save} disabled={status === "saving"}>
-            {status === "saving" ? "Saving…" : "Save"}
-          </button>
-          <div className="pill">
-            Current rule: buy {rewardStamps} eligible coffees → 1 reward
-          </div>
-        </div>
-
-        {error ? (
-          <p className="muted u-mt-10 u-danger">
-            {error}
+      {!props.mfaEnabled ? (
+        <div className="surface surfaceInset u-pad-16 u-mt-14">
+          <div className="u-fw-900">Manager 2FA required</div>
+          <p className="muted u-mt-8 u-lh-16">
+            Finish authenticator setup first. The rest of the manager portal unlocks after 2FA is enabled on this account.
           </p>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <div className="surface surfaceInset u-pad-16 u-mt-14">
+          <div className="u-fw-900">Loyalty</div>
+          <p className="muted u-mt-8 u-lh-16">
+            “Buy N eligible coffees, get 1 reward”.
+          </p>
+
+          <label className="u-grid-gap-8 u-mt-12">
+            <span className="muted u-fs-13">Reward stamps (N)</span>
+            <input
+              className="input"
+              type="number"
+              min={1}
+              max={20}
+              value={rewardStamps}
+              onChange={(e) => setRewardStamps(Number(e.target.value))}
+            />
+          </label>
+
+          <div className="u-flex-wrap-gap-10 u-mt-12">
+            <button className="btn" type="button" onClick={save} disabled={status === "saving"}>
+              {status === "saving" ? "Saving…" : "Save"}
+            </button>
+            <div className="pill">
+              Current rule: buy {rewardStamps} eligible coffees → 1 reward
+            </div>
+          </div>
+
+          {error ? (
+            <p className="muted u-mt-10 u-danger">
+              {error}
+            </p>
+          ) : null}
+        </div>
+      )}
     </section>
   );
 }

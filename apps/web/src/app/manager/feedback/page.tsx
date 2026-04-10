@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { requireRole } from "@/server/auth/access";
 import { FeedbackListClient } from "@/features/manager/FeedbackListClient";
@@ -6,6 +7,9 @@ import { FeedbackListClient } from "@/features/manager/FeedbackListClient";
 export default async function ManagerFeedbackPage() {
   const access = await requireRole(["manager"]);
   if (!access.ok) {
+    if (access.reason === "mfa_required") {
+      redirect("/manager/settings");
+    }
     return (
       <main className="container page">
         <section className="surface u-pad-18 u-maxw-720">
@@ -32,4 +36,3 @@ export default async function ManagerFeedbackPage() {
     </main>
   );
 }
-

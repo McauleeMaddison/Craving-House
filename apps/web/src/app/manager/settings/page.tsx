@@ -4,7 +4,7 @@ import { requireRole } from "@/server/auth/access";
 import { SettingsClient } from "@/features/manager/SettingsClient";
 
 export default async function ManagerSettingsPage() {
-  const access = await requireRole(["manager"]);
+  const access = await requireRole(["manager"], { requireManagerMfa: false });
   if (!access.ok) {
     return (
       <main className="container page">
@@ -28,13 +28,14 @@ export default async function ManagerSettingsPage() {
 
   return (
     <main className="container page">
-      <div className="rowWrap">
-        <Link className="btn btn-secondary" href="/manager">
-          Manager home
-        </Link>
-      </div>
-      <SettingsClient />
+      {access.mfaEnabled ? (
+        <div className="rowWrap">
+          <Link className="btn btn-secondary" href="/manager">
+            Manager home
+          </Link>
+        </div>
+      ) : null}
+      <SettingsClient mfaEnabled={access.mfaEnabled} />
     </main>
   );
 }
-

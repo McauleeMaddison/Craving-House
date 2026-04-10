@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
+import { shouldRedirectManagerToPortal } from "@/lib/manager-route-guard";
 import { getConfiguredPublicUrl } from "@/lib/public-url";
 
 function getForwardedProto(request: NextRequest) {
@@ -28,33 +30,61 @@ function stripPort(host: string) {
   return host.split(":")[0] ?? host;
 }
 
-export function proxy(request: NextRequest) {
+async function getSessionToken(request: NextRequest) {
+  const cookieName = request.cookies.has("next-auth.session-token")
+    ? "next-auth.session-token"
+    : request.cookies.has("__Secure-next-auth.session-token")
+      ? "__Secure-next-auth.session-token"
+      : undefined;
+
+  return getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+    ...(cookieName ? { cookieName } : {})
+  });
+}
+
+export async function proxy(request: NextRequest) {
   const canonical = getConfiguredPublicUrl();
-  if (!canonical) return NextResponse.next();
 
   // Only redirect browser navigations. Avoid breaking POSTs (e.g. auth callbacks, webhooks).
   if (request.method !== "GET" && request.method !== "HEAD") return NextResponse.next();
 
-  const forwardedProto = getForwardedProto(request);
-  const effectiveProto = forwardedProto ?? request.nextUrl.protocol;
+  if (process.env.NODE_ENV === "production" && canonical) {
+    const forwardedProto = getForwardedProto(request);
+    const effectiveProto = forwardedProto ?? request.nextUrl.protocol;
 
-  const forwardedHost = getForwardedHost(request);
-  const effectiveHost = forwardedHost ?? request.headers.get("host") ?? request.nextUrl.host;
-  const effectiveHostname = stripPort(effectiveHost);
+    const forwardedHost = getForwardedHost(request);
+    const effectiveHost = forwardedHost ?? request.headers.get("host") ?? request.nextUrl.host;
+    const effectiveHostname = stripPort(effectiveHost);
 
-  let effectiveCanonicalProto = canonical.protocol;
-  // Never downgrade to http when the public request is clearly https.
-  if (effectiveCanonicalProto === "http:" && effectiveProto === "https:") {
-    effectiveCanonicalProto = "https:";
+    let effectiveCanonicalProto = canonical.protocol;
+    // Never downgrade to http when the public request is clearly https.
+    if (effectiveCanonicalProto === "http:" && effectiveProto === "https:") {
+      effectiveCanonicalProto = "https:";
+    }
+
+    const sameHost = effectiveHostname === canonical.hostname;
+    const sameProto = effectiveProto === effectiveCanonicalProto;
+    if (!sameHost || !sameProto) {
+      const dest = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, canonical.origin);
+      dest.protocol = effectiveCanonicalProto;
+      return NextResponse.redirect(dest, 308);
+    }
   }
 
-  const sameHost = effectiveHostname === canonical.hostname;
-  const sameProto = effectiveProto === effectiveCanonicalProto;
-  if (sameHost && sameProto) return NextResponse.next();
+  const token = await getSessionToken(request);
+  if ((token as { role?: string } | null)?.role === "manager") {
+    const pathname = request.nextUrl.pathname;
+    if (shouldRedirectManagerToPortal(pathname)) {
+      const dest = request.nextUrl.clone();
+      dest.pathname = "/manager";
+      dest.search = "";
+      return NextResponse.redirect(dest);
+    }
+  }
 
-  const dest = new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, canonical.origin);
-  dest.protocol = effectiveCanonicalProto;
-  return NextResponse.redirect(dest, 308);
+  return NextResponse.next();
 }
 
 export const config = {

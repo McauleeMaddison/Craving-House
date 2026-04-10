@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { UsersClient } from "@/features/manager/UsersClient";
 import { requireRole } from "@/server/auth/access";
@@ -6,6 +7,9 @@ import { requireRole } from "@/server/auth/access";
 export default async function ManagerUsersPage() {
   const access = await requireRole(["manager"]);
   if (!access.ok) {
+    if (access.reason === "mfa_required") {
+      redirect("/manager/settings");
+    }
     return (
       <main className="container page">
         <section className="surface u-pad-18 u-maxw-720">

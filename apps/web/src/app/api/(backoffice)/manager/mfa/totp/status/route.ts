@@ -6,7 +6,7 @@ import { requireRole } from "@/server/auth/access";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const access = await requireRole(["manager"]);
+  const access = await requireRole(["manager"], { requireManagerMfa: false });
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
 
   const user = await prisma.user.findUnique({
@@ -18,4 +18,3 @@ export async function GET() {
   const pending = Boolean(user?.mfaTotpSecret && !user?.mfaTotpEnabledAt);
   return NextResponse.json({ enabled, pending });
 }
-

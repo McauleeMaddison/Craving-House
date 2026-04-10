@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const access = await requireRole(["staff", "manager"]);
+  const access = await requireRole(["staff"]);
   if (!access.ok) {
     return NextResponse.json(
       { error: access.reason },

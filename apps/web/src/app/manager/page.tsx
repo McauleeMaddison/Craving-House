@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { connection } from "next/server";
+import { redirect } from "next/navigation";
 
 import { requireRole } from "@/server/auth/access";
 import { ManagerDashboardClient } from "@/features/manager/ManagerDashboardClient";
@@ -11,6 +12,9 @@ export default async function ManagerHomePage() {
   const noManagers = managerCount === 0;
   const access = await requireRole(["manager"]);
   if (!access.ok) {
+    if (access.reason === "mfa_required") {
+      redirect("/manager/settings");
+    }
     return (
       <main className="container page">
         <section className="surface u-pad-18 u-maxw-720">
@@ -93,19 +97,12 @@ export default async function ManagerHomePage() {
           </div>
         </section>
 
-        <section className="grid-2 u-mt-12">
+        <section className="u-mt-12">
           <div className="surface surfaceInset u-pad-16">
             <div className="u-fw-800">Feedback</div>
             <p className="muted u-mt-8 u-lh-16">Read customer feedback submitted from the app.</p>
             <Link className="btn u-mt-10" href="/manager/feedback">
               Open feedback
-            </Link>
-          </div>
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Staff tools</div>
-            <p className="muted u-mt-8 u-lh-16">Switch into staff mode to scan loyalty cards and manage the queue.</p>
-            <Link className="btn u-mt-10" href="/staff/loyalty-scan">
-              Switch to staff
             </Link>
           </div>
         </section>

@@ -12,7 +12,7 @@ export function AppFooter() {
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const { data } = useSession();
   const role = (data?.user as any)?.role as unknown;
-  const canUseStaff = role === "staff" || role === "manager";
+  const canUseStaff = role === "staff";
   const canUseManager = role === "manager";
 
   if (isPortal) return null;
@@ -56,18 +56,18 @@ export function AppFooter() {
               <Link className="appFooterLink" href="/staff">
                 Staff
               </Link>
-              {canUseManager ? (
-                <>
-                  <span aria-hidden="true">•</span>
-                  <Link className="appFooterLink" href="/manager">
-                    Manager
-                  </Link>
-                  <span aria-hidden="true">•</span>
-                  <Link className="appFooterLink" href="/setup">
-                    Setup
-                  </Link>
-                </>
-              ) : null}
+            </>
+          ) : null}
+          {canUseManager ? (
+            <>
+              <span aria-hidden="true">•</span>
+              <Link className="appFooterLink" href="/manager">
+                Manager
+              </Link>
+              <span aria-hidden="true">•</span>
+              <Link className="appFooterLink" href="/setup">
+                Setup
+              </Link>
             </>
           ) : null}
         </nav>

@@ -149,7 +149,7 @@ export default function SignInPage() {
             </button>
           ) : managerMode ? (
             <div className="pill">
-              Manager sign-in uses email + password (plus authenticator code if enabled).
+              Manager sign-in uses email + password. After 2FA is enrolled, the authenticator code is required too.
             </div>
           ) : (
             <div className="pill">Google sign-in not available. Set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.</div>
@@ -207,7 +207,7 @@ export default function SignInPage() {
                 className="input"
                 value={totp}
                 onChange={(e) => setTotp(e.target.value)}
-                placeholder="Authenticator code (managers only)"
+                placeholder="Authenticator code (required after manager 2FA setup)"
                 inputMode="numeric"
                 autoComplete="one-time-code"
               />

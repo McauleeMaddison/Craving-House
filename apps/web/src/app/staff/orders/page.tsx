@@ -4,7 +4,7 @@ import { OrderQueueClient } from "@/features/staff/OrderQueueClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function StaffOrdersPage() {
-  const access = await requireRole(["staff", "manager"]);
+  const access = await requireRole(["staff"]);
   if (!access.ok) {
     return (
       <main className="container page">

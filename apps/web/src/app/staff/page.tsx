@@ -4,7 +4,7 @@ import { requireRole } from "@/server/auth/access";
 import { StaffDashboardClient } from "@/features/staff/StaffDashboardClient";
 
 export default async function StaffHomePage() {
-  const access = await requireRole(["staff", "manager"]);
+  const access = await requireRole(["staff"]);
   if (!access.ok) {
     return (
       <main className="container page">

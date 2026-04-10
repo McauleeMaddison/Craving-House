@@ -34,25 +34,24 @@ test("staff can access queue tools but not manager pages", async ({ page }) => {
   await expect(page.getByText("You don’t have manager access.")).toBeVisible();
 });
 
-test("manager can access manager tools and staff tools", async ({ page }) => {
+test("manager can access manager tools but not staff tools", async ({ page }) => {
   await signIn(page, { ...e2eAccounts.manager, callbackUrl: "/manager" });
 
-  await expect(page.getByRole("heading", { name: "Manager dashboard" })).toBeVisible();
+  await expect(page).toHaveURL(/\/manager\/settings$/);
+  await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+  await expect(page.getByText("Manager 2FA required")).toBeVisible();
+
+  await page.goto("/menu");
+  await expect(page).toHaveURL(/\/manager\/settings$/);
+  await expect(page.getByText("Manager 2FA required")).toBeVisible();
 
   await page.goto("/manager/users");
-  await expect(page.getByRole("heading", { name: "Users & roles" })).toBeVisible();
-  await page.locator("select").first().selectOption("customer");
-  await page.getByRole("button", { name: "Apply filters" }).click();
-  await expect(page.getByText("E2E Customer")).toBeVisible();
-
-  await page.goto("/manager/orders");
-  await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible();
-
-  await page.goto("/manager/audit");
-  await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
+  await expect(page).toHaveURL(/\/manager\/settings$/);
+  await expect(page.getByText("Manager 2FA required")).toBeVisible();
 
   await page.goto("/staff/orders");
-  await expect(page.getByRole("heading", { name: "Order queue" })).toBeVisible();
+  await expect(page).toHaveURL(/\/manager\/settings$/);
+  await expect(page.getByText("Manager 2FA required")).toBeVisible();
 
   await clearSession(page);
 });

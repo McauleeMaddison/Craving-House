@@ -4,7 +4,7 @@ import { LoyaltyScanClient } from "@/features/staff/LoyaltyScanClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function StaffLoyaltyScanPage() {
-  const access = await requireRole(["staff", "manager"]);
+  const access = await requireRole(["staff"]);
   if (!access.ok) {
     return (
       <main className="container page">
