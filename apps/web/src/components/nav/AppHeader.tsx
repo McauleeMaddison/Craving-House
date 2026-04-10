@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useCart } from "@/components/cart/CartContext";
+import { canAccessBoilerBuster } from "@/lib/boiler-buster-access";
 import { store } from "@/lib/store";
 
 type DrawerLink = { href: string; label: string; badge?: number };
@@ -55,6 +56,7 @@ export function AppHeader() {
   const role = (data?.user as any)?.role as string | undefined;
   const canUseStaff = role === "staff" || role === "manager";
   const canUseManager = role === "manager";
+  const canPlayBoilerBuster = canAccessBoilerBuster(role);
   const cartCount = useMemo(() => lines.reduce((sum, line) => sum + line.qty, 0), [lines]);
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const portalKind = pathname?.startsWith("/manager") ? "manager" : "staff";
@@ -152,14 +154,16 @@ export function AppHeader() {
     const ordersIndex = list.findIndex((link) => link.href === "/orders");
     const boilerBusterLink: DrawerLink = { href: "/boiler-buster", label: "Boiler Buster" };
 
-    if (ordersIndex === -1) {
-      list.push(boilerBusterLink);
-    } else {
-      list.splice(ordersIndex + 1, 0, boilerBusterLink);
+    if (canPlayBoilerBuster) {
+      if (ordersIndex === -1) {
+        list.push(boilerBusterLink);
+      } else {
+        list.splice(ordersIndex + 1, 0, boilerBusterLink);
+      }
     }
 
     return list;
-  }, [cartCount, signedIn]);
+  }, [canPlayBoilerBuster, cartCount, signedIn]);
 
   const drawerLinks: DrawerLink[] = useMemo(() => {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
