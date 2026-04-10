@@ -8,9 +8,6 @@ import { authOptions } from "@/server/auth/config";
 import { requireRole } from "@/server/auth/access";
 import { getStripeRuntimeConfig } from "@/server/payments/stripe";
 import { getConfiguredPublicOrigin, getConfiguredPublicUrl, getConfiguredVapidSubject } from "@/lib/public-url";
-import { isEmailConfigured } from "@/server/notifications/email";
-import { getOperationsAlertConfig } from "@/server/monitoring/alerts";
-import { getPasswordResetTtlMinutes } from "@/server/auth/password-reset";
 
 export const dynamic = "force-dynamic";
 
@@ -87,8 +84,6 @@ export async function GET(request: Request) {
   const canonicalUrl = getConfiguredPublicUrl();
   const canonicalOrigin = getConfiguredPublicOrigin();
   const vapidSubject = getConfiguredVapidSubject();
-  const emailConfigured = isEmailConfigured();
-  const operationsAlert = getOperationsAlertConfig();
   const vapidIsMailto = vapidSubject.startsWith("mailto:");
   const vapidMatchesCanonical = vapidIsMailto || (canonicalOrigin ? vapidSubject === canonicalOrigin : false);
 
@@ -192,13 +187,6 @@ export async function GET(request: Request) {
         stripeWebhookIpAllowlistConfigured: webhookIpAllowlist.length > 0,
         stripeEnabled,
         stripeMode,
-        smtpConfigured: emailConfigured,
-        operationsAlertConfigured: operationsAlert.enabled,
-        operationsAlertEmailConfigured: Boolean(operationsAlert.emailTo),
-        operationsAlertWebhookConfigured: Boolean(operationsAlert.webhookUrl),
-        operationsAlertCooldownSeconds: operationsAlert.cooldownSeconds,
-        passwordResetConfigured: emailConfigured,
-        passwordResetTtlMinutes: getPasswordResetTtlMinutes(),
         vapidSubjectConfigured: Boolean(process.env.VAPID_SUBJECT?.trim()),
         vapidSubjectValid: Boolean(vapidSubject),
         vapidSubjectMatchesCanonical: vapidMatchesCanonical,

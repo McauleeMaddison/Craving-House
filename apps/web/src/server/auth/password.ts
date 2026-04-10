@@ -81,7 +81,7 @@ export function passwordHashNeedsRehash(stored: string) {
 
 export function validatePasswordForSignup(password: string): string | null {
   const trimmed = password.trim();
-  if (trimmed.length < 9) return "Password must be at least 9 characters.";
+  if (trimmed.length < 12) return "Password must be at least 12 characters.";
   if (trimmed.length > 200) return "Password is too long.";
   return null;
 }

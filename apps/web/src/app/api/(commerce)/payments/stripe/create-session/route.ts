@@ -8,7 +8,6 @@ import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getConfiguredPublicOrigin } from "@/lib/public-url";
 import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
-import { sendOperationsAlert } from "@/server/monitoring/alerts";
 
 type Body = {
   orderId: string;
@@ -16,12 +15,9 @@ type Body = {
 };
 
 function getBaseUrl(request: Request) {
-  const requestOrigin = request.headers.get("origin")?.trim() || new URL(request.url).origin;
-  if (process.env.NODE_ENV !== "production" && requestOrigin) return requestOrigin;
-
   const configured = getConfiguredPublicOrigin();
   if (configured) return configured;
-  return requestOrigin || "http://localhost:3000";
+  return request.headers.get("origin") ?? "http://localhost:3000";
 }
 
 export async function POST(request: Request) {
@@ -42,8 +38,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { fake, secretKey } = getStripeRuntimeConfig();
-  if (!fake && !secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
+  const { secretKey } = getStripeRuntimeConfig();
+  if (!secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
 
   const body = (await request.json()) as Partial<Body>;
   const orderId = String(body.orderId ?? "");
@@ -63,23 +59,6 @@ export async function POST(request: Request) {
   const returnPath = order.guestToken ? `/orders/guest/${order.guestToken}` : `/orders/${order.id}`;
   const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
   const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
-
-  if (fake) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        paymentProvider: "stripe_fake",
-        paymentStatus: "paid",
-        paidAt: new Date(),
-        stripeCheckoutSessionId: `fake_${order.id}`
-      }
-    });
-    return NextResponse.json({ url: `${baseUrl}${returnPath}?paid=1&via=fake-stripe` });
-  }
-
-  if (!secretKey) {
-    return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
-  }
 
   let session: { id: string; url: string };
   try {
@@ -104,17 +83,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Failed to create Stripe Checkout session", error);
-    await sendOperationsAlert({
-      area: "stripe_checkout_session",
-      subject: "Stripe checkout session creation failed",
-      message: "The app could not create a Stripe Checkout session for an order.",
-      details: {
-        orderId: order.id,
-        userId: order.userId ?? null,
-        guestEmail: order.guestEmail ?? null
-      },
-      error
-    });
     return NextResponse.json(
       { error: "Unable to start card payment right now. Please try again shortly." },
       { status: 502 }

@@ -48,72 +48,39 @@ function nextActions(status: OrderStatus): Array<{ label: string; status: OrderS
 
 export function OrderQueueClient() {
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [notice, setNotice] = useState("");
-  const [updatingId, setUpdatingId] = useState("");
-  const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"" | OrderStatus>("");
 
   async function refresh() {
-    setLoading(true);
     const res = await apiGetJson<{ orders: StaffOrderDto[] }>("/api/staff/orders");
     if (!res.ok) {
       setError(res.status === 401 ? "Please sign in." : res.error);
       setOrders([]);
-      setLoading(false);
       return;
     }
     setError("");
     setOrders(res.data.orders);
-    setLoading(false);
   }
 
   useEffect(() => {
     void refresh();
   }, []);
 
-  const filteredOrders = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    return orders.filter((order) => {
-      const matchesStatus = statusFilter ? order.status === statusFilter : true;
-      if (!matchesStatus) return false;
-      if (!term) return true;
-
-      return (
-        order.pickupName.toLowerCase().includes(term) ||
-        order.lines.some((line) => line.name.toLowerCase().includes(term))
-      );
-    });
-  }, [orders, q, statusFilter]);
-
   const active = useMemo(() => {
-    return [...filteredOrders.filter((o) => o.status !== "collected" && o.status !== "canceled")].sort(
-      (left, right) => new Date(left.createdAtIso).getTime() - new Date(right.createdAtIso).getTime()
-    );
-  }, [filteredOrders]);
+    return orders.filter((o) => o.status !== "collected" && o.status !== "canceled");
+  }, [orders]);
 
   const done = useMemo(() => {
-    return [...filteredOrders.filter((o) => o.status === "collected" || o.status === "canceled")].sort(
-      (left, right) => new Date(right.createdAtIso).getTime() - new Date(left.createdAtIso).getTime()
-    );
-  }, [filteredOrders]);
+    return orders.filter((o) => o.status === "collected" || o.status === "canceled");
+  }, [orders]);
 
   function setStatus(orderId: string, status: OrderStatus) {
     void (async () => {
-      if (status === "canceled" && !confirm("Cancel this order?")) return;
-      setUpdatingId(orderId);
-      setError("");
-      setNotice("");
       const res = await apiPostJson<{ ok: true }>(`/api/staff/orders/${orderId}/status`, { status });
       if (!res.ok) {
         setError(res.error);
-        setUpdatingId("");
         return;
       }
       await refresh();
-      setUpdatingId("");
-      setNotice(`Order updated to ${status}.`);
     })();
   }
 
@@ -127,13 +94,8 @@ export function OrderQueueClient() {
               This queue is database-backed so all staff devices see the same orders.
             </p>
             {error ? (
-              <p className="muted u-mt-8 u-danger" role="alert">
+              <p className="muted u-mt-8 u-danger">
                 {error}
-              </p>
-            ) : null}
-            {notice ? (
-              <p className="muted u-mt-8" aria-live="polite">
-                {notice}
               </p>
             ) : null}
           </div>
@@ -141,49 +103,17 @@ export function OrderQueueClient() {
             className="btn btn-secondary"
             onClick={() => {
               setError("");
-              setNotice("");
               void refresh();
             }}
-            disabled={loading}
           >
-            {loading ? "Refreshing…" : "Refresh"}
+            Refresh
           </button>
-        </div>
-
-        <div className="grid-2 u-mt-12">
-          <label className="u-grid-gap-8">
-            <span className="muted u-fs-12">Search queue</span>
-            <input
-              className="input"
-              value={q}
-              onChange={(event) => setQ(event.target.value)}
-              placeholder="Search pickup name or item…"
-            />
-          </label>
-          <label className="u-grid-gap-8">
-            <span className="muted u-fs-12">Status filter</span>
-            <select className="input" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "" | OrderStatus)}>
-              <option value="">All statuses</option>
-              <option value="received">received</option>
-              <option value="accepted">accepted</option>
-              <option value="ready">ready</option>
-              <option value="collected">collected</option>
-              <option value="canceled">canceled</option>
-            </select>
-          </label>
         </div>
       </section>
 
       <section className="u-mt-12">
         <h2 className="sectionLabel">Active</h2>
-        {loading ? (
-          <div className="surface u-pad-16">
-            <p className="muted u-m-0" aria-live="polite">
-              Loading orders…
-            </p>
-          </div>
-        ) : null}
-        {!loading && active.length === 0 ? (
+        {active.length === 0 ? (
           <div className="surface u-pad-16">
             <p className="muted u-m-0">
               No active orders.
@@ -209,9 +139,8 @@ export function OrderQueueClient() {
                         key={a.status}
                         className={a.kind === "danger" ? "btn btn-danger" : "btn"}
                         onClick={() => setStatus(o.id, a.status)}
-                        disabled={updatingId === o.id}
                       >
-                        {updatingId === o.id ? "Saving…" : a.label}
+                        {a.label}
                       </button>
                     ))}
                   </div>
@@ -249,7 +178,7 @@ export function OrderQueueClient() {
 
       <section className="u-mt-16">
         <h2 className="sectionLabel">Completed</h2>
-        {!loading && done.length === 0 ? (
+        {done.length === 0 ? (
           <div className="surface u-pad-16">
             <p className="muted u-m-0">
               None yet.

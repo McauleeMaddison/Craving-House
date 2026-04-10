@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
 
 import { apiGetJson } from "@/lib/api";
 
@@ -14,78 +13,35 @@ type UserDto = {
   createdAtIso: string;
 };
 
-type UserRole = "customer" | "staff" | "manager";
-
-type UserPatchBody = {
-  disabled?: boolean;
-  newPassword?: string;
-  note?: string;
-  role?: UserRole;
-};
-
-type ApiErrorResponse = {
-  error?: string;
-} | null;
-
 function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 }
 
-function displayUserLabel(user: UserDto) {
-  return user.name || user.email || user.id;
-}
-
 export function UsersClient() {
-  const { data } = useSession();
-  const currentUserId = (data?.user as { id?: string } | undefined)?.id ?? "";
   const [q, setQ] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"" | UserRole>("");
-  const [statusFilter, setStatusFilter] = useState<"" | "active" | "disabled">("");
   const [users, setUsers] = useState<UserDto[]>([]);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [savingId, setSavingId] = useState("");
   const [note, setNote] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [createName, setCreateName] = useState("");
-  const [createRole, setCreateRole] = useState<UserRole>("staff");
+  const [createRole, setCreateRole] = useState<"customer" | "staff" | "manager">("staff");
   const [createPassword, setCreatePassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [pwUserId, setPwUserId] = useState("");
   const [pwValue, setPwValue] = useState("");
 
-  async function refresh(overrides?: {
-    q?: string;
-    roleFilter?: "" | UserRole;
-    statusFilter?: "" | "active" | "disabled";
-  }) {
+  async function refresh() {
     setError("");
-    const queryValue = overrides?.q ?? q;
-    const roleValue = overrides?.roleFilter ?? roleFilter;
-    const statusValue = overrides?.statusFilter ?? statusFilter;
-    const qs = new URLSearchParams();
-    if (queryValue.trim()) qs.set("q", queryValue.trim());
-    if (roleValue) qs.set("role", roleValue);
-    if (statusValue) qs.set("status", statusValue);
-    const suffix = qs.size > 0 ? `?${qs.toString()}` : "";
-    const res = await apiGetJson<{ users: UserDto[] }>(`/api/manager/users${suffix}`);
+    const qs = q.trim() ? `?q=${encodeURIComponent(q.trim())}` : "";
+    const res = await apiGetJson<{ users: UserDto[] }>(`/api/manager/users${qs}`);
     if (!res.ok) {
       setError(res.status === 401 ? "Sign in as manager." : res.error);
       setUsers([]);
       return;
     }
     setUsers(res.data.users);
-  }
-
-  function resetFilters() {
-    const cleared = { q: "", roleFilter: "" as const, statusFilter: "" as const };
-    setQ(cleared.q);
-    setRoleFilter(cleared.roleFilter);
-    setStatusFilter(cleared.statusFilter);
-    setError("");
-    setNotice("");
-    void refresh(cleared);
   }
 
   useEffect(() => {
@@ -101,24 +57,21 @@ export function UsersClient() {
     return { total, staff, managers, disabled };
   }, [users]);
 
-  async function patch(userId: string, body: UserPatchBody) {
+  async function patch(userId: string, body: any) {
     setSavingId(userId);
     setError("");
-    setNotice("");
     try {
       const res = await fetch(`/api/manager/users/${userId}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)
       });
-      const json = (await res.json().catch(() => null)) as ApiErrorResponse;
+      const json = (await res.json().catch(() => null)) as any;
       if (!res.ok) {
         setError(json?.error ?? "Update failed");
         return;
       }
       await refresh();
-      const updatedUser = users.find((user) => user.id === userId);
-      setNotice(`Updated ${updatedUser ? displayUserLabel(updatedUser) : "account"}.`);
     } finally {
       setSavingId("");
     }
@@ -127,7 +80,6 @@ export function UsersClient() {
   async function createUser() {
     setCreating(true);
     setError("");
-    setNotice("");
     try {
       const res = await fetch("/api/manager/users", {
         method: "POST",
@@ -139,7 +91,7 @@ export function UsersClient() {
           password: createPassword
         })
       });
-      const json = (await res.json().catch(() => null)) as ApiErrorResponse;
+      const json = (await res.json().catch(() => null)) as any;
       if (!res.ok) {
         setError(json?.error ?? "Create failed");
         return;
@@ -148,7 +100,6 @@ export function UsersClient() {
       setCreateName("");
       setCreatePassword("");
       await refresh();
-      setNotice(`Created ${createRole} account for ${createEmail.trim().toLowerCase()}.`);
     } finally {
       setCreating(false);
     }
@@ -171,13 +122,8 @@ export function UsersClient() {
               Search users, promote to staff, and disable accounts.
             </p>
             {error ? (
-              <p className="muted u-mt-10 u-danger" role="alert">
+              <p className="muted u-mt-10 u-danger">
                 {error}
-              </p>
-            ) : null}
-            {notice ? (
-              <p className="muted u-mt-10" aria-live="polite">
-                {notice}
               </p>
             ) : null}
           </div>
@@ -190,47 +136,15 @@ export function UsersClient() {
         </div>
 
         <div className="grid-2 u-mt-12">
-          <label className="u-grid-gap-8">
-            <span className="muted u-fs-12">Search users</span>
-            <input
-              className="input"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by email or name…"
-            />
-          </label>
-          <label className="u-grid-gap-8">
-            <span className="muted u-fs-12">Role filter</span>
-            <select className="input" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as "" | UserRole)}>
-              <option value="">All roles</option>
-              <option value="customer">customer</option>
-              <option value="staff">staff</option>
-              <option value="manager">manager</option>
-            </select>
-          </label>
-        </div>
-
-        <div className="grid-2 u-mt-10">
-          <label className="u-grid-gap-8">
-            <span className="muted u-fs-12">Status filter</span>
-            <select
-              className="input"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as "" | "active" | "disabled")}
-            >
-              <option value="">All statuses</option>
-              <option value="active">active</option>
-              <option value="disabled">disabled</option>
-            </select>
-          </label>
-          <div className="u-flex-wrap-gap-10">
-            <button className="btn btn-secondary" onClick={() => void refresh()} type="button">
-              Apply filters
-            </button>
-            <button className="btn btn-secondary" onClick={resetFilters} type="button">
-              Reset
-            </button>
-          </div>
+          <input
+            className="input"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by email or name…"
+          />
+          <button className="btn btn-secondary" onClick={refresh} type="button">
+            Search
+          </button>
         </div>
 
         <div className="surface surfaceInset u-pad-14 u-mt-12">
@@ -239,47 +153,35 @@ export function UsersClient() {
             Creates an email+password account immediately (no invite email). Share credentials securely.
           </p>
           <div className="grid-2 u-mt-10">
-            <label className="u-grid-gap-8">
-              <span className="muted u-fs-12">Email</span>
-              <input
-                className="input"
-                value={createEmail}
-                onChange={(e) => setCreateEmail(e.target.value)}
-                placeholder="Email"
-                autoComplete="email"
-              />
-            </label>
-            <label className="u-grid-gap-8">
-              <span className="muted u-fs-12">Name</span>
-              <input className="input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Name (optional)" />
-            </label>
+            <input
+              className="input"
+              value={createEmail}
+              onChange={(e) => setCreateEmail(e.target.value)}
+              placeholder="Email"
+              autoComplete="email"
+            />
+            <input className="input" value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="Name (optional)" />
           </div>
           <div className="grid-2 u-mt-10">
-            <label className="u-grid-gap-8">
-              <span className="muted u-fs-12">Role</span>
-              <select className="input" value={createRole} onChange={(e) => setCreateRole(e.target.value as UserRole)}>
-                <option value="customer">customer</option>
-                <option value="staff">staff</option>
-                <option value="manager">manager</option>
-              </select>
-            </label>
-            <label className="u-grid-gap-8">
-              <span className="muted u-fs-12">Temporary password</span>
-              <input
-                className="input"
-                value={createPassword}
-                onChange={(e) => setCreatePassword(e.target.value)}
-                placeholder="Temporary password (min 9 chars)"
-                type="password"
-                autoComplete="new-password"
-              />
-            </label>
+            <select className="input" value={createRole} onChange={(e) => setCreateRole(e.target.value as any)}>
+              <option value="customer">customer</option>
+              <option value="staff">staff</option>
+              <option value="manager">manager</option>
+            </select>
+            <input
+              className="input"
+              value={createPassword}
+              onChange={(e) => setCreatePassword(e.target.value)}
+              placeholder="Temporary password (min 10 chars)"
+              type="password"
+              autoComplete="new-password"
+            />
           </div>
           <button
             className="btn u-mt-10"
             type="button"
             onClick={createUser}
-            disabled={creating || !createEmail.trim() || createPassword.trim().length < 9}
+            disabled={creating || !createEmail.trim() || createPassword.trim().length < 10}
           >
             {creating ? "Creating…" : "Create account"}
           </button>
@@ -299,23 +201,12 @@ export function UsersClient() {
       </section>
 
       <section className="u-mt-12 u-grid-gap-10">
-        {users.length === 0 ? (
-          <div className="surface u-pad-16">
-            <p className="muted u-m-0">No users match the current filters.</p>
-          </div>
-        ) : null}
         {users.map((u) => (
           <article key={u.id} className="surface surfaceFlat u-pad-16">
-            {(() => {
-              const isCurrentManager = u.id === currentUserId;
-              const roleActionDisabled = savingId === u.id || isCurrentManager;
-              const disableActionLabel = u.disabledAtIso ? "Re-enable" : "Disable";
-              return (
-                <>
             <div className="u-flex-between-wrap">
               <div>
                 <div className="u-fw-900">
-                  {displayUserLabel(u)}
+                  {u.name || u.email || u.id}
                 </div>
                 <div className="muted u-mt-6 u-fs-13">
                   {u.email || "—"} • Created {formatDate(u.createdAtIso)}
@@ -323,7 +214,6 @@ export function UsersClient() {
               </div>
 
               <div className="rowWrap">
-                {isCurrentManager ? <span className="pill">You</span> : null}
                 <span className="pill">Role: {u.role}</span>
                 {u.disabledAtIso ? <span className="pill">Disabled</span> : <span className="pill">Active</span>}
               </div>
@@ -334,7 +224,7 @@ export function UsersClient() {
                 className="btn btn-secondary"
                 type="button"
                 onClick={() => patch(u.id, { role: "customer", note })}
-                disabled={roleActionDisabled || u.role === "customer"}
+                disabled={savingId === u.id}
               >
                 Make customer
               </button>
@@ -342,7 +232,7 @@ export function UsersClient() {
                 className="btn btn-secondary"
                 type="button"
                 onClick={() => patch(u.id, { role: "staff", note })}
-                disabled={roleActionDisabled || u.role === "staff"}
+                disabled={savingId === u.id}
               >
                 Make staff
               </button>
@@ -353,20 +243,17 @@ export function UsersClient() {
                   if (!confirm("Promote to manager? Only do this for trusted owners/operators.")) return;
                   void patch(u.id, { role: "manager", note });
                 }}
-                disabled={roleActionDisabled || u.role === "manager"}
+                disabled={savingId === u.id}
               >
                 Make manager
               </button>
               <button
                 className="btn btn-danger"
                 type="button"
-                onClick={() => {
-                  if (!confirm(`${disableActionLabel} this account?`)) return;
-                  void patch(u.id, { disabled: !u.disabledAtIso });
-                }}
-                disabled={roleActionDisabled}
+                onClick={() => patch(u.id, { disabled: !u.disabledAtIso })}
+                disabled={savingId === u.id}
               >
-                {disableActionLabel}
+                {u.disabledAtIso ? "Re-enable" : "Disable"}
               </button>
             </div>
 
@@ -379,16 +266,11 @@ export function UsersClient() {
                       className="input"
                       value={pwValue}
                       onChange={(e) => setPwValue(e.target.value)}
-                      placeholder="New password (min 9 chars)"
+                      placeholder="New password (min 10 chars)"
                       type="password"
                       autoComplete="new-password"
                     />
-                    <button
-                      className="btn"
-                      type="button"
-                      onClick={() => void setPassword(u.id)}
-                      disabled={savingId === u.id || pwValue.trim().length < 9}
-                    >
+                    <button className="btn" type="button" onClick={() => void setPassword(u.id)} disabled={savingId === u.id}>
                       Set password
                     </button>
                   </div>
@@ -402,9 +284,6 @@ export function UsersClient() {
                 </button>
               )}
             </div>
-                </>
-              );
-            })()}
           </article>
         ))}
       </section>

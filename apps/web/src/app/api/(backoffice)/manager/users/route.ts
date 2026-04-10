@@ -18,28 +18,16 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const q = (searchParams.get("q") ?? "").trim();
-  const role = (searchParams.get("role") ?? "").trim();
-  const status = (searchParams.get("status") ?? "").trim();
-
-  const where = {
-    ...(q
-      ? {
-          OR: [
-            { email: { contains: q, mode: "insensitive" as const } },
-            { name: { contains: q, mode: "insensitive" as const } }
-          ]
-        }
-      : {}),
-    ...(role === "customer" || role === "staff" || role === "manager" ? { role } : {}),
-    ...(status === "active"
-      ? { disabledAt: null }
-      : status === "disabled"
-        ? { disabledAt: { not: null } }
-        : {})
-  };
 
   const users = await prisma.user.findMany({
-    where,
+    where: q
+      ? {
+          OR: [
+            { email: { contains: q, mode: "insensitive" } },
+            { name: { contains: q, mode: "insensitive" } }
+          ]
+        }
+      : undefined,
     orderBy: { createdAt: "desc" },
     take: 50,
     select: {

@@ -6,7 +6,6 @@ import { requireRole } from "@/server/auth/access";
 export const dynamic = "force-dynamic";
 
 const VALID_STATUS = new Set(["received", "accepted", "ready", "collected", "canceled"]);
-const VALID_PAYMENT_STATUS = new Set(["unpaid", "pending", "paid", "failed", "refunded"]);
 
 export async function GET(request: Request) {
   const access = await requireRole(["manager"]);
@@ -14,14 +13,12 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const status = (searchParams.get("status") ?? "").trim();
-  const paymentStatus = (searchParams.get("paymentStatus") ?? "").trim();
   const q = (searchParams.get("q") ?? "").trim();
   const limitRaw = Number(searchParams.get("limit") ?? 50);
   const limit = Number.isFinite(limitRaw) ? Math.min(200, Math.max(1, Math.round(limitRaw))) : 50;
 
   const where: any = {};
   if (status && VALID_STATUS.has(status)) where.status = status;
-  if (paymentStatus && VALID_PAYMENT_STATUS.has(paymentStatus)) where.paymentStatus = paymentStatus;
   if (q) {
     where.OR = [
       { pickupName: { contains: q, mode: "insensitive" } },

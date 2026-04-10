@@ -2,9 +2,7 @@ import crypto from "node:crypto";
 
 const STRIPE_API_VERSION = "2026-02-25.clover";
 
-type StripeRuntimeEnv = Partial<
-  Pick<NodeJS.ProcessEnv, "E2E_FAKE_STRIPE" | "STRIPE_SECRET_KEY" | "STRIPE_WEBHOOK_SECRET" | "STRIPE_WEBHOOK_IP_ALLOWLIST">
->;
+type StripeRuntimeEnv = Partial<Pick<NodeJS.ProcessEnv, "STRIPE_SECRET_KEY" | "STRIPE_WEBHOOK_SECRET" | "STRIPE_WEBHOOK_IP_ALLOWLIST">>;
 
 type StripeCreateSessionParams = {
   secretKey: string;
@@ -22,13 +20,11 @@ function normalizeEnvValue(value: string | undefined) {
 
 export function getStripeRuntimeConfig(env?: StripeRuntimeEnv) {
   const runtimeEnv = env ?? {
-    E2E_FAKE_STRIPE: process.env.E2E_FAKE_STRIPE,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_WEBHOOK_IP_ALLOWLIST: process.env.STRIPE_WEBHOOK_IP_ALLOWLIST
   };
 
-  const fake = runtimeEnv.E2E_FAKE_STRIPE === "true" && process.env.NODE_ENV !== "production";
   const secretKey = normalizeEnvValue(runtimeEnv.STRIPE_SECRET_KEY);
   const webhookSecret = normalizeEnvValue(runtimeEnv.STRIPE_WEBHOOK_SECRET);
   const webhookIpAllowlist = normalizeEnvValue(runtimeEnv.STRIPE_WEBHOOK_IP_ALLOWLIST)
@@ -36,22 +32,19 @@ export function getStripeRuntimeConfig(env?: StripeRuntimeEnv) {
     .map((value) => value.trim())
     .filter(Boolean) ?? [];
 
-  const mode = fake
-    ? "fake"
-    : secretKey?.startsWith("sk_live_")
-      ? "live"
-      : secretKey?.startsWith("sk_test_")
-        ? "test"
-        : secretKey
-          ? "unknown"
-          : "unset";
+  const mode = secretKey?.startsWith("sk_live_")
+    ? "live"
+    : secretKey?.startsWith("sk_test_")
+      ? "test"
+      : secretKey
+        ? "unknown"
+        : "unset";
 
   return {
-    fake,
     secretKey,
     webhookSecret,
     webhookIpAllowlist,
-    enabled: fake || Boolean(secretKey && webhookSecret),
+    enabled: Boolean(secretKey && webhookSecret),
     mode
   } as const;
 }

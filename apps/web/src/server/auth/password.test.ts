@@ -20,7 +20,7 @@ test("passwordHashNeedsRehash flags older hashes", () => {
   assert.equal(passwordHashNeedsRehash(legacy), true);
 });
 
-test("validatePasswordForSignup requires at least 9 characters", () => {
-  assert.equal(validatePasswordForSignup("short"), "Password must be at least 9 characters.");
+test("validatePasswordForSignup requires at least 12 characters", () => {
+  assert.equal(validatePasswordForSignup("short pass"), "Password must be at least 12 characters.");
   assert.equal(validatePasswordForSignup("long enough password"), null);
 });
