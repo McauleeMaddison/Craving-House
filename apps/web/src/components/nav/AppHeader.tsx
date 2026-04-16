@@ -6,6 +6,8 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useCart } from "@/components/cart/CartContext";
+import { ThemeToggleSwitch } from "@/components/nav/ThemeToggleSwitch";
+import { useThemePreference } from "@/components/nav/useThemePreference";
 import { canAccessBoilerBuster } from "@/lib/boiler-buster-access";
 import { store } from "@/lib/store";
 
@@ -18,35 +20,6 @@ const links: Array<{ href: string; label: string }> = [
   { href: "/orders", label: "Orders" },
   { href: "/feedback", label: "Feedback" }
 ];
-
-function ThemeToggleButton(props: {
-  theme: "poster" | "dark";
-  onToggle: () => void;
-  compact?: boolean;
-}) {
-  const isDark = props.theme === "dark";
-  return (
-    <button
-      className={`themeToggle ${isDark ? "themeToggleDark" : "themeTogglePoster"} ${props.compact ? "themeToggleCompact" : ""}`}
-      type="button"
-      onClick={props.onToggle}
-      aria-pressed={isDark}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-    >
-      <span className="themeToggleOrb" aria-hidden="true">
-        <span className="themeToggleSun" />
-        <span className="themeToggleMoon" />
-        <span className="themeToggleSpark themeToggleSparkA" />
-        <span className="themeToggleSpark themeToggleSparkB" />
-      </span>
-      <span className="themeToggleText">
-        <span className="themeToggleTitle">{isDark ? "Light mode" : "Dark mode"}</span>
-        <span className="themeToggleSub">{isDark ? "Midnight active" : "Golden hour"}</span>
-      </span>
-    </button>
-  );
-}
 
 export function AppHeader() {
   const pathname = usePathname();
@@ -76,24 +49,7 @@ export function AppHeader() {
   }, [data?.user]);
 
   const [open, setOpen] = useState(false);
-  const [theme, setTheme] = useState<"poster" | "dark">("poster");
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("ch.theme");
-    if (stored === "dark" || stored === "poster") {
-      setTheme(stored);
-      document.documentElement.dataset.theme = stored;
-      return;
-    }
-    document.documentElement.dataset.theme = "poster";
-  }, []);
-
-  function toggleTheme() {
-    const next = theme === "poster" ? "dark" : "poster";
-    setTheme(next);
-    document.documentElement.dataset.theme = next;
-    window.localStorage.setItem("ch.theme", next);
-  }
+  const { theme, toggleTheme } = useThemePreference();
 
   useEffect(() => {
     setOpen(false);
@@ -208,7 +164,7 @@ export function AppHeader() {
                     {link.label}
                   </Link>
                 ))}
-            <ThemeToggleButton theme={theme} onToggle={toggleTheme} />
+            <ThemeToggleSwitch theme={theme} onToggle={toggleTheme} />
             {signedIn ? (
               <Link
                 className="btn btn-secondary"
@@ -292,7 +248,7 @@ export function AppHeader() {
 
         <div className="rowWrap rowWrapTight">
           <span className="pill">{store.openingHours.summary}</span>
-          <ThemeToggleButton theme={theme} onToggle={toggleTheme} compact />
+          <ThemeToggleSwitch theme={theme} onToggle={toggleTheme} compact />
           {signedIn ? (
             <span className="pill">
               Signed in: {displayName}

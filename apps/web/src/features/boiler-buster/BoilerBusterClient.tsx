@@ -286,15 +286,6 @@ export function BoilerBusterClient() {
           </div>
 
           <div className="surface surfaceFlat boilerBusterNote">
-            <div className="cardTitle">Shift notes</div>
-            <div className="boilerBusterChecklist">
-              <div className="boilerBusterChecklistItem">20-second rounds keep it short enough for customers in the queue.</div>
-              <div className="boilerBusterChecklistItem">Best score saves on this device so returning customers can chase it.</div>
-              <div className="boilerBusterChecklistItem">Order progress rises as the round runs, so the finish line is always clear.</div>
-            </div>
-          </div>
-
-          <div className="surface surfaceFlat boilerBusterNote">
             <div className="cardTitle">Shift status</div>
             <p className="muted cardBody" aria-live="polite">
               {getStatusCopy(game)}

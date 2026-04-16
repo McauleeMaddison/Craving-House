@@ -6,7 +6,7 @@ import { HomeActionsClient } from "@/features/home/HomeActionsClient";
 
 export default function HomePage() {
   return (
-    <main className="container page">
+    <main className="container page pageHome">
       <section className="surface dashHero">
         <div className="dashHeader">
           <div className="dashLogo" aria-hidden="true">

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 import { shouldRedirectManagerToPortal } from "@/lib/manager-route-guard";
+import { shouldRedirectStaffToPortal } from "@/lib/staff-route-guard";
 import { getConfiguredPublicUrl } from "@/lib/public-url";
 
 function getForwardedProto(request: NextRequest) {
@@ -74,11 +75,20 @@ export async function proxy(request: NextRequest) {
   }
 
   const token = await getSessionToken(request);
+  const pathname = request.nextUrl.pathname;
   if ((token as { role?: string } | null)?.role === "manager") {
-    const pathname = request.nextUrl.pathname;
     if (shouldRedirectManagerToPortal(pathname)) {
       const dest = request.nextUrl.clone();
       dest.pathname = "/manager";
+      dest.search = "";
+      return NextResponse.redirect(dest);
+    }
+  }
+
+  if ((token as { role?: string } | null)?.role === "staff") {
+    if (shouldRedirectStaffToPortal(pathname)) {
+      const dest = request.nextUrl.clone();
+      dest.pathname = "/staff";
       dest.search = "";
       return NextResponse.redirect(dest);
     }

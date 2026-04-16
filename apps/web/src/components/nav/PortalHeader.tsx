@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ThemeToggleSwitch } from "@/components/nav/ThemeToggleSwitch";
+import { useThemePreference } from "@/components/nav/useThemePreference";
 import { store } from "@/lib/store";
 
 function portalTitle(pathname: string | null | undefined) {
@@ -26,14 +28,11 @@ export function PortalHeader() {
   const openButtonRef = useRef<HTMLButtonElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const hadBeenOpenRef = useRef(false);
+  const { theme, toggleTheme } = useThemePreference();
 
   const title = portalTitle(pathname);
   const drawerLinks = useMemo(() => {
     const links: Array<{ href: string; label: string }> = [];
-
-    if (!canUseManager) {
-      links.push({ href: "/", label: "Customer app" });
-    }
 
     if (canUseManager) {
       if (inStaffPortal) {
@@ -105,12 +104,6 @@ export function PortalHeader() {
           </Link>
 
           <nav className="navDesktop portalNav" aria-label="Portal">
-            {!canUseManager ? (
-              <Link className="btn btn-secondary" href="/">
-                Customer app
-              </Link>
-            ) : null}
-
             {canUseManager ? (
               inStaffPortal ? (
                 <Link className="btn" href="/manager" title="Switch to manager tools">
@@ -143,6 +136,8 @@ export function PortalHeader() {
                 </Link>
               </>
             ) : null}
+
+            <ThemeToggleSwitch theme={theme} onToggle={toggleTheme} />
 
             {signedIn ? (
               <button className="btn" type="button" onClick={() => void signOut({ callbackUrl: "/signin" })}>
@@ -204,6 +199,7 @@ export function PortalHeader() {
 
         <div className="rowWrap rowWrapTight">
           <span className="pill">{signedIn ? `Signed in: ${displayName}` : "Portal access"}</span>
+          <ThemeToggleSwitch theme={theme} onToggle={toggleTheme} compact />
           {signedIn && role ? <span className="pill">Role: {role}</span> : null}
         </div>
 

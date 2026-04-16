@@ -394,6 +394,12 @@ code {
   gap: 16px;
 }
 
+.pageHome {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .surface {
   border: 1px solid var(--border);
   background: linear-gradient(180deg, var(--panel-strong), var(--panel));
@@ -708,6 +714,12 @@ code {
   padding: clamp(18px, 4vw, 24px);
 }
 
+.pageHome .dashHero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .dashHeader {
   display: flex;
   align-items: center;
@@ -864,6 +876,11 @@ code {
   margin-top: 16px;
 }
 
+.pageHome .dashFooter {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
 .dashWidgets {
   margin-top: 14px;
   display: grid;
@@ -955,6 +972,16 @@ code {
   }
 }
 
+@media (max-width: 720px) {
+  .pageHome {
+    min-height: calc(100dvh - 1px);
+  }
+
+  .pageHome .dashHero {
+    min-height: 100%;
+  }
+}
+
 .widgetCard {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--panel) 70%, transparent);
@@ -1011,46 +1038,61 @@ code {
 }
 
 .themeToggle {
-  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   min-height: 42px;
-  border-radius: 999px;
-  padding: 5px 14px 5px 7px;
-  border: 1px solid rgba(212, 164, 101, 0.45);
-  background: linear-gradient(115deg, rgba(28, 22, 14, 0.85), rgba(13, 12, 11, 0.78));
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  overflow: hidden;
-  isolation: isolate;
+  transition: transform 180ms ease;
+}
+
+.themeToggleTrack {
+  position: relative;
+  width: 66px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 164, 101, 0.45);
+  background:
+    linear-gradient(115deg, rgba(28, 22, 14, 0.92), rgba(13, 12, 11, 0.82));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 8px 20px rgba(0, 0, 0, 0.2);
-  transition: transform 180ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
 }
 
-.themeToggle::after {
+.themeToggleTrack::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(110deg, transparent 24%, rgba(255, 255, 255, 0.28) 42%, transparent 64%);
+  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.22) 42%, transparent 64%);
   transform: translateX(-145%);
   opacity: 0;
   pointer-events: none;
 }
 
 .themeToggleOrb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  position: relative;
-  flex: 0 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: radial-gradient(circle at 35% 28%, #ffe5b5 0%, #f6c56f 45%, #ad6d2e 100%);
   box-shadow:
     inset 0 -2px 5px rgba(0, 0, 0, 0.25),
     0 3px 8px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.82, 0.27, 1),
+    background 220ms ease,
+    border-color 220ms ease;
 }
 
 .themeToggleSun,
@@ -1111,6 +1153,15 @@ code {
   opacity: 0.72;
 }
 
+.themeTogglePoster .themeToggleTrack {
+  border-color: rgba(212, 164, 101, 0.45);
+  background: linear-gradient(115deg, rgba(28, 22, 14, 0.92), rgba(13, 12, 11, 0.82));
+}
+
+.themeTogglePoster .themeToggleOrb {
+  transform: translateX(0);
+}
+
 .themeTogglePoster .themeToggleSun {
   transform: scale(1);
   opacity: 1;
@@ -1122,11 +1173,16 @@ code {
 }
 
 .themeToggleDark {
+  color: rgba(232, 240, 255, 0.96);
+}
+
+.themeToggleDark .themeToggleTrack {
   border-color: rgba(112, 161, 241, 0.55);
-  background: linear-gradient(115deg, rgba(11, 16, 29, 0.9), rgba(12, 20, 34, 0.82));
+  background: linear-gradient(115deg, rgba(11, 16, 29, 0.94), rgba(12, 20, 34, 0.86));
 }
 
 .themeToggleDark .themeToggleOrb {
+  transform: translateX(30px);
   background: radial-gradient(circle at 35% 28%, #6e97d8 0%, #274164 58%, #0f1e33 100%);
   border-color: rgba(191, 213, 255, 0.3);
 }
@@ -1150,31 +1206,38 @@ code {
 }
 
 .themeToggleCompact {
-  min-height: 36px;
-  padding: 4px 10px 4px 6px;
-  gap: 8px;
+  min-height: 32px;
+}
+
+.themeToggleCompact .themeToggleTrack {
+  width: 58px;
+  height: 32px;
 }
 
 .themeToggleCompact .themeToggleOrb {
+  top: 3px;
+  left: 3px;
   width: 24px;
   height: 24px;
 }
 
-.themeToggleCompact .themeToggleSun,
-.themeToggleCompact .themeToggleMoon {
-  inset: 5px;
-}
-
-.themeToggleCompact .themeToggleTitle {
-  font-size: 12px;
+.themeToggleCompact.themeToggleDark .themeToggleOrb {
+  transform: translateX(26px);
 }
 
 .themeToggleCompact .themeToggleSub {
   display: none;
 }
 
+.themeToggleCompact .themeToggleText {
+  display: none;
+}
+
 .themeToggle:focus-visible {
   outline: none;
+}
+
+.themeToggle:focus-visible .themeToggleTrack {
   border-color: rgba(243, 194, 104, 0.8);
   box-shadow:
     0 0 0 3px rgba(245, 198, 113, 0.24),
@@ -1184,10 +1247,13 @@ code {
 @media (hover: hover) and (pointer: fine) {
   .themeToggle:hover {
     transform: translateY(-1px);
+  }
+
+  .themeToggle:hover .themeToggleTrack {
     border-color: rgba(245, 198, 112, 0.64);
   }
 
-  .themeToggle:hover::after {
+  .themeToggle:hover .themeToggleTrack::after {
     opacity: 0.85;
     animation: themeToggleSheen 620ms cubic-bezier(0.2, 0.72, 0.26, 1) forwards;
   }
@@ -1204,7 +1270,9 @@ code {
 
 @media (prefers-reduced-motion: reduce) {
   .themeToggle,
-  .themeToggle::after,
+  .themeToggleTrack,
+  .themeToggleTrack::after,
+  .themeToggleOrb,
   .themeToggleSun,
   .themeToggleMoon,
   .themeToggleSpark {
