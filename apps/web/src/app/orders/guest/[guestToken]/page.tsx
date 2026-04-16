@@ -7,9 +7,8 @@ export default async function GuestOrderDetailsPage({
 }) {
   const { guestToken } = await params;
   return (
-    <main className="container page">
+    <main className="container page pageCustomer">
       <GuestOrderDetailsClient guestToken={guestToken} />
     </main>
   );
 }
-

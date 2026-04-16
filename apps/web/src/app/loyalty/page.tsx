@@ -14,7 +14,7 @@ export default async function LoyaltyPage() {
     "";
 
   return (
-    <main className="container page">
+    <main className="container page pageCustomer">
       <section className="surface u-pad-18">
         <div className="u-flex-between-wrap">
           <div>

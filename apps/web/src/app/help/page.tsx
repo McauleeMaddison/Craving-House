@@ -4,7 +4,7 @@ import { store } from "@/lib/store";
 
 export default function HelpPage() {
   return (
-    <main className="container page">
+    <main className="container page pageCustomer">
       <section className="surface helpHero u-maxw-980">
         <div className="rowWrap">
           <span className="pill">Minimal</span>

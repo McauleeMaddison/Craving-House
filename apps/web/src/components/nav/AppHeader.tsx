@@ -50,6 +50,7 @@ export function AppHeader() {
   }, [data?.user]);
 
   const [open, setOpen] = useState(false);
+  const [homeHeaderCollapsed, setHomeHeaderCollapsed] = useState(false);
   const { theme, toggleTheme } = useThemePreference();
 
   useEffect(() => {
@@ -72,6 +73,22 @@ export function AppHeader() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  useEffect(() => {
+    if (!isHome) {
+      setHomeHeaderCollapsed(false);
+      return;
+    }
+
+    function onScroll() {
+      const next = window.scrollY > 24;
+      setHomeHeaderCollapsed((prev) => (prev === next ? prev : next));
+    }
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
 
   const activeHref = useMemo(() => {
     return links.find((l) => pathname?.startsWith(l.href))?.href ?? "";
@@ -126,10 +143,13 @@ export function AppHeader() {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
     return customerDrawerLinks;
   }, [customerDrawerLinks, isPortal, portalLinks]);
+  const showCollapsedHomeHeader = isHome && homeHeaderCollapsed && !open;
 
   return (
     <>
-      <header className={`appHeader ${isHome ? "appHeaderHome" : ""}`}>
+      <header
+        className={`appHeader ${isHome ? "appHeaderHome" : ""} ${showCollapsedHomeHeader ? "appHeaderHomeScrolled" : ""}`}
+      >
         <div className="container appHeaderInner">
           <Link href="/" className="brandLink" aria-label={store.name}>
             <span className="brandMark" aria-hidden="true">

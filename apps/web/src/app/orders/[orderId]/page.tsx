@@ -7,7 +7,7 @@ export default async function OrderDetailsPage({
 }) {
   const { orderId } = await params;
   return (
-    <main className="container page">
+    <main className="container page pageCustomer">
       <OrderDetailsClient orderId={orderId} />
     </main>
   );

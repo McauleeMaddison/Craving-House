@@ -400,6 +400,35 @@ code {
   flex-direction: column;
 }
 
+.pageCustomer {
+  min-height: calc(100dvh - 1px);
+  gap: 14px;
+}
+
+.pageCustomer > .surface {
+  border-radius: 22px;
+}
+
+.pageCustomer > .surface:first-child {
+  background:
+    radial-gradient(900px 460px at 0% 0%, rgba(242, 183, 5, 0.12), transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-strong) 86%, transparent), var(--panel));
+}
+
+.pageCustomer > .surface:first-child .u-title-26 {
+  font-size: clamp(24px, 4.8vw, 30px);
+  letter-spacing: -0.03em;
+}
+
+.pageCustomer .surfaceInset,
+.pageCustomer .surfaceFlat {
+  border-radius: 18px;
+}
+
+.pageCustomer .btn {
+  border-radius: 16px;
+}
+
 .surface {
   border: 1px solid var(--border);
   background: linear-gradient(180deg, var(--panel-strong), var(--panel));
@@ -468,6 +497,80 @@ code {
 .menuSearchWrap {
   min-width: 260px;
   width: min(380px, 100%);
+}
+
+.customerPageIntro {
+  display: grid;
+  gap: 12px;
+  max-width: 58ch;
+}
+
+.customerPageActionRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.menuGroups {
+  display: grid;
+  gap: 18px;
+}
+
+.menuGroupHeader {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.menuGroupTitleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.menuGroupTitle {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.menuGroupCopy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .pageCustomer {
+    gap: 12px;
+  }
+
+  .pageCustomer > .surface {
+    border-radius: 20px;
+  }
+
+  .customerPageIntro {
+    gap: 10px;
+  }
+
+  .menuSearchWrap {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .menuGroupHeader {
+    margin-bottom: 10px;
+  }
+
+  .menuGroupTitle {
+    font-size: 17px;
+  }
 }
 
 .ordersListItem {
@@ -1018,7 +1121,8 @@ code {
   }
 
   .pageHome .dashCtaPrimary {
-    padding: 12px;
+    min-height: 70px;
+    padding: 12px 14px;
     border-radius: 16px;
   }
 
@@ -1036,7 +1140,8 @@ code {
   }
 
   .pageHome .dashCtaSmall {
-    padding: 10px 12px;
+    min-height: 54px;
+    padding: 10px 14px;
     border-radius: 16px;
   }
 
@@ -1045,24 +1150,24 @@ code {
   }
 
   .pageHome .dashFooter {
+    margin-top: 12px;
     align-self: flex-start;
-    padding: 6px;
-    gap: 6px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: color-mix(in srgb, var(--panel) 72%, transparent);
+    padding: 0;
+    gap: 8px;
+    border: 0;
+    background: transparent;
   }
 
   .pageHome .dashFooter .btn {
-    min-height: 36px;
-    padding: 0 12px;
+    min-height: 38px;
+    padding: 0 14px;
     font-size: 12px;
-    border-radius: 999px;
+    border-radius: 14px;
   }
 
   .pageHome .dashFooter .btnIconOnly {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     padding: 0;
   }
 }
@@ -1104,13 +1209,14 @@ code {
   }
 
   .pageHome .dashFooter {
-    padding: 5px;
+    margin-top: 10px;
+    gap: 6px;
   }
 
   .pageHome .dashFooter .btn {
     font-size: 12px;
-    min-height: 34px;
-    padding: 0 11px;
+    min-height: 36px;
+    padding: 0 12px;
   }
 }
 
@@ -2478,10 +2584,14 @@ code {
     border-radius: 999px;
     background: color-mix(in srgb, var(--header-bg) 78%, transparent);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+    transition: padding 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
   }
 
   .appHeaderHome .brandLink {
     gap: 10px;
+    max-width: min(260px, calc(100vw - 96px));
+    overflow: hidden;
+    transition: max-width 180ms ease, opacity 160ms ease, transform 180ms ease;
   }
 
   .appHeaderHome .brandMark {
@@ -2505,6 +2615,29 @@ code {
     height: 40px;
     border-radius: 999px;
     background: color-mix(in srgb, var(--panel) 72%, transparent);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .appHeaderHomeScrolled .appHeaderInner {
+    justify-content: flex-end;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .appHeaderHomeScrolled .brandLink {
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(-14px);
+    pointer-events: none;
+  }
+
+  .appHeaderHomeScrolled .navMobileButton {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: color-mix(in srgb, var(--header-bg) 82%, transparent);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
   }
 }
 

@@ -39,6 +39,61 @@ type ProductDto = {
   loyaltyEligible: boolean;
 };
 
+type MenuSectionKey = "hot-drinks" | "cold-drinks" | "light-bites" | "mains" | "hot-dogs" | "waffles" | "other";
+
+const MENU_SECTION_META: Array<{ key: MenuSectionKey; title: string; description: string }> = [
+  {
+    key: "hot-drinks",
+    title: "Hot drinks",
+    description: "Espresso, coffees, teas, and everything warm together."
+  },
+  {
+    key: "cold-drinks",
+    title: "Cold drinks",
+    description: "Iced coffees, smoothies, and chilled sweet drinks together."
+  },
+  {
+    key: "light-bites",
+    title: "Light bites",
+    description: "Croissants, toasties, sandwiches, and quick lunch picks."
+  },
+  {
+    key: "mains",
+    title: "Mains",
+    description: "Bigger plates and meal extras."
+  },
+  {
+    key: "hot-dogs",
+    title: "Hot dogs",
+    description: "Bratwurst, choripan, and hot dog add-ons."
+  },
+  {
+    key: "waffles",
+    title: "Waffles",
+    description: "Waffles and topping extras in one place."
+  },
+  {
+    key: "other",
+    title: "More to try",
+    description: "Everything else currently on the menu."
+  }
+];
+
+const menuItemNameCollator = new Intl.Collator("en-GB", { sensitivity: "base" });
+
+function getMenuSectionKey(item: ProductDto): MenuSectionKey {
+  const description = item.description.toLowerCase();
+
+  if (description.includes("hot drinks")) return "hot-drinks";
+  if (description.includes("cold drinks")) return "cold-drinks";
+  if (description.includes("sandwiches")) return "light-bites";
+  if (description.includes("breakfast")) return "light-bites";
+  if (description.includes("hot dogs")) return "hot-dogs";
+  if (description.includes("waffle")) return "waffles";
+  if (description.includes("meal")) return "mains";
+  return "other";
+}
+
 function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
   const [added, setAdded] = useState(false);
   const disabled = Boolean(props.disabled);
@@ -110,6 +165,15 @@ export function MenuClient() {
     });
   }, [query, products]);
 
+  const groupedItems = useMemo(() => {
+    return MENU_SECTION_META.map((section) => ({
+      ...section,
+      items: items
+        .filter((item) => getMenuSectionKey(item) === section.key)
+        .sort((a, b) => menuItemNameCollator.compare(a.name, b.name))
+    })).filter((section) => section.items.length > 0);
+  }, [items]);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -124,15 +188,238 @@ export function MenuClient() {
     };
   }, []);
 
+  function renderMenuItem(item: ProductDto) {
+    const customizationKind = getProductCustomizationKind(item);
+    const canCustomize = customizationKind !== null;
+    const canAddDrinkToppings = supportsDrinkToppings(item);
+    const uiCopy = customizationKind ? getCustomizationUiCopy(customizationKind) : null;
+
+    return (
+      <article key={item.id} className="surface u-pad-16">
+        <div className="u-flex-between">
+          <div>
+            <div className="u-fw-800">{item.name}</div>
+            <div className="muted u-mt-6 u-lh-15">{item.description}</div>
+          </div>
+          <div className="u-text-right">
+            <div className="u-fw-800">{formatMoneyGBP(item.priceCents)}</div>
+            <div className="muted u-mt-6 u-fs-12">Prep: {Math.round(item.prepSeconds / 60)}m</div>
+          </div>
+        </div>
+
+        <div className="u-flex-between-wrap u-mt-14">
+          <div className="rowWrap">
+            <div className="pill">{item.available ? "Available now" : "Temporarily unavailable"}</div>
+            <div className="pill">{item.loyaltyEligible ? "Earns stamp" : "No stamp"}</div>
+          </div>
+          <div className="u-flex-wrap-gap-10-center">
+            {canCustomize ? (
+              <button
+                className="btn btn-secondary"
+                type="button"
+                disabled={!item.available}
+                onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
+              >
+                {uiCopy?.buttonLabel}
+              </button>
+            ) : null}
+            <AddToCartButton
+              disabled={!item.available}
+              onAdd={() => cart.add(item.id, 1, canCustomize ? custom[item.id] ?? null : null)}
+            />
+          </div>
+        </div>
+
+        {!item.available ? (
+          <p className="muted u-mt-10 u-fs-12 u-lh-16">
+            This item is visible but cannot be ordered until it’s marked available by admin.
+          </p>
+        ) : null}
+
+        {canCustomize && customizationKind && expanded[item.id] && item.available ? (
+          <div className="surface surfaceInset u-pad-14 u-mt-12">
+            <div className="u-fw-900">{uiCopy?.title}</div>
+            <div className="muted u-mt-8 u-lh-16">{uiCopy?.help}</div>
+
+            <div className="u-mt-12 u-grid-gap-12">
+              {customizationKind === "drink" ? (
+                <>
+                  <label className="u-grid-gap-8">
+                    <span className="muted u-fs-13">Sugar</span>
+                    <select
+                      className="input"
+                      value={String(custom[item.id]?.sugar ?? 0)}
+                      onChange={(e) => {
+                        const sugar = Number(e.target.value) as 0 | 1 | 2 | 3 | 4;
+                        const next = { ...(custom[item.id] ?? {}) };
+                        if (sugar === 0) delete next.sugar;
+                        else next.sugar = sugar;
+                        updateCustom(item.id, next);
+                      }}
+                    >
+                      <option value="0">0 (none)</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </label>
+
+                  <div className="u-grid-gap-8">
+                    <span className="muted u-fs-13">Syrups</span>
+                    <div className="rowWrap">
+                      {SYRUP_OPTIONS.map((s) => {
+                        const selected = Boolean(custom[item.id]?.syrups?.includes(s.key));
+                        return (
+                          <button
+                            key={s.key}
+                            type="button"
+                            className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                            onClick={() => toggleArrayOption(item.id, "syrups", s.key as Syrup)}
+                          >
+                            {s.label} (+{formatMoneyGBP(s.priceCents)})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="u-grid-gap-8">
+                    <span className="muted u-fs-13">Coffee add-ons</span>
+                    <div className="rowWrap">
+                      {EXTRA_OPTIONS.map((extra) => {
+                        const selected = Boolean(custom[item.id]?.extras?.includes(extra.key));
+                        return (
+                          <button
+                            key={extra.key}
+                            type="button"
+                            className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                            onClick={() => toggleArrayOption(item.id, "extras", extra.key as DrinkExtra)}
+                          >
+                            {extra.label} (+{formatMoneyGBP(extra.priceCents)})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {canAddDrinkToppings ? (
+                    <div className="u-grid-gap-8">
+                      <span className="muted u-fs-13">Coffee & hot chocolate toppings</span>
+                      <div className="rowWrap">
+                        {DRINK_TOPPING_OPTIONS.map((option) => {
+                          const selected = Boolean(custom[item.id]?.drinkToppings?.includes(option.key));
+                          return (
+                            <button
+                              key={option.key}
+                              type="button"
+                              className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                              onClick={() => toggleArrayOption(item.id, "drinkToppings", option.key as DrinkTopping)}
+                            >
+                              {option.label} (+{formatMoneyGBP(option.priceCents)})
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
+
+              {customizationKind === "hotdog" ? (
+                <div className="u-grid-gap-8">
+                  <span className="muted u-fs-13">Hot dog add-ons</span>
+                  <div className="rowWrap">
+                    {HOT_DOG_ADD_ON_OPTIONS.map((option) => {
+                      const selected = Boolean(custom[item.id]?.hotDogAddOns?.includes(option.key));
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          onClick={() => toggleArrayOption(item.id, "hotDogAddOns", option.key as HotDogAddOn)}
+                        >
+                          {option.label} (+{formatMoneyGBP(option.priceCents)})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              {customizationKind === "waffle" ? (
+                <div className="u-grid-gap-8">
+                  <span className="muted u-fs-13">Waffle toppings</span>
+                  <div className="rowWrap">
+                    {WAFFLE_TOPPING_OPTIONS.map((option) => {
+                      const selected = Boolean(custom[item.id]?.waffleToppings?.includes(option.key));
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          onClick={() => toggleArrayOption(item.id, "waffleToppings", option.key as WaffleTopping)}
+                        >
+                          {option.label} (+{formatMoneyGBP(option.priceCents)})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              {customizationKind === "meal" ? (
+                <div className="u-grid-gap-8">
+                  <span className="muted u-fs-13">Meal add-ons</span>
+                  <div className="rowWrap">
+                    {MEAL_ADD_ON_OPTIONS.map((option) => {
+                      const selected = Boolean(custom[item.id]?.mealAddOns?.includes(option.key));
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          onClick={() => toggleArrayOption(item.id, "mealAddOns", option.key as MealAddOn)}
+                        >
+                          {option.label} (+{formatMoneyGBP(option.priceCents)})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </article>
+    );
+  }
+
   return (
     <>
       <div className="surface u-pad-16">
         <div className="u-flex-between-wrap">
-          <div>
-            <h1 className="u-title-26">Menu</h1>
-            <p className="muted u-mt-8 u-lh-16">
-              Manager-controlled availability, prep times, and loyalty eligibility.
-            </p>
+          <div className="customerPageIntro">
+            <div className="rowWrap">
+              <div className="pill">Grouped menu</div>
+              <div className="pill">
+                {items.length} item{items.length === 1 ? "" : "s"}
+              </div>
+            </div>
+            <div>
+              <h1 className="u-title-26">Menu</h1>
+              <p className="muted u-mt-8 u-lh-16">
+                Hot drinks and cold drinks stay grouped together, with the rest of the food organised by type.
+              </p>
+            </div>
+            <div className="customerPageActionRow">
+              <Link className="btn btn-secondary" href="/">
+                Home
+              </Link>
+              <Link className="btn" href="/cart">
+                Go to cart
+              </Link>
+            </div>
           </div>
           <div className="menuSearchWrap">
             <input
@@ -173,222 +460,21 @@ export function MenuClient() {
           )}
         </section>
       ) : (
-        <section className="grid-2 u-mt-12">
-          {items.map((item) => {
-            const customizationKind = getProductCustomizationKind(item);
-            const canCustomize = customizationKind !== null;
-            const canAddDrinkToppings = supportsDrinkToppings(item);
-            const uiCopy = customizationKind ? getCustomizationUiCopy(customizationKind) : null;
-            return (
-              <article key={item.id} className="surface u-pad-16">
-              <div className="u-flex-between">
-                <div>
-                  <div className="u-fw-800">{item.name}</div>
-                  <div className="muted u-mt-6 u-lh-15">
-                    {item.description}
-                  </div>
-                </div>
-                <div className="u-text-right">
-                  <div className="u-fw-800">{formatMoneyGBP(item.priceCents)}</div>
-                  <div className="muted u-mt-6 u-fs-12">
-                    Prep: {Math.round(item.prepSeconds / 60)}m
-                  </div>
-                </div>
-              </div>
-
-              <div className="u-flex-between-wrap u-mt-14">
-                <div className="rowWrap">
+        <section className="menuGroups u-mt-12">
+          {groupedItems.map((section) => (
+            <div key={section.key} className="menuGroup">
+              <div className="menuGroupHeader">
+                <div className="menuGroupTitleRow">
+                  <h2 className="menuGroupTitle">{section.title}</h2>
                   <div className="pill">
-                    {item.available ? "Available now" : "Temporarily unavailable"}
-                  </div>
-                  <div className="pill">
-                    {item.loyaltyEligible ? "Earns stamp" : "No stamp"}
+                    {section.items.length} item{section.items.length === 1 ? "" : "s"}
                   </div>
                 </div>
-                <div className="u-flex-wrap-gap-10-center">
-                  {canCustomize ? (
-                    <button
-                      className="btn btn-secondary"
-                      type="button"
-                      disabled={!item.available}
-                      onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
-                    >
-                      {uiCopy?.buttonLabel}
-                    </button>
-                  ) : null}
-                  <AddToCartButton
-                    disabled={!item.available}
-                    onAdd={() => cart.add(item.id, 1, canCustomize ? custom[item.id] ?? null : null)}
-                  />
-                </div>
+                <p className="menuGroupCopy">{section.description}</p>
               </div>
-
-              {!item.available ? (
-                <p className="muted u-mt-10 u-fs-12 u-lh-16">
-                  This item is visible but cannot be ordered until it’s marked available by admin.
-                </p>
-              ) : null}
-
-              {canCustomize && customizationKind && expanded[item.id] && item.available ? (
-                <div className="surface surfaceInset u-pad-14 u-mt-12">
-                  <div className="u-fw-900">{uiCopy?.title}</div>
-                  <div className="muted u-mt-8 u-lh-16">
-                    {uiCopy?.help}
-                  </div>
-
-                  <div className="u-mt-12 u-grid-gap-12">
-                    {customizationKind === "drink" ? (
-                      <>
-                        <label className="u-grid-gap-8">
-                          <span className="muted u-fs-13">Sugar</span>
-                          <select
-                            className="input"
-                            value={String(custom[item.id]?.sugar ?? 0)}
-                            onChange={(e) => {
-                              const sugar = Number(e.target.value) as 0 | 1 | 2 | 3 | 4;
-                              const next = { ...(custom[item.id] ?? {}) };
-                              if (sugar === 0) delete next.sugar;
-                              else next.sugar = sugar;
-                              updateCustom(item.id, next);
-                            }}
-                          >
-                            <option value="0">0 (none)</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                          </select>
-                        </label>
-
-                        <div className="u-grid-gap-8">
-                          <span className="muted u-fs-13">Syrups</span>
-                          <div className="rowWrap">
-                            {SYRUP_OPTIONS.map((s) => {
-                              const selected = Boolean(custom[item.id]?.syrups?.includes(s.key));
-                              return (
-                                <button
-                                  key={s.key}
-                                  type="button"
-                                  className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                  onClick={() => toggleArrayOption(item.id, "syrups", s.key as Syrup)}
-                                >
-                                  {s.label} (+{formatMoneyGBP(s.priceCents)})
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        <div className="u-grid-gap-8">
-                          <span className="muted u-fs-13">Coffee add-ons</span>
-                          <div className="rowWrap">
-                            {EXTRA_OPTIONS.map((extra) => {
-                              const selected = Boolean(custom[item.id]?.extras?.includes(extra.key));
-                              return (
-                                <button
-                                  key={extra.key}
-                                  type="button"
-                                  className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                  onClick={() => toggleArrayOption(item.id, "extras", extra.key as DrinkExtra)}
-                                >
-                                  {extra.label} (+{formatMoneyGBP(extra.priceCents)})
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {canAddDrinkToppings ? (
-                          <div className="u-grid-gap-8">
-                            <span className="muted u-fs-13">Coffee & hot chocolate toppings</span>
-                            <div className="rowWrap">
-                              {DRINK_TOPPING_OPTIONS.map((option) => {
-                                const selected = Boolean(custom[item.id]?.drinkToppings?.includes(option.key));
-                                return (
-                                  <button
-                                    key={option.key}
-                                    type="button"
-                                    className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                    onClick={() => toggleArrayOption(item.id, "drinkToppings", option.key as DrinkTopping)}
-                                  >
-                                    {option.label} (+{formatMoneyGBP(option.priceCents)})
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ) : null}
-                      </>
-                    ) : null}
-
-                    {customizationKind === "hotdog" ? (
-                      <div className="u-grid-gap-8">
-                        <span className="muted u-fs-13">Hot dog add-ons</span>
-                        <div className="rowWrap">
-                          {HOT_DOG_ADD_ON_OPTIONS.map((option) => {
-                            const selected = Boolean(custom[item.id]?.hotDogAddOns?.includes(option.key));
-                            return (
-                              <button
-                                key={option.key}
-                                type="button"
-                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                onClick={() => toggleArrayOption(item.id, "hotDogAddOns", option.key as HotDogAddOn)}
-                              >
-                                {option.label} (+{formatMoneyGBP(option.priceCents)})
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {customizationKind === "waffle" ? (
-                      <div className="u-grid-gap-8">
-                        <span className="muted u-fs-13">Waffle toppings</span>
-                        <div className="rowWrap">
-                          {WAFFLE_TOPPING_OPTIONS.map((option) => {
-                            const selected = Boolean(custom[item.id]?.waffleToppings?.includes(option.key));
-                            return (
-                              <button
-                                key={option.key}
-                                type="button"
-                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                onClick={() => toggleArrayOption(item.id, "waffleToppings", option.key as WaffleTopping)}
-                              >
-                                {option.label} (+{formatMoneyGBP(option.priceCents)})
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {customizationKind === "meal" ? (
-                      <div className="u-grid-gap-8">
-                        <span className="muted u-fs-13">Meal add-ons</span>
-                        <div className="rowWrap">
-                          {MEAL_ADD_ON_OPTIONS.map((option) => {
-                            const selected = Boolean(custom[item.id]?.mealAddOns?.includes(option.key));
-                            return (
-                              <button
-                                key={option.key}
-                                type="button"
-                                className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
-                                onClick={() => toggleArrayOption(item.id, "mealAddOns", option.key as MealAddOn)}
-                              >
-                                {option.label} (+{formatMoneyGBP(option.priceCents)})
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
-              </article>
-            );
-          })}
+              <div className="grid-2">{section.items.map((item) => renderMenuItem(item))}</div>
+            </div>
+          ))}
         </section>
       )}
     </>
