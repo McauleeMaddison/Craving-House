@@ -1,6 +1,5 @@
 import { TutorialNudge } from "@/components/tutorial/TutorialNudge";
 import { store } from "@/lib/store";
-import Image from "next/image";
 import { HomeDashboardClient } from "@/features/home/HomeDashboardClient";
 import { HomeActionsClient } from "@/features/home/HomeActionsClient";
 
@@ -8,16 +7,6 @@ export default function HomePage() {
   return (
     <main className="container page pageHome">
       <section className="surface dashHero">
-        <div className="dashHeader">
-          <div className="dashLogo" aria-hidden="true">
-            <Image src="/ch-favicon.jpeg" alt="" width={56} height={56} priority />
-          </div>
-          <div className="dashTitleBlock">
-            <div className="dashName">{store.name}</div>
-            <div className="muted dashTagline">{store.tagline}</div>
-          </div>
-        </div>
-
         <div className="dashMeta rowScroll">
           <span className="pill">{store.openingHours.summary}</span>
           <span className="pill">Pay securely online</span>

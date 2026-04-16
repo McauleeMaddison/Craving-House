@@ -31,6 +31,7 @@ export function AppHeader() {
   const canUseManager = role === "manager";
   const canPlayBoilerBuster = canAccessBoilerBuster(role);
   const cartCount = useMemo(() => lines.reduce((sum, line) => sum + line.qty, 0), [lines]);
+  const isHome = pathname === "/";
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const portalKind = pathname?.startsWith("/manager") ? "manager" : "staff";
   const portalCallbackUrl = useMemo(() => {
@@ -128,7 +129,7 @@ export function AppHeader() {
 
   return (
     <>
-      <header className="appHeader">
+      <header className={`appHeader ${isHome ? "appHeaderHome" : ""}`}>
         <div className="container appHeaderInner">
           <Link href="/" className="brandLink" aria-label={store.name}>
             <span className="brandMark" aria-hidden="true">
