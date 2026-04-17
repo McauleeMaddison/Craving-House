@@ -2925,6 +2925,13 @@ code {
   height: 28px;
   display: inline-grid;
   place-items: center;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+}
+
+.iconButtonActive .navMobileBrandMark {
+  transform: scale(0.9) rotate(-8deg);
+  filter: brightness(1.1);
 }
 
 .navMobileBrandMark img {
@@ -2990,6 +2997,7 @@ code {
   line-height: 1;
   transform: translateY(-1px);
   opacity: 0.9;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .iconButtonActive {
@@ -2997,8 +3005,13 @@ code {
   background: color-mix(in srgb, var(--panel) 70%, transparent);
 }
 
+.iconButtonActive .iconX {
+  transform: translateY(-1px) rotate(90deg);
+  opacity: 1;
+}
+
 @media (max-width: 720px) {
-  .appHeaderHome {
+  .appHeader {
     padding: calc(8px + env(safe-area-inset-top, 0px)) 0 6px;
     background: transparent;
     border-bottom-color: transparent;
@@ -3006,33 +3019,35 @@ code {
     backdrop-filter: none;
   }
 
-  .appHeaderHome .appHeaderInner {
+  .appHeader .appHeaderInner {
     padding: 8px 10px 8px 12px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
     background: color-mix(in srgb, var(--header-bg) 78%, transparent);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-    transition: padding 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    transition: padding 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), background 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: padding, border-color, background, box-shadow;
     justify-content: flex-start;
   }
 
-  .appHeaderHome .appHeaderBrandLink,
-  .appHeaderHome .appHeaderBrandButton {
+  .appHeader .appHeaderBrandLink,
+  .appHeader .appHeaderBrandButton {
     gap: 10px;
     max-width: min(260px, calc(100vw - 96px));
     overflow: hidden;
-    transition: max-width 180ms ease, opacity 160ms ease, transform 180ms ease;
+    transition: max-width 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: max-width, opacity, transform;
   }
 
-  .appHeaderHome .appHeaderBrandLink {
+  .appHeader .appHeaderBrandLink {
     display: none;
   }
 
-  .appHeaderHome .appHeaderBrandButton {
+  .appHeader .appHeaderBrandButton {
     display: flex;
   }
 
-  .appHeaderHome .brandMark {
+  .appHeader .brandMark {
     width: 38px;
     height: 38px;
     border-radius: 999px;
@@ -3040,38 +3055,42 @@ code {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
-  .appHeaderHome .brandName {
+  .appHeader .brandName {
     font-size: 13px;
   }
 
-  .appHeaderHome .brandTag {
+  .appHeader .brandTag {
     font-size: 11px;
   }
 
-  .appHeaderHome .brandText {
+  .appHeader .brandText {
     min-width: 0;
     overflow: hidden;
     max-width: 180px;
     transition: max-width 180ms ease, opacity 160ms ease, transform 180ms ease;
   }
 
-  .appHeaderHome .navMobileButton {
+  .appHeader .navMobileButton {
     display: none;
   }
 
-  .appHeaderHomeScrolled .appHeaderInner {
-    padding: 7px 9px 7px 10px;
-    border-color: rgba(255, 255, 255, 0.16);
-    background: color-mix(in srgb, var(--header-bg) 82%, transparent);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  .appHeaderScrolled .appHeaderInner {
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
   }
 
-  .appHeaderHomeScrolled .appHeaderBrandButton {
+  .appHeaderScrolled .appHeaderBrandButton {
     max-width: 44px;
     gap: 0;
   }
 
-  .appHeaderHomeScrolled .brandText {
+  .appHeaderScrolled .appHeaderBrandButton .brandMark {
+    transform: scale(1.04);
+  }
+
+  .appHeaderScrolled .brandText {
     max-width: 0;
     opacity: 0;
     transform: translateX(18px);
@@ -3084,8 +3103,9 @@ code {
   background: rgba(0, 0, 0, 0.84);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 160ms ease;
+  transition: opacity 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 40;
+  will-change: opacity;
 }
 .drawerOverlayOpen {
   opacity: 1;
@@ -3193,8 +3213,9 @@ html[data-theme="dark"] .modalSheet {
   box-shadow: -24px 0 70px rgba(0, 0, 0, 0.35);
   color: var(--drawer-text);
   transform: translateX(110%);
-  transition: transform 180ms ease;
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 50;
+  will-change: transform;
   padding:
     calc(14px + env(safe-area-inset-top, 0px))
     calc(14px + env(safe-area-inset-right, 0px))
