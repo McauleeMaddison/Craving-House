@@ -219,11 +219,8 @@ export function BoilerBusterClient() {
               </div>
               <div className="boilerBusterMeterValue">{Math.round(game.pressure)}%</div>
             </div>
-            <div className="boilerBusterMeter" aria-hidden="true">
-              <div
-                className="boilerBusterMeterFill"
-                style={{ "--fill-width": `${game.pressure}%` } as React.CSSProperties}
-              />
+            <div className="boilerBusterMeter" aria-hidden="true" data-pressure={game.pressure}>
+              <div className="boilerBusterMeterFill" />
             </div>
             <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
               <div>
@@ -232,11 +229,8 @@ export function BoilerBusterClient() {
               </div>
               <div className="boilerBusterMeterValue">{queueProgress}%</div>
             </div>
-            <div className="boilerBusterMeter boilerBusterMeterSecondary" aria-hidden="true">
-              <div
-                className="boilerBusterMeterFill boilerBusterMeterFillSecondary"
-                style={{ "--fill-width": `${queueProgress}%` } as React.CSSProperties}
-              />
+            <div className="boilerBusterMeter boilerBusterMeterSecondary" aria-hidden="true" data-progress={queueProgress}>
+              <div className="boilerBusterMeterFill boilerBusterMeterFillSecondary" />
             </div>
           </div>
 
@@ -252,10 +246,7 @@ export function BoilerBusterClient() {
               <span className="boilerBusterMachineBody" />
               <span className="boilerBusterGauge">
                 <span className="boilerBusterGaugeDot" />
-              <span
-                className="boilerBusterNeedle"
-                style={{ "--needle-rotation": `${boilerNeedleRotation}deg` } as React.CSSProperties}
-              />
+              <span className="boilerBusterNeedle" data-rotation={boilerNeedleRotation} />
               </span>
               <span className="boilerBusterValve" />
               <span className="boilerBusterSteam boilerBusterSteamA" />

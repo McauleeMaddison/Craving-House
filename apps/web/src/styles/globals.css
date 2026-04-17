@@ -623,10 +623,18 @@ code {
   transition: transform 140ms ease, background 140ms ease;
 }
 
-.loyaltyStampFilled {
-  border-color: var(--border);
-  /* @supports (color-mix(in srgb, #000 50%, #fff)) */ border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
-  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+@supports (color-mix(in srgb, #000 50%, #fff)) {
+  .loyaltyStampFilled {
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+    background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  }
+}
+
+@supports not (color-mix(in srgb, #000 50%, #fff)) {
+  .loyaltyStampFilled {
+    border-color: var(--border);
+    background: var(--panel);
+  }
 }
 
 .loyaltyQrActions {
@@ -877,14 +885,10 @@ code {
   max-width: 55ch;
 }
 
-.rowScroll {
-  display: flex;
-  gap: 10px;
-  flex-wrap: nowrap;
-  align-items: center;
-  overflow-x: auto;
-  /* Fallback: Use ::-webkit-scrollbar for WebKit */ scrollbar-width: none;
-  padding-bottom: 2px;
+@supports (scrollbar-width: none) {
+  .rowScroll {
+    scrollbar-width: none;
+  }
 }
 
 .rowScroll::-webkit-scrollbar {
@@ -2199,6 +2203,14 @@ code {
   overflow: hidden;
 }
 
+.boilerBusterMeter[data-pressure] {
+  --fill-width: calc(attr(data-pressure) * 1%);
+}
+
+.boilerBusterMeter[data-progress] {
+  --fill-width: calc(attr(data-progress) * 1%);
+}
+
 .boilerBusterMeterSecondary {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -2495,9 +2507,13 @@ code {
   border-radius: 999px;
   background: var(--boiler-gauge-accent);
   transform-origin: 0% 50%;
-  transform: rotate(var(--needle-rotation, 0deg));
   transition: transform 180ms ease;
   box-shadow: 0 0 12px color-mix(in srgb, var(--boiler-gauge-accent) 68%, transparent);
+}
+
+.boilerBusterNeedle[data-rotation] {
+  --needle-rotation: calc(attr(data-rotation) * 1deg);
+  transform: rotate(var(--needle-rotation, 0deg));
 }
 
 .boilerBusterNeedleCalm {
@@ -3260,13 +3276,17 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerContent {
   overflow: auto;
-  -webkit-overscroll-behavior: contain;
-  /* Fallback: -webkit-overscroll-behavior for iOS < 16 */ overscroll-behavior: contain;
   display: grid;
   gap: 12px;
   align-content: start;
   grid-auto-rows: max-content;
   padding-bottom: 2px;
+}
+
+@supports (overscroll-behavior: contain) {
+  .drawerContent {
+    overscroll-behavior: contain;
+  }
 }
 
 .drawerLinks {
