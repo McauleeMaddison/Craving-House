@@ -4,6 +4,19 @@ import { requireRole } from "@/server/auth/access";
 import { StaffDashboardClient } from "@/features/staff/StaffDashboardClient";
 
 export default async function StaffHomePage() {
+  const actions = [
+    {
+      href: "/staff/orders",
+      title: "Order queue",
+      description: "Review incoming drinks and update status."
+    },
+    {
+      href: "/staff/loyalty-scan",
+      title: "Loyalty scan",
+      description: "Scan QR codes and add eligible stamps."
+    }
+  ] as const;
+
   const access = await requireRole(["staff"]);
   if (!access.ok) {
     return (
@@ -27,34 +40,39 @@ export default async function StaffHomePage() {
   }
 
   return (
-    <main className="container page">
-      <section className="surface u-pad-18">
-        <h1 className="u-title-26">Staff dashboard</h1>
-        <p className="muted u-mt-10 u-lh-16">
-          Use the queue to manage orders, and the scanner to add loyalty stamps after collection.
-        </p>
+    <main className="container page pageDashboard portalDashboardPage">
+      <section className="surface dashHero dashboardShell">
+        <div className="dashMeta rowScroll">
+          <span className="pill">Staff dashboard</span>
+          <span className="pill">Live queue</span>
+          <span className="pill">Loyalty collection</span>
+        </div>
+
+        <div className="dashLead">
+          <div className="dashLeadTitle">Staff dashboard</div>
+          <p className="muted dashLeadSub">
+            Use the queue to manage orders, and the scanner to add loyalty stamps after collection.
+          </p>
+        </div>
 
         <StaffDashboardClient />
 
-        <div className="grid-2 u-mt-12">
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Order queue</div>
-            <p className="muted u-mt-8 u-lh-16">
-              Show incoming orders and update status.
-            </p>
-            <Link className="btn u-mt-10" href="/staff/orders">
-              Open queue
+        <div className="dashboardActionGrid u-mt-12">
+          {actions.map((action, index) => (
+            <Link
+              key={action.href}
+              className={`dashboardActionCard ${index === 0 ? "dashboardActionCardPrimary" : ""}`}
+              href={action.href}
+            >
+              <span className="dashboardActionCopy">
+                <span className="dashboardActionTitle">{action.title}</span>
+                <span className="dashboardActionSub">{action.description}</span>
+              </span>
+              <span aria-hidden="true" className="dashArrow">
+                →
+              </span>
             </Link>
-          </div>
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Loyalty scan</div>
-            <p className="muted u-mt-8 u-lh-16">
-              Staff scan customer QR and submit eligible coffees.
-            </p>
-            <Link className="btn u-mt-10" href="/staff/loyalty-scan">
-              Open scan
-            </Link>
-          </div>
+          ))}
         </div>
       </section>
     </main>

@@ -138,32 +138,32 @@ export function StaffDashboardClient() {
   }, [orders]);
 
   return (
-    <section className="u-mt-12">
+    <section className="dashboardSection u-mt-12">
       {error ? <p className="muted u-danger">{error}</p> : null}
 
-      <div className="grid-3">
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Received</div>
-          <div className="u-fw-900 u-fs-18 u-mt-6">{stats.received}</div>
-          <div className="muted u-fs-12 u-mt-6">New orders waiting</div>
+      <div className="dashboardStats dashboardStatsThree">
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Received</div>
+          <div className="dashboardStatValue">{stats.received}</div>
+          <div className="dashboardStatHint">New orders waiting</div>
         </div>
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">In progress</div>
-          <div className="u-fw-900 u-fs-18 u-mt-6">{stats.accepted}</div>
-          <div className="muted u-fs-12 u-mt-6">Accepted orders</div>
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">In progress</div>
+          <div className="dashboardStatValue">{stats.accepted}</div>
+          <div className="dashboardStatHint">Accepted orders</div>
         </div>
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Ready</div>
-          <div className="u-fw-900 u-fs-18 u-mt-6">{stats.ready}</div>
-          <div className="muted u-fs-12 u-mt-6">
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Ready</div>
+          <div className="dashboardStatValue">{stats.ready}</div>
+          <div className="dashboardStatHint">
             Oldest: {stats.oldestIso ? `${minutesSince(stats.oldestIso)} min ago` : "—"}
           </div>
         </div>
       </div>
 
-      <div className="rowWrap u-mt-10">
+      <div className="dashboardRefreshRow">
         <button
-          className="btn btn-secondary"
+          className="btn btn-secondary btnCompact"
           type="button"
           onClick={() => {
             setError("");
@@ -174,11 +174,11 @@ export function StaffDashboardClient() {
         </button>
       </div>
 
-      <div className="surface surfaceInset u-pad-16 u-mt-12">
-        <div className="u-flex-between-wrap">
+      <div className="widgetCard dashboardDetailCard">
+        <div className="dashboardDetailHeader">
           <div>
-            <div className="u-fw-900">Notifications</div>
-            <div className="muted u-mt-6 u-fs-13">
+            <div className="dashboardDetailTitle">Notifications</div>
+            <div className="dashboardDetailSub">
               Get a push notification when a new order is received.
             </div>
           </div>
@@ -199,22 +199,22 @@ export function StaffDashboardClient() {
           </div>
         </div>
 
-        {pushError ? <p className="muted u-danger u-mt-10">{pushError}</p> : null}
+        {pushError ? <p className="muted u-danger">{pushError}</p> : null}
 
         {pushStatus === "unsupported" ? (
-          <p className="muted u-mt-10 u-lh-16">
+          <p className="dashboardDetailBody">
             This browser doesn’t support push notifications. Try Chrome/Edge on desktop or Android. On iPhone/iPad, push works when the app is installed to the Home Screen.
           </p>
         ) : pushStatus === "blocked" ? (
-          <p className="muted u-mt-10 u-lh-16">
+          <p className="dashboardDetailBody">
             Notifications are blocked in your browser settings for this site.
           </p>
         ) : (
-          <div className="rowWrap u-mt-10">
-            <button className="btn" type="button" onClick={() => void enablePush()} disabled={pushStatus === "working" || pushStatus === "enabled"}>
+          <div className="rowWrap">
+            <button className="btn btnCompact" type="button" onClick={() => void enablePush()} disabled={pushStatus === "working" || pushStatus === "enabled"}>
               Enable notifications
             </button>
-            <button className="btn btn-secondary" type="button" onClick={() => void disablePush()} disabled={pushStatus === "working" || pushStatus !== "enabled"}>
+            <button className="btn btn-secondary btnCompact" type="button" onClick={() => void disablePush()} disabled={pushStatus === "working" || pushStatus !== "enabled"}>
               Disable
             </button>
           </div>

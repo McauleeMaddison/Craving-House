@@ -823,6 +823,32 @@ code {
   flex-direction: column;
 }
 
+.pageDashboard {
+  min-height: calc(100dvh - 1px);
+}
+
+.pageDashboard .dashHero {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.portalDashboardPage .dashHero {
+  background:
+    radial-gradient(900px 500px at 0% 0%, rgba(47, 228, 171, 0.08), transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-strong) 88%, transparent), var(--panel));
+}
+
+.dashboardShell {
+  gap: 0;
+}
+
+.dashboardSection {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
 .dashMeta {
   margin-top: 12px;
 }
@@ -953,6 +979,17 @@ code {
   gap: 12px;
 }
 
+.dashboardStats {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboardStatsThree .dashboardStatCard:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .dashCtas {
   margin-top: 14px;
   display: grid;
@@ -1035,17 +1072,142 @@ code {
   .dashWidgets {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .dashboardStatsThree {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboardStatsFour {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.dashboardStatCard {
+  min-height: 92px;
+  gap: 6px;
+}
+
+.dashboardStatLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dashboardStatValue {
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.dashboardStatHint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.dashboardRefreshRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboardDetailCard {
+  min-height: 0;
+  gap: 12px;
+}
+
+.dashboardDetailHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dashboardDetailTitle {
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.dashboardDetailSub,
+.dashboardDetailBody {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.dashboardActionGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboardActionGridManager {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboardActionCard {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 84px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+}
+
+.dashboardActionCardPrimary {
+  border-color: var(--btn-active-border);
+  background: color-mix(in srgb, var(--panel) 58%, rgba(242, 183, 5, 0.22));
+}
+
+.dashboardActionCopy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.dashboardActionTitle {
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.dashboardActionSub {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (min-width: 960px) {
+  .dashboardActionGridManager {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
   .pageHome {
-    min-height: auto;
-    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    min-height: 100%;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
-    flex: 0 0 auto;
-    min-height: auto;
+    flex: 1 1 auto;
+    min-height: 100%;
+  }
+
+  .pageDashboard {
+    min-height: 100%;
+  }
+
+  .pageDashboard .dashHero {
+    min-height: 100%;
   }
 }
 
@@ -1094,9 +1256,9 @@ code {
   }
 
   .pageHome .widgetCard {
-    min-height: 72px;
-    padding: 12px 12px 10px;
-    gap: 6px;
+    min-height: 68px;
+    padding: 10px 12px 9px;
+    gap: 5px;
   }
 
   .pageHome .widgetTop {
@@ -1123,8 +1285,8 @@ code {
   }
 
   .pageHome .dashCtaPrimary {
-    min-height: 70px;
-    padding: 12px 14px;
+    min-height: 64px;
+    padding: 11px 13px;
     border-radius: 16px;
   }
 
@@ -1142,8 +1304,8 @@ code {
   }
 
   .pageHome .dashCtaSmall {
-    min-height: 54px;
-    padding: 10px 14px;
+    min-height: 48px;
+    padding: 9px 12px;
     border-radius: 16px;
   }
 
@@ -1152,25 +1314,88 @@ code {
   }
 
   .pageHome .dashFooter {
-    margin-top: 12px;
+    margin-top: auto;
+    width: 100%;
     align-self: flex-start;
-    padding: 0;
+    padding-top: 12px;
     gap: 8px;
     border: 0;
     background: transparent;
   }
 
   .pageHome .dashFooter .btn {
-    min-height: 38px;
-    padding: 0 14px;
+    min-height: 36px;
+    padding: 0 12px;
     font-size: 12px;
     border-radius: 14px;
   }
 
   .pageHome .dashFooter .btnIconOnly {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     padding: 0;
+  }
+
+  .pageDashboard {
+    gap: 10px;
+  }
+
+  .pageDashboard .dashHero {
+    padding: 16px;
+  }
+
+  .pageDashboard .dashMeta {
+    margin-top: 10px;
+    gap: 8px;
+  }
+
+  .pageDashboard .dashLead {
+    margin-top: 12px;
+    gap: 6px;
+  }
+
+  .pageDashboard .dashLeadTitle {
+    font-size: clamp(20px, 5.4vw, 28px);
+  }
+
+  .pageDashboard .dashLeadSub {
+    font-size: 12px;
+    line-height: 1.45;
+    max-width: 48ch;
+  }
+
+  .dashboardStats {
+    margin-top: 12px;
+    gap: 10px;
+  }
+
+  .dashboardStatCard {
+    min-height: 80px;
+    padding: 12px 12px 10px;
+  }
+
+  .dashboardStatValue {
+    font-size: 20px;
+  }
+
+  .dashboardStatHint {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .dashboardActionGrid {
+    gap: 8px;
+  }
+
+  .dashboardActionCard {
+    min-height: 74px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .dashboardActionSub {
+    font-size: 11px;
+    line-height: 1.35;
   }
 }
 
@@ -1181,7 +1406,8 @@ code {
   }
 
   .pageHome {
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    min-height: 100%;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
@@ -1195,7 +1421,7 @@ code {
   }
 
   .pageHome .widgetCard {
-    min-height: 68px;
+    min-height: 64px;
     padding: 10px 10px 9px;
   }
 
@@ -1211,18 +1437,53 @@ code {
 
   .pageHome .dashCtaPrimary,
   .pageHome .dashCtaSmall {
-    padding: 10px;
+    padding: 9px 10px;
   }
 
   .pageHome .dashFooter {
-    margin-top: 10px;
+    padding-top: 10px;
     gap: 6px;
   }
 
   .pageHome .dashFooter .btn {
-    font-size: 12px;
-    min-height: 36px;
-    padding: 0 12px;
+    font-size: 11px;
+    min-height: 34px;
+    padding: 0 10px;
+  }
+
+  .pageHome .dashFooter .btnIconOnly {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pageDashboard .dashHero {
+    padding: 14px;
+  }
+
+  .dashboardStats {
+    gap: 8px;
+  }
+
+  .dashboardStatCard {
+    min-height: 72px;
+    padding: 10px;
+  }
+
+  .dashboardStatValue {
+    font-size: 18px;
+  }
+
+  .dashboardStatHint,
+  .dashboardActionSub,
+  .dashboardDetailSub,
+  .dashboardDetailBody {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .dashboardActionCard {
+    min-height: 68px;
+    padding: 10px;
   }
 }
 

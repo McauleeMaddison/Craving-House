@@ -70,43 +70,43 @@ export function ManagerDashboardClient() {
   }, [users]);
 
   return (
-    <section className="u-mt-12">
+    <section className="dashboardSection u-mt-12">
       {error ? <p className="muted u-danger">{error}</p> : null}
 
-      <div className="grid-4">
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Orders</div>
-          <div className="u-fw-900 u-fs-18 u-mt-6">{orders.length}</div>
-          <div className="muted u-fs-12 u-mt-6">Active queue items</div>
-        </div>
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Queue split</div>
-          <div className="u-fw-900 u-fs-16 u-mt-6">
-            {orderStats.received} received • {orderStats.accepted} accepted • {orderStats.ready} ready
-          </div>
-          <div className="muted u-fs-12 u-mt-6">
+      <div className="dashboardStats dashboardStatsFour">
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Orders</div>
+          <div className="dashboardStatValue">{orders.length}</div>
+          <div className="dashboardStatHint">
             Oldest: {orderStats.oldestIso ? `${minutesSince(orderStats.oldestIso)} min ago` : "—"}
           </div>
         </div>
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Menu</div>
-          <div className="u-fw-900 u-fs-16 u-mt-6">
-            {productStats.active}/{productStats.total} active
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Queue split</div>
+          <div className="dashboardStatValue">{orderStats.received}</div>
+          <div className="dashboardStatHint">
+            {orderStats.accepted} accepted • {orderStats.ready} ready
           </div>
-          <div className="muted u-fs-12 u-mt-6">{productStats.eligible} loyalty-eligible</div>
         </div>
-        <div className="surface surfaceInset u-pad-16">
-          <div className="muted u-fs-12">Users</div>
-          <div className="u-fw-900 u-fs-16 u-mt-6">
-            {userStats.staff} staff • {userStats.managers} managers
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Menu</div>
+          <div className="dashboardStatValue">{productStats.active}</div>
+          <div className="dashboardStatHint">
+            {productStats.total} total • {productStats.eligible} loyalty-eligible
           </div>
-          <div className="muted u-fs-12 u-mt-6">{userStats.disabled} disabled</div>
+        </div>
+        <div className="widgetCard dashboardStatCard">
+          <div className="dashboardStatLabel">Team</div>
+          <div className="dashboardStatValue">{userStats.total}</div>
+          <div className="dashboardStatHint">
+            {userStats.staff} staff • {userStats.managers} managers • {userStats.disabled} disabled
+          </div>
         </div>
       </div>
 
-      <div className="rowWrap u-mt-10">
+      <div className="dashboardRefreshRow">
         <button
-          className="btn btn-secondary"
+          className="btn btn-secondary btnCompact"
           type="button"
           onClick={() => {
             setError("");

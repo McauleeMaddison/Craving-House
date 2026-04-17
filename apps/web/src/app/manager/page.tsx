@@ -7,6 +7,39 @@ import { ManagerDashboardClient } from "@/features/manager/ManagerDashboardClien
 import { prisma } from "@/server/db";
 
 export default async function ManagerHomePage() {
+  const actions = [
+    {
+      href: "/manager/products",
+      title: "Products",
+      description: "Manage pricing, availability, and loyalty eligibility."
+    },
+    {
+      href: "/manager/orders",
+      title: "Orders",
+      description: "Review queue activity and payment status."
+    },
+    {
+      href: "/manager/users",
+      title: "Users",
+      description: "Promote staff, add managers, and disable access."
+    },
+    {
+      href: "/manager/settings",
+      title: "Settings",
+      description: "Update loyalty rules and global controls."
+    },
+    {
+      href: "/manager/audit",
+      title: "Audit",
+      description: "Track role changes and manager activity."
+    },
+    {
+      href: "/manager/feedback",
+      title: "Feedback",
+      description: "Read customer comments from the app."
+    }
+  ] as const;
+
   await connection();
   const managerCount = await prisma.user.count({ where: { role: "manager", disabledAt: null } });
   const noManagers = managerCount === 0;
@@ -45,67 +78,38 @@ export default async function ManagerHomePage() {
   }
 
   return (
-    <main className="container page">
-      <section className="surface u-pad-18">
-        <h1 className="u-title-26">Manager dashboard</h1>
-        <p className="muted u-mt-10 u-lh-16">Menu, users, orders, loyalty, and audit.</p>
+    <main className="container page pageDashboard portalDashboardPage">
+      <section className="surface dashHero dashboardShell">
+        <div className="dashMeta rowScroll">
+          <span className="pill">Manager dashboard</span>
+          <span className="pill">Operations overview</span>
+          <span className="pill">Admin controls</span>
+        </div>
+
+        <div className="dashLead">
+          <div className="dashLeadTitle">Manager dashboard</div>
+          <p className="muted dashLeadSub">Menu, users, orders, loyalty, and audit.</p>
+        </div>
 
         <ManagerDashboardClient />
 
-        <section className="grid-3 u-mt-12">
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Menu</div>
-            <p className="muted u-mt-8 u-lh-16">
-              Manage price, availability, <code>prepSeconds</code>, and <code>loyaltyEligible</code>.
-            </p>
-            <Link className="btn u-mt-10" href="/manager/products">
-              Open menu editor
+        <div className="dashboardActionGrid dashboardActionGridManager u-mt-12">
+          {actions.map((action, index) => (
+            <Link
+              key={action.href}
+              className={`dashboardActionCard ${index === 0 ? "dashboardActionCardPrimary" : ""}`}
+              href={action.href}
+            >
+              <span className="dashboardActionCopy">
+                <span className="dashboardActionTitle">{action.title}</span>
+                <span className="dashboardActionSub">{action.description}</span>
+              </span>
+              <span aria-hidden="true" className="dashArrow">
+                →
+              </span>
             </Link>
-          </div>
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Users</div>
-            <p className="muted u-mt-8 u-lh-16">
-              Promote staff, add managers, and disable accounts.
-            </p>
-            <Link className="btn u-mt-10" href="/manager/users">
-              Open user roles
-            </Link>
-          </div>
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Orders</div>
-            <p className="muted u-mt-8 u-lh-16">Search orders and view payment + status at a glance.</p>
-            <Link className="btn u-mt-10" href="/manager/orders">
-              Open orders
-            </Link>
-          </div>
-        </section>
-
-        <section className="grid-2 u-mt-12">
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Settings</div>
-            <p className="muted u-mt-8 u-lh-16">Loyalty rules and global controls.</p>
-            <Link className="btn u-mt-10" href="/manager/settings">
-              Open settings
-            </Link>
-          </div>
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Audit</div>
-            <p className="muted u-mt-8 u-lh-16">Track role changes made by managers.</p>
-            <Link className="btn u-mt-10" href="/manager/audit">
-              Open audit log
-            </Link>
-          </div>
-        </section>
-
-        <section className="u-mt-12">
-          <div className="surface surfaceInset u-pad-16">
-            <div className="u-fw-800">Feedback</div>
-            <p className="muted u-mt-8 u-lh-16">Read customer feedback submitted from the app.</p>
-            <Link className="btn u-mt-10" href="/manager/feedback">
-              Open feedback
-            </Link>
-          </div>
-        </section>
+          ))}
+        </div>
       </section>
     </main>
   );
