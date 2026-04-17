@@ -118,7 +118,8 @@ export function CartClient() {
           <div>
             <h1 className="u-title-26">Cart</h1>
             <p className="muted u-mt-10 u-lh-16">
-              Pay securely at checkout. Estimated prep is based on manager-set prep times.
+              {/* Note: Prep times are set and managed by store admin */}
+              Pay securely at checkout. Estimated prep times shown at checkout.
             </p>
             {notice ? (
               <p className="muted u-mt-8 u-lh-16">

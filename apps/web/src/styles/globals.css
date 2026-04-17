@@ -3382,10 +3382,6 @@ html[data-theme="dark"] .modalSheet {
   color: var(--drawer-text);
 }
 
-.drawerAdminLinks {
-  color: var(--drawer-muted);
-}
-
 @supports (backdrop-filter: blur(10px)) {
   .drawer {
     background: var(--drawer-bg);
@@ -3506,14 +3502,6 @@ html[data-theme="dark"] {
 .drawerOverlayOpen {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-}
-
-.drawerAdminLinks {
-  margin-top: 10px;
-  font-size: 12px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 @media (max-width: 1024px) {

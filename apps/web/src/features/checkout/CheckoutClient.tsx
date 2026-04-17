@@ -226,7 +226,8 @@ export function CheckoutClient() {
               ASAP estimate based on items: <span className="orderInlineName">{etaText}</span>
             </div>
             <div className="pill u-mt-10">
-              Prep times are manager-managed
+              {/* Controlled by manager prep time settings */}
+              Estimated preparation time
             </div>
           </div>
 

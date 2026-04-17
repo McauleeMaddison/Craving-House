@@ -232,7 +232,8 @@ export function MenuClient() {
 
         {!item.available ? (
           <p className="muted u-mt-10 u-fs-12 u-lh-16">
-            This item is visible but cannot be ordered until it’s marked available by admin.
+            {/* Note: Availability controlled by admin/manager */}
+            This item is temporarily unavailable.
           </p>
         ) : null}
 
