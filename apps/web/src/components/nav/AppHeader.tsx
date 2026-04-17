@@ -168,6 +168,7 @@ export function AppHeader() {
     <>
       <header
         className={`appHeader ${isHome ? "appHeaderHome" : ""} ${showCollapsedHomeHeader ? "appHeaderHomeScrolled" : ""}`}
+        data-drawer-open={open}
       >
         <div className="container appHeaderInner">
           <Link href={headerBrandHref} className="brandLink appHeaderBrandLink" aria-label={store.name}>
