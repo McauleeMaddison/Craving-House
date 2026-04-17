@@ -57,6 +57,8 @@ body {
 
 body {
   margin: 0;
+  background: #05070d;
+  color: #fff;
   color: var(--text);
   background: var(--bg-gradient);
   font-family: var(--font-display);
@@ -65,6 +67,13 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 [data-shell="portal"] body {
@@ -79,6 +88,9 @@ body {
 
 .appMain {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 a {
@@ -395,6 +407,7 @@ code {
 }
 
 .pageHome {
+  flex: 1;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -827,7 +840,8 @@ code {
 }
 
 .pageHome .dashHero {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -837,7 +851,8 @@ code {
 .pageHome .dashWidgets,
 .pageHome .dashCtas,
 .pageHome .dashFooter {
-  width: min(100%, 460px);
+  width: 100%;
+  max-width: 420px;
   margin-inline: auto;
 }
 
@@ -1240,12 +1255,12 @@ code {
 
 @media (max-width: 720px) {
   .pageHome {
-    min-height: 0;
+    min-height: 100%;
     gap: 10px;
   }
 
   .pageHome .dashHero {
-    flex: none;
+    flex: 1 1 auto;
     min-height: 0;
     padding: 16px;
   }
@@ -1518,17 +1533,19 @@ code {
 
 @media (max-width: 480px) {
   .pageHome {
-    display: block !important;
-    min-height: 0 !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
     gap: 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
-    display: block !important;
-    flex: none !important;
-    min-height: 0 !important;
-    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
     padding: 12px 10px 10px;
   }
 

@@ -26,13 +26,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <AppProviders>
-          <AppChrome />
+          <div className="app-shell">
+            <AppChrome />
 
-          <div id="main-content" className="appMain" tabIndex={-1}>
-            {children}
+            <div id="main-content" className="appMain" tabIndex={-1}>
+              {children}
+            </div>
+
+            <AppFooter />
           </div>
-
-          <AppFooter />
         </AppProviders>
       </body>
     </html>
