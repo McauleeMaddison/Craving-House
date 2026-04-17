@@ -1039,11 +1039,13 @@ code {
 
 @media (max-width: 720px) {
   .pageHome {
-    min-height: calc(100dvh - 1px);
+    min-height: auto;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
-    min-height: 100%;
+    flex: 0 0 auto;
+    min-height: auto;
   }
 }
 
@@ -1176,6 +1178,10 @@ code {
   .page {
     gap: 12px;
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pageHome {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
