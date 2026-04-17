@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PortalDashboardPage } from "@/features/dashboard/PortalDashboardPage";
 import { requireRole } from "@/server/auth/access";
 import { StaffDashboardClient } from "@/features/staff/StaffDashboardClient";
 
@@ -40,41 +41,13 @@ export default async function StaffHomePage() {
   }
 
   return (
-    <main className="container page pageDashboard portalDashboardPage">
-      <section className="surface dashHero dashboardShell">
-        <div className="dashMeta rowScroll">
-          <span className="pill">Staff dashboard</span>
-          <span className="pill">Live queue</span>
-          <span className="pill">Loyalty collection</span>
-        </div>
-
-        <div className="dashLead">
-          <div className="dashLeadTitle">Staff dashboard</div>
-          <p className="muted dashLeadSub">
-            Use the queue to manage orders, and the scanner to add loyalty stamps after collection.
-          </p>
-        </div>
-
+    <PortalDashboardPage
+      badges={["Staff dashboard", "Live queue", "Loyalty collection"]}
+      title="Staff dashboard"
+      subtitle="Use the queue to manage orders, and the scanner to add loyalty stamps after collection."
+      actions={actions}
+    >
         <StaffDashboardClient />
-
-        <div className="dashboardActionGrid u-mt-12">
-          {actions.map((action, index) => (
-            <Link
-              key={action.href}
-              className={`dashboardActionCard ${index === 0 ? "dashboardActionCardPrimary" : ""}`}
-              href={action.href}
-            >
-              <span className="dashboardActionCopy">
-                <span className="dashboardActionTitle">{action.title}</span>
-                <span className="dashboardActionSub">{action.description}</span>
-              </span>
-              <span aria-hidden="true" className="dashArrow">
-                →
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </main>
+    </PortalDashboardPage>
   );
 }

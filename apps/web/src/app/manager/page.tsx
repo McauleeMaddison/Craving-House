@@ -2,6 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 
+import { PortalDashboardPage } from "@/features/dashboard/PortalDashboardPage";
 import { requireRole } from "@/server/auth/access";
 import { ManagerDashboardClient } from "@/features/manager/ManagerDashboardClient";
 import { prisma } from "@/server/db";
@@ -78,39 +79,14 @@ export default async function ManagerHomePage() {
   }
 
   return (
-    <main className="container page pageDashboard portalDashboardPage">
-      <section className="surface dashHero dashboardShell">
-        <div className="dashMeta rowScroll">
-          <span className="pill">Manager dashboard</span>
-          <span className="pill">Operations overview</span>
-          <span className="pill">Admin controls</span>
-        </div>
-
-        <div className="dashLead">
-          <div className="dashLeadTitle">Manager dashboard</div>
-          <p className="muted dashLeadSub">Menu, users, orders, loyalty, and audit.</p>
-        </div>
-
+    <PortalDashboardPage
+      badges={["Manager dashboard", "Operations overview", "Admin controls"]}
+      title="Manager dashboard"
+      subtitle="Menu, users, orders, loyalty, and audit."
+      actions={actions}
+      actionGridClassName="dashboardActionGridManager"
+    >
         <ManagerDashboardClient />
-
-        <div className="dashboardActionGrid dashboardActionGridManager u-mt-12">
-          {actions.map((action, index) => (
-            <Link
-              key={action.href}
-              className={`dashboardActionCard ${index === 0 ? "dashboardActionCardPrimary" : ""}`}
-              href={action.href}
-            >
-              <span className="dashboardActionCopy">
-                <span className="dashboardActionTitle">{action.title}</span>
-                <span className="dashboardActionSub">{action.description}</span>
-              </span>
-              <span aria-hidden="true" className="dashArrow">
-                →
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </main>
+    </PortalDashboardPage>
   );
 }
