@@ -1213,10 +1213,13 @@ code {
 
 @media (max-width: 720px) {
   .pageHome {
+    min-height: auto;
     gap: 10px;
   }
 
   .pageHome .dashHero {
+    flex: none;
+    min-height: auto;
     padding: 16px;
   }
 
@@ -1247,12 +1250,12 @@ code {
 
   .pageHome .dashWidgets {
     margin-top: 12px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
   .pageHome .dashWidgets > .widgetCard:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .pageHome .widgetCard {
@@ -1300,6 +1303,7 @@ code {
   }
 
   .pageHome .dashCtaRow {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
@@ -1314,7 +1318,7 @@ code {
   }
 
   .pageHome .dashFooter {
-    margin-top: auto;
+    margin-top: 12px;
     width: 100%;
     align-self: flex-start;
     padding-top: 12px;
@@ -1529,7 +1533,12 @@ code {
 
   .pageHome .dashWidgets {
     margin-top: 8px;
+    grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .pageHome .dashWidgets > .widgetCard:last-child:nth-child(odd) {
+    grid-column: auto;
   }
 
   .pageHome .widgetCard {
@@ -1575,6 +1584,7 @@ code {
   }
 
   .pageHome .dashCtaRow {
+    grid-template-columns: 1fr;
     gap: 5px;
   }
 
@@ -1591,7 +1601,7 @@ code {
   .pageHome .dashFooter {
     margin-top: 6px !important;
     align-self: auto;
-    width: fit-content;
+    width: 100%;
     padding-top: 0;
     gap: 5px;
   }
@@ -2857,6 +2867,16 @@ code {
   min-width: 0;
 }
 
+.brandButton {
+  padding: 0;
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
 .brandMark {
   width: 42px;
   height: 42px;
@@ -2891,6 +2911,11 @@ code {
 }
 
 .navMobileButton {
+  display: none;
+  position: relative;
+}
+
+.appHeaderBrandButton {
   display: none;
   position: relative;
 }
@@ -2988,13 +3013,23 @@ code {
     background: color-mix(in srgb, var(--header-bg) 78%, transparent);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
     transition: padding 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    justify-content: flex-start;
   }
 
-  .appHeaderHome .brandLink {
+  .appHeaderHome .appHeaderBrandLink,
+  .appHeaderHome .appHeaderBrandButton {
     gap: 10px;
     max-width: min(260px, calc(100vw - 96px));
     overflow: hidden;
     transition: max-width 180ms ease, opacity 160ms ease, transform 180ms ease;
+  }
+
+  .appHeaderHome .appHeaderBrandLink {
+    display: none;
+  }
+
+  .appHeaderHome .appHeaderBrandButton {
+    display: flex;
   }
 
   .appHeaderHome .brandMark {
@@ -3013,34 +3048,33 @@ code {
     font-size: 11px;
   }
 
+  .appHeaderHome .brandText {
+    min-width: 0;
+    overflow: hidden;
+    max-width: 180px;
+    transition: max-width 180ms ease, opacity 160ms ease, transform 180ms ease;
+  }
+
   .appHeaderHome .navMobileButton {
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--panel) 72%, transparent);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-    transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    display: none;
   }
 
   .appHeaderHomeScrolled .appHeaderInner {
-    justify-content: flex-end;
-    padding: 0;
-    border-color: transparent;
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .appHeaderHomeScrolled .brandLink {
-    max-width: 0;
-    opacity: 0;
-    transform: translateX(-14px);
-    pointer-events: none;
-  }
-
-  .appHeaderHomeScrolled .navMobileButton {
-    border-color: rgba(255, 255, 255, 0.18);
+    padding: 7px 9px 7px 10px;
+    border-color: rgba(255, 255, 255, 0.16);
     background: color-mix(in srgb, var(--header-bg) 82%, transparent);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  .appHeaderHomeScrolled .appHeaderBrandButton {
+    max-width: 44px;
+    gap: 0;
+  }
+
+  .appHeaderHomeScrolled .brandText {
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(18px);
   }
 }
 

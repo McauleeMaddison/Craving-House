@@ -152,6 +152,17 @@ export function AppHeader() {
     return customerDrawerLinks;
   }, [customerDrawerLinks, isPortal, portalLinks]);
   const showCollapsedHomeHeader = isHome && homeHeaderCollapsed && !open;
+  const renderBrandIdentity = () => (
+    <>
+      <span className="brandMark" aria-hidden="true">
+        <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
+      </span>
+      <span className="brandText">
+        <span className="brandName">{store.name}</span>
+        <span className="brandTag muted">{isPortal ? portalTitle : store.tagline}</span>
+      </span>
+    </>
+  );
 
   return (
     <>
@@ -159,15 +170,27 @@ export function AppHeader() {
         className={`appHeader ${isHome ? "appHeaderHome" : ""} ${showCollapsedHomeHeader ? "appHeaderHomeScrolled" : ""}`}
       >
         <div className="container appHeaderInner">
-          <Link href={headerBrandHref} className="brandLink" aria-label={store.name}>
-            <span className="brandMark" aria-hidden="true">
-              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
-            </span>
-            <span className="brandText">
-              <span className="brandName">{store.name}</span>
-              <span className="brandTag muted">{isPortal ? portalTitle : store.tagline}</span>
-            </span>
+          <Link href={headerBrandHref} className="brandLink appHeaderBrandLink" aria-label={store.name}>
+            {renderBrandIdentity()}
           </Link>
+
+          {isHome ? (
+            <button
+              className={`brandLink brandButton appHeaderBrandButton ${open ? "iconButtonActive" : ""}`}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open ? "true" : "false"}
+              aria-controls="mobile-drawer"
+              onClick={() => setOpen((v) => !v)}
+              type="button"
+            >
+              {renderBrandIdentity()}
+              {cartCount > 0 ? (
+                <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
+                  {cartCount}
+                </span>
+              ) : null}
+            </button>
+          ) : null}
 
           <nav className="navDesktop" aria-label={isPortal ? "Portal" : "Primary"}>
             {isPortal
@@ -252,13 +275,7 @@ export function AppHeader() {
       >
         <div className="drawerTop">
           <Link href={headerBrandHref} className="brandLink" aria-label={store.name} onClick={() => setOpen(false)}>
-            <span className="brandMark" aria-hidden="true">
-              <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} />
-            </span>
-            <span className="brandText">
-              <span className="brandName">{store.name}</span>
-              <span className="brandTag muted">{isPortal ? portalTitle : store.tagline}</span>
-            </span>
+            {renderBrandIdentity()}
           </Link>
           <button
             className="iconButton"
