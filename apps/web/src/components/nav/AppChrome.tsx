@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 import { AppHeader } from "@/components/nav/AppHeader";
-import { PortalHeader } from "@/components/nav/PortalHeader";
 
 function isPortal(pathname: string | null | undefined) {
   return Boolean(pathname && (pathname.startsWith("/staff") || pathname.startsWith("/manager")));
@@ -21,6 +20,5 @@ export function AppChrome() {
     };
   }, [portal]);
 
-  return portal ? <PortalHeader /> : <AppHeader />;
+  return <AppHeader />;
 }
-

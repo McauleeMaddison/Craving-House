@@ -21,6 +21,11 @@ const links: Array<{ href: string; label: string }> = [
   { href: "/feedback", label: "Feedback" }
 ];
 
+function getPortalTitle(pathname: string | null | undefined) {
+  if (pathname?.startsWith("/manager")) return "Manager portal";
+  return "Staff portal";
+}
+
 export function AppHeader() {
   const pathname = usePathname();
   const { data, status } = useSession();
@@ -33,7 +38,10 @@ export function AppHeader() {
   const cartCount = useMemo(() => lines.reduce((sum, line) => sum + line.qty, 0), [lines]);
   const isHome = pathname === "/";
   const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
-  const portalKind = pathname?.startsWith("/manager") ? "manager" : "staff";
+  const inManagerPortal = Boolean(pathname?.startsWith("/manager"));
+  const portalHomeHref = inManagerPortal ? "/manager" : "/staff";
+  const portalTitle = getPortalTitle(pathname);
+  const headerBrandHref = isPortal ? portalHomeHref : "/";
   const portalCallbackUrl = useMemo(() => {
     if (!pathname) return "/staff";
     if (pathname.startsWith("/manager")) return pathname;
@@ -151,19 +159,17 @@ export function AppHeader() {
         className={`appHeader ${isHome ? "appHeaderHome" : ""} ${showCollapsedHomeHeader ? "appHeaderHomeScrolled" : ""}`}
       >
         <div className="container appHeaderInner">
-          <Link href="/" className="brandLink" aria-label={store.name}>
+          <Link href={headerBrandHref} className="brandLink" aria-label={store.name}>
             <span className="brandMark" aria-hidden="true">
               <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
             </span>
             <span className="brandText">
-              <span className="brandName">
-                {isPortal ? (portalKind === "manager" ? "Manager Portal" : "Staff Portal") : store.name}
-              </span>
-              <span className="brandTag muted">{isPortal ? "staff & management only" : store.tagline}</span>
+              <span className="brandName">{store.name}</span>
+              <span className="brandTag muted">{isPortal ? portalTitle : store.tagline}</span>
             </span>
           </Link>
 
-          <nav className="navDesktop" aria-label="Primary">
+          <nav className="navDesktop" aria-label={isPortal ? "Portal" : "Primary"}>
             {isPortal
               ? portalLinks.map((link) => (
                   <Link
@@ -189,8 +195,8 @@ export function AppHeader() {
             {signedIn ? (
               <Link
                 className="btn btn-secondary"
-                href={isPortal ? "/staff" : "/loyalty"}
-                title={isPortal ? "Staff account" : "Account"}
+                href={isPortal ? portalHomeHref : "/loyalty"}
+                title={isPortal ? "Portal home" : "Account"}
               >
                 {displayName}
               </Link>
@@ -217,7 +223,9 @@ export function AppHeader() {
                 ×
               </span>
             ) : (
-              <span className="iconLines" aria-hidden="true" />
+              <span className="navMobileBrandMark" aria-hidden="true">
+                <Image src="/brand/craving-house-mark.svg" alt="" width={28} height={28} />
+              </span>
             )}
             {!isPortal && cartCount > 0 ? (
               <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
@@ -240,18 +248,16 @@ export function AppHeader() {
         aria-hidden={!open}
         role="dialog"
         aria-modal={open}
-        aria-label="Menu"
+        aria-label={isPortal ? "Portal menu" : "Menu"}
       >
         <div className="drawerTop">
-          <Link href="/" className="brandLink" aria-label={store.name} onClick={() => setOpen(false)}>
+          <Link href={headerBrandHref} className="brandLink" aria-label={store.name} onClick={() => setOpen(false)}>
             <span className="brandMark" aria-hidden="true">
               <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} />
             </span>
             <span className="brandText">
-              <span className="brandName">
-                {isPortal ? (portalKind === "manager" ? "Manager Portal" : "Staff Portal") : store.name}
-              </span>
-              <span className="brandTag muted">{isPortal ? "staff & management only" : store.tagline}</span>
+              <span className="brandName">{store.name}</span>
+              <span className="brandTag muted">{isPortal ? portalTitle : store.tagline}</span>
             </span>
           </Link>
           <button
@@ -279,7 +285,7 @@ export function AppHeader() {
         </div>
 
         <div className="drawerContent">
-          <div className="drawerLinks" role="navigation" aria-label="Primary">
+          <div className="drawerLinks" role="navigation" aria-label={isPortal ? "Portal links" : "Primary"}>
             {drawerLinks.map((link) => (
               <Link
                 key={link.href}
@@ -302,7 +308,7 @@ export function AppHeader() {
                 type="button"
                 onClick={async () => {
                   setOpen(false);
-                  await signOut({ callbackUrl: isPortal ? "/staff" : "/" });
+                  await signOut({ callbackUrl: isPortal ? "/signin" : "/" });
                 }}
               >
                 Sign out
