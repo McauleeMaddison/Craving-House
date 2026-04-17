@@ -1489,13 +1489,15 @@ code {
 
 @media (max-width: 480px) {
   .pageHome {
+    display: block;
     min-height: auto;
     gap: 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashHero {
-    flex: 0 0 auto;
+    display: block;
+    flex: none;
     min-height: auto;
     padding: 14px 12px 12px;
   }
@@ -1587,7 +1589,8 @@ code {
 
   .pageHome .dashFooter {
     margin-top: 8px;
-    width: auto;
+    align-self: auto;
+    width: fit-content;
     padding-top: 0;
     gap: 6px;
   }
