@@ -624,7 +624,8 @@ code {
 }
 
 .loyaltyStampFilled {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-color: var(--border);
+  /* @supports (color-mix(in srgb, #000 50%, #fff)) */ border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
   background: color-mix(in srgb, var(--accent) 18%, var(--panel));
 }
 
@@ -882,8 +883,7 @@ code {
   flex-wrap: nowrap;
   align-items: center;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  /* Fallback: Use ::-webkit-scrollbar for WebKit */ scrollbar-width: none;
   padding-bottom: 2px;
 }
 
@@ -1213,13 +1213,13 @@ code {
 
 @media (max-width: 720px) {
   .pageHome {
-    min-height: auto;
+    min-height: 0;
     gap: 10px;
   }
 
   .pageHome .dashHero {
     flex: none;
-    min-height: auto;
+    min-height: 0;
     padding: 16px;
   }
 
@@ -1494,7 +1494,7 @@ code {
 @media (max-width: 480px) {
   .pageHome {
     display: block !important;
-    min-height: auto !important;
+    min-height: 0 !important;
     gap: 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   }
@@ -1502,7 +1502,7 @@ code {
   .pageHome .dashHero {
     display: block !important;
     flex: none !important;
-    min-height: auto !important;
+    min-height: 0 !important;
     height: auto !important;
     padding: 12px 10px 10px;
   }
@@ -2870,8 +2870,8 @@ code {
 .brandButton {
   padding: 0;
   border: 0;
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   font: inherit;
   color: inherit;
   text-align: left;
@@ -3258,7 +3258,8 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerContent {
   overflow: auto;
-  overscroll-behavior: contain;
+  -webkit-overscroll-behavior: contain;
+  /* Fallback: -webkit-overscroll-behavior for iOS < 16 */ overscroll-behavior: contain;
   display: grid;
   gap: 12px;
   align-content: start;
