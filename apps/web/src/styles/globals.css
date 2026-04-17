@@ -1487,6 +1487,124 @@ code {
   }
 }
 
+@media (max-width: 480px) {
+  .pageHome {
+    min-height: auto;
+    gap: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pageHome .dashHero {
+    flex: 0 0 auto;
+    min-height: auto;
+    padding: 14px 12px 12px;
+  }
+
+  .pageHome .pill {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .pageHome .dashMeta {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .pageHome .dashLead {
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  .pageHome .dashLeadTitle {
+    font-size: clamp(18px, 7.6vw, 24px);
+  }
+
+  .pageHome .dashLeadSub {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .pageHome .dashWidgets {
+    margin-top: 10px;
+    gap: 8px;
+  }
+
+  .pageHome .widgetCard {
+    min-height: 58px;
+    padding: 8px 10px 7px;
+    gap: 4px;
+    border-radius: 14px;
+  }
+
+  .pageHome .widgetTitle,
+  .pageHome .widgetValue {
+    font-size: 13px;
+  }
+
+  .pageHome .widgetHint {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .pageHome .dashProgress {
+    margin-top: 6px;
+    height: 7px;
+  }
+
+  .pageHome .dashCtas {
+    margin-top: 10px;
+    gap: 6px;
+  }
+
+  .pageHome .dashCtaPrimary {
+    min-height: 54px;
+    padding: 9px 11px;
+    border-radius: 14px;
+  }
+
+  .pageHome .dashCtaPrimaryTitle {
+    font-size: 14px;
+  }
+
+  .pageHome .dashCtaPrimarySub {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .pageHome .dashCtaRow {
+    gap: 6px;
+  }
+
+  .pageHome .dashCtaSmall {
+    min-height: 40px;
+    padding: 7px 10px;
+    border-radius: 14px;
+  }
+
+  .pageHome .dashCtaSmallTitle {
+    font-size: 12px;
+  }
+
+  .pageHome .dashFooter {
+    margin-top: 8px;
+    width: auto;
+    padding-top: 0;
+    gap: 6px;
+  }
+
+  .pageHome .dashFooter .btn {
+    min-height: 31px;
+    padding: 0 10px;
+    font-size: 11px;
+    border-radius: 12px;
+  }
+
+  .pageHome .dashFooter .btnIconOnly {
+    width: 31px;
+    height: 31px;
+  }
+}
+
 .widgetCard {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--panel) 70%, transparent);
