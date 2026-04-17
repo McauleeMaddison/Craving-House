@@ -36,6 +36,7 @@ export function CheckoutClient() {
   const [authError, setAuthError] = useState<string>("");
   const [stripeEnabled, setStripeEnabled] = useState(false);
   const pickupNameInputRef = useRef<HTMLInputElement | null>(null);
+  const clientRequestIdRef = useRef<string | null>(null);
 
   const items = useMemo(() => {
     return cart.lines
@@ -114,6 +115,22 @@ export function CheckoutClient() {
     return `${minutes} min`;
   }, [prepSeconds]);
   const authErrorNeedsSignIn = /sign in|unauthorized/i.test(authError);
+  const checkoutDraftKey = useMemo(() => {
+    return JSON.stringify({
+      pickupName: pickupName.trim(),
+      guestEmail: signedIn ? "" : guestEmail.trim().toLowerCase(),
+      notes: notes.trim(),
+      items: items.map((x) => ({
+        productId: x.item.id,
+        qty: x.qty,
+        customizations: x.customizations ?? null
+      }))
+    });
+  }, [guestEmail, items, notes, pickupName, signedIn]);
+
+  useEffect(() => {
+    clientRequestIdRef.current = null;
+  }, [checkoutDraftKey]);
 
   async function placeOrder() {
     setAuthError("");
@@ -136,7 +153,14 @@ export function CheckoutClient() {
     }
     setSubmitting(true);
     try {
+      const clientRequestId =
+        clientRequestIdRef.current ??
+        globalThis.crypto?.randomUUID?.() ??
+        `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      clientRequestIdRef.current = clientRequestId;
+
       const res = await apiPostJson<{ id: string; guestToken: string | null }>("/api/orders", {
+        clientRequestId,
         pickupName,
         guestEmail: signedIn ? undefined : guestEmail.trim().toLowerCase(),
         notes,

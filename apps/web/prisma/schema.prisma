@@ -49,10 +49,13 @@ model Product {
   createdAt   DateTime @default(now())
 
   orderItems OrderItem[]
+
+  @@index([available, createdAt])
 }
 
 model Order {
   id         String   @id @default(cuid())
+  clientRequestId String? @unique
   userId     String?
   guestEmail String?
   guestToken String?  @unique
@@ -77,6 +80,8 @@ model Order {
   redemptions LoyaltyRedemption[]
 
   @@index([stripeCustomerId])
+  @@index([userId, createdAt])
+  @@index([status, paymentStatus, createdAt])
 }
 
 model OrderItem {
@@ -89,6 +94,9 @@ model OrderItem {
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model LoyaltyProgramSettings {

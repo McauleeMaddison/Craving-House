@@ -9,11 +9,22 @@ export async function GET() {
   const access = await requireRole(["staff", "manager"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
 
-  const orders = await prisma.order.findMany({
-    where: { status: { in: ["received", "accepted", "ready"] }, paymentStatus: "paid" },
-    orderBy: { createdAt: "asc" },
-    include: { items: { include: { product: true } } }
-  });
+  const [activeOrders, completedOrders] = await Promise.all([
+    prisma.order.findMany({
+      where: { status: { in: ["received", "accepted", "ready"] }, paymentStatus: "paid" },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+      include: { items: { include: { product: true } } }
+    }),
+    prisma.order.findMany({
+      where: { status: { in: ["collected", "canceled"] }, paymentStatus: "paid" },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: { items: { include: { product: true } } }
+    })
+  ]);
+
+  const orders = [...activeOrders, ...completedOrders];
 
   return NextResponse.json({
     orders: orders.map((o) => ({

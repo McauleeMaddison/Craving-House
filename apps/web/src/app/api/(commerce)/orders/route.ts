@@ -1,3 +1,6 @@
+import crypto from "node:crypto";
+
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
@@ -8,11 +11,11 @@ import { getLineUnitPriceCents, getPickupSmallOrderFeeCents } from "@/lib/order-
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getStripeRuntimeConfig } from "@/server/payments/stripe";
-import crypto from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
 type CreateOrderBody = {
+  clientRequestId?: string;
   pickupName: string;
   guestEmail?: string;
   notes?: string;
@@ -26,6 +29,7 @@ export async function GET() {
   const orders = await prisma.order.findMany({
     where: { userId: access.userId },
     orderBy: { createdAt: "desc" },
+    take: 50,
     include: { items: true }
   });
 
@@ -70,6 +74,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as Partial<CreateOrderBody>;
   if (!body.pickupName?.trim()) return NextResponse.json({ error: "Missing pickupName" }, { status: 400 });
+  const clientRequestId = typeof body.clientRequestId === "string" ? body.clientRequestId.trim() : "";
   const guestEmail = typeof body.guestEmail === "string" ? body.guestEmail.trim().toLowerCase() : "";
   if (!access.ok) {
     if (!guestEmail || !guestEmail.includes("@")) {
@@ -114,29 +119,68 @@ export async function POST(request: Request) {
   });
   const estimatedReadyAt = new Date(Date.now() + prepSeconds * 1000);
 
+  async function findExistingClientRequestOrder() {
+    if (!clientRequestId) return null;
+    return prisma.order.findUnique({
+      where: { clientRequestId },
+      select: { id: true, guestToken: true, userId: true, guestEmail: true }
+    });
+  }
+
+  function belongsToCurrentRequester(order: Awaited<ReturnType<typeof findExistingClientRequestOrder>>) {
+    if (!order) return false;
+    if (access.ok) return order.userId === access.userId;
+    return !order.userId && order.guestEmail === guestEmail;
+  }
+
+  const existingOrder = await findExistingClientRequestOrder();
+  if (existingOrder) {
+    if (!belongsToCurrentRequester(existingOrder)) {
+      return NextResponse.json({ error: "conflict" }, { status: 409 });
+    }
+    return NextResponse.json({ id: existingOrder.id, guestToken: existingOrder.guestToken ?? null });
+  }
+
   const guestToken = !access.ok ? crypto.randomBytes(24).toString("base64url") : null;
 
-  const created = await prisma.order.create({
-    data: {
-      userId: access.ok ? access.userId : null,
-      guestEmail: access.ok ? null : guestEmail,
-      guestToken,
-      status: "received",
-      totalCents,
-      estimatedReadyAt,
-      pickupName: body.pickupName.trim(),
-      notes: body.notes?.trim() || null,
-      items: {
-        create: pricedItems.map((i) => ({
-          productId: i.productId,
-          qty: i.qty,
-          unitCents: i.unitCents,
-          customizations: i.customizations ?? undefined
-        }))
+  let created;
+  try {
+    created = await prisma.order.create({
+      data: {
+        clientRequestId: clientRequestId || null,
+        userId: access.ok ? access.userId : null,
+        guestEmail: access.ok ? null : guestEmail,
+        guestToken,
+        status: "received",
+        totalCents,
+        estimatedReadyAt,
+        pickupName: body.pickupName.trim(),
+        notes: body.notes?.trim() || null,
+        items: {
+          create: pricedItems.map((i) => ({
+            productId: i.productId,
+            qty: i.qty,
+            unitCents: i.unitCents,
+            customizations: i.customizations ?? undefined
+          }))
+        }
+      },
+      include: { items: { include: { product: true } } }
+    });
+  } catch (error) {
+    if (
+      clientRequestId &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const duplicateOrder = await findExistingClientRequestOrder();
+      if (duplicateOrder && belongsToCurrentRequester(duplicateOrder)) {
+        return NextResponse.json({ id: duplicateOrder.id, guestToken: duplicateOrder.guestToken ?? null });
       }
-    },
-    include: { items: { include: { product: true } } }
-  });
+      return NextResponse.json({ error: "conflict" }, { status: 409 });
+    }
+    throw error;
+  }
 
   return NextResponse.json({ id: created.id, guestToken: created.guestToken ?? null });
 }
