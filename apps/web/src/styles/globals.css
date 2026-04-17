@@ -3101,7 +3101,12 @@ code {
   }
 
   .appHeader .navMobileButton {
-    display: none;
+    display: inline-grid;
+    position: relative;
+  }
+
+  .appHeader .iconButtonActive ~ .iconButton {
+    display: inline-grid;
   }
 
   .appHeaderScrolled .appHeaderInner {

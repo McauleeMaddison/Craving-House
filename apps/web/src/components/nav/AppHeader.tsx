@@ -247,9 +247,7 @@ export function AppHeader() {
                 ×
               </span>
             ) : (
-              <span className="navMobileBrandMark" aria-hidden="true">
-                <Image src="/brand/craving-house-mark.svg" alt="" width={28} height={28} />
-              </span>
+              <span className="iconLines" aria-hidden="true" />
             )}
             {!isPortal && cartCount > 0 ? (
               <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
