@@ -2204,6 +2204,7 @@ code {
 }
 
 .boilerBusterMeterFill {
+  width: var(--fill-width, 0%);
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, rgba(47, 228, 171, 0.95), rgba(242, 183, 5, 0.95), rgba(255, 92, 115, 0.95));
@@ -2494,6 +2495,7 @@ code {
   border-radius: 999px;
   background: var(--boiler-gauge-accent);
   transform-origin: 0% 50%;
+  transform: rotate(var(--needle-rotation, 0deg));
   transition: transform 180ms ease;
   box-shadow: 0 0 12px color-mix(in srgb, var(--boiler-gauge-accent) 68%, transparent);
 }

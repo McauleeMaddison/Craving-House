@@ -220,7 +220,7 @@ export function BoilerBusterClient() {
               <div className="boilerBusterMeterValue">{Math.round(game.pressure)}%</div>
             </div>
             <div className="boilerBusterMeter" aria-hidden="true">
-              <div className="boilerBusterMeterFill" style={{ width: `${game.pressure}%` }} />
+              <div className="boilerBusterMeterFill" style={{ "--fill-width": `${game.pressure}%` } as React.CSSProperties} />
             </div>
             <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
               <div>
@@ -230,7 +230,7 @@ export function BoilerBusterClient() {
               <div className="boilerBusterMeterValue">{queueProgress}%</div>
             </div>
             <div className="boilerBusterMeter boilerBusterMeterSecondary" aria-hidden="true">
-              <div className="boilerBusterMeterFill boilerBusterMeterFillSecondary" style={{ width: `${queueProgress}%` }} />
+              <div className="boilerBusterMeterFill boilerBusterMeterFillSecondary" style={{ "--fill-width": `${queueProgress}%` } as React.CSSProperties} />
             </div>
           </div>
 
@@ -248,7 +248,7 @@ export function BoilerBusterClient() {
                 <span className="boilerBusterGaugeDot" />
                 <span
                   className="boilerBusterNeedle"
-                  style={{ transform: `rotate(${boilerNeedleRotation}deg)` }}
+                  style={{ "--needle-rotation": `${boilerNeedleRotation}deg` } as React.CSSProperties}
                 />
               </span>
               <span className="boilerBusterValve" />
