@@ -7,13 +7,13 @@ import { store } from "@/lib/store";
 import { InstagramIcon } from "@/components/icons/InstagramIcon";
 
 export function HomeActionsClient() {
-  const { data, status } = useSession();
+  const { status } = useSession();
   const signedIn = status === "authenticated";
 
   const instagramUrl = `https://instagram.com/${store.instagramHandle.replace(/^@/, "")}`;
 
   return (
-    <div className="dashFooter rowWrap">
+    <div className="dashFooter">
       <Link className="btn btn-secondary" href="/help">
         Quick guide
       </Link>

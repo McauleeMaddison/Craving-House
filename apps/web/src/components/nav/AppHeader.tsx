@@ -12,6 +12,7 @@ import { canAccessBoilerBuster } from "@/lib/boiler-buster-access";
 import { store } from "@/lib/store";
 
 type DrawerLink = { href: string; label: string; badge?: number };
+type DrawerStatus = { label: string; value: string; accent?: boolean };
 
 const links: Array<{ href: string; label: string }> = [
   { href: "/menu", label: "Menu" },
@@ -151,6 +152,14 @@ export function AppHeader() {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
     return customerDrawerLinks;
   }, [customerDrawerLinks, isPortal, portalLinks]);
+  const drawerStatuses: DrawerStatus[] = useMemo(() => {
+    if (isPortal) return [];
+    return [
+      { label: "Menu", value: "Open", accent: true },
+      { label: "Loyalty", value: signedIn ? "Signed in" : "Sign in" },
+      { label: "Orders", value: signedIn ? "Signed in" : "Sign in" }
+    ];
+  }, [isPortal, signedIn]);
   const showCollapsedHomeHeader = isHome && homeHeaderCollapsed && !open;
   const renderBrandIdentity = () => (
     <>
@@ -175,23 +184,21 @@ export function AppHeader() {
             {renderBrandIdentity()}
           </Link>
 
-          {isHome ? (
-            <button
-              className={`brandLink brandButton appHeaderBrandButton ${open ? "iconButtonActive" : ""}`}
-              aria-label={open ? "Close menu" : "Open menu"}
-              aria-expanded={open ? "true" : "false"}
-              aria-controls="mobile-drawer"
-              onClick={() => setOpen((v) => !v)}
-              type="button"
-            >
-              {renderBrandIdentity()}
-              {cartCount > 0 ? (
-                <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
-                  {cartCount}
-                </span>
-              ) : null}
-            </button>
-          ) : null}
+          <button
+            className={`brandLink brandButton appHeaderBrandButton ${open ? "iconButtonActive" : ""}`}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open ? "true" : "false"}
+            aria-controls="mobile-drawer"
+            onClick={() => setOpen((v) => !v)}
+            type="button"
+          >
+            {renderBrandIdentity()}
+            {cartCount > 0 ? (
+              <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
+                {cartCount}
+              </span>
+            ) : null}
+          </button>
 
           <nav className="navDesktop" aria-label={isPortal ? "Portal" : "Primary"}>
             {isPortal
@@ -234,27 +241,7 @@ export function AppHeader() {
             )}
           </nav>
 
-          <button
-            className={`iconButton navMobileButton ${open ? "iconButtonActive" : ""}`}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open ? "true" : "false"}
-            aria-controls="mobile-drawer"
-            onClick={() => setOpen((v) => !v)}
-            type="button"
-          >
-            {open ? (
-              <span className="iconX" aria-hidden="true">
-                ×
-              </span>
-            ) : (
-              <span className="iconLines" aria-hidden="true" />
-            )}
-            {!isPortal && cartCount > 0 ? (
-              <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
-                {cartCount}
-              </span>
-            ) : null}
-          </button>
+
         </div>
       </header>
 
@@ -301,6 +288,19 @@ export function AppHeader() {
         </div>
 
         <div className="drawerContent">
+          {drawerStatuses.length > 0 ? (
+            <div className="drawerStatus" aria-label="Dashboard status">
+              {drawerStatuses.map((status) => (
+                <div className="drawerStatusRow" key={status.label}>
+                  <span className="drawerStatusLabel">{status.label}</span>
+                  <span className={`drawerStatusValue ${status.accent ? "drawerStatusValueAccent" : ""}`}>
+                    {status.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           <div className="drawerLinks" role="navigation" aria-label={isPortal ? "Portal links" : "Primary"}>
             {drawerLinks.map((link) => (
               <Link

@@ -45,7 +45,6 @@ export function HomeDashboardClient() {
   const cartCount = useMemo(() => lines.reduce((sum, l) => sum + l.qty, 0), [lines]);
 
   const [loyalty, setLoyalty] = useState<LoyaltyMe | null>(null);
-  const [ordersCount, setOrdersCount] = useState<number | null>(null);
   const [latestOrder, setLatestOrder] = useState<OrderDto | null>(null);
 
   useEffect(() => {
@@ -53,7 +52,6 @@ export function HomeDashboardClient() {
     async function run() {
       if (!signedIn) {
         setLoyalty(null);
-        setOrdersCount(null);
         setLatestOrder(null);
         return;
       }
@@ -70,7 +68,6 @@ export function HomeDashboardClient() {
 
         if (!cancelled && ordersRes.ok) {
           const json = (await ordersRes.json()) as { orders: OrderDto[] };
-          setOrdersCount(Array.isArray(json.orders) ? json.orders.length : 0);
           setLatestOrder(Array.isArray(json.orders) && json.orders.length > 0 ? json.orders[0] : null);
         }
       } catch {
@@ -83,17 +80,11 @@ export function HomeDashboardClient() {
     };
   }, [signedIn]);
 
-  const menuCard = useMemo(() => {
+  const menuCardHint = useMemo(() => {
     if (cartCount > 0) {
-      return {
-        value: `${cartCount}`,
-        hint: `${cartCount} ${cartCount === 1 ? "item is" : "items are"} already in your cart.`
-      };
+      return `${cartCount} ${cartCount === 1 ? "item is" : "items are"} already in your cart.`;
     }
-    return {
-      value: "Open",
-      hint: "Browse drinks, bites, and add-ons."
-    };
+    return "Browse drinks, bites, and add-ons.";
   }, [cartCount]);
 
   const primaryCta = useMemo(() => {
@@ -124,22 +115,16 @@ export function HomeDashboardClient() {
         <Link className="widgetCard" href="/menu">
           <div className="widgetTop">
             <div className="widgetTitle">Menu</div>
-            <div className="widgetValue">{menuCard.value}</div>
           </div>
-          <div className="muted widgetHint">{menuCard.hint}</div>
+          <div className="muted widgetHint">{menuCardHint}</div>
         </Link>
 
         <Link className="widgetCard" href={signedIn ? "/loyalty" : "/signin"}>
           <div className="widgetTop">
             <div className="widgetTitle">Loyalty</div>
-            <div className="widgetValue">
-              {signedIn && loyalty ? `${loyalty.stamps % loyalty.rewardStamps}/${loyalty.rewardStamps}` : "Sign in"}
-            </div>
           </div>
           <div className="muted widgetHint">
-            {signedIn && loyalty
-              ? "Show your QR at collection to collect beans."
-              : "Sign in to get your personal QR card."}
+            {signedIn && loyalty ? "Show your QR at collection to collect beans." : "Get your personal QR card here."}
           </div>
           {loyaltyProgress ? (
             <progress
@@ -155,14 +140,13 @@ export function HomeDashboardClient() {
           <Link className="widgetCard" href={signedIn ? "/orders" : "/signin"}>
             <div className="widgetTop">
               <div className="widgetTitle">Orders</div>
-              <div className="widgetValue">{signedIn ? `${ordersCount ?? 0}` : "Sign in"}</div>
             </div>
             <div className="muted widgetHint">
               {signedIn
                 ? latestOrder
                   ? `Latest: ${formatOrderStatus(latestOrder.status)}`
                   : "No orders yet."
-                : "Sign in to track your orders."}
+                : "Track your orders and pickup status."}
             </div>
           </Link>
         ) : null}
