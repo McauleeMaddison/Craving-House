@@ -908,23 +908,6 @@ code {
   padding: clamp(var(--space-3), 4vw, var(--space-4));
 }
 
-.pageHome .dashHero {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.pageHome .dashMeta,
-.pageHome .dashLead,
-.pageHome .dashWidgets,
-.pageHome .dashCtas,
-.pageHome .dashFooter {
-  width: 100%;
-  max-width: 420px;
-  margin-inline: auto;
-}
-
 .pageDashboard {
   flex: 1;
   min-height: 100%;
@@ -954,10 +937,6 @@ code {
 
 .dashMeta {
   margin-top: var(--space-2);
-}
-
-.pageHome .dashMeta:first-child {
-  margin-top: 0;
 }
 
 .dashLead {
@@ -1068,25 +1047,6 @@ code {
 
 .dashFooter {
   margin-top: var(--space-3);
-}
-
-.pageHome .dashFooter {
-  margin-top: auto;
-  padding-top: var(--space-3);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: stretch;
-  gap: 10px;
-}
-
-.pageHome .dashFooter .btn {
-  width: 100%;
-  min-width: 0;
-}
-
-.pageHome .dashFooter .btnIconOnly {
-  width: 100%;
-  height: auto;
 }
 
 .dashWidgets {
@@ -1388,157 +1348,13 @@ code {
 }
 
 @media (max-width: 720px) {
-  .pageHome {
-    min-height: 100%;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pageHome .dashHero {
-    flex: 1 1 auto;
-    min-height: 100%;
-  }
-
   .pageDashboard {
     min-height: 100%;
+    gap: 10px;
   }
 
   .pageDashboard .dashHero {
     min-height: 100%;
-  }
-}
-
-@media (max-width: 720px) {
-  .pageHome {
-    min-height: 100%;
-    gap: 10px;
-  }
-
-  .pageHome .dashHero {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 16px;
-  }
-
-  .pageHome .pill {
-    padding: 5px 9px;
-    font-size: 11px;
-  }
-
-  .pageHome .dashMeta {
-    margin-top: 10px;
-    gap: 8px;
-  }
-
-  .pageHome .dashLead {
-    margin-top: 12px;
-    gap: 6px;
-  }
-
-  .pageHome .dashLeadTitle {
-    font-size: clamp(20px, 5.4vw, 28px);
-  }
-
-  .pageHome .dashLeadSub {
-    font-size: 12px;
-    line-height: 1.45;
-    max-width: 48ch;
-  }
-
-  .pageHome .dashWidgets {
-    margin-top: 12px;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .pageHome .dashWidgets > .widgetCard:last-child:nth-child(odd) {
-    grid-column: auto;
-  }
-
-  .pageHome .widgetCard {
-    min-height: 68px;
-    padding: 10px 12px 9px;
-    gap: 5px;
-  }
-
-  .pageHome .widgetTop {
-    align-items: flex-start;
-  }
-
-  .pageHome .widgetValue {
-    font-size: 16px;
-  }
-
-  .pageHome .widgetHint {
-    font-size: 11px;
-    line-height: 1.35;
-  }
-
-  .pageHome .dashProgress {
-    margin-top: 8px;
-    height: 8px;
-  }
-
-  .pageHome .dashCtas {
-    margin-top: 12px;
-    gap: 8px;
-  }
-
-  .pageHome .dashCtaPrimary {
-    min-height: 64px;
-    padding: 11px 13px;
-    border-radius: 16px;
-  }
-
-  .pageHome .dashCtaPrimaryTitle {
-    font-size: 15px;
-  }
-
-  .pageHome .dashCtaPrimarySub {
-    font-size: 11px;
-    line-height: 1.35;
-  }
-
-  .pageHome .dashCtaRow {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .pageHome .dashCtaSmall {
-    min-height: 48px;
-    padding: 9px 12px;
-    border-radius: 16px;
-  }
-
-  .pageHome .dashCtaSmallTitle {
-    font-size: 14px;
-  }
-
-  .pageHome .dashFooter {
-    margin-top: 12px;
-    padding-top: 12px;
-    gap: 8px;
-    border: 0;
-    background: transparent;
-  }
-
-  .pageHome .dashFooter .btn {
-    min-height: 36px;
-    padding: 0 12px;
-    font-size: 12px;
-    border-radius: 14px;
-  }
-
-  .pageHome .dashFooter .btnIconOnly {
-    width: 100%;
-    height: auto;
-    padding: 0;
-  }
-
-  .pageDashboard {
-    gap: 10px;
-  }
-
-  .pageDashboard .dashHero {
     padding: 16px;
   }
 
@@ -1603,57 +1419,6 @@ code {
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
 
-  .pageHome {
-    min-height: 100%;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pageHome .dashHero {
-    padding: 14px;
-  }
-
-  .pageHome .dashMeta,
-  .pageHome .dashWidgets,
-  .pageHome .dashCtas {
-    margin-top: 10px;
-  }
-
-  .pageHome .widgetCard {
-    min-height: 64px;
-    padding: 10px 10px 9px;
-  }
-
-  .pageHome .widgetValue {
-    font-size: 15px;
-  }
-
-  .pageHome .widgetHint,
-  .pageHome .dashCtaPrimarySub {
-    font-size: 10px;
-    line-height: 1.3;
-  }
-
-  .pageHome .dashCtaPrimary,
-  .pageHome .dashCtaSmall {
-    padding: 9px 10px;
-  }
-
-  .pageHome .dashFooter {
-    padding-top: 10px;
-    gap: 6px;
-  }
-
-  .pageHome .dashFooter .btn {
-    font-size: 11px;
-    min-height: 34px;
-    padding: 0 10px;
-  }
-
-  .pageHome .dashFooter .btnIconOnly {
-    width: 100%;
-    height: auto;
-  }
-
   .pageDashboard .dashHero {
     padding: 14px;
   }
@@ -1682,134 +1447,6 @@ code {
   .dashboardActionCard {
     min-height: 68px;
     padding: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .pageHome {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    gap: 8px;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pageHome .dashHero {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: auto;
-    padding: 12px 10px 10px;
-  }
-
-  .pageHome .pill {
-    padding: 3px 7px;
-    font-size: 10px;
-  }
-
-  .pageHome .dashMeta {
-    margin-top: 6px;
-    gap: 5px;
-  }
-
-  .pageHome .dashLead {
-    margin-top: 8px;
-    gap: 4px;
-  }
-
-  .pageHome .dashLeadTitle {
-    font-size: clamp(17px, 7.2vw, 22px);
-  }
-
-  .pageHome .dashLeadSub {
-    font-size: 10px;
-    line-height: 1.25;
-  }
-
-  .pageHome .dashWidgets {
-    margin-top: 8px;
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .pageHome .dashWidgets > .widgetCard:last-child:nth-child(odd) {
-    grid-column: auto;
-  }
-
-  .pageHome .widgetCard {
-    min-height: 52px;
-    padding: 7px 9px 6px;
-    gap: 3px;
-    border-radius: 12px;
-  }
-
-  .pageHome .widgetTitle,
-  .pageHome .widgetValue {
-    font-size: 12px;
-  }
-
-  .pageHome .widgetHint {
-    font-size: 9px;
-    line-height: 1.2;
-  }
-
-  .pageHome .dashProgress {
-    margin-top: 4px;
-    height: 6px;
-  }
-
-  .pageHome .dashCtas {
-    margin-top: 8px;
-    gap: 5px;
-  }
-
-  .pageHome .dashCtaPrimary {
-    min-height: 48px;
-    padding: 8px 10px;
-    border-radius: 12px;
-  }
-
-  .pageHome .dashCtaPrimaryTitle {
-    font-size: 13px;
-  }
-
-  .pageHome .dashCtaPrimarySub {
-    font-size: 9px;
-    line-height: 1.15;
-  }
-
-  .pageHome .dashCtaRow {
-    grid-template-columns: 1fr;
-    gap: 5px;
-  }
-
-  .pageHome .dashCtaSmall {
-    min-height: 34px;
-    padding: 6px 9px;
-    border-radius: 12px;
-  }
-
-  .pageHome .dashCtaSmallTitle {
-    font-size: 11px;
-  }
-
-  .pageHome .dashFooter {
-    margin-top: 6px !important;
-    padding-top: 0;
-    gap: 5px;
-  }
-
-  .pageHome .dashFooter .btn {
-    min-height: 28px;
-    padding: 0 9px;
-    font-size: 10px;
-    border-radius: 11px;
-  }
-
-  .pageHome .dashFooter .btnIconOnly {
-    width: 100%;
-    height: auto;
   }
 }
 
@@ -3873,6 +3510,15 @@ html[data-theme="dark"] {
   min-height: 100%;
   padding: 0;
   gap: 0;
+  --home-content-max-width: min(100%, 1000px);
+  --home-hero-pad-top: clamp(16px, 3vw, 28px);
+  --home-hero-pad-inline: clamp(16px, 4.2vw, 42px);
+  --home-hero-pad-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  --home-footer-offset: calc(8px + env(safe-area-inset-bottom, 0px));
+  --home-footer-padding: 7px;
+  --home-footer-gap: 8px;
+  --home-footer-btn-height: 34px;
+  --home-footer-btn-font-size: 11px;
 }
 
 .pageHome .dashHero {
@@ -3885,20 +3531,14 @@ html[data-theme="dark"] {
   background: var(--home-hero-bg);
   display: flex;
   flex-direction: column;
-  padding:
-    clamp(16px, 3vw, 28px)
-    clamp(16px, 4.2vw, 42px)
-    calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: var(--home-hero-pad-top) var(--home-hero-pad-inline) var(--home-hero-pad-bottom);
 }
 
-.pageHome .dashMeta,
-.pageHome .dashLead,
-.pageHome .dashWidgets,
-.pageHome .dashCtas,
-.pageHome .dashFooter {
+.pageHome :is(.dashMeta, .dashLead, .dashWidgets, .dashCtas, .dashFooter) {
   width: 100%;
-  max-width: min(100%, 1000px);
+  max-width: var(--home-content-max-width);
   margin-inline: auto;
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) var(--home-enter-delay, 0ms) both;
 }
 
 .pageHome .dashFooterSingle {
@@ -3917,32 +3557,28 @@ html[data-theme="dark"] {
 }
 
 .pageHome .dashMeta {
-  animation: homeEnter var(--motion-base) var(--ease-decelerate) 0ms both;
+  --home-enter-delay: 0ms;
 }
 
 .pageHome .dashLead {
-  animation: homeEnter var(--motion-base) var(--ease-decelerate) 50ms both;
+  --home-enter-delay: 50ms;
 }
 
 .pageHome .dashWidgets {
-  animation: homeEnter var(--motion-base) var(--ease-decelerate) 90ms both;
+  --home-enter-delay: 90ms;
 }
 
 .pageHome .dashCtas {
-  animation: homeEnter var(--motion-base) var(--ease-decelerate) 130ms both;
+  --home-enter-delay: 130ms;
 }
 
 .pageHome .dashFooter {
-  animation: homeEnter var(--motion-base) var(--ease-decelerate) 170ms both;
+  --home-enter-delay: 170ms;
 }
 
 @media (min-width: 1025px) {
-  .pageHome .dashMeta,
-  .pageHome .dashLead,
-  .pageHome .dashWidgets,
-  .pageHome .dashCtas,
-  .pageHome .dashFooter {
-    max-width: min(100%, 1180px);
+  .pageHome {
+    --home-content-max-width: min(100%, 1180px);
   }
 
   .pageHome .dashWidgets {
@@ -3955,17 +3591,15 @@ html[data-theme="dark"] {
 }
 
 @media (max-width: 720px) {
-  .pageHome .dashHero {
-    min-height: 100%;
-    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  .pageHome {
+    --home-content-max-width: 100%;
+    --home-hero-pad-top: 14px;
+    --home-hero-pad-inline: 14px;
+    --home-hero-pad-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 
-  .pageHome .dashMeta,
-  .pageHome .dashLead,
-  .pageHome .dashWidgets,
-  .pageHome .dashCtas,
-  .pageHome .dashFooter {
-    max-width: 100%;
+  .pageHome .dashHero {
+    min-height: 100%;
   }
 
   .pageHome .widgetCard {
@@ -3991,7 +3625,6 @@ html[data-theme="dark"] {
   .pageHome .dashCtaPrimary {
     min-height: 56px;
     padding: 10px 12px;
-    border-radius: 14px;
   }
 
   .pageHome .dashCtaPrimaryTitle {
@@ -4006,6 +3639,9 @@ html[data-theme="dark"] {
   .pageHome .dashCtaSmall {
     min-height: 40px;
     padding: 8px 10px;
+  }
+
+  .pageHome :is(.dashCtaPrimary, .dashCtaSmall) {
     border-radius: 14px;
   }
 
@@ -4015,10 +3651,11 @@ html[data-theme="dark"] {
 
   .pageHome .dashFooter {
     position: sticky;
-    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    bottom: var(--home-footer-offset);
     z-index: 5;
     margin-top: auto;
-    padding: 7px;
+    padding: var(--home-footer-padding);
+    gap: var(--home-footer-gap);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 14px;
     background: var(--home-footer-mobile-bg);
@@ -4026,16 +3663,27 @@ html[data-theme="dark"] {
   }
 
   .pageHome .dashFooter .btn {
-    min-height: 34px;
+    min-height: var(--home-footer-btn-height);
     padding: 0 10px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: var(--home-footer-btn-font-size);
   }
 }
 
 @media (max-width: 420px) {
+  .pageHome {
+    --home-hero-pad-top: 12px;
+    --home-hero-pad-inline: 10px;
+    --home-hero-pad-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    --home-footer-offset: calc(6px + env(safe-area-inset-bottom, 0px));
+    --home-footer-padding: 6px;
+    --home-footer-gap: 6px;
+    --home-footer-btn-height: 32px;
+    --home-footer-btn-font-size: 10px;
+  }
+
   .pageHome .dashHero {
-    padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: var(--home-hero-pad-top) var(--home-hero-pad-inline) var(--home-hero-pad-bottom);
   }
 
   .pageHome .widgetCard {
@@ -4058,16 +3706,5 @@ html[data-theme="dark"] {
   .pageHome .dashCtaSmall {
     min-height: 38px;
     padding: 7px 9px;
-  }
-
-  .pageHome .dashFooter {
-    gap: 6px;
-    padding: 6px;
-    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pageHome .dashFooter .btn {
-    min-height: 32px;
-    font-size: 10px;
   }
 }
