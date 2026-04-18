@@ -902,7 +902,8 @@ code {
 }
 
 .pageDashboard {
-  min-height: calc(100dvh - 1px);
+  flex: 1;
+  min-height: 100%;
 }
 
 .pageDashboard .dashHero {
@@ -3288,12 +3289,20 @@ code {
 .drawerOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.84);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 7, 13, 0.14) 0%,
+      rgba(5, 7, 13, 0.34) 42%,
+      rgba(5, 7, 13, 0.62) 100%
+    );
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-base) var(--ease-standard);
   z-index: 40;
   will-change: opacity;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 .drawerOverlayOpen {
   opacity: 1;
@@ -3416,6 +3425,17 @@ html[data-theme="dark"] .modalSheet {
 }
 .drawerOpen {
   transform: translateX(0%);
+}
+
+.drawer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -18px;
+  width: 18px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(5, 7, 13, 0), rgba(5, 7, 13, 0.26));
 }
 
 .drawerTop {
@@ -3607,11 +3627,21 @@ html[data-theme="dark"] .modalSheet {
 
 @media (max-width: 720px) {
   .drawer {
-    width: 100vw;
-    border-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    box-shadow: -14px 0 42px rgba(0, 0, 0, 0.3);
+    width: min(90vw, 420px);
+    max-width: calc(100vw - 14px);
+    border-left: 1px solid var(--drawer-border);
+    border-top-left-radius: 22px;
+    border-bottom-left-radius: 22px;
+    box-shadow:
+      -20px 0 48px rgba(0, 0, 0, 0.28),
+      -3px 0 16px rgba(0, 0, 0, 0.14);
+    background:
+      radial-gradient(640px 420px at 0% 0%, rgba(242, 183, 5, 0.18), transparent 62%),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--drawer-solid) 84%, transparent),
+        color-mix(in srgb, var(--drawer-solid) 72%, transparent)
+      );
   }
 }
 

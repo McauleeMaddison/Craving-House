@@ -1,21 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import { store } from "@/lib/store";
 import { InstagramIcon } from "@/components/icons/InstagramIcon";
 
 export function AppFooter() {
-  const pathname = usePathname();
-  const isPortal = pathname?.startsWith("/staff") || pathname?.startsWith("/manager");
   const { data } = useSession();
   const role = (data?.user as any)?.role as unknown;
   const canUseStaff = role === "staff";
   const canUseManager = role === "manager";
-
-  if (isPortal) return null;
 
   const instagramUrl = `https://instagram.com/${store.instagramHandle.replace(/^@/, "")}`;
 
