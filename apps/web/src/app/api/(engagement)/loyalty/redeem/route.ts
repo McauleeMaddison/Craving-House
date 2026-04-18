@@ -87,5 +87,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Redeem failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, alreadyProcessed: result.alreadyProcessed, rewardStamps: (result as any).rewardStamps ?? null, stamps: result.stamps, rewardsRedeemed: result.rewardsRedeemed });
+  return NextResponse.json({ ok: true, alreadyProcessed: result.alreadyProcessed, rewardStamps: result.ok ? result.rewardStamps : null, stamps: result.stamps, rewardsRedeemed: result.rewardsRedeemed });
 }

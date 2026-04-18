@@ -1,9 +1,6 @@
-export type CartLine = {
-  id: string;
-  itemId: string;
-  qty: number;
-  customizations?: unknown;
-};
+import { isValidCartLine, type CartLine } from "@/lib/type-safe-parsing";
+
+export type { CartLine };
 
 type CartStorageTarget = {
   key: string;
@@ -20,14 +17,7 @@ function safeParse(json: string | null): CartLine[] {
     const parsed = JSON.parse(json) as unknown;
     if (!Array.isArray(parsed)) return [];
     return parsed
-      .map((x) => {
-        const itemId = typeof (x as any)?.itemId === "string" ? (x as any).itemId : "";
-        const qty = Number.isFinite((x as any)?.qty) ? Number((x as any).qty) : 0;
-        const customizations = (x as any)?.customizations;
-        const id =
-          typeof (x as any)?.id === "string" ? (x as any).id : itemId ? `${itemId}:base` : "";
-        return { id, itemId, qty, customizations };
-      })
+      .filter(isValidCartLine)
       .filter((x) => x.id && x.itemId && x.qty > 0);
   } catch {
     return [];

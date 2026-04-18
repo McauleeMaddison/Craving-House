@@ -8,6 +8,7 @@ import { notifyStaffNewOrder } from "@/server/notifications/push";
 import { isEmailConfigured, sendGuestOrderReceipt } from "@/server/notifications/email";
 import { getConfiguredPublicOrigin } from "@/lib/public-url";
 import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
+import { isValidStripeEvent } from "@/lib/type-safe-parsing";
 
 export const dynamic = "force-dynamic";
 
@@ -86,12 +87,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
-  const event = verified.event as any;
+  // Use type-safe event validation instead of `as any`
+  if (!isValidStripeEvent(verified.event)) {
+    return NextResponse.json({ error: "invalid_event" }, { status: 400 });
+  }
+
+  const event = verified.event;
   const type = String(event?.type ?? "");
 
   if (type === "checkout.session.completed") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+    const session = event.data.object as Record<string, unknown>;
+    const metadata = session?.metadata as Record<string, unknown> | undefined;
+    const orderId = String(metadata?.orderId ?? session?.client_reference_id ?? "");
     const sessionId = String(session?.id ?? "");
     const paymentIntentId = session?.payment_intent ? String(session.payment_intent) : null;
     if (!orderId || !sessionId) return NextResponse.json({ ok: true });
@@ -102,8 +109,9 @@ export async function POST(request: Request) {
   }
 
   if (type === "checkout.session.async_payment_succeeded") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+    const session = event.data.object as Record<string, unknown>;
+    const metadata = session?.metadata as Record<string, unknown> | undefined;
+    const orderId = String(metadata?.orderId ?? session?.client_reference_id ?? "");
     const sessionId = String(session?.id ?? "");
     const paymentIntentId = session?.payment_intent ? String(session.payment_intent) : null;
     if (orderId && sessionId) {
@@ -112,8 +120,9 @@ export async function POST(request: Request) {
   }
 
   if (type === "checkout.session.async_payment_failed") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+    const session = event.data.object as Record<string, unknown>;
+    const metadata = session?.metadata as Record<string, unknown> | undefined;
+    const orderId = String(metadata?.orderId ?? session?.client_reference_id ?? "");
     const sessionId = String(session?.id ?? "");
     const paymentIntentId = session?.payment_intent ? String(session.payment_intent) : null;
     if (orderId && sessionId) {
@@ -130,8 +139,9 @@ export async function POST(request: Request) {
   }
 
   if (type === "checkout.session.expired") {
-    const session = event?.data?.object;
-    const orderId = String(session?.metadata?.orderId ?? session?.client_reference_id ?? "");
+    const session = event.data.object as Record<string, unknown>;
+    const metadata = session?.metadata as Record<string, unknown> | undefined;
+    const orderId = String(metadata?.orderId ?? session?.client_reference_id ?? "");
     const sessionId = String(session?.id ?? "");
     if (orderId && sessionId) {
       await prisma.order.updateMany({

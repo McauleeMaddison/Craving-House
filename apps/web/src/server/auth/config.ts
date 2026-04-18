@@ -9,13 +9,7 @@ import { getClientIp } from "@/server/security/rate-limit";
 import { hashPassword, passwordHashNeedsRehash, verifyPassword } from "@/server/auth/password";
 import { decryptSecret } from "@/server/auth/secret-box";
 import { verifyTotp } from "@/server/auth/totp";
-
-type AppUserRole = "customer" | "staff" | "manager";
-
-function normalizeRole(role: unknown): AppUserRole {
-  if (role === "staff" || role === "manager") return role;
-  return "customer";
-}
+import { normalizeRole, parseCredentials, parseOAuthProfile, type AppRole } from "@/types/auth";
 
 const forceSecureSessionCookieInProduction =
   process.env.FORCE_SECURE_SESSION_COOKIE_IN_PRODUCTION !== "false";
@@ -70,10 +64,14 @@ export const authOptions: NextAuthOptions = {
         totp: { label: "Authenticator code", type: "text" }
       },
       async authorize(credentials, req) {
-        const email = String(credentials?.email ?? "").trim().toLowerCase();
-        const password = String(credentials?.password ?? "");
-        const totp = String((credentials as any)?.totp ?? "").trim();
-        const ip = getClientIp((req as any)?.headers);
+        // Use type-safe credentials parser instead of `as any`
+        const parsed = parseCredentials(credentials);
+        if (!parsed) return null;
+        
+        const email = String(parsed.email ?? "").trim().toLowerCase();
+        const password = String(parsed.password ?? "");
+        const totp = String(parsed.totp ?? "").trim();
+        const ip = getClientIp((req?.headers as any) ?? {});
         if (!email || !password) return null;
 
         const fail = async (errorCode?: string) => {
@@ -142,7 +140,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image,
           role: normalizeRole(user.role)
-        } as any;
+        };
       }
     }),
     ...(process.env.DEV_AUTH_ENABLED === "true"
@@ -168,7 +166,7 @@ export const authOptions: NextAuthOptions = {
                   name: existing.name,
                   image: existing.image,
                   role: normalizeRole(existing.role)
-                } as any;
+                };
               }
 
               const created = await prisma.user.create({
@@ -179,8 +177,8 @@ export const authOptions: NextAuthOptions = {
                 email: created.email,
                 name: created.name,
                 image: created.image,
-                role: "manager" satisfies AppUserRole
-              } as any;
+                role: "manager" satisfies AppRole
+              };
             }
           })
         ]
@@ -192,8 +190,10 @@ export const authOptions: NextAuthOptions = {
 
       const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
       if (!email) return true;
-      const emailVerified = (profile as any)?.email_verified;
-      if (emailVerified === false) {
+      
+      // Use type-safe OAuth profile parser
+      const oauthProfile = parseOAuthProfile(profile);
+      if (oauthProfile?.email_verified === false) {
         return "/signin?error=GoogleEmailNotVerified";
       }
 
@@ -210,14 +210,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        (token as any).role = normalizeRole((user as any).role);
+        // Store role in JWT for later retrieval in session callback
+        const userRole = typeof (user as any).role === "string" ? (user as any).role : undefined;
+        token.role = normalizeRole(userRole ?? "customer");
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = String(token.sub ?? "");
-        session.user.role = normalizeRole((token as any).role);
+        session.user.role = normalizeRole(token.role ?? "customer");
       }
       return session;
     }

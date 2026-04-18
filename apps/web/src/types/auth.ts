@@ -159,6 +159,7 @@ export type OAuthProfile = {
   email: string;
   name: string | null;
   image: string | null;
+  email_verified?: boolean;
 };
 
 /**
@@ -174,12 +175,14 @@ export function parseOAuthProfile(raw: unknown): OAuthProfile | null {
   if (typeof profile.email !== "string") return null;
   if (profile.name !== null && typeof profile.name !== "string") return null;
   if (profile.image !== null && typeof profile.image !== "string") return null;
+  if (profile.email_verified !== undefined && typeof profile.email_verified !== "boolean") return null;
   
   return {
     id: profile.id,
     email: profile.email,
     name: profile.name as string | null,
-    image: profile.image as string | null
+    image: profile.image as string | null,
+    email_verified: profile.email_verified as boolean | undefined
   };
 }
 

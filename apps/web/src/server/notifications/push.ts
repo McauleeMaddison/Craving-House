@@ -3,6 +3,11 @@ import webpush from "web-push";
 import { prisma } from "@/server/db";
 import { getConfiguredVapidSubject } from "@/lib/public-url";
 
+type PushSubscriptionVapid = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+};
+
 let configured = false;
 
 function configureWebPush() {
@@ -36,10 +41,11 @@ export async function notifyStaffNewOrder(params: { orderId: string; pickupName:
   await Promise.allSettled(
     subs.map(async (s) => {
       try {
-        await webpush.sendNotification(
-          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } } as any,
-          payload
-        );
+        const subscription: PushSubscriptionVapid = {
+          endpoint: s.endpoint,
+          keys: { p256dh: s.p256dh, auth: s.auth }
+        };
+        await webpush.sendNotification(subscription, payload);
       } catch (err: any) {
         const status = err?.statusCode ?? err?.status;
         if (status === 404 || status === 410) {
@@ -68,10 +74,11 @@ export async function notifyCustomerOrderReady(params: { userId: string; orderId
   await Promise.allSettled(
     subs.map(async (s) => {
       try {
-        await webpush.sendNotification(
-          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } } as any,
-          payload
-        );
+        const subscription: PushSubscriptionVapid = {
+          endpoint: s.endpoint,
+          keys: { p256dh: s.p256dh, auth: s.auth }
+        };
+        await webpush.sendNotification(subscription, payload);
       } catch (err: any) {
         const status = err?.statusCode ?? err?.status;
         if (status === 404 || status === 410) {

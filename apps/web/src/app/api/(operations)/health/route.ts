@@ -8,6 +8,7 @@ import { authOptions } from "@/server/auth/config";
 import { requireRole } from "@/server/auth/access";
 import { getStripeRuntimeConfig } from "@/server/payments/stripe";
 import { getConfiguredPublicOrigin, getConfiguredPublicUrl, getConfiguredVapidSubject } from "@/lib/public-url";
+import { extractUser } from "@/types/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -149,10 +150,11 @@ export async function GET(request: Request) {
   let sessionInfo: { ok: true; signedIn: boolean; role?: string } | { ok: false; error: string };
   try {
     const session = await getServerSession(authOptions);
+    const user = extractUser(session);
     sessionInfo = {
       ok: true,
-      signedIn: Boolean(session?.user?.id),
-      role: (session?.user as any)?.role
+      signedIn: Boolean(user?.id),
+      role: user?.role ?? "customer"
     };
   } catch (err: any) {
     sessionInfo = { ok: false, error: String(err?.name || "session_error") };

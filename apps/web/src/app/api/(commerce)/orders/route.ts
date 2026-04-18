@@ -11,6 +11,7 @@ import { getLineUnitPriceCents, getPickupSmallOrderFeeCents } from "@/lib/order-
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getStripeRuntimeConfig } from "@/server/payments/stripe";
+import { isValidOrderLineItem } from "@/lib/type-safe-parsing";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +93,8 @@ export async function POST(request: Request) {
   }
 
   const items = body.items
-    .map((x) => ({ productId: String(x.productId), qty: Number(x.qty), customizations: (x as any)?.customizations }))
+    .filter(isValidOrderLineItem)
+    .map((x) => ({ productId: x.productId, qty: x.qty, customizations: x.customizations }))
     .filter((x) => x.productId && Number.isFinite(x.qty) && x.qty > 0);
   if (items.length === 0) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
 

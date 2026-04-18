@@ -86,7 +86,7 @@ class StripeRequestError extends Error {
   }
 }
 
-async function stripeFormPost(path: string, secretKey: string, pairs: Array<[string, string]>) {
+async function stripeFormPost(path: string, secretKey: string, pairs: Array<[string, string]>): Promise<Record<string, unknown>> {
   const res = await fetch(`https://api.stripe.com${path}`, {
     method: "POST",
     headers: {
@@ -97,9 +97,9 @@ async function stripeFormPost(path: string, secretKey: string, pairs: Array<[str
     body: formEncode(pairs)
   });
 
-  const json = (await res.json().catch(() => null)) as any;
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    const msg = json?.error?.message || "Stripe error";
+    const msg = (json.error as any)?.message || "Stripe error";
     throw new StripeRequestError(msg, res.status);
   }
 

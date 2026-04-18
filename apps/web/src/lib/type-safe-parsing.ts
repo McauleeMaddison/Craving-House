@@ -117,7 +117,7 @@ export function parseOrderLines(raw: unknown): OrderLineItem[] {
 // STRIPE WEBHOOK TYPES
 // ============================================
 
-export type StripeEventType = "payment_intent.succeeded" | "payment_intent.payment_failed" | "charge.refunded" | string;
+export type StripeEventType = "payment_intent.succeeded" | "payment_intent.payment_failed" | "charge.refunded" | "checkout.session.completed" | string;
 
 export type StripeEvent = {
   id: string;

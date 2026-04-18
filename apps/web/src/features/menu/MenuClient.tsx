@@ -12,7 +12,6 @@ import type {
   DrinkTopping,
   HotDogAddOn,
   MealAddOn,
-  ProductCustomizationKind,
   Syrup,
   WaffleTopping
 } from "@/lib/drink-customizations";
