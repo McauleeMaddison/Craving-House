@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,19 @@ export async function PATCH(request: Request) {
     return NextResponse.json(
       { error: access.reason },
       { status: access.reason === "unauthorized" ? 401 : 403 }
+    );
+  }
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `manager:loyalty-settings:update:${access.userId}:${ip}`,
+    limit: 20,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many settings changes. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
     );
   }
 

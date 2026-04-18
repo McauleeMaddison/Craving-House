@@ -1,0 +1,62 @@
+name: Web Quality
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/web-quality.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/web-quality.yml"
+      - "package.json"
+      - "package-lock.json"
+
+jobs:
+  web-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXTAUTH_SECRET: ci-nextauth-secret
+      QR_SECRET: ci-qr-secret
+      MFA_ENCRYPTION_KEY: ci-mfa-encryption-key
+      SKIP_PRISMA_DEPLOY: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit Tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npm exec playwright install --with-deps chromium
+
+      - name: Visual Regression (Home Shell)
+        run: npm run e2e:visual
+
+      - name: Lighthouse Budget
+        run: npm run quality:lighthouse

@@ -38,3 +38,14 @@ test("isSameOrigin rejects cross-site browser origins", () => {
     process.env.NEXTAUTH_URL = previous;
   }
 });
+
+test("isSameOrigin rejects cross-site browser fetches even when origin is omitted", () => {
+  const request = new Request("https://craving-house.onrender.com/api/orders", {
+    method: "POST",
+    headers: {
+      "sec-fetch-site": "cross-site"
+    }
+  });
+
+  assert.equal(isSameOrigin(request), false);
+});

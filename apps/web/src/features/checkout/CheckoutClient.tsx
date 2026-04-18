@@ -23,13 +23,14 @@ type ProductDto = {
 
 export function CheckoutClient() {
   const router = useRouter();
-  const { status: authStatus } = useSession();
+  const { data: session, status: authStatus } = useSession();
   const signedIn = authStatus === "authenticated";
   const cart = useCart();
   const [pickupName, setPickupName] = useState("");
   const [notes, setNotes] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [checkoutMode, setCheckoutMode] = useState<"express" | "standard">("express");
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [catalogReady, setCatalogReady] = useState(false);
   const [cartNotice, setCartNotice] = useState("");
@@ -37,6 +38,10 @@ export function CheckoutClient() {
   const [stripeEnabled, setStripeEnabled] = useState(false);
   const pickupNameInputRef = useRef<HTMLInputElement | null>(null);
   const clientRequestIdRef = useRef<string | null>(null);
+  const suggestedPickupName = useMemo(() => {
+    const raw = typeof session?.user?.name === "string" ? session.user.name.trim() : "";
+    return raw || "";
+  }, [session?.user?.name]);
 
   const items = useMemo(() => {
     return cart.lines
@@ -132,6 +137,11 @@ export function CheckoutClient() {
     clientRequestIdRef.current = null;
   }, [checkoutDraftKey]);
 
+  useEffect(() => {
+    if (!signedIn || !suggestedPickupName || pickupName.trim()) return;
+    setPickupName(suggestedPickupName);
+  }, [pickupName, signedIn, suggestedPickupName]);
+
   async function placeOrder() {
     setAuthError("");
     if (!pickupName.trim()) {
@@ -173,7 +183,11 @@ export function CheckoutClient() {
       const orderId = res.data.id;
       const guestToken = res.data.guestToken;
 
-      const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", { orderId, guestToken: guestToken ?? undefined });
+      const payRes = await apiPostJson<{ url: string }>("/api/payments/stripe/create-session", {
+        orderId,
+        guestToken: guestToken ?? undefined,
+        express: signedIn && checkoutMode === "express"
+      });
       if (!payRes.ok) {
         setAuthError(payRes.status === 401 ? "Please sign in to pay." : payRes.error);
         router.push(guestToken ? `/orders/guest/${guestToken}` : `/orders/${orderId}`);
@@ -299,12 +313,34 @@ export function CheckoutClient() {
 
           <div className="surface surfaceInset u-pad-14">
             <div className="u-fw-800">Payment</div>
+            {signedIn ? (
+              <div className="checkoutModeRow u-mt-10">
+                <button
+                  className={`btn btn-secondary btnCompact ${checkoutMode === "express" ? "btnActive" : ""}`}
+                  type="button"
+                  onClick={() => setCheckoutMode("express")}
+                >
+                  Express
+                </button>
+                <button
+                  className={`btn btn-secondary btnCompact ${checkoutMode === "standard" ? "btnActive" : ""}`}
+                  type="button"
+                  onClick={() => setCheckoutMode("standard")}
+                >
+                  Standard
+                </button>
+              </div>
+            ) : null}
             <div className="muted u-mt-8 u-lh-16">
-              Online payment is required at checkout.
+              {signedIn && checkoutMode === "express"
+                ? "Express mode prioritises Apple Pay / Google Pay / saved cards."
+                : "Online payment is required at checkout."}
             </div>
             {stripeEnabled ? (
               <p className="muted u-mt-10 u-fs-12 u-lh-16">
-                {signedIn
+                {signedIn && checkoutMode === "express"
+                  ? "You’ll be sent straight to Stripe Checkout with wallet and saved-card options first."
+                  : signedIn
                   ? "You’ll be redirected to Stripe Checkout to pay by card or bank transfer, and you can choose to save your card for future orders."
                   : "You’ll be redirected to Stripe Checkout to pay by card or bank transfer."}
               </p>
@@ -377,7 +413,11 @@ export function CheckoutClient() {
           onClick={placeOrder}
           disabled={submitting || !stripeEnabled}
         >
-          {submitting ? "Processing..." : "Continue to payment"}
+          {submitting
+            ? "Processing..."
+            : signedIn && checkoutMode === "express"
+              ? "Express pay"
+              : "Continue to payment"}
         </button>
         {authError ? (
           <p className="muted u-mt-10 u-danger">

@@ -12,6 +12,7 @@ import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
 type Body = {
   orderId: string;
   guestToken?: string;
+  express?: boolean;
 };
 
 function getBaseUrl(request: Request) {
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as Partial<Body>;
   const orderId = String(body.orderId ?? "");
   if (!orderId) return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+  const express = Boolean(body.express);
 
   const guestToken = typeof body.guestToken === "string" ? body.guestToken.trim() : "";
   if (!access.ok && !guestToken) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -80,6 +82,7 @@ export async function POST(request: Request) {
       customerId: stripeCustomerId,
       allowSavedPaymentMethods: Boolean(access.ok && stripeCustomerId),
       allowBankTransfers: true,
+      preferExpressWallets: express,
       lineItems: [
         ...order.items.map((i) => ({
           name: formatCustomizations(i.customizations)

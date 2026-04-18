@@ -12,6 +12,16 @@ type StaffOrderDto = {
 
 type ProductDto = { id: string; available: boolean; loyaltyEligible: boolean };
 type UserDto = { id: string; role: string; disabledAtIso: string | null };
+type ManagerAnalyticsDto = {
+  snapshotForDate: string;
+  ordersToday: number;
+  paidOrdersToday: number;
+  conversionPct: number | null;
+  liveQueueCount: number;
+  avgPrepMinutes: number | null;
+  loyaltyStampsToday: number;
+  loyaltyRedemptionsToday: number;
+};
 
 function minutesSince(iso: string) {
   const ms = Date.now() - new Date(iso).getTime();
@@ -22,14 +32,16 @@ export function ManagerDashboardClient() {
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [users, setUsers] = useState<UserDto[]>([]);
+  const [analytics, setAnalytics] = useState<ManagerAnalyticsDto | null>(null);
 
   const [error, setError] = useState("");
 
   async function refresh() {
-    const [o, p, u] = await Promise.all([
+    const [o, p, u, a] = await Promise.all([
       apiGetJson<{ orders: StaffOrderDto[] }>("/api/staff/orders"),
       apiGetJson<{ products: ProductDto[] }>("/api/manager/products"),
-      apiGetJson<{ users: UserDto[] }>("/api/manager/users")
+      apiGetJson<{ users: UserDto[] }>("/api/manager/users"),
+      apiGetJson<ManagerAnalyticsDto>("/api/manager/analytics/summary")
     ]);
 
     if (!o.ok) return setError(o.status === 401 ? "Sign in as manager." : o.error);
@@ -40,6 +52,7 @@ export function ManagerDashboardClient() {
     setOrders(o.data.orders);
     setProducts(p.data.products);
     setUsers(u.data.users);
+    setAnalytics(a.ok ? a.data : null);
   }
 
   useEffect(() => {
@@ -103,6 +116,39 @@ export function ManagerDashboardClient() {
           </div>
         </div>
       </div>
+
+      {analytics ? (
+        <div className="dashboardStats dashboardStatsFour">
+          <div className="widgetCard dashboardStatCard">
+            <div className="dashboardStatLabel">Today orders</div>
+            <div className="dashboardStatValue">{analytics.ordersToday}</div>
+            <div className="dashboardStatHint">
+              {analytics.paidOrdersToday} paid • {analytics.liveQueueCount} live queue
+            </div>
+          </div>
+          <div className="widgetCard dashboardStatCard">
+            <div className="dashboardStatLabel">Conversion</div>
+            <div className="dashboardStatValue">
+              {analytics.conversionPct === null ? "—" : `${analytics.conversionPct}%`}
+            </div>
+            <div className="dashboardStatHint">Paid orders / today orders</div>
+          </div>
+          <div className="widgetCard dashboardStatCard">
+            <div className="dashboardStatLabel">Avg prep</div>
+            <div className="dashboardStatValue">
+              {analytics.avgPrepMinutes === null ? "—" : `${analytics.avgPrepMinutes}m`}
+            </div>
+            <div className="dashboardStatHint">Collected orders today</div>
+          </div>
+          <div className="widgetCard dashboardStatCard">
+            <div className="dashboardStatLabel">Loyalty today</div>
+            <div className="dashboardStatValue">{analytics.loyaltyRedemptionsToday}</div>
+            <div className="dashboardStatHint">
+              {analytics.loyaltyStampsToday} stamps • {analytics.loyaltyRedemptionsToday} redemptions
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="dashboardRefreshRow">
         <button

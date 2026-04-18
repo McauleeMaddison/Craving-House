@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { hashPassword, validatePasswordForSignup } from "@/server/auth/password";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json(
       { error: access.reason },
       { status: access.reason === "unauthorized" ? 401 : 403 }
+    );
+  }
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `manager:users:update:${access.userId}:${ip}`,
+    limit: 30,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many user changes. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
     );
   }
 

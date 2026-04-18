@@ -5,6 +5,7 @@ import { prisma } from "@/server/db";
 import { verifyCustomerQrToken } from "@/server/loyalty/qr";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 type StampRequest = {
   qrToken: string;
@@ -27,6 +28,19 @@ export async function POST(request: Request) {
     );
   }
   const staffUserId = access.userId;
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `loyalty:stamp:${staffUserId}:${ip}`,
+    limit: 90,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many scan attempts. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const body = (await request.json()) as Partial<StampRequest>;
   const qrToken = typeof body.qrToken === "string" ? body.qrToken.trim() : "";

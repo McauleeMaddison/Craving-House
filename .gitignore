@@ -6,6 +6,7 @@ node_modules
 out
 playwright-report
 apps/web/test-results
+apps/web/.lighthouseci
 
 # env files
 .env

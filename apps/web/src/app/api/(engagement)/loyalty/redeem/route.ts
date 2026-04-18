@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 type Body = {
   cardToken: string;
@@ -17,6 +18,19 @@ export async function POST(request: Request) {
 
   const access = await requireRole(["staff", "manager"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `loyalty:redeem:${access.userId}:${ip}`,
+    limit: 60,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many redemption attempts. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const body = (await request.json().catch(() => null)) as Partial<Body> | null;
   const cardToken = String(body?.cardToken ?? "").trim();

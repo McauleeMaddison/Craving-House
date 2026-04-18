@@ -45,6 +45,12 @@
     Arial,
     sans-serif;
   --tracking-tight: -0.02em;
+  --motion-fast: 150ms;
+  --motion-base: 230ms;
+  --motion-slow: 340ms;
+  --ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-decelerate: cubic-bezier(0.22, 1, 0.36, 1);
 
   --btn-bg: rgba(11, 13, 18, 0.92);
   --btn-text: rgba(255, 255, 255, 0.94);
@@ -720,7 +726,11 @@ code {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 120ms ease, transform 120ms ease, border-color 120ms ease;
+  transition:
+    background var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -812,6 +822,10 @@ code {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  transition:
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -981,7 +995,11 @@ code {
   justify-content: space-between;
   gap: 12px;
   box-shadow: none;
-  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+  transition:
+    transform var(--motion-base) var(--ease-emphasized),
+    background var(--motion-base) var(--ease-standard),
+    border-color var(--motion-base) var(--ease-standard),
+    box-shadow var(--motion-base) var(--ease-standard);
   touch-action: manipulation;
 }
 
@@ -1079,6 +1097,30 @@ code {
   border-radius: var(--radius-lg);
   border: 1px solid var(--btn-active-border);
   background: color-mix(in srgb, var(--panel) 58%, rgba(242, 183, 5, 0.22));
+  transition:
+    transform var(--motion-base) var(--ease-emphasized),
+    background var(--motion-base) var(--ease-standard),
+    border-color var(--motion-base) var(--ease-standard),
+    box-shadow var(--motion-base) var(--ease-standard);
+}
+
+.dashCtaPrimaryButton {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dashCtaPrimary:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--panel) 52%, rgba(242, 183, 5, 0.27));
+  }
+}
+
+.dashCtaPrimary:active {
+  transform: translateY(0);
 }
 
 .dashCtaPrimaryTitle {
@@ -1111,6 +1153,28 @@ code {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
   background: color-mix(in srgb, var(--panel) 70%, transparent);
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dashCtaSmall:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--panel) 64%, transparent);
+  }
+}
+
+.dashCtaSmall:active {
+  transform: translateY(0);
+}
+
+.dashCtaMeta {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
 }
 
 .dashProgress {
@@ -1190,9 +1254,40 @@ code {
   align-items: center;
 }
 
+.dashboardQuickChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboardQuickChip {
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dashboardQuickChip:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--panel) 64%, transparent);
+  }
+}
+
+.dashboardQuickChipMuted {
+  opacity: 0.82;
+}
+
 .dashboardDetailCard {
   min-height: 0;
   gap: 12px;
+}
+
+.checkoutModeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .dashboardDetailHeader {
@@ -3076,7 +3171,9 @@ code {
   line-height: 1;
   transform: translateY(-1px);
   opacity: 0.9;
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    transform var(--motion-base) var(--ease-emphasized),
+    opacity var(--motion-base) var(--ease-emphasized);
 }
 
 .iconButtonActive {
@@ -3104,7 +3201,7 @@ code {
     border-radius: 0;
     background: transparent;
     box-shadow: none;
-    transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--motion-slow) var(--ease-emphasized);
     will-change: transform;
     justify-content: flex-start;
   }
@@ -3118,7 +3215,10 @@ code {
     gap: 10px;
     max-width: min(260px, calc(100vw - 96px));
     overflow: hidden;
-    transition: max-width 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition:
+      max-width var(--motion-base) var(--ease-standard),
+      opacity var(--motion-base) var(--ease-standard),
+      transform var(--motion-base) var(--ease-standard);
     will-change: max-width, opacity, transform;
   }
 
@@ -3191,7 +3291,7 @@ code {
   background: rgba(0, 0, 0, 0.84);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: opacity var(--motion-base) var(--ease-standard);
   z-index: 40;
   will-change: opacity;
 }
@@ -3302,7 +3402,7 @@ html[data-theme="dark"] .modalSheet {
   box-shadow: -24px 0 70px rgba(0, 0, 0, 0.35);
   color: var(--drawer-text);
   transform: translateX(110%);
-  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--motion-slow) var(--ease-emphasized);
   z-index: 50;
   will-change: transform;
   padding:
@@ -3700,25 +3800,33 @@ html[data-theme="dark"] {
 }
 
 /* Home dashboard full-bleed responsive shell */
-.container.pageHome {
+.appMain > .container.pageHome {
+  flex: 1;
+  display: flex;
   max-width: none;
   padding-inline: 0;
 }
 
 .pageHome {
-  min-height: 100dvh;
+  flex: 1;
+  min-height: 100%;
   padding: 0;
   gap: 0;
 }
 
 .pageHome .dashHero {
   width: 100%;
-  min-height: 100dvh;
+  min-height: 100%;
   margin: 0;
   border-radius: 0;
-  border-left: 0;
-  border-right: 0;
+  border: 0;
   box-shadow: none;
+  background:
+    radial-gradient(900px 560px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
+    radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.08), transparent 62%),
+    #06080f;
+  display: flex;
+  flex-direction: column;
   padding:
     clamp(16px, 3vw, 28px)
     clamp(16px, 4.2vw, 42px)
@@ -3731,12 +3839,43 @@ html[data-theme="dark"] {
 .pageHome .dashCtas,
 .pageHome .dashFooter {
   width: 100%;
-  max-width: min(100%, 960px);
+  max-width: min(100%, 1000px);
   margin-inline: auto;
 }
 
 .pageHome .dashFooterSingle {
   grid-template-columns: minmax(0, 1fr);
+}
+
+@keyframes homeEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pageHome .dashMeta {
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) 0ms both;
+}
+
+.pageHome .dashLead {
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) 50ms both;
+}
+
+.pageHome .dashWidgets {
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) 90ms both;
+}
+
+.pageHome .dashCtas {
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) 130ms both;
+}
+
+.pageHome .dashFooter {
+  animation: homeEnter var(--motion-base) var(--ease-decelerate) 170ms both;
 }
 
 @media (min-width: 1025px) {
@@ -3745,13 +3884,21 @@ html[data-theme="dark"] {
   .pageHome .dashWidgets,
   .pageHome .dashCtas,
   .pageHome .dashFooter {
-    max-width: min(100%, 1120px);
+    max-width: min(100%, 1180px);
+  }
+
+  .pageHome .dashWidgets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pageHome .dashCtaRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
   .pageHome .dashHero {
-    min-height: 100dvh;
+    min-height: 100%;
     padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
   }
 

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const isProduction = process.env.NODE_ENV === "production";
 
 function buildContentSecurityPolicy() {
   const isDev = process.env.NODE_ENV !== "production";
@@ -31,12 +32,19 @@ function buildContentSecurityPolicy() {
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-DNS-Prefetch-Control", value: "off" },
+  { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Allow camera for in-app QR scanning (staff loyalty scan). Keep other powerful features off by default.
   { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
-  { key: "Strict-Transport-Security", value: "max-age=15552000; includeSubDomains" },
   { key: "Content-Security-Policy", value: buildContentSecurityPolicy() }
 ];
+
+if (isProduction) {
+  securityHeaders.push({ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" });
+}
 
 const nextConfig = {
   poweredByHeader: false,

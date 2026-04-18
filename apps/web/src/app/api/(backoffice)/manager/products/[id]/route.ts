@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 type PatchBody = Partial<{
   name: string;
@@ -20,6 +21,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const access = await requireRole(["manager"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `manager:products:update:${access.userId}:${ip}`,
+    limit: 40,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many product changes. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const { id } = await context.params;
   const body = (await request.json()) as PatchBody;
@@ -47,6 +61,19 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     return NextResponse.json(
       { error: access.reason },
       { status: access.reason === "unauthorized" ? 401 : 403 }
+    );
+  }
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `manager:products:delete:${access.userId}:${ip}`,
+    limit: 20,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many product changes. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
     );
   }
 

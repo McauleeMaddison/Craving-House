@@ -12,6 +12,10 @@ function getRequestOrigin(request: Request) {
   }
 }
 
+function getFetchSite(request: Request) {
+  return request.headers.get("sec-fetch-site")?.trim().toLowerCase() ?? null;
+}
+
 function isLoopbackOrigin(origin: string) {
   try {
     const url = new URL(origin);
@@ -23,7 +27,11 @@ function isLoopbackOrigin(origin: string) {
 
 export function isSameOrigin(request: Request) {
   const reqOrigin = getRequestOrigin(request);
-  if (!reqOrigin) return true; // allow non-browser / missing origin
+  if (!reqOrigin) {
+    const fetchSite = getFetchSite(request);
+    if (fetchSite && !["same-origin", "same-site", "none"].includes(fetchSite)) return false;
+    return true; // allow non-browser / missing origin
+  }
 
   const requestOrigin = new URL(request.url).origin;
   const configuredOrigin = getConfiguredPublicOrigin();

@@ -42,10 +42,16 @@ export async function GET() {
       paidAtIso: o.paidAt?.toISOString() ?? null,
       pickupTimeIso: o.pickupTime?.toISOString() ?? null,
       estimatedReadyAtIso: o.estimatedReadyAt?.toISOString() ?? null,
+      collectedAtIso: o.collectedAt?.toISOString() ?? null,
       totalCents: o.totalCents,
       pickupName: o.pickupName,
       notes: o.notes ?? null,
-      items: o.items.map((i) => ({ productId: i.productId, qty: i.qty, unitCents: i.unitCents }))
+      items: o.items.map((i) => ({
+        productId: i.productId,
+        qty: i.qty,
+        unitCents: i.unitCents,
+        customizations: i.customizations ?? null
+      }))
     }))
   });
 }

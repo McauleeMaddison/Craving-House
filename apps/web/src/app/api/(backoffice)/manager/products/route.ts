@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
+import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 
 type CreateBody = {
   name: string;
@@ -38,6 +39,19 @@ export async function POST(request: Request) {
 
   const access = await requireRole(["manager"]);
   if (!access.ok) return NextResponse.json({ error: access.reason }, { status: access.reason === "unauthorized" ? 401 : 403 });
+
+  const ip = getClientIp(request);
+  const limited = await rateLimit({
+    key: `manager:products:create:${access.userId}:${ip}`,
+    limit: 20,
+    windowMs: 60_000
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many product changes. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
 
   const body = (await request.json()) as Partial<CreateBody>;
   if (!body.name?.trim()) return NextResponse.json({ error: "Missing name" }, { status: 400 });

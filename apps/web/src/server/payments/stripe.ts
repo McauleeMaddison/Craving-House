@@ -13,6 +13,7 @@ type StripeCreateSessionParams = {
   customerId?: string | null;
   allowSavedPaymentMethods?: boolean;
   allowBankTransfers?: boolean;
+  preferExpressWallets?: boolean;
   lineItems: Array<{ name: string; unitAmountCents: number; qty: number }>;
 };
 
@@ -156,6 +157,11 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     ["metadata[orderId]", params.orderId],
     ["payment_intent_data[metadata][orderId]", params.orderId]
   ];
+
+  if (params.preferExpressWallets) {
+    // Lets returning customers skip unnecessary payment detail collection when possible.
+    pairs.push(["payment_method_collection", "if_required"]);
+  }
 
   if (params.allowBankTransfers) {
     pairs.push(["payment_method_types[0]", "card"]);

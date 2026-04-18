@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { apiGetJson, apiPostJson } from "@/lib/api";
 
@@ -25,12 +26,14 @@ function eligibleCount(order: StaffOrderDto) {
 }
 
 export function LoyaltyScanClient() {
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [cardToken, setCardToken] = useState("");
   const [eligibleItemCount, setEligibleItemCount] = useState<number>(1);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const [captureMode, setCaptureMode] = useState<"camera" | "manual">("camera");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -51,6 +54,11 @@ export function LoyaltyScanClient() {
   }, []);
 
   const selected = useMemo(() => orders.find((o) => o.id === orderId) ?? null, [orders, orderId]);
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    setCaptureMode(mode === "manual" ? "manual" : "camera");
+  }, [searchParams]);
 
   useEffect(() => {
     if (!selected) return;
@@ -124,6 +132,7 @@ export function LoyaltyScanClient() {
 
   async function startScanner() {
     setScannerError("");
+    if (captureMode === "manual") return;
 
     if (typeof window !== "undefined" && !window.isSecureContext) {
       setScannerError("Camera scanning requires HTTPS. Open the app using https:// and try again.");
@@ -177,6 +186,18 @@ export function LoyaltyScanClient() {
     }
   }
 
+  async function pasteFromClipboard() {
+    setScannerError("");
+    try {
+      if (!navigator.clipboard?.readText) throw new Error("Clipboard is unavailable on this device.");
+      const value = (await navigator.clipboard.readText()).trim();
+      if (!value) throw new Error("Clipboard is empty.");
+      setCardToken(value);
+    } catch (error: any) {
+      setScannerError(String(error?.message ?? "Could not read from clipboard. Paste token manually."));
+    }
+  }
+
   useEffect(() => {
     return () => {
       void stopScanner();
@@ -223,6 +244,22 @@ export function LoyaltyScanClient() {
             <span className="muted u-fs-13">
               Customer QR token
             </span>
+            <div className="checkoutModeRow">
+              <button
+                className={`btn btn-secondary btnCompact ${captureMode === "camera" ? "btnActive" : ""}`}
+                type="button"
+                onClick={() => setCaptureMode("camera")}
+              >
+                Camera scan
+              </button>
+              <button
+                className={`btn btn-secondary btnCompact ${captureMode === "manual" ? "btnActive" : ""}`}
+                type="button"
+                onClick={() => setCaptureMode("manual")}
+              >
+                Manual/paste
+              </button>
+            </div>
             <input
               className="input"
               value={cardToken}
@@ -233,13 +270,26 @@ export function LoyaltyScanClient() {
             />
           </label>
           <div className="rowWrap u-mt-10 u-justify-between">
-            <button className="btn btn-secondary" type="button" onClick={startScanner}>
-              Scan with camera
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={startScanner}
+              disabled={captureMode !== "camera"}
+            >
+              {captureMode === "camera" ? "Scan with camera" : "Camera disabled"}
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={() => void pasteFromClipboard()}>
+              Paste from clipboard
             </button>
             <button className="btn btn-secondary" type="button" onClick={() => setCardToken("")} disabled={!cardToken}>
               Clear
             </button>
           </div>
+          {captureMode === "manual" ? (
+            <p className="muted u-mt-10 u-fs-12 u-lh-16">
+              Manual mode is optimised for low-end devices. Paste the token instead of opening the camera.
+            </p>
+          ) : null}
           {scannerError ? (
             <p className="muted u-mt-10 u-danger">
               {scannerError}

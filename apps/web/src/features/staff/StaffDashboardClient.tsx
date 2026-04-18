@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { apiGetJson } from "@/lib/api";
@@ -133,8 +134,9 @@ export function StaffDashboardClient() {
     const received = orders.filter((o) => o.status === "received").length;
     const accepted = orders.filter((o) => o.status === "accepted").length;
     const ready = orders.filter((o) => o.status === "ready").length;
+    const collected = orders.filter((o) => o.status === "collected").length;
     const oldestIso = orders.length ? orders.map((o) => o.createdAtIso).sort()[0] : "";
-    return { received, accepted, ready, oldestIso };
+    return { received, accepted, ready, collected, oldestIso };
   }, [orders]);
 
   return (
@@ -172,6 +174,18 @@ export function StaffDashboardClient() {
         >
           Refresh stats
         </button>
+        <div className="dashboardQuickChipRow">
+          <Link className="pill dashboardQuickChip" href="/staff/orders">
+            Queue • {stats.received} new
+          </Link>
+          <Link className="pill dashboardQuickChip" href="/staff/loyalty-scan">
+            Loyalty scanner
+          </Link>
+          <Link className="pill dashboardQuickChip" href="/staff/loyalty-scan?mode=manual">
+            Manual fallback
+          </Link>
+          <span className="pill dashboardQuickChipMuted">Completed today • {stats.collected}</span>
+        </div>
       </div>
 
       <div className="widgetCard dashboardDetailCard">
