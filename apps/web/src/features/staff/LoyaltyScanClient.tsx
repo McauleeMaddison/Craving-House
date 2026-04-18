@@ -187,7 +187,7 @@ export function LoyaltyScanClient() {
     <section className="surface u-pad-18">
       <h1 className="u-title-26">Loyalty scan</h1>
       <p className="muted u-mt-10 u-lh-16">
-        Staff scan the customer QR after collection and submit the number of eligible coffees. This calls the secure server route.
+        Staff or managers scan the customer QR after collection and submit the number of eligible coffees. This calls the secure server route.
       </p>
 
       <div className="grid-2 u-mt-14">

@@ -61,6 +61,9 @@ export default function HelpPage() {
                 Open <Link href="/staff/loyalty-scan">Loyalty scan</Link>, scan
                 customer QR, add stamps.
               </li>
+              <li>
+                Managers can use <Link href="/manager/loyalty-scan">Manager loyalty scan</Link>.
+              </li>
             </ol>
             <p className="muted u-mt-10 u-lh-17">
               Manager tasks live under <Link href="/manager">Manager</Link>.

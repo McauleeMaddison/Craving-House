@@ -20,6 +20,11 @@ export default async function ManagerHomePage() {
       description: "Review queue activity and payment status."
     },
     {
+      href: "/manager/loyalty-scan",
+      title: "Loyalty scan",
+      description: "Scan customer QR codes and issue or redeem rewards."
+    },
+    {
       href: "/manager/users",
       title: "Users",
       description: "Promote staff, add managers, and disable access."

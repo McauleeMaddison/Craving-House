@@ -3622,3 +3622,152 @@ html[data-theme="dark"] {
     display: none;
   }
 }
+
+/* Home dashboard mobile refinement */
+.pageHome .dashHero {
+  width: min(100%, 520px);
+  margin-inline: auto;
+}
+
+.pageHome .dashMeta,
+.pageHome .dashLead,
+.pageHome .dashWidgets,
+.pageHome .dashCtas,
+.pageHome .dashFooter {
+  max-width: min(100%, 392px);
+}
+
+.pageHome .dashFooterSingle {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 720px) {
+  .pageHome .dashHero {
+    width: min(100%, clamp(292px, 92vw, 392px));
+    padding: 14px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pageHome .dashMeta,
+  .pageHome .dashLead,
+  .pageHome .dashWidgets,
+  .pageHome .dashCtas,
+  .pageHome .dashFooter {
+    max-width: min(100%, 356px);
+  }
+
+  .pageHome .widgetCard {
+    min-height: 60px;
+    padding: 10px 11px 9px;
+    border-radius: 14px;
+  }
+
+  .pageHome .widgetTitle,
+  .pageHome .widgetValue {
+    font-size: clamp(13px, 3.8vw, 15px);
+  }
+
+  .pageHome .widgetHint {
+    font-size: clamp(10px, 3vw, 11px);
+    line-height: 1.32;
+  }
+
+  .pageHome .dashCtas {
+    gap: 7px;
+  }
+
+  .pageHome .dashCtaPrimary {
+    min-height: 56px;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .pageHome .dashCtaPrimaryTitle {
+    font-size: 14px;
+  }
+
+  .pageHome .dashCtaPrimarySub {
+    font-size: 10px;
+    line-height: 1.34;
+  }
+
+  .pageHome .dashCtaSmall {
+    min-height: 40px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .pageHome .dashCtaSmallTitle {
+    font-size: 12px;
+  }
+
+  .pageHome .dashFooter {
+    position: sticky;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 5;
+    margin-top: auto;
+    padding: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--panel) 84%, rgba(11, 13, 18, 0.34));
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .pageHome .dashFooter .btn {
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-size: 11px;
+  }
+
+  .pageHome .dashFooterSingle {
+    gap: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .pageHome .dashHero {
+    width: min(100%, 94vw);
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pageHome .dashMeta,
+  .pageHome .dashLead,
+  .pageHome .dashWidgets,
+  .pageHome .dashCtas,
+  .pageHome .dashFooter {
+    max-width: min(100%, 334px);
+  }
+
+  .pageHome .widgetCard {
+    min-height: 56px;
+    padding: 9px 10px 8px;
+  }
+
+  .pageHome .widgetHint {
+    font-size: 10px;
+  }
+
+  .pageHome .dashCtaPrimary {
+    min-height: 52px;
+  }
+
+  .pageHome .dashCtaPrimarySub {
+    font-size: 9px;
+  }
+
+  .pageHome .dashCtaSmall {
+    min-height: 38px;
+    padding: 7px 9px;
+  }
+
+  .pageHome .dashFooter {
+    gap: 6px;
+    padding: 6px;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pageHome .dashFooter .btn {
+    min-height: 32px;
+    font-size: 10px;
+  }
+}

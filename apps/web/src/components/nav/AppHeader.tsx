@@ -105,13 +105,17 @@ export function AppHeader() {
 
   const portalLinks = useMemo(() => {
     if (!canUseStaff) return [];
-    const list: Array<{ href: string; label: string }> = [
-      { href: "/staff/orders", label: "Order queue" },
-      { href: "/staff/loyalty-scan", label: "Loyalty scan" }
-    ];
+    const list: Array<{ href: string; label: string }> = canUseManager
+      ? [
+          { href: "/manager", label: "Manager home" },
+          { href: "/manager/orders", label: "Orders" },
+          { href: "/manager/loyalty-scan", label: "Loyalty scan" }
+        ]
+      : [
+          { href: "/staff/orders", label: "Order queue" },
+          { href: "/staff/loyalty-scan", label: "Loyalty scan" }
+        ];
     if (canUseManager) {
-      list.push({ href: "/manager", label: "Manager home" });
-      list.push({ href: "/manager/orders", label: "Orders" });
       list.push({ href: "/manager/products", label: "Products" });
       list.push({ href: "/manager/users", label: "Users" });
       list.push({ href: "/manager/settings", label: "Settings" });
