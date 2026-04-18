@@ -3069,7 +3069,7 @@ code {
   }
 
   .appHeader[data-drawer-open="true"] .appHeaderInner {
-    transform: translateX(min(280px, 75vw));
+    transform: translateX(0);
   }
 
   .appHeader .appHeaderBrandLink,
@@ -3252,7 +3252,8 @@ html[data-theme="dark"] .modalSheet {
   top: 0;
   bottom: 0;
   right: 0;
-  width: min(420px, 94vw);
+  width: clamp(360px, 72vw, 560px);
+  max-width: 100vw;
   background: var(--drawer-bg);
   border-left: 1px solid var(--drawer-border);
   border-top-left-radius: 20px;
@@ -3305,10 +3306,10 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerContent {
   overflow: auto;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-content: start;
-  grid-auto-rows: max-content;
+  min-height: 0;
   padding-bottom: 2px;
 }
 
@@ -3325,6 +3326,7 @@ html[data-theme="dark"] .modalSheet {
   border-radius: 18px;
   border: 1px solid var(--drawer-border);
   background: var(--drawer-surface);
+  margin-top: auto;
 }
 
 .drawerStatus {
@@ -3344,6 +3346,12 @@ html[data-theme="dark"] .modalSheet {
   min-height: 48px;
   padding: 12px 14px;
   border-top: 1px solid var(--drawer-sep);
+}
+
+.drawerStatusMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .drawerStatusRow:first-child {
@@ -3375,6 +3383,21 @@ html[data-theme="dark"] .modalSheet {
   border-color: color-mix(in srgb, rgba(242, 183, 5, 0.55) 70%, var(--drawer-border));
   color: var(--drawer-text);
   background: color-mix(in srgb, rgba(242, 183, 5, 0.24) 75%, var(--drawer-solid));
+}
+
+.drawerStatusAction {
+  text-decoration: none;
+  color: inherit;
+}
+
+.drawerStatusChevron {
+  color: var(--drawer-chevron);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.drawerStatusRowActive {
+  background: var(--drawer-link-active-bg);
 }
 
 .drawerLinks .drawerLink {
@@ -3438,6 +3461,16 @@ html[data-theme="dark"] .modalSheet {
 
 .drawerLinkActive {
   background: var(--drawer-link-active-bg);
+}
+
+@media (max-width: 720px) {
+  .drawer {
+    width: 100vw;
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    box-shadow: -14px 0 42px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .drawer .muted {
@@ -3623,10 +3656,30 @@ html[data-theme="dark"] {
   }
 }
 
-/* Home dashboard mobile refinement */
+/* Home dashboard full-bleed responsive shell */
+.container.pageHome {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.pageHome {
+  min-height: 100dvh;
+  padding: 0;
+  gap: 0;
+}
+
 .pageHome .dashHero {
-  width: min(100%, 520px);
-  margin-inline: auto;
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  box-shadow: none;
+  padding:
+    clamp(16px, 3vw, 28px)
+    clamp(16px, 4.2vw, 42px)
+    calc(20px + env(safe-area-inset-bottom, 0px));
 }
 
 .pageHome .dashMeta,
@@ -3634,17 +3687,29 @@ html[data-theme="dark"] {
 .pageHome .dashWidgets,
 .pageHome .dashCtas,
 .pageHome .dashFooter {
-  max-width: min(100%, 392px);
+  width: 100%;
+  max-width: min(100%, 960px);
+  margin-inline: auto;
 }
 
 .pageHome .dashFooterSingle {
   grid-template-columns: minmax(0, 1fr);
 }
 
+@media (min-width: 1025px) {
+  .pageHome .dashMeta,
+  .pageHome .dashLead,
+  .pageHome .dashWidgets,
+  .pageHome .dashCtas,
+  .pageHome .dashFooter {
+    max-width: min(100%, 1120px);
+  }
+}
+
 @media (max-width: 720px) {
   .pageHome .dashHero {
-    width: min(100%, clamp(292px, 92vw, 392px));
-    padding: 14px 12px calc(14px + env(safe-area-inset-bottom, 0px));
+    min-height: 100dvh;
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0px));
   }
 
   .pageHome .dashMeta,
@@ -3652,7 +3717,7 @@ html[data-theme="dark"] {
   .pageHome .dashWidgets,
   .pageHome .dashCtas,
   .pageHome .dashFooter {
-    max-width: min(100%, 356px);
+    max-width: 100%;
   }
 
   .pageHome .widgetCard {
@@ -3718,24 +3783,11 @@ html[data-theme="dark"] {
     border-radius: 12px;
     font-size: 11px;
   }
-
-  .pageHome .dashFooterSingle {
-    gap: 0;
-  }
 }
 
 @media (max-width: 420px) {
   .pageHome .dashHero {
-    width: min(100%, 94vw);
     padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .pageHome .dashMeta,
-  .pageHome .dashLead,
-  .pageHome .dashWidgets,
-  .pageHome .dashCtas,
-  .pageHome .dashFooter {
-    max-width: min(100%, 334px);
   }
 
   .pageHome .widgetCard {

@@ -12,7 +12,7 @@ import { canAccessBoilerBuster } from "@/lib/boiler-buster-access";
 import { store } from "@/lib/store";
 
 type DrawerLink = { href: string; label: string; badge?: number };
-type DrawerStatus = { label: string; value: string; accent?: boolean };
+type DrawerStatus = { label: string; value: string; accent?: boolean; href?: string };
 
 const links: Array<{ href: string; label: string }> = [
   { href: "/menu", label: "Menu" },
@@ -25,6 +25,10 @@ const links: Array<{ href: string; label: string }> = [
 function getPortalTitle(pathname: string | null | undefined) {
   if (pathname?.startsWith("/manager")) return "Manager portal";
   return "Staff portal";
+}
+
+function pathOnly(href: string) {
+  return href.split("?")[0] ?? href;
 }
 
 export function AppHeader() {
@@ -125,32 +129,14 @@ export function AppHeader() {
   }, [canUseManager, canUseStaff]);
 
   const customerDrawerLinks = useMemo(() => {
-    const list: DrawerLink[] = links
-      .map((link) => {
-        if (link.href === "/cart") {
-          return {
-            ...link,
-            badge: cartCount > 0 ? cartCount : undefined
-          };
-        }
-        if (signedIn && link.href === "/loyalty") return { ...link, label: "My QR (loyalty)" };
-        if (signedIn && link.href === "/orders") return { ...link, label: "Track orders" };
-        return { ...link };
-      });
-
-    const ordersIndex = list.findIndex((link) => link.href === "/orders");
-    const boilerBusterLink: DrawerLink = { href: "/boiler-buster", label: "Boiler Buster" };
-
-    if (canPlayBoilerBuster) {
-      if (ordersIndex === -1) {
-        list.push(boilerBusterLink);
-      } else {
-        list.splice(ordersIndex + 1, 0, boilerBusterLink);
+    return [
+      {
+        href: "/cart",
+        label: "Cart",
+        badge: cartCount > 0 ? cartCount : undefined
       }
-    }
-
-    return list;
-  }, [canPlayBoilerBuster, cartCount, signedIn]);
+    ];
+  }, [cartCount]);
 
   const drawerLinks: DrawerLink[] = useMemo(() => {
     if (isPortal) return portalLinks.map((link) => ({ ...link }));
@@ -158,12 +144,25 @@ export function AppHeader() {
   }, [customerDrawerLinks, isPortal, portalLinks]);
   const drawerStatuses: DrawerStatus[] = useMemo(() => {
     if (isPortal) return [];
-    return [
-      { label: "Menu", value: "Open", accent: true },
-      { label: "Loyalty", value: signedIn ? "Signed in" : "Sign in" },
-      { label: "Orders", value: signedIn ? "Signed in" : "Sign in" }
+    const loyaltyHref = signedIn
+      ? "/loyalty"
+      : `/signin?callbackUrl=${encodeURIComponent("/loyalty")}`;
+    const ordersHref = signedIn
+      ? "/orders"
+      : `/signin?callbackUrl=${encodeURIComponent("/orders")}`;
+    const list: DrawerStatus[] = [
+      { href: "/menu", label: "Menu", value: "Open", accent: true },
+      { href: loyaltyHref, label: "Loyalty", value: signedIn ? "My QR" : "Sign in" },
+      { href: ordersHref, label: "Orders", value: signedIn ? "Track" : "Sign in" }
     ];
-  }, [isPortal, signedIn]);
+
+    if (canPlayBoilerBuster) {
+      list.push({ href: "/boiler-buster", label: "Boiler Buster", value: "Play" });
+    }
+    list.push({ href: "/feedback", label: "Feedback", value: "Open" });
+
+    return list;
+  }, [canPlayBoilerBuster, isPortal, signedIn]);
   const showCollapsedHomeHeader = isHome && homeHeaderCollapsed && !open;
   const renderBrandIdentity = () => (
     <>
@@ -294,14 +293,49 @@ export function AppHeader() {
         <div className="drawerContent">
           {drawerStatuses.length > 0 ? (
             <div className="drawerStatus" aria-label="Dashboard status">
-              {drawerStatuses.map((status) => (
-                <div className="drawerStatusRow" key={status.label}>
-                  <span className="drawerStatusLabel">{status.label}</span>
-                  <span className={`drawerStatusValue ${status.accent ? "drawerStatusValueAccent" : ""}`}>
-                    {status.value}
-                  </span>
-                </div>
-              ))}
+              {drawerStatuses.map((status) => {
+                const statusValueClass = `drawerStatusValue ${status.accent ? "drawerStatusValueAccent" : ""}`;
+                const statusActive = status.href
+                  ? Boolean(pathname?.startsWith(pathOnly(status.href)))
+                  : false;
+                const statusClassName = `drawerStatusRow ${status.href ? "drawerStatusAction" : ""} ${
+                  statusActive ? "drawerStatusRowActive" : ""
+                }`;
+
+                const rowContent = (
+                  <>
+                    <span className="drawerStatusLabel">{status.label}</span>
+                    <span className="drawerStatusMeta">
+                      <span className={statusValueClass}>{status.value}</span>
+                      {status.href ? (
+                        <span className="drawerStatusChevron" aria-hidden="true">
+                          ›
+                        </span>
+                      ) : null}
+                    </span>
+                  </>
+                );
+
+                if (!status.href) {
+                  return (
+                    <div className={statusClassName} key={`${status.label}-${status.value}`}>
+                      {rowContent}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={`${status.label}-${status.href}`}
+                    href={status.href}
+                    className={statusClassName}
+                    onClick={() => setOpen(false)}
+                    aria-current={statusActive ? "page" : undefined}
+                  >
+                    {rowContent}
+                  </Link>
+                );
+              })}
             </div>
           ) : null}
 
@@ -331,9 +365,9 @@ export function AppHeader() {
                   await signOut({ callbackUrl: isPortal ? "/signin" : "/" });
                 }}
               >
-                Sign out
-              </button>
-            ) : (
+                  Sign out
+                </button>
+            ) : isPortal ? (
               <Link
                 href={isPortal ? `/signin?callbackUrl=${encodeURIComponent(portalCallbackUrl)}` : "/signin"}
                 className="drawerLink"
@@ -341,7 +375,7 @@ export function AppHeader() {
               >
                 Sign in
               </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </aside>
