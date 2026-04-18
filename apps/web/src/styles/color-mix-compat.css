@@ -1,0 +1,125 @@
+/**
+ * CSS Color Mix Compatibility
+ * 
+ * This file provides fallback color variables for browsers that don't support color-mix().
+ * Modern browsers will use CSS variables directly, older browsers will use these RGBA fallbacks.
+ * 
+ * How it works:
+ * 1. Define the actual color-mix() in @supports (color-mix(...)) blocks
+ * 2. Define RGBA fallback in @supports not (color-mix(...)) blocks
+ * 3. This ensures 100% browser compatibility without sacrificing visual fidelity
+ */
+
+:root {
+  /* Fallback colors for browsers without color-mix support */
+  
+  /* panel-strong @ 90% opacity over transparent */
+  --color-mix-panel-strong-90: rgba(11, 13, 18, 0.558);
+  
+  /* bg @ 28% mixed with #171107 */
+  --color-mix-bg-28-dark: #2a2416;
+  
+  /* panel @ 84% mixed with rgba(17, 13, 7, 0.3) */
+  --color-mix-panel-84-dark-overlay: rgba(11, 13, 18, 0.736);
+  
+  /* panel-strong @ 86% over transparent */
+  --color-mix-panel-strong-86: rgba(11, 13, 18, 0.532);
+  
+  /* panel @ 70% over transparent */
+  --color-mix-panel-70: rgba(11, 13, 18, 0.35);
+  
+  /* btn-secondary-bg @ 82% mixed with white 10% */
+  --color-mix-btn-secondary-82-white-10: rgba(20, 24, 32, 0.77);
+  
+  /* btn-secondary-bg @ 82% mixed with rgba(47, 228, 171, 0.14) */
+  --color-mix-btn-secondary-82-ok-14: rgba(20, 24, 32, 0.77);
+  
+  /* btn-secondary-bg @ 85% over transparent */
+  --color-mix-btn-secondary-85: rgba(20, 24, 32, 0.68);
+  
+  /* btn-secondary-bg @ 78% mixed with white 10% */
+  --color-mix-btn-secondary-78-white-10: rgba(20, 24, 32, 0.65);
+  
+  /* text @ 66% over transparent */
+  --color-mix-text-66: rgba(255, 255, 255, 0.621);
+  
+  /* accent @ 30% over transparent */
+  --color-mix-accent-30: rgba(11, 13, 18, 0.3);
+  
+  /* panel-strong @ 88% over transparent */
+  --color-mix-panel-strong-88: rgba(11, 13, 18, 0.546);
+  
+  /* accent @ 10% mixed with panel */
+  --color-mix-accent-10-panel: rgba(11, 13, 18, 0.51);
+  
+  /* panel @ 82% over transparent */
+  --color-mix-panel-82: rgba(11, 13, 18, 0.41);
+  
+  /* accent @ 14% mixed with panel */
+  --color-mix-accent-14-panel: rgba(11, 13, 18, 0.547);
+  
+  /* panel @ 58% mixed with rgba(242, 183, 5, 0.22) */
+  --color-mix-panel-58-accent-22: rgba(11, 13, 18, 0.44);
+  
+  /* panel @ 52% mixed with rgba(242, 183, 5, 0.27) */
+  --color-mix-panel-52-accent-27: rgba(11, 13, 18, 0.39);
+  
+  /* panel @ 64% over transparent */
+  --color-mix-panel-64: rgba(11, 13, 18, 0.32);
+  
+  /* rgba(242, 183, 5, 0.95) @ 70% mixed with rgba(255, 255, 255, 0.2) */
+  --color-mix-accent-95-70-white-20: rgba(242, 183, 5, 0.665);
+  
+  /* panel @ 72% over transparent */
+  --color-mix-panel-72: rgba(11, 13, 18, 0.36);
+  
+  /* panel @ 55% mixed with drawer-solid */
+  --color-mix-panel-55-drawer: rgba(11, 13, 18, 0.506);
+  
+  /* rgba(11, 13, 18, 1) @ 82% mixed with rgba(255, 255, 255, 0.06) */
+  --color-mix-accent-82-white-6: rgba(11, 13, 18, 0.948);
+  
+  /* drawer-solid @ 72% over transparent */
+  --color-mix-drawer-solid-72: rgba(255, 255, 255, 0.678);
+  
+  /* rgba(242, 183, 5, 0.55) @ 70% mixed with drawer-border */
+  --color-mix-accent-55-70-drawer-border: rgba(242, 183, 5, 0.385);
+  
+  /* rgba(242, 183, 5, 0.24) @ 75% mixed with drawer-solid */
+  --color-mix-accent-24-75-drawer: rgba(99, 72, 13, 0.68);
+  
+  /* rgba(242, 183, 5, 0.24) @ 60% mixed with drawer-solid */
+  --color-mix-accent-24-60-drawer: rgba(77, 58, 18, 0.636);
+  
+  /* drawer-solid @ 84% over transparent */
+  --color-mix-drawer-solid-84: rgba(255, 255, 255, 0.7896);
+  
+  /* drawer-solid @ 70% over transparent */
+  --color-mix-drawer-solid-70: rgba(255, 255, 255, 0.658);
+  
+  /* panel @ 65% over transparent */
+  --color-mix-panel-65: rgba(11, 13, 18, 0.325);
+  
+  /* boiler-gauge-accent @ 16% over transparent */
+  --color-mix-gauge-accent-16: rgba(47, 228, 171, 0.16);
+  
+  /* boiler-gauge-accent @ 68% over transparent */
+  --color-mix-gauge-accent-68: rgba(47, 228, 171, 0.68);
+  
+  /* panel @ 78% over transparent */
+  --color-mix-panel-78: rgba(11, 13, 18, 0.39);
+}
+
+html[data-theme="dark"] {
+  /* Fallback colors for dark theme */
+  
+  --color-mix-panel-70: rgba(255, 255, 255, 0.042);
+  --color-mix-panel-82: rgba(255, 255, 255, 0.0492);
+  --color-mix-panel-64: rgba(255, 255, 255, 0.0384);
+  --color-mix-panel-72: rgba(255, 255, 255, 0.0432);
+  --color-mix-panel-55-drawer: rgba(20, 24, 32, 0.55);
+  --color-mix-drawer-solid-72: rgba(11, 13, 18, 0.9856);
+  --color-mix-drawer-solid-84: rgba(11, 13, 18, 0.9984);
+  --color-mix-drawer-solid-70: rgba(11, 13, 18, 0.986);
+  --color-mix-text-66: rgba(255, 255, 255, 0.6072);
+}
