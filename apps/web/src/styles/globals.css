@@ -78,6 +78,20 @@
   --drawer-bg:
     radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.12), transparent 60%),
     var(--drawer-solid);
+  --drawer-overlay-bg:
+    linear-gradient(
+      90deg,
+      rgba(30, 20, 2, 0.12) 0%,
+      rgba(20, 14, 4, 0.28) 42%,
+      rgba(14, 11, 6, 0.5) 100%
+    );
+  --drawer-edge-blend: linear-gradient(90deg, rgba(14, 11, 6, 0), rgba(14, 11, 6, 0.24));
+  --home-hero-bg:
+    radial-gradient(900px 560px at 0% 0%, rgba(242, 183, 5, 0.3), transparent 58%),
+    radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.14), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-strong) 90%, transparent), var(--panel)),
+    color-mix(in srgb, var(--bg) 28%, #171107);
+  --home-footer-mobile-bg: color-mix(in srgb, var(--panel) 84%, rgba(17, 13, 7, 0.3));
 }
 
 * {
@@ -110,7 +124,17 @@ body {
   flex: 1;
 }
 
-[data-shell="portal"] body {
+html[data-shell="portal"][data-theme="poster"] body {
+  --bg: #171107;
+  --bg-gradient:
+    radial-gradient(1200px 800px at 10% 0%, rgba(242, 183, 5, 0.2), transparent 58%),
+    radial-gradient(900px 700px at 100% 20%, rgba(255, 255, 255, 0.06), transparent 55%),
+    var(--bg);
+  --header-bg: rgba(23, 17, 7, 0.78);
+  --header-border: rgba(255, 255, 255, 0.14);
+}
+
+html[data-shell="portal"][data-theme="dark"] body {
   --bg: #0b0d12;
   --bg-gradient:
     radial-gradient(1200px 800px at 10% 0%, rgba(47, 228, 171, 0.08), transparent 55%),
@@ -3289,13 +3313,7 @@ code {
 .drawerOverlay {
   position: fixed;
   inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(5, 7, 13, 0.14) 0%,
-      rgba(5, 7, 13, 0.34) 42%,
-      rgba(5, 7, 13, 0.62) 100%
-    );
+  background: var(--drawer-overlay-bg);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-base) var(--ease-standard);
@@ -3435,7 +3453,7 @@ html[data-theme="dark"] .modalSheet {
   left: -18px;
   width: 18px;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(5, 7, 13, 0), rgba(5, 7, 13, 0.26));
+  background: var(--drawer-edge-blend);
 }
 
 .drawerTop {
@@ -3803,6 +3821,19 @@ html[data-theme="dark"] {
   --drawer-sep: rgba(255, 255, 255, 0.12);
   --drawer-chevron: rgba(255, 255, 255, 0.38);
   --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
+  --drawer-overlay-bg:
+    linear-gradient(
+      90deg,
+      rgba(5, 7, 13, 0.14) 0%,
+      rgba(5, 7, 13, 0.34) 42%,
+      rgba(5, 7, 13, 0.62) 100%
+    );
+  --drawer-edge-blend: linear-gradient(90deg, rgba(5, 7, 13, 0), rgba(5, 7, 13, 0.26));
+  --home-hero-bg:
+    radial-gradient(900px 560px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
+    radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.08), transparent 62%),
+    #06080f;
+  --home-footer-mobile-bg: color-mix(in srgb, var(--panel) 84%, rgba(11, 13, 18, 0.34));
 }
 
 .drawer,
@@ -3851,10 +3882,7 @@ html[data-theme="dark"] {
   border-radius: 0;
   border: 0;
   box-shadow: none;
-  background:
-    radial-gradient(900px 560px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
-    radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.08), transparent 62%),
-    #06080f;
+  background: var(--home-hero-bg);
   display: flex;
   flex-direction: column;
   padding:
@@ -3993,7 +4021,7 @@ html[data-theme="dark"] {
     padding: 7px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 14px;
-    background: color-mix(in srgb, var(--panel) 84%, rgba(11, 13, 18, 0.34));
+    background: var(--home-footer-mobile-bg);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   }
 

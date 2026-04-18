@@ -7,6 +7,15 @@ import { AppChrome } from "@/components/nav/AppChrome";
 import { AppFooter } from "@/components/nav/AppFooter";
 import { getConfiguredPublicUrl } from "@/lib/public-url";
 
+const themeBootstrapScript = `(() => {
+  try {
+    const stored = window.localStorage.getItem("ch.theme");
+    if (stored === "dark" || stored === "poster") {
+      document.documentElement.dataset.theme = stored;
+    }
+  } catch {}
+})();`;
+
 export const metadata: Metadata = {
   metadataBase: getConfiguredPublicUrl() ?? undefined,
   title: "Craving House",
@@ -21,6 +30,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" data-theme="poster">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+      </head>
       <body>
         <a className="skipLink" href="#main-content">
           Skip to content
