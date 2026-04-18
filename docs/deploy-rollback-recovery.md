@@ -6,7 +6,8 @@ Last updated: 2026-04-09
 
 ### Live Auth Walkthrough
 
-A live auth walkthrough means testing sign-in on the deployed app, not just in local dev or unit tests.
+A live auth walkthrough means testing sign-in on the deployed app,
+not just in local dev or unit tests.
 
 Run it with real customer, staff, and manager accounts on the public URL and confirm:
 
@@ -19,14 +20,20 @@ Run it with real customer, staff, and manager accounts on the public URL and con
 
 Why this matters:
 
-- it catches deployment-only problems such as cookie settings, HTTPS-only session issues, `NEXTAUTH_URL` mistakes, and proxy/runtime differences
-- on 2026-04-09 this exact check exposed a real bug: credentials sign-in returned `500` because the NextAuth catch-all route context was not forwarded into the wrapped POST handler
+- it catches deployment-only problems such as cookie settings,
+  HTTPS-only session issues, `NEXTAUTH_URL` mistakes,
+  and proxy/runtime differences
+- on 2026-04-09 this exact check exposed a real bug:
+  credentials sign-in returned `500` because the NextAuth catch-all route
+  context was not forwarded into the wrapped POST handler
 
 ### Live Payment Walkthrough
 
-A live payment walkthrough means placing real test-mode orders through Stripe on the deployed app.
+A live payment walkthrough means placing real test-mode orders through Stripe
+on the deployed app.
 
-Run it only after `GET /api/payments/stripe/enabled` returns `{"enabled":true}` and confirm:
+Run it only after `GET /api/payments/stripe/enabled`
+returns `{"enabled":true}` and confirm:
 
 - guest checkout creates an order and redirects to Stripe Checkout
 - signed-in checkout also works
@@ -40,11 +47,15 @@ Run it only after `GET /api/payments/stripe/enabled` returns `{"enabled":true}` 
 Why this matters:
 
 - local code can be correct while live Stripe config is still incomplete
-- this is the only step that proves the full payment path, webhook handling, and order state transitions in production-like conditions
+- this is the only step that proves the full payment path,
+  webhook handling, and order state transitions
+  in production-like conditions
 
 ### Mobile QA Pass
 
-A mobile QA pass means a visual and interaction review on an iPhone-sized viewport, ideally on a real device and at minimum in browser device emulation.
+A mobile QA pass means a visual and interaction review
+on an iPhone-sized viewport, ideally on a real device
+and at minimum in browser device emulation.
 
 Review at least:
 
@@ -67,31 +78,39 @@ Check for:
 
 Why this matters:
 
-- responsive CSS and code inspection do not prove the UI feels correct on a real narrow screen
-- this is the step that catches touch-target, overflow, spacing, and drawer behavior issues before client handover
+- responsive CSS and code inspection do not prove the UI feels correct
+  on a real narrow screen
+- this is the step that catches touch-target, overflow, spacing,
+  and drawer behavior issues before client handover
 
 ### Rollback And Recovery Steps
 
-Rollback and recovery steps are the operating instructions for getting the live app back to a good state when a deploy, migration, auth flow, or Stripe setup goes wrong.
+Rollback and recovery steps are the operating instructions for getting
+the live app back to a good state when a deploy, migration, auth flow,
+or Stripe setup goes wrong.
 
 Why this matters:
 
 - a checklist without recovery steps is not enough for client handover
-- the client needs a repeatable path for bad deploys, config mistakes, and webhook issues
+- the client needs a repeatable path for bad deploys,
+  config mistakes, and webhook issues
 
 ## How Render Startup Works
 
 The web app startup path is:
 
 1. Render starts `npm run start` for `apps/web`.
-2. [`apps/web/scripts/start.mjs`](/Users/user/Desktop/Craving House Coffee App/apps/web/scripts/start.mjs) validates production env vars.
-3. [`apps/web/prisma/deploy.cjs`](/Users/user/Desktop/Craving House Coffee App/apps/web/prisma/deploy.cjs) runs `prisma migrate deploy` because Prisma migrations exist in this repo.
+2. [`apps/web/scripts/start.mjs`](/Users/user/Desktop/Craving House Coffee App/apps/web/scripts/start.mjs)
+   validates production env vars.
+3. [`apps/web/prisma/deploy.cjs`](/Users/user/Desktop/Craving House Coffee App/apps/web/prisma/deploy.cjs)
+   runs `prisma migrate deploy` because Prisma migrations exist in this repo.
 4. Next.js starts with `next start -H 0.0.0.0 -p $PORT`.
 
 Important consequences:
 
 - the app will refuse to boot if required env vars are missing or invalid
-- deploy-time database migration runs before the Next.js server starts accepting traffic
+- deploy-time database migration runs before the Next.js server starts
+  accepting traffic
 - rolling code back does not automatically roll database schema back
 
 ## Required Production Env
@@ -137,20 +156,24 @@ Production guardrails already enforced by startup:
 
 Run these after every successful deploy:
 
-1. Open the Render deploy logs and confirm startup completed without env validation errors.
+1. Open the Render deploy logs and confirm startup completed
+   without env validation errors.
 2. Confirm Prisma migration completed cleanly.
 3. Check `GET /api/health`.
 4. Check `GET /api/health?verbose=1` with either:
    - a signed-in manager session, or
    - `x-healthcheck-token: <HEALTHCHECK_TOKEN>`
 5. Check `GET /api/payments/stripe/enabled`.
-6. Run the live auth walkthrough with the handover customer, staff, and manager accounts.
-7. If Stripe is enabled, run both the guest and signed-in payment walkthroughs with Stripe test mode.
+6. Run the live auth walkthrough with the handover customer,
+   staff, and manager accounts.
+7. If Stripe is enabled, run both the guest and signed-in payment
+   walkthroughs with Stripe test mode.
 8. Do the mobile visual pass on the public URL.
 
 ## Rollback Procedure
 
-Use this when a new deploy breaks the site and you need the last known-good code back quickly.
+Use this when a new deploy breaks the site and you need
+the last known-good code back quickly.
 
 1. In Render, open the web service and go to the deploy history.
 2. Find the last successful deploy that predates the incident.
@@ -161,7 +184,8 @@ Use this when a new deploy breaks the site and you need the last known-good code
 Important:
 
 - this restores application code, not database schema history
-- if the broken deploy also applied a schema migration, code rollback alone may not be enough
+- if the broken deploy also applied a schema migration,
+  code rollback alone may not be enough
 
 ## Recovery Playbooks
 
@@ -196,7 +220,8 @@ Symptoms:
 Facts for this repo:
 
 - Prisma migrations exist, so deploy startup uses `prisma migrate deploy`
-- the migration files live in [`apps/web/prisma/migrations`](/Users/user/Desktop/Craving House Coffee App/apps/web/prisma/migrations)
+- the migration files live in
+  [`apps/web/prisma/migrations`](/Users/user/Desktop/Craving House Coffee App/apps/web/prisma/migrations)
 
 Recovery:
 
@@ -227,7 +252,9 @@ Checks:
 
 Known example:
 
-- on 2026-04-09 this flow failed because [`apps/web/src/app/api/(auth)/auth/[...nextauth]/route.ts`](/Users/user/Desktop/Craving House Coffee App/apps/web/src/app/api/(auth)/auth/[...nextauth]/route.ts) called the wrapped NextAuth POST handler without the route context
+- on 2026-04-09 this flow failed because
+  [`apps/web/src/app/api/(auth)/auth/[...nextauth]/route.ts`](../apps/web/src/app/api/(auth)/auth/[...nextauth]/route.ts)
+  called the wrapped NextAuth POST handler without the route context
 
 ### Stripe Checkout Or Webhook Failure
 
@@ -260,4 +287,5 @@ Recovery:
 1. Use a signed-in manager session, or
 2. send `x-healthcheck-token: <HEALTHCHECK_TOKEN>`
 
-The verbose health endpoint is intentionally restricted and that `403` is expected without one of those two access paths.
+The verbose health endpoint is intentionally restricted,
+and that `403` is expected without one of those two access paths.

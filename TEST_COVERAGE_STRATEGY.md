@@ -3,12 +3,15 @@
 ## Current State Analysis
 
 ### ✅ What You Have
+
 - `auth-messages.test.ts` - Basic message formatting tests
 - `boiler-buster-access.test.ts` - Permission checking
 - `drink-customizations.test.ts` - Utility tests
-- `password.test.ts`, `credentials.test.ts`, `password-reset.test.ts`, `secret-box.test.ts` - Auth utilities
+- `password.test.ts`, `credentials.test.ts`, `password-reset.test.ts`,
+  `secret-box.test.ts` - Auth utilities
 
 ### ❌ What's Missing
+
 - **Route Integration Tests** - Testing actual API endpoints with HTTP
 - **Database Integration** - Full user flow from registration to checkout
 - **Role-Based Access Control Tests** - Verifying staff/manager endpoints
@@ -18,19 +21,19 @@
 
 ## 📚 Testing Pyramid (Recommended Structure)
 
-```
+```text
         🔺 E2E Tests (Playwright)
        /                    \
       /   Few, slow,        \
      /    real browser       \
     /________________________\
-    
+
          🔷 Integration Tests
         /                    \
        /   API Routes +      \
       /    Database tests    \
      /________________________\
-     
+
     🔸 Unit Tests (Fast, many)
    /                            \
   /  Pure functions, validation  \
@@ -38,17 +41,20 @@
 ```
 
 ### Unit Tests (Already have some)
+
 - ✅ `password.ts` - Validation logic
 - ✅ `auth-messages.ts` - Message formatting
 - Need to add: Rate limit calculation, token generation
 
 ### Integration Tests (MISSING - HIGH PRIORITY)
+
 - ❌ POST `/api/auth/register` with valid/invalid data
 - ❌ POST `/api/auth/password-reset/request` and `/confirm`
 - ❌ GET `/api/orders` with different user roles
 - ❌ POST `/api/manager/products` (staff should be denied)
 
 ### E2E Tests (Partial)
+
 - ✅ `checkout-flows.spec.ts` - Customer checkout
 - ✅ `auth-access.spec.ts` - Sign in/out
 - Need to add: Full manager portal workflow, loyalty redemption, TOTP setup
@@ -58,6 +64,7 @@
 ## 🛡️ Critical Auth Scenarios to Test
 
 ### 1. Registration Security
+
 ```typescript
 Scenario: User Registration
 ├─ Happy Path
@@ -77,11 +84,13 @@ Scenario: User Registration
 ```
 
 ### 2. Password Reset Security
+
 ```typescript
 Scenario: Password Reset
 ├─ Request Flow
 │  ├─ Valid email → Returns generic "check email" message
-│  ├─ Invalid email → Returns generic "check email" message (enumeration prevention)
+│  ├─ Invalid email → Returns generic "check email" message
+│  │  (enumeration prevention)
 │  ├─ 5 resets per minute → OK
 │  └─ 6th reset → 429 Too Many Requests
 ├─ Token Management
@@ -98,6 +107,7 @@ Scenario: Password Reset
 ```
 
 ### 3. Session & MFA
+
 ```typescript
 Scenario: Sign In with MFA
 ├─ Without MFA
@@ -118,7 +128,7 @@ Scenario: Sign In with MFA
 
 ## 📁 Test Structure Recommendation
 
-```
+```text
 apps/web/
 ├── src/
 │   ├── __tests__/
@@ -157,21 +167,25 @@ apps/web/
 ## 🔧 Implementation Approach
 
 ### Phase 1: Unit Tests (Foundation) ✅
+
 - Already have password validation tests
 - Add: rate limit calculations, token generation
 
 ### Phase 2: Integration Tests (High Priority)
+
 - Setup test database (use SQLite for speed)
 - Create test fixtures (helper functions)
 - Test each route with valid/invalid input
 - Verify database state after requests
 
 ### Phase 3: RBAC & Authorization (Medium Priority)
+
 - Create test users with each role
 - Test that endpoints reject unauthorized access
 - Verify permission checks on sensitive operations
 
 ### Phase 4: E2E Critical Flows
+
 - Customer: register → browse menu → add to cart → checkout
 - Manager: login → view orders → process order → mark complete
 - Staff: login → view loyalty queue → scan QR code → stamp account
@@ -190,13 +204,13 @@ apps/web/
 
 ## 📊 Coverage Goals
 
-| Area | Current | Target | Priority |
-|------|---------|--------|----------|
-| Auth Flows | 20% | 80% | CRITICAL |
-| API Routes | 5% | 70% | HIGH |
-| Manager Portal | 0% | 60% | HIGH |
-| Checkout Flow | 40% | 90% | MEDIUM |
-| Database Integrity | 10% | 60% | MEDIUM |
+| Area               | Current | Target | Priority |
+| ------------------ | ------- | ------ | -------- |
+| Auth Flows         | 20%     | 80%    | CRITICAL |
+| API Routes         | 5%      | 70%    | HIGH     |
+| Manager Portal     | 0%      | 60%    | HIGH     |
+| Checkout Flow      | 40%     | 90%    | MEDIUM   |
+| Database Integrity | 10%     | 60%    | MEDIUM   |
 
 ---
 
@@ -214,8 +228,10 @@ apps/web/
 
 ## 💡 Key Principles
 
-- **Test the behavior, not implementation** - Focus on what users do, not how it works
-- **Test security boundaries** - Role transitions, permission checks, rate limits
+- **Test the behavior, not implementation** - Focus on what users do,
+  not how it works
+- **Test security boundaries** - Role transitions,
+  permission checks, rate limits
 - **Test edge cases** - Expired tokens, malformed input, race conditions
 - **Fast feedback** - Unit tests should run in <100ms, integration in <5s
 - **Isolated tests** - Each test runs independently, no order dependencies

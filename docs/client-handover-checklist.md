@@ -4,18 +4,23 @@ Last audited: 2026-04-09
 
 ## Status Legend
 
-- `[x]` Verified on 2026-04-09 from live Render checks and/or local build/test evidence
-- `[-]` Implemented or code-backed, but still needs a live authenticated/payment walkthrough
-- `[ ]` Not yet verified, currently blocked, or still needs manual client-facing QA
+- `[x]` Verified on 2026-04-09 from live Render checks
+  and/or local build/test evidence
+- `[-]` Implemented or code-backed,
+  but still needs a live authenticated/payment walkthrough
+- `[ ]` Not yet verified, currently blocked,
+  or still needs manual client-facing QA
 
 ## Current Evidence
 
-- Live public URL detected from app config and verified: `https://craving-house.onrender.com`
+- Live public URL detected from app config and verified:
+  `https://craving-house.onrender.com`
 - Live checks verified:
   - `GET /api/health` => `200` with `{"ok":true,...}`
   - `GET /api/health?verbose=1` => `403` when unauthenticated
   - `GET /api/payments/stripe/enabled` => `{"enabled":false}`
-  - `GET /`, `/menu`, `/cart`, `/checkout`, `/signin`, `/loyalty`, `/orders`, `/staff`, `/manager` => `200`
+  - `GET /`, `/menu`, `/cart`, `/checkout`, `/signin`,
+    `/loyalty`, `/orders`, `/staff`, `/manager` => `200`
   - `GET /contact`, `/help`, `/privacy`, `/terms` => `200`
   - `GET /api/menu` => `43` products returned
 - Local verification passed:
@@ -23,25 +28,38 @@ Last audited: 2026-04-09
   - `npm run lint --workspace apps/web`
   - `../../node_modules/.bin/tsc --noEmit -p apps/web/tsconfig.json`
   - `npm run build --workspace apps/web`
-- Handover role accounts exist in the deployment database for customer, staff, and manager.
-- Live authenticated walkthrough now passes for customer, staff, and manager on `https://craving-house.onrender.com`.
+- Handover role accounts exist in the deployment database
+  for customer, staff, and manager.
+- Live authenticated walkthrough now passes for customer, staff,
+  and manager on `https://craving-house.onrender.com`.
 - Live sign-out clears the session successfully.
 - `GET /api/health?verbose=1` now works from a live manager session.
-- Protected manager API access now verifies as `401` unauthenticated, `403` for customer/staff, and `200` for manager.
-- Live loyalty checks now pass for the signed-in handover customer: loyalty summary loads, QR token loads, and the loyalty page renders correctly.
-- Live manager tools now return expected data for products, users, orders, loyalty settings, and role-change audit.
-- Live staff tools now load correctly: order queue returns an empty-state payload and loyalty scan renders its token-entry flow.
-- Live customer menu keeps known modifier/add-on products hidden from standalone browsing.
-- Live contact page no longer leaks deployment-only setup instructions, and the mobile drawer now exposes the `Menu` link.
-- Local authenticated walkthrough now passes for all three roles after fixing the credentials callback route.
-- Rollback and failed-deploy recovery steps are now documented in [`docs/deploy-rollback-recovery.md`](/Users/user/Desktop/Craving House Coffee App/docs/deploy-rollback-recovery.md).
+- Protected manager API access now verifies as `401` unauthenticated,
+  `403` for customer/staff, and `200` for manager.
+- Live loyalty checks now pass for the signed-in handover customer:
+  loyalty summary loads, QR token loads,
+  and the loyalty page renders correctly.
+- Live manager tools now return expected data for products, users, orders,
+  loyalty settings, and role-change audit.
+- Live staff tools now load correctly:
+  order queue returns an empty-state payload
+  and loyalty scan renders its token-entry flow.
+- Live customer menu keeps known modifier/add-on products hidden
+  from standalone browsing.
+- Live contact page no longer leaks deployment-only setup instructions,
+  and the mobile drawer now exposes the `Menu` link.
+- Local authenticated walkthrough now passes for all three roles
+  after fixing the credentials callback route.
+- Rollback and failed-deploy recovery steps are now documented in
+  [`docs/deploy-rollback-recovery.md`](./deploy-rollback-recovery.md).
 
 ## Current Blockers To 100%
 
 1. Stripe is not enabled on the live Render deployment right now.
 2. No live payment walkthrough has been completed yet for guest or signed-in checkout.
 3. No human mobile QA pass has been completed yet on iPhone-sized viewports.
-4. Render deploy-log cleanliness and migration success still need confirmation in the Render dashboard.
+4. Render deploy-log cleanliness and migration success
+   still need confirmation in the Render dashboard.
 
 ## Necessary Steps To Reach 100%
 
@@ -55,13 +73,15 @@ Last audited: 2026-04-09
    - Staff queue and loyalty scan flow.
    - Manager product/settings/users/audit flow.
 3. Do the final client-facing polish pass.
-   - Use [`docs/phone-qa-script.md`](/Users/user/Desktop/Craving House Coffee App/docs/phone-qa-script.md) for the fast mobile/non-Stripe manual pass.
+   - Use [`docs/phone-qa-script.md`](/Users/user/Desktop/Craving House Coffee App/docs/phone-qa-script.md)
+     for the fast mobile/non-Stripe manual pass.
    - Mobile spacing/tap-target review.
    - Copy consistency review.
    - Empty/loading/error state review.
    - Final sign-off pass with no launch blockers remaining.
 4. Use the rollback/recovery runbook during release sign-off.
-   - Confirm the operator handover matches [`docs/deploy-rollback-recovery.md`](/Users/user/Desktop/Craving House Coffee App/docs/deploy-rollback-recovery.md).
+   - Confirm the operator handover matches
+     [`docs/deploy-rollback-recovery.md`](./deploy-rollback-recovery.md).
 
 ## Checklist
 
@@ -162,7 +182,8 @@ Last audited: 2026-04-09
 - [x] Manager can view orders.
 - [-] Manager can create/edit products.
 - [-] Manager can change availability.
-- [x] Manager can verify hidden modifier/add-on items are not exposed on customer menu.
+- [x] Manager can verify hidden modifier/add-on items
+  are not exposed on customer menu.
 - [-] Manager can manage users/roles if intended.
 - [-] Manager settings page loads and saves correctly.
 - [x] Audit page loads and is readable.

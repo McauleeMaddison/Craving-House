@@ -4,7 +4,7 @@
 
 RBAC is how we prevent unauthorized users from accessing sensitive operations.
 
-```
+```text
 ❌ BAD: No permission checks
 ├─ Attacker signs in as "customer"
 ├─ Changes URL to /api/manager/orders
@@ -19,7 +19,7 @@ RBAC is how we prevent unauthorized users from accessing sensitive operations.
 
 Your app has 3 portals with different permission levels:
 
-```
+```text
          Manager Portal (highest privilege)
          ├─ View all orders
          ├─ View all customers
@@ -27,13 +27,13 @@ Your app has 3 portals with different permission levels:
          ├─ View audit logs
          ├─ Process refunds
          └─ Requires TOTP MFA
-         
+
          Staff Portal (medium privilege)
          ├─ View order queue (only today)
          ├─ Mark orders complete
          ├─ Scan loyalty QR codes
          └─ Stamp accounts
-         
+
          Customer Portal (lowest privilege)
          ├─ View own orders
          ├─ View loyalty QR code
@@ -52,24 +52,26 @@ Your app has 3 portals with different permission levels:
 // Check if user has a required role
 export async function requireRole(allowed: AppRole[]) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) 
-    return { ok: false, reason: "unauthorized" };
-  
+  if (!session?.user?.id) return { ok: false, reason: "unauthorized" };
+
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, role: true, disabledAt: true }
+    select: { id: true, role: true, disabledAt: true },
   });
-  
+
   const role = user?.role || "customer";
-  
-  if (!allowed.includes(role)) 
-    return { ok: false, reason: "forbidden" }; // ✅ Permission denied!
-  
+
+  if (!allowed.includes(role)) {
+    // ✅ Permission denied!
+    return { ok: false, reason: "forbidden" };
+  }
+
   return { ok: true, userId: user.id, role };
 }
 ```
 
 **This is EXCELLENT!** You have:
+
 - ✅ Proper session checking
 - ✅ Role validation
 - ✅ Account disabled checking
@@ -80,54 +82,53 @@ export async function requireRole(allowed: AppRole[]) {
 ## Security Vulnerabilities to Prevent
 
 ### 1️⃣ Vertical Privilege Escalation
+
 **Threat:** Customer becomes Manager
 
 ```typescript
 // ❌ VULNERABLE: No permission check
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  
+
   // Later: Update any user's role
   await prisma.user.update({
     where: { id: request.body.userId },
-    data: { role: "manager" } // Anyone can do this!
+    data: { role: "manager" }, // Anyone can do this!
   });
 }
 
 // ✅ SECURE: Permission required
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  
+
   // Must be manager
   const allowed = await requireRole(["manager"]);
   if (!allowed.ok) {
-    return NextResponse.json(
-      { error: "Forbidden" }, 
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  
+
   // Only now update user
   await prisma.user.update({
     where: { id: request.body.userId },
-    data: { role: "manager" }
+    data: { role: "manager" },
   });
 }
 ```
 
 ### 2️⃣ Horizontal Privilege Escalation
+
 **Threat:** Customer views another customer's orders
 
 ```typescript
 // ❌ VULNERABLE: No data filtering
 export async function GET(request: Request) {
   const { orderId } = params;
-  
+
   // Anyone can view any order
   const order = await prisma.order.findUnique({
-    where: { id: orderId }
+    where: { id: orderId },
   });
-  
+
   return NextResponse.json(order);
 }
 
@@ -135,29 +136,27 @@ export async function GET(request: Request) {
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return unauthorized();
-  
+
   const { orderId } = params;
-  
+
   // Get the order
   const order = await prisma.order.findUnique({
-    where: { id: orderId }
+    where: { id: orderId },
   });
-  
+
   if (!order) return notFound();
-  
+
   // Verify user owns the order or is staff/manager
   if (order.userId !== session.user.id && session.user.role === "customer") {
-    return NextResponse.json(
-      { error: "Forbidden" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  
+
   return NextResponse.json(order);
 }
 ```
 
 ### 3️⃣ TOTP Bypass
+
 **Threat:** Staff/Manager disables MFA or bypasses TOTP check
 
 ```typescript
@@ -173,16 +172,10 @@ if (["staff", "manager"].includes(role)) {
   // TOTP required
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user.mfaTotpEnabledAt) {
-    return NextResponse.json(
-      { error: "MFA not enabled" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "MFA not enabled" }, { status: 403 });
   }
   if (!verifyTotp(totp, user.mfaTotpSecret)) {
-    return NextResponse.json(
-      { error: "Invalid MFA code" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: "Invalid MFA code" }, { status: 401 });
   }
 }
 ```
@@ -193,7 +186,7 @@ if (["staff", "manager"].includes(role)) {
 
 ### ✅ Authorization Checks
 
-```
+```text
 [ ] Every /manager/* route requires requireRole(["manager"])
 [ ] Every /staff/* route requires requireRole(["staff", "manager"])
 [ ] No route accepts "as any" for user data
@@ -204,7 +197,7 @@ if (["staff", "manager"].includes(role)) {
 
 ### ✅ MFA (Multi-Factor Authentication)
 
-```
+```text
 [ ] Managers must have TOTP enabled
 [ ] TOTP code verified on sensitive operations
 [ ] TOTP codes are single-use (time-based, 30-sec window)
@@ -214,7 +207,7 @@ if (["staff", "manager"].includes(role)) {
 
 ### ✅ Data Validation
 
-```
+```text
 [ ] All request bodies validated for type/range
 [ ] No SQL injection risks (using Prisma - good!)
 [ ] No CSRF tokens needed if using httpOnly cookies
@@ -223,7 +216,7 @@ if (["staff", "manager"].includes(role)) {
 
 ### ✅ Audit Logging
 
-```
+```text
 [ ] All manager/staff operations logged
 [ ] Logs include: user ID, action, timestamp, IP
 [ ] Log tampering prevented (immutable or signed)
@@ -240,12 +233,12 @@ if (["staff", "manager"].includes(role)) {
 test("GET /api/manager/orders requires manager role", async () => {
   // Sign in as customer
   const session = await signinAs("customer");
-  
+
   // Try to access manager endpoint
   const response = await fetch("/api/manager/orders", {
-    headers: { Authorization: `Bearer ${session.token}` }
+    headers: { Authorization: `Bearer ${session.token}` },
   });
-  
+
   // Should be denied
   assert.equal(response.status, 403);
   assert(response.json.error.includes("Forbidden"));
@@ -254,12 +247,12 @@ test("GET /api/manager/orders requires manager role", async () => {
 test("GET /api/manager/orders allows manager", async () => {
   // Sign in as manager
   const session = await signinAs("manager");
-  
+
   // Try to access manager endpoint
   const response = await fetch("/api/manager/orders", {
-    headers: { Authorization: `Bearer ${session.token}` }
+    headers: { Authorization: `Bearer ${session.token}` },
   });
-  
+
   // Should be allowed
   assert.equal(response.status, 200);
   assert(Array.isArray(response.json));
@@ -273,16 +266,16 @@ test("GET /api/orders/[id] filters by user", async () => {
   // Create two customers
   const customer1 = await createUser({ role: "customer" });
   const customer2 = await createUser({ role: "customer" });
-  
+
   // Customer1 places an order
   const order = await createOrder({ userId: customer1.id });
-  
+
   // Customer2 tries to view customer1's order
   const session2 = await signinAs(customer2);
   const response = await fetch(`/api/orders/${order.id}`, {
-    headers: { Authorization: `Bearer ${session2.token}` }
+    headers: { Authorization: `Bearer ${session2.token}` },
   });
-  
+
   // Should be denied
   assert.equal(response.status, 403);
 });
@@ -294,14 +287,14 @@ test("GET /api/orders/[id] filters by user", async () => {
 test("POST /api/manager/process-refund requires TOTP", async () => {
   // Sign in as manager (with TOTP enabled)
   const session = await signinAs("manager");
-  
+
   // Try to process refund WITHOUT TOTP code
   const response = await fetch("/api/manager/process-refund", {
     method: "POST",
     headers: { Authorization: `Bearer ${session.token}` },
-    body: JSON.stringify({ orderId: "123", reason: "refund" })
+    body: JSON.stringify({ orderId: "123", reason: "refund" }),
   });
-  
+
   // Should require MFA
   assert.equal(response.status, 403);
   assert(response.json.error.includes("MFA"));
@@ -310,16 +303,16 @@ test("POST /api/manager/process-refund requires TOTP", async () => {
 test("POST /api/manager/process-refund works with valid TOTP", async () => {
   const session = await signinAs("manager");
   const totp = generateTotpCode(managerUser.mfaTotpSecret);
-  
+
   const response = await fetch("/api/manager/process-refund", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.token}`,
-      "X-TOTP": totp
+      "X-TOTP": totp,
     },
-    body: JSON.stringify({ orderId: "123" })
+    body: JSON.stringify({ orderId: "123" }),
   });
-  
+
   assert.equal(response.status, 200);
 });
 ```
@@ -351,7 +344,7 @@ test.describe("Manager Portal RBAC", () => {
 
 ### Step 3: Audit Sensitive Operations
 
-```
+```text
 [ ] Create user - only manager
 [ ] Delete user - only manager
 [ ] Process refund - only manager (with TOTP)
@@ -364,11 +357,13 @@ test.describe("Manager Portal RBAC", () => {
 ## Your Current Strengths
 
 ✅ **Good:**
+
 - `requireRole()` function is well-designed
 - MFA TOTP checking exists
 - Role field in session
 
 ⚠️ **To Verify:**
+
 - All endpoints call `requireRole()` before operating
 - TOTP verification happens for sensitive manager operations
 - Horizontal escalation prevented (user can't see other users' data)
@@ -379,12 +374,14 @@ test.describe("Manager Portal RBAC", () => {
 ## Summary
 
 Your app needs RBAC because:
+
 1. **Confidentiality** - Customers shouldn't see each other's orders
 2. **Integrity** - Only managers should modify system settings
 3. **Compliance** - Some businesses require audit trails for data access
 4. **Trust** - Users need to know their data is secure
 
 With proper RBAC:
+
 - ✅ Customer data is private
 - ✅ Staff can only do staff tasks
 - ✅ Managers must use MFA for sensitive operations

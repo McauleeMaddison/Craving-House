@@ -2,7 +2,8 @@
 
 Last updated: 2026-04-09
 
-Use this for a fast non-Stripe handover pass on a real phone or an iPhone-sized browser viewport.
+Use this for a fast non-Stripe handover pass
+on a real phone or an iPhone-sized browser viewport.
 
 Scope:
 
@@ -82,7 +83,8 @@ Check:
 - prices are formatted as pounds
 - prep time text is readable
 - unavailable products, if any, are clearly shown and cannot be added
-- obvious add-on items like `Add Chips`, `Mozzarella`, or waffle toppings are not listed as standalone menu products
+- obvious add-on items like `Add Chips`, `Mozzarella`,
+  or waffle toppings are not listed as standalone menu products
 
 Pass if:
 
@@ -101,7 +103,8 @@ Check:
 
 Pass if:
 
-- cart count changes correctly and the customized item is shown correctly in the cart
+- cart count changes correctly,
+  and the customized item is shown correctly in the cart
 
 ### 5. Cart
 
@@ -136,7 +139,8 @@ Check:
 
 Pass if:
 
-- validation is clear and the page does not feel broken even though payments are disabled
+- validation is clear and the page does not feel broken,
+  even though payments are disabled
 
 ### 7. Customer Sign-In
 
@@ -211,7 +215,8 @@ Pass if:
 
 ## Final Decision
 
-If all steps above pass, you can mark these as effectively ready apart from Stripe:
+If all steps above pass, you can mark these as effectively ready
+apart from Stripe:
 
 - mobile UX basic pass
 - customer browsing/cart/sign-in/loyalty flow

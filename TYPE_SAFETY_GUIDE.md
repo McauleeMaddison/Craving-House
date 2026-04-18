@@ -2,14 +2,16 @@
 
 ## What is `as any`?
 
-`as any` is TypeScript's "I give up" operator. It tells TypeScript: "Trust me, I know this is this type." 
+`as any` is TypeScript's "I give up" operator.
+It tells TypeScript: "Trust me, I know this is this type."
 
 ```typescript
 const mystery = someFunction(); // Type: unknown
-const data = mystery as any;   // Type: any (anything goes)
+const data = mystery as any; // Type: any (anything goes)
 ```
 
 **Why it's dangerous:**
+
 - You lose all type checking
 - IDEs can't autocomplete
 - Bugs slip through that TypeScript would catch
@@ -31,12 +33,13 @@ const customizations = (x as any)?.customizations;
 ```
 
 **Problems:**
+
 1. ❌ `x` could be anything (even null)
 2. ❌ Can't see what properties are expected
 3. ❌ Manual type checking repeated 3+ times
 4. ❌ If you add a new field, easy to miss one cast
 
-**✅ FIXED: Better Type Safety**
+### ✅ FIXED: Better Type Safety
 
 ```typescript
 // Solution 1: Type Guard Function (Recommended)
@@ -65,6 +68,7 @@ function safeParse(json: string | null): CartLine[] {
 ```
 
 **Why this is better:**
+
 - ✅ Single source of truth for what is a CartLine
 - ✅ TypeScript now knows `isValidCartItem` items are CartLine
 - ✅ If you add a field to CartLine, TypeScript errors in one place
@@ -83,11 +87,12 @@ const ip = getClientIp((req as any)?.headers);
 ```
 
 **Problems:**
+
 1. ❌ What's in `credentials`? Nobody knows!
 2. ❌ `req` could have any structure
 3. ❌ If NextAuth changes the interface, no warning
 
-**✅ FIXED: Define the Types**
+### ✅ FIXED: Define the Types
 
 ```typescript
 // Step 1: Define what credentials look like
@@ -101,11 +106,11 @@ type CredentialsSchema = {
 function parseCredentials(raw: unknown): CredentialsSchema | null {
   if (typeof raw !== "object" || raw === null) return null;
   const creds = raw as Record<string, unknown>;
-  
+
   if (typeof creds.email !== "string") return null;
   if (typeof creds.password !== "string") return null;
   if (creds.totp !== undefined && typeof creds.totp !== "string") return null;
-  
+
   return {
     email: creds.email,
     password: creds.password,
@@ -117,18 +122,19 @@ function parseCredentials(raw: unknown): CredentialsSchema | null {
 async authorize(credentials, req) {
   const parsed = parseCredentials(credentials);
   if (!parsed) return null;
-  
+
   // Now TypeScript knows exactly what these are
   const email = parsed.email.trim().toLowerCase();
   const password = parsed.password;
   const totp = parsed.totp?.trim() ?? "";
   const ip = getClientIp(req.headers); // req properly typed by NextAuth
-  
+
   // Rest of the function...
 }
 ```
 
 **Why this is better:**
+
 - ✅ Explicit contract for what credentials are
 - ✅ Easy to see required vs optional fields
 - ✅ Validation in one place
@@ -146,11 +152,12 @@ const json = (await res.json().catch(() => null)) as any;
 ```
 
 **Problems:**
+
 1. ❌ What properties does `json` have?
 2. ❌ Can't access Stripe event data safely
 3. ❌ Easy to typo a property name
 
-**✅ FIXED: Define Stripe Response Types**
+### ✅ FIXED: Define Stripe Response Types
 
 ```typescript
 // Define what a Stripe webhook event looks like
@@ -169,11 +176,11 @@ type StripeResponse = StripeEvent | null;
 function parseStripeResponse(json: unknown): StripeResponse {
   if (!json || typeof json !== "object") return null;
   const event = json as Record<string, unknown>;
-  
+
   if (event.object !== "event") return null;
   if (typeof event.id !== "string") return null;
   if (typeof event.type !== "string") return null;
-  
+
   return json as StripeEvent;
 }
 
@@ -185,9 +192,9 @@ if (!stripeEvent) {
 }
 
 // Now it's safe to access properties
-console.log(stripeEvent.id);      // ✅ TypeScript knows this is string
-console.log(stripeEvent.type);    // ✅ TypeScript knows this is string
-console.log(stripeEvent.data);    // ✅ TypeScript knows this exists
+console.log(stripeEvent.id); // ✅ TypeScript knows this is string
+console.log(stripeEvent.type); // ✅ TypeScript knows this is string
+console.log(stripeEvent.data); // ✅ TypeScript knows this exists
 ```
 
 ---
@@ -195,6 +202,7 @@ console.log(stripeEvent.data);    // ✅ TypeScript knows this exists
 ## 📊 Type Safety Patterns Summary
 
 ### Pattern 1: Type Guards (for external data)
+
 ```typescript
 // ❌ BAD: Lost all safety
 const data = json as any;
@@ -212,6 +220,7 @@ if (isValidUser(data)) {
 ```
 
 ### Pattern 2: Explicit Type Definitions
+
 ```typescript
 // ❌ BAD: Generic, lose type info
 function parseResponse(data: any): any {
@@ -226,15 +235,17 @@ function parseResponse(data: unknown): User | null {
   if (!data || typeof data !== "object") return null;
   const response = data as Record<string, unknown>;
   if (!response.user || typeof response.user !== "object") return null;
-  
+
   const user = response.user as Record<string, unknown>;
-  if (typeof user.id !== "string" || typeof user.email !== "string") return null;
-  
+  if (typeof user.id !== "string" || typeof user.email !== "string")
+    return null;
+
   return { id: user.id, email: user.email };
 }
 ```
 
 ### Pattern 3: NextAuth Type Augmentation
+
 ```typescript
 // Instead of: (session?.user as any)?.role
 // Define proper types:
@@ -245,7 +256,7 @@ declare module "next-auth" {
     role: "customer" | "staff" | "manager";
     email: string;
   }
-  
+
   interface Session {
     user: User;
   }
@@ -259,13 +270,21 @@ const role = session?.user.role; // ✅ TypeScript knows the type
 
 ## 🛠️ Cleanup Action Items
 
-| File | Issue | Fix |
-|------|-------|-----|
-| `cart-storage.ts:24-28` | Parse JSON with as any | Add isValidCartItem type guard |
-| `config.ts:75-76` | Credentials casting | Add CredentialsSchema type |
-| `stripe.ts:100` | Stripe response as any | Define StripeEvent type |
-| `orders/route.ts:95` | Customizations as any | Define OrderLineItem type |
-| `health/route.ts:155` | Session user as any | Use NextAuth augmentation |
+- `cart-storage.ts:24-28`
+  - Issue: Parse JSON with `as any`
+  - Fix: Add `isValidCartItem` type guard
+- `config.ts:75-76`
+  - Issue: Credentials casting
+  - Fix: Add `CredentialsSchema` type
+- `stripe.ts:100`
+  - Issue: Stripe response as `any`
+  - Fix: Define `StripeEvent` type
+- `orders/route.ts:95`
+  - Issue: Customizations as `any`
+  - Fix: Define `OrderLineItem` type
+- `health/route.ts:155`
+  - Issue: Session user as `any`
+  - Fix: Use NextAuth augmentation
 
 ---
 
@@ -281,14 +300,14 @@ const role = session?.user.role; // ✅ TypeScript knows the type
 
 ## 📊 Type Safety Improvement Plan
 
-| Priority | Task | Time |
-|----------|------|------|
-| 🔴 CRITICAL | Define User type with role | 15 min |
+| Priority    | Task                         | Time   |
+| ----------- | ---------------------------- | ------ |
+| 🔴 CRITICAL | Define User type with role   | 15 min |
 | 🔴 CRITICAL | Type guards for JSON parsing | 30 min |
-| 🟠 HIGH | NextAuth type augmentation | 20 min |
-| 🟠 HIGH | Stripe event types | 20 min |
-| 🟡 MEDIUM | Cart item validation | 15 min |
-| 🟡 MEDIUM | Order line item types | 15 min |
+| 🟠 HIGH     | NextAuth type augmentation   | 20 min |
+| 🟠 HIGH     | Stripe event types           | 20 min |
+| 🟡 MEDIUM   | Cart item validation         | 15 min |
+| 🟡 MEDIUM   | Order line item types        | 15 min |
 
 **Total time: ~2 hours to eliminate 20 `as any` casts**
 
@@ -297,9 +316,10 @@ const role = session?.user.role; // ✅ TypeScript knows the type
 ## 💡 Why This Matters for Your App
 
 1. **Safety**: Less runtime errors
-2. **Performance**: TypeScript catches bugs before users see them  
+2. **Performance**: TypeScript catches bugs before users see them
 3. **Maintenance**: Easier to refactor when types guide changes
 4. **Team**: New developers understand data flow immediately
 5. **Confidence**: Type checker validates your assumptions
 
-Your app handles loyalty accounts, orders, and payments - these need maximum type safety!
+Your app handles loyalty accounts, orders, and payments.
+These need maximum type safety!

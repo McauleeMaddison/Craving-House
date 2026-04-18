@@ -2,7 +2,10 @@
 
 ## What We Just Did (AppHeader Refactoring)
 
-You removed `useMemo` hooks from AppHeader. This is usually a GOOD thing, but we need to verify it doesn't cause performance regressions. Let me teach you why:
+You removed `useMemo` hooks from AppHeader.
+This is usually a GOOD thing,
+but we need to verify it doesn't cause performance regressions.
+Let me teach you why:
 
 ---
 
@@ -16,7 +19,8 @@ You removed `useMemo` hooks from AppHeader. This is usually a GOOD thing, but we
 // ❌ Without useMemo: Recalculated every render
 function Component() {
   const cart = useCart();
-  const cartCount = cart.lines.reduce((sum, line) => sum + line.qty, 0); // Runs EVERY render
+  // Runs on EVERY render
+  const cartCount = cart.lines.reduce((sum, line) => sum + line.qty, 0);
   return <div>{cartCount}</div>;
 }
 
@@ -33,7 +37,7 @@ function Component() {
 
 ### When is useMemo Necessary?
 
-```
+```text
 ✅ GOOD USE:
 ├─ Complex calculation (sorting 1000 items)
 ├─ Heavy rendering (large list component)
@@ -54,15 +58,16 @@ function Component() {
 ### What Was Removed
 
 **Before (with useMemo):**
+
 ```typescript
-const cartCount = useMemo(() => 
-  lines.reduce((sum, line) => sum + line.qty, 0), 
-  [lines]
+const cartCount = useMemo(
+  () => lines.reduce((sum, line) => sum + line.qty, 0),
+  [lines],
 );
 
-const activeHref = useMemo(() => 
-  links.find((l) => pathname?.startsWith(l.href))?.href ?? "", 
-  [pathname]
+const activeHref = useMemo(
+  () => links.find((l) => pathname?.startsWith(l.href))?.href ?? "",
+  [pathname],
 );
 
 const portalLinks = useMemo(() => {
@@ -73,23 +78,22 @@ const portalLinks = useMemo(() => {
 ```
 
 **After (without useMemo):**
+
 ```typescript
 const cartCount = lines.reduce((sum, line) => sum + line.qty, 0);
 
-const activeCustomerHref = customerLinks.find((link) => 
-  isActivePath(pathname, link.href)
-)?.href ?? "";
+const activeCustomerHref =
+  customerLinks.find((link) => isActivePath(pathname, link.href))?.href ?? "";
 
 const portalLinks = getPortalLinks(canUseStaff, canUseManager);
 ```
 
 ### Performance Analysis
 
-| Calculation | Cost | Frequency | useMemo Needed? |
-|-------------|------|-----------|---|
-| `cartCount` | O(n) where n=items in cart | Every render | ❌ NO - n < 20 usually |
-| `activeHref` | O(n) where n=5-10 links | Every render | ❌ NO - small array |
-| `portalLinks` | O(1) array assembly | Every render | ❌ NO - simple logic |
+- `cartCount`: O(n), where n = items in cart, every render, no memo needed
+  for a typical cart under 20 items.
+- `activeHref`: O(n), where n = 5-10 links, every render, no memo needed.
+- `portalLinks`: O(1) array assembly, every render, no memo needed.
 
 **Verdict: ✅ SAFE TO REMOVE** - These calculations are fast
 
@@ -103,7 +107,7 @@ const portalLinks = getPortalLinks(canUseStaff, canUseManager);
 // ❌ BAD: New function created every render
 function Component() {
   const handleClick = () => { console.log("clicked"); };
-  
+
   // Causes child to re-render even if no other props changed
   return <ChildComponent onClick={handleClick} />;
 }
@@ -114,7 +118,7 @@ function Component() {
     () => { console.log("clicked"); },
     [] // Empty because no dependencies
   );
-  
+
   return <ChildComponent onClick={handleClick} />;
 }
 ```
@@ -145,10 +149,14 @@ function Component({ items }) {
 function Component() {
   const drawerStatuses = [
     { href: "/menu", label: "Menu", value: "Open", accent: true },
-    { href: loyaltyHref, label: "Loyalty", value: signedIn ? "My QR" : "Sign in" },
+    {
+      href: loyaltyHref,
+      label: "Loyalty",
+      value: signedIn ? "My QR" : "Sign in",
+    },
     // ... more logic ...
   ];
-  
+
   return open ? <Drawer statuses={drawerStatuses} /> : null;
 }
 
@@ -157,11 +165,15 @@ function Component() {
   const drawerStatuses = useMemo(
     () => [
       { href: "/menu", label: "Menu", value: "Open", accent: true },
-      { href: loyaltyHref, label: "Loyalty", value: signedIn ? "My QR" : "Sign in" },
+      {
+        href: loyaltyHref,
+        label: "Loyalty",
+        value: signedIn ? "My QR" : "Sign in",
+      },
     ],
     [loyaltyHref, signedIn]
   );
-  
+
   return open ? <Drawer statuses={drawerStatuses} /> : null;
 }
 ```
@@ -172,7 +184,7 @@ function Component() {
 
 ### ✅ To Verify Your Refactoring is Safe
 
-```
+```text
 [ ] No re-rendering of child components (check with React DevTools)
 [ ] No new DOM elements being created unnecessarily
 [ ] Lighthouse performance score stays same or improves
@@ -183,6 +195,7 @@ function Component() {
 ### 📊 How to Check Performance
 
 #### Method 1: React DevTools Profiler
+
 ```javascript
 // 1. Open DevTools → React DevTools tab
 // 2. Click "Profiler" tab
@@ -193,6 +206,7 @@ function Component() {
 ```
 
 #### Method 2: Lighthouse Audit
+
 ```bash
 # Run Lighthouse performance audit
 npm run test:lighthouse
@@ -201,6 +215,7 @@ npm run test:lighthouse
 ```
 
 #### Method 3: Chrome DevTools Performance Tab
+
 ```javascript
 // 1. Open DevTools → Performance tab
 // 2. Click red record button
@@ -214,17 +229,20 @@ npm run test:lighthouse
 
 ## Expected Performance Characteristics
 
-### Before (with useMemo):
+### Before (with useMemo)
+
 - ✅ Component re-renders when **dependencies change**
 - ✅ Child components don't unnecessarily re-render
 - ❌ Slight overhead from useMemo wrapper
 
-### After (without useMemo):
+### After (without useMemo)
+
 - ✅ Simpler code (easier to maintain)
 - ✅ Same behavior if dependencies don't change frequently
 - ❌ **Risk**: Child components might re-render more often
 
-### When to Worry:
+### When to Worry
+
 ```typescript
 // ❌ This would cause problems:
 const expensiveList = useMemo(() =>
@@ -246,18 +264,21 @@ for (let i = 0; i < 1000; i++) {
 ### Analysis
 
 **What changed:**
+
 - `cartCount` - Array.reduce() on cart items (fast)
 - `activeHref` - Array.find() on 5 links (fast)
 - `portalLinks` - Array spread/conditional (fast)
 - Helper functions - Pure functions with no dependencies (fast)
 
 **Why it's safe:**
+
 1. ✅ Operations are fast (< 1ms each)
 2. ✅ Arrays are small (5-10 items)
 3. ✅ Functions don't create new object references
 4. ✅ Child components receive same props usually
 
 **Potential issues:**
+
 - ❌ If `isActivePath()` or other helpers are called many times
 - ❌ If you add expensive operations later without thinking about it
 
@@ -266,6 +287,7 @@ for (let i = 0; i < 1000; i++) {
 ## Performance Best Practices Going Forward
 
 ### 1. Measure Before Optimizing
+
 ```typescript
 console.time("calculation");
 const result = expensiveCalculation();
@@ -274,12 +296,14 @@ console.timeEnd("calculation");
 ```
 
 ### 2. Profile Real Usage
+
 ```typescript
 // Use Chrome DevTools Profiler during real user flows
 // Only memoize if you see consistent performance issues
 ```
 
 ### 3. Document Performance-Critical Code
+
 ```typescript
 // ❌ BAD: Nobody knows why useMemo is here
 const items = useMemo(() => [...], [deps]);
@@ -292,6 +316,7 @@ const items = useMemo(() => {
 ```
 
 ### 4. Test Performance in CI/CD
+
 ```bash
 # Lighthouse CI on every PR
 npm run test:lighthouse
@@ -306,7 +331,7 @@ npm run test:lighthouse
 
 ### What Lighthouse Measures
 
-```
+```text
 Performance Score (0-100):
 ├─ First Contentful Paint (FCP) - Time to first visual change
 ├─ Largest Contentful Paint (LCP) - Time to largest element visible
@@ -317,7 +342,7 @@ Performance Score (0-100):
 
 ### Targets for Craving House
 
-```
+```text
 Good (Green):     > 90 points
 Moderate (Yellow): 50-90 points
 Poor (Red):        < 50 points
@@ -325,31 +350,34 @@ Poor (Red):        < 50 points
 
 ### Common Issues & Fixes
 
-| Issue | Impact | Fix |
-|-------|--------|-----|
-| Unoptimized images | LCP | Use next/image with responsive sizes |
-| Large bundles | TTI | Code split, lazy load routes |
-| Render blocking JS | FCP | Async defer scripts |
-| Jank on scroll | CLS | Don't inject DOM during scroll |
-| Slow API calls | TTI | Cache, prefetch, or skeleton UI |
+| Issue              | Impact | Fix                                  |
+| ------------------ | ------ | ------------------------------------ |
+| Unoptimized images | LCP    | Use next/image with responsive sizes |
+| Large bundles      | TTI    | Code split, lazy load routes         |
+| Render blocking JS | FCP    | Async defer scripts                  |
+| Jank on scroll     | CLS    | Don't inject DOM during scroll       |
+| Slow API calls     | TTI    | Cache, prefetch, or skeleton UI      |
 
 ---
 
 ## Recommended Actions
 
 ### Immediate (Before Production)
+
 1. ✅ Run Lighthouse audit
 2. ✅ Check React DevTools Profiler
 3. ✅ Verify no layout shifts
 4. ✅ Test on slow 3G (DevTools throttle)
 
 ### Short Term (This Sprint)
+
 1. ⏭️ Implement Lighthouse budget
 2. ⏭️ Code-split large components
 3. ⏭️ Optimize images
 4. ⏭️ Setup performance monitoring
 
 ### Long Term (Next Quarter)
+
 1. ⏭️ Real User Monitoring (RUM)
 2. ⏭️ Core Web Vitals tracking
 3. ⏭️ Performance regression testing
@@ -360,13 +388,16 @@ Poor (Red):        < 50 points
 ## Summary
 
 Your AppHeader refactoring is **probably safe** because:
+
 - ✅ Removed calculations are all fast (< 1ms)
 - ✅ Arrays are small
 - ✅ No new object references created
 
 But you should **verify** with:
+
 - ✅ Lighthouse audit (check Performance score)
 - ✅ React DevTools Profiler (check re-render counts)
 - ✅ Manual testing (smooth scrolling, no jank)
 
-If Performance score drops > 5 points, investigate which calculation is expensive.
+If Performance score drops more than 5 points,
+investigate which calculation is expensive.
