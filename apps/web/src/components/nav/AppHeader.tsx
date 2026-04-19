@@ -97,6 +97,11 @@ function isActivePath(pathname: string | null | undefined, href: string) {
   return Boolean(pathname?.startsWith(href));
 }
 
+function formatCartBadgeCount(count: number) {
+  if (count > 99) return "99+";
+  return String(count);
+}
+
 export function AppHeader() {
   const pathname = usePathname();
   const { data, status } = useSession();
@@ -125,6 +130,7 @@ export function AppHeader() {
   const displayName = getDisplayName(data?.user);
 
   const cartCount = lines.reduce((sum, line) => sum + line.qty, 0);
+  const cartBadgeCount = formatCartBadgeCount(cartCount);
   const activeCustomerHref = customerLinks.find((link) => isActivePath(pathname, link.href))?.href ?? "";
 
   const portalLinks = getPortalLinks(canUseStaff, canUseManager);
@@ -239,7 +245,7 @@ export function AppHeader() {
             {renderBrandIdentity()}
             {cartCount > 0 ? (
               <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
-                {cartCount}
+                {cartBadgeCount}
               </span>
             ) : null}
           </button>
@@ -247,6 +253,7 @@ export function AppHeader() {
           <nav className="navDesktop" aria-label={isPortal ? "Portal" : "Primary"}>
             {desktopLinks.map((link) => {
               const active = isDesktopLinkActive(link.href);
+              const showCartBadge = !isPortal && link.href === "/cart" && cartCount > 0;
               return (
                 <Link
                   key={link.href}
@@ -254,7 +261,18 @@ export function AppHeader() {
                   href={link.href}
                   aria-current={active ? "page" : undefined}
                 >
-                  {link.label}
+                  <span className="navDesktopLinkLabel">
+                    <span>{link.label}</span>
+                    {showCartBadge ? (
+                      <span
+                        className="navDesktopBadge"
+                        aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}
+                        title={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}
+                      >
+                        {cartBadgeCount}
+                      </span>
+                    ) : null}
+                  </span>
                 </Link>
               );
             })}
@@ -366,10 +384,14 @@ export function AppHeader() {
                   aria-current={active ? "page" : undefined}
                   onClick={closeDrawer}
                 >
-                  <span className="drawerLinkLabel">
-                    <span>{link.label}</span>
-                    {link.badge ? <span className="drawerLinkBadge">{link.badge}</span> : null}
-                  </span>
+                    <span className="drawerLinkLabel">
+                      <span>{link.label}</span>
+                      {link.badge ? (
+                        <span className="drawerLinkBadge" title={`${link.badge} item${link.badge === 1 ? "" : "s"} in cart`}>
+                          {formatCartBadgeCount(link.badge)}
+                        </span>
+                      ) : null}
+                    </span>
                 </Link>
               );
             })}

@@ -3094,6 +3094,32 @@ code {
   justify-content: flex-end;
 }
 
+.navDesktopLinkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navDesktopBadge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 183, 5, 0.42);
+  background: linear-gradient(180deg, #ffd874, #f2b705);
+  color: rgba(11, 13, 18, 0.98);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 6px 14px rgba(0, 0, 0, 0.24);
+}
+
 .navMobileButton {
   display: none;
   position: relative;
@@ -3111,23 +3137,27 @@ code {
 
 .navMobileBadge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  top: 2px;
+  right: 2px;
+  transform: translate(30%, -30%);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
   border-radius: 999px;
-  border: 1px solid rgba(242, 183, 5, 0.36);
-  background: rgba(242, 183, 5, 0.95);
-  color: rgba(11, 13, 18, 0.96);
+  border: 2px solid rgba(8, 10, 14, 0.76);
+  background: linear-gradient(180deg, #ffd874, #f2b705);
+  color: rgba(11, 13, 18, 0.98);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 950;
   line-height: 1;
   letter-spacing: 0.02em;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 6px 16px rgba(0, 0, 0, 0.26);
+  pointer-events: none;
 }
 
 .iconButton {
@@ -3606,24 +3636,41 @@ html[data-theme="dark"] .modalSheet {
 }
 
 .drawerLinkBadge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
   border-radius: 999px;
-  border: 1px solid var(--drawer-border);
-  background: var(--color-mix-accent-24-60-drawer);
-  color: var(--drawer-text);
+  border: 1px solid rgba(242, 183, 5, 0.38);
+  background: linear-gradient(180deg, rgba(255, 219, 132, 0.96), rgba(242, 183, 5, 0.92));
+  color: rgba(11, 13, 18, 0.98);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 950;
   line-height: 1;
+  letter-spacing: 0.01em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 @supports (color-mix(in srgb, #000 50%, #fff)) {
   .drawerLinkBadge {
-    background: color-mix(in srgb, rgba(242, 183, 5, 0.24) 60%, var(--drawer-solid));
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, rgba(255, 219, 132, 0.96) 90%, white 10%),
+      color-mix(in srgb, rgba(242, 183, 5, 0.92) 94%, var(--drawer-solid) 6%)
+    );
+  }
+}
+
+@media (max-width: 420px) {
+  .navMobileBadge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    font-size: 10px;
   }
 }
 
