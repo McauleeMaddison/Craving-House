@@ -39,7 +39,7 @@ npm install
 2. Create environment file:
 
 ```bash
-cp apps/web/.env.example apps/web/.env
+touch apps/web/.env
 ```
 
 3. Configure required variables in `apps/web/.env`.
