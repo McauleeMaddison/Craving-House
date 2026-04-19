@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordApiErrorEvent, recordAuditEvent } from "@/server/monitoring/events";
 
 type Body = {
   cardToken: string;
@@ -38,43 +39,83 @@ export async function POST(request: Request) {
   const idempotencyKey = typeof body?.idempotencyKey === "string" ? body.idempotencyKey.trim() : "";
   if (!cardToken) return NextResponse.json({ error: "Missing cardToken" }, { status: 400 });
 
-  const result = await prisma.$transaction(async (tx) => {
-    if (idempotencyKey) {
-      const existing = await tx.loyaltyRedemption.findUnique({ where: { idempotencyKey } });
-      if (existing) {
-        const account = await tx.loyaltyAccount.findUnique({ where: { id: existing.loyaltyAccountId } });
-        return { ok: true as const, alreadyProcessed: true as const, stamps: account?.stamps ?? 0, rewardsRedeemed: account?.rewardsRedeemed ?? 0 };
+  let result:
+    | { ok: true; alreadyProcessed: boolean; rewardStamps?: number; stamps: number; rewardsRedeemed: number }
+    | {
+        ok: false;
+        error: "not_found" | "not_enough_stamps";
+        rewardStamps?: number;
+        stamps?: number;
+        rewardsRedeemed?: number;
+      };
+
+  try {
+    result = await prisma.$transaction(async (tx) => {
+      if (idempotencyKey) {
+        const existing = await tx.loyaltyRedemption.findUnique({ where: { idempotencyKey } });
+        if (existing) {
+          const account = await tx.loyaltyAccount.findUnique({ where: { id: existing.loyaltyAccountId } });
+          return {
+            ok: true as const,
+            alreadyProcessed: true as const,
+            stamps: account?.stamps ?? 0,
+            rewardsRedeemed: account?.rewardsRedeemed ?? 0
+          };
+        }
       }
-    }
 
-    const settings =
-      (await tx.loyaltyProgramSettings.findFirst()) ??
-      (await tx.loyaltyProgramSettings.create({ data: {} }));
-    const rewardStamps = Math.max(1, settings.rewardStamps);
+      const settings =
+        (await tx.loyaltyProgramSettings.findFirst()) ??
+        (await tx.loyaltyProgramSettings.create({ data: {} }));
+      const rewardStamps = Math.max(1, settings.rewardStamps);
 
-    const account = await tx.loyaltyAccount.findFirst({ where: { cardToken } });
-    if (!account) return { ok: false as const, error: "not_found" as const };
+      const account = await tx.loyaltyAccount.findFirst({ where: { cardToken } });
+      if (!account) return { ok: false as const, error: "not_found" as const };
 
-    if (account.stamps < rewardStamps) {
-      return { ok: false as const, error: "not_enough_stamps" as const, rewardStamps, stamps: account.stamps, rewardsRedeemed: account.rewardsRedeemed };
-    }
-
-    const updated = await tx.loyaltyAccount.update({
-      where: { id: account.id },
-      data: { stamps: { decrement: rewardStamps }, rewardsRedeemed: { increment: 1 } }
-    });
-
-    await tx.loyaltyRedemption.create({
-      data: {
-        loyaltyAccountId: updated.id,
-        orderId: orderId || null,
-        idempotencyKey: idempotencyKey || null,
-        createdByStaffId: access.userId
+      if (account.stamps < rewardStamps) {
+        return {
+          ok: false as const,
+          error: "not_enough_stamps" as const,
+          rewardStamps,
+          stamps: account.stamps,
+          rewardsRedeemed: account.rewardsRedeemed
+        };
       }
-    });
 
-    return { ok: true as const, alreadyProcessed: false as const, rewardStamps, stamps: updated.stamps, rewardsRedeemed: updated.rewardsRedeemed };
-  });
+      const updated = await tx.loyaltyAccount.update({
+        where: { id: account.id },
+        data: { stamps: { decrement: rewardStamps }, rewardsRedeemed: { increment: 1 } }
+      });
+
+      await tx.loyaltyRedemption.create({
+        data: {
+          loyaltyAccountId: updated.id,
+          orderId: orderId || null,
+          idempotencyKey: idempotencyKey || null,
+          createdByStaffId: access.userId
+        }
+      });
+
+      return {
+        ok: true as const,
+        alreadyProcessed: false as const,
+        rewardStamps,
+        stamps: updated.stamps,
+        rewardsRedeemed: updated.rewardsRedeemed
+      };
+    });
+  } catch (error) {
+    void recordApiErrorEvent({
+      area: "loyalty.scan",
+      action: "redeem",
+      severity: "critical",
+      userId: access.userId,
+      message: "Failed to redeem loyalty reward",
+      details: { orderId: orderId || null },
+      error
+    });
+    return NextResponse.json({ error: "Redeem failed" }, { status: 500 });
+  }
 
   if (!result.ok) {
     if (result.error === "not_found") return NextResponse.json({ error: "Customer not found" }, { status: 404 });
@@ -86,6 +127,20 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ error: "Redeem failed" }, { status: 500 });
   }
+
+  void recordAuditEvent({
+    area: "loyalty.scan",
+    action: "redeem",
+    userId: access.userId,
+    message: "Staff redeemed loyalty reward",
+    details: {
+      orderId: orderId || null,
+      alreadyProcessed: result.alreadyProcessed,
+      rewardStamps: result.rewardStamps ?? null,
+      stamps: result.stamps,
+      rewardsRedeemed: result.rewardsRedeemed
+    }
+  });
 
   return NextResponse.json({ ok: true, alreadyProcessed: result.alreadyProcessed, rewardStamps: result.ok ? result.rewardStamps : null, stamps: result.stamps, rewardsRedeemed: result.rewardsRedeemed });
 }

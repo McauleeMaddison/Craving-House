@@ -17,6 +17,7 @@
     "e2e:headed": "playwright test --headed",
     "e2e:install": "playwright install chromium",
     "quality:lighthouse": "npx @lhci/cli@0.15.1 autorun --config=./lighthouserc.json",
+    "quality:bundle": "node ./scripts/check-bundle-size.mjs",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

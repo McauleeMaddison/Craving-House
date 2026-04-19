@@ -8,6 +8,7 @@ import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getConfiguredPublicOrigin } from "@/lib/public-url";
 import { getDerivedOrderFeeCents } from "@/lib/order-pricing";
+import { recordApiErrorEvent, recordAuditEvent } from "@/server/monitoring/events";
 
 type Body = {
   orderId: string;
@@ -98,6 +99,15 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Failed to create Stripe Checkout session", error);
+    void recordApiErrorEvent({
+      area: "commerce.payments",
+      action: "create_stripe_session",
+      severity: "critical",
+      userId: access.ok ? access.userId : null,
+      message: "Failed to create Stripe Checkout session",
+      details: { orderId },
+      error
+    });
     return NextResponse.json(
       { error: "Unable to start Stripe payment right now. Please try again shortly." },
       { status: 502 }
@@ -121,6 +131,18 @@ export async function POST(request: Request) {
         stripeCustomerId
       }
     });
+  });
+
+  void recordAuditEvent({
+    area: "commerce.payments",
+    action: "start_checkout",
+    userId: access.ok ? access.userId : null,
+    message: "Checkout session created",
+    details: {
+      orderId: order.id,
+      express,
+      signedIn: access.ok
+    }
   });
 
   return NextResponse.json({ url: session.url });

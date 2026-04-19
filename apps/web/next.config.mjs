@@ -14,7 +14,7 @@ function buildContentSecurityPolicy() {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    `connect-src 'self' https://api.stripe.com${isDev ? " ws: wss:" : ""}`,
+    `connect-src 'self' https://api.stripe.com https://*.ingest.sentry.io${isDev ? " ws: wss:" : ""}`,
     "frame-src 'self' https://checkout.stripe.com https://accounts.google.com",
     "form-action 'self' https://accounts.google.com https://checkout.stripe.com",
     "worker-src 'self' blob:",
@@ -36,6 +36,7 @@ const securityHeaders = [
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  { key: "Origin-Agent-Cluster", value: "?1" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Allow camera for in-app QR scanning (staff loyalty scan). Keep other powerful features off by default.
   { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
@@ -57,6 +58,16 @@ const nextConfig = {
       {
         // Never cache auth endpoints (session/csrf/callbacks), especially behind CDNs.
         source: "/api/auth/(.*)",
+        headers: [...securityHeaders, { key: "Cache-Control", value: "no-store" }]
+      },
+      {
+        // API responses should not be indexed by search engines and should not be cached by intermediaries.
+        source: "/api/(.*)",
+        headers: [...securityHeaders, { key: "Cache-Control", value: "no-store" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }]
+      },
+      {
+        // Portal pages hold sensitive operational data.
+        source: "/(manager|staff)/(.*)",
         headers: [...securityHeaders, { key: "Cache-Control", value: "no-store" }]
       },
       {

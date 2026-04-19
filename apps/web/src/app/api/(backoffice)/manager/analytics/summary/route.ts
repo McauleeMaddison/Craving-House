@@ -30,7 +30,9 @@ export async function GET() {
     liveQueueCount,
     collectedToday,
     loyaltyStampsToday,
-    loyaltyRedemptionsToday
+    loyaltyRedemptionsToday,
+    apiErrors24h,
+    criticalEvents24h
   ] = await Promise.all([
     prisma.order.count({
       where: { createdAt: { gte: start, lt: end } }
@@ -59,6 +61,18 @@ export async function GET() {
     }),
     prisma.loyaltyRedemption.count({
       where: { createdAt: { gte: start, lt: end } }
+    }),
+    prisma.opsEvent.count({
+      where: {
+        category: "api_error",
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      }
+    }),
+    prisma.opsEvent.count({
+      where: {
+        severity: "critical",
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      }
     })
   ]);
 
@@ -83,6 +97,8 @@ export async function GET() {
     liveQueueCount,
     avgPrepMinutes,
     loyaltyStampsToday,
-    loyaltyRedemptionsToday
+    loyaltyRedemptionsToday,
+    apiErrors24h,
+    criticalEvents24h
   });
 }

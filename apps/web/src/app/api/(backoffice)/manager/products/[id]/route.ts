@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordAuditEvent } from "@/server/monitoring/events";
 
 type PatchBody = Partial<{
   name: string;
@@ -37,6 +38,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const { id } = await context.params;
   const body = (await request.json()) as PatchBody;
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      priceCents: true,
+      available: true,
+      prepSeconds: true,
+      loyaltyEligible: true
+    }
+  });
+  if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const updated = await prisma.product.update({
     where: { id },
@@ -47,6 +61,25 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       available: body.available,
       prepSeconds: body.prepSeconds === undefined ? undefined : Math.max(0, Math.round(body.prepSeconds)),
       loyaltyEligible: body.loyaltyEligible
+    }
+  });
+
+  void recordAuditEvent({
+    area: "manager.products",
+    action: "update",
+    userId: access.userId,
+    message: "Manager updated product",
+    details: {
+      productId: updated.id,
+      before: existing,
+      after: {
+        name: updated.name,
+        description: updated.description,
+        priceCents: updated.priceCents,
+        available: updated.available,
+        prepSeconds: updated.prepSeconds,
+        loyaltyEligible: updated.loyaltyEligible
+      }
     }
   });
 
@@ -78,6 +111,11 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
   }
 
   const { id } = await context.params;
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    select: { id: true, name: true }
+  });
+  if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const usage = await prisma.orderItem.count({ where: { productId: id } });
   if (usage > 0) {
@@ -88,5 +126,15 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
   }
 
   await prisma.product.delete({ where: { id } });
+  void recordAuditEvent({
+    area: "manager.products",
+    action: "delete",
+    userId: access.userId,
+    message: "Manager deleted product",
+    details: {
+      productId: existing.id,
+      name: existing.name
+    }
+  });
   return NextResponse.json({ ok: true });
 }

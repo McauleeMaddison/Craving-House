@@ -21,6 +21,8 @@ type ManagerAnalyticsDto = {
   avgPrepMinutes: number | null;
   loyaltyStampsToday: number;
   loyaltyRedemptionsToday: number;
+  apiErrors24h: number;
+  criticalEvents24h: number;
 };
 
 function minutesSince(iso: string) {
@@ -144,9 +146,20 @@ export function ManagerDashboardClient() {
             <div className="dashboardStatLabel">Loyalty today</div>
             <div className="dashboardStatValue">{analytics.loyaltyRedemptionsToday}</div>
             <div className="dashboardStatHint">
-              {analytics.loyaltyStampsToday} stamps • {analytics.loyaltyRedemptionsToday} redemptions
+              {analytics.loyaltyStampsToday} stamps • {analytics.apiErrors24h} API errors (24h)
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {analytics ? (
+        <div className="dashboardQuickChipRow">
+          <span className="dashboardQuickChip dashboardQuickChipMuted">
+            Critical events (24h): {analytics.criticalEvents24h}
+          </span>
+          <span className="dashboardQuickChip dashboardQuickChipMuted">
+            API errors (24h): {analytics.apiErrors24h}
+          </span>
         </div>
       ) : null}
 

@@ -52,6 +52,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Bundle Size Budget
+        run: npm run quality:bundle
+
       - name: Install Playwright Chromium
         run: npm exec playwright install --with-deps chromium
 

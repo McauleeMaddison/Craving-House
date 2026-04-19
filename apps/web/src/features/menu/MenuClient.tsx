@@ -27,6 +27,7 @@ import {
   WAFFLE_TOPPING_OPTIONS
 } from "@/lib/drink-customizations";
 import { formatMoneyGBP } from "@/lib/sample-data";
+import { getFavoriteProductIds, onFavoritesUpdated, toggleFavoriteProduct } from "@/lib/favorites-storage";
 
 type ProductDto = {
   id: string;
@@ -132,6 +133,12 @@ export function MenuClient() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [custom, setCustom] = useState<Record<string, DrinkCustomizations>>({});
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [favoritesParamEnabled, setFavoritesParamEnabled] = useState(false);
+
+  const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const favoritesCount = favoriteIds.length;
 
   function updateCustom(productId: string, next: DrinkCustomizations) {
     setCustom((prev) => ({ ...prev, [productId]: next }));
@@ -154,15 +161,12 @@ export function MenuClient() {
   }
 
   const items = useMemo(() => {
+    const favoritesOnly = showFavoritesOnly || favoritesParamEnabled;
     const q = query.trim().toLowerCase();
-    const list = products;
+    const list = favoritesOnly ? products.filter((x) => favoriteSet.has(x.id)) : products;
     if (!q) return list;
-    return list.filter((x) => {
-      return (
-        x.name.toLowerCase().includes(q) || x.description.toLowerCase().includes(q)
-      );
-    });
-  }, [query, products]);
+    return list.filter((x) => x.name.toLowerCase().includes(q) || x.description.toLowerCase().includes(q));
+  }, [favoriteSet, favoritesParamEnabled, products, query, showFavoritesOnly]);
 
   const groupedItems = useMemo(() => {
     return MENU_SECTION_META.map((section) => ({
@@ -187,11 +191,25 @@ export function MenuClient() {
     };
   }, []);
 
+  useEffect(() => {
+    setFavoriteIds(getFavoriteProductIds());
+    return onFavoritesUpdated(() => {
+      setFavoriteIds(getFavoriteProductIds());
+    });
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const search = new URLSearchParams(window.location.search);
+    setFavoritesParamEnabled(search.get("favorites") === "1");
+  }, []);
+
   function renderMenuItem(item: ProductDto) {
     const customizationKind = getProductCustomizationKind(item);
     const canCustomize = customizationKind !== null;
     const canAddDrinkToppings = supportsDrinkToppings(item);
     const uiCopy = customizationKind ? getCustomizationUiCopy(customizationKind) : null;
+    const isFavorite = favoriteSet.has(item.id);
 
     return (
       <article key={item.id} className="surface u-pad-16">
@@ -212,6 +230,15 @@ export function MenuClient() {
             <div className="pill">{item.loyaltyEligible ? "Earns stamp" : "No stamp"}</div>
           </div>
           <div className="u-flex-wrap-gap-10-center">
+            <button
+              className={`btn btn-secondary btnCompact menuFavoriteBtn ${isFavorite ? "menuFavoriteBtnActive" : ""}`}
+              type="button"
+              onClick={() => {
+                setFavoriteIds(toggleFavoriteProduct(item.id));
+              }}
+            >
+              {isFavorite ? "★ Saved" : "☆ Save"}
+            </button>
             {canCustomize ? (
               <button
                 className="btn btn-secondary"
@@ -405,6 +432,9 @@ export function MenuClient() {
               <div className="pill">
                 {items.length} item{items.length === 1 ? "" : "s"}
               </div>
+              <div className="pill">
+                Favorites: {favoritesCount}
+              </div>
             </div>
             <div>
               <h1 className="u-title-26">Menu</h1>
@@ -416,6 +446,13 @@ export function MenuClient() {
               <Link className="btn btn-secondary" href="/">
                 Home
               </Link>
+              <button
+                className={`btn btn-secondary ${showFavoritesOnly ? "btnActive" : ""}`}
+                type="button"
+                onClick={() => setShowFavoritesOnly((current) => !current)}
+              >
+                {showFavoritesOnly ? "Show all" : "Favorites only"}
+              </button>
               <Link className="btn" href="/cart">
                 Go to cart
               </Link>
@@ -442,7 +479,9 @@ export function MenuClient() {
         <section className="surface u-pad-16 u-mt-12">
           <div className="u-fw-900">No matching items</div>
           <p className="muted u-mt-8 u-lh-16">
-            Try a different search, or check back shortly.
+            {showFavoritesOnly || favoritesParamEnabled
+              ? "You have no saved favorites yet. Tap “☆ Save” on menu items to build your quick list."
+              : "Try a different search, or check back shortly."}
           </p>
           {isManager ? (
             <div className="u-flex-wrap-gap-10 u-mt-10">

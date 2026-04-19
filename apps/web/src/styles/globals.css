@@ -604,6 +604,15 @@ code {
   width: min(380px, 100%);
 }
 
+.menuFavoriteBtn {
+  min-width: 92px;
+}
+
+.menuFavoriteBtnActive {
+  border-color: rgba(242, 183, 5, 0.5);
+  background: rgba(242, 183, 5, 0.16);
+}
+
 .customerPageIntro {
   display: grid;
   gap: 12px;
@@ -3837,6 +3846,85 @@ html[data-theme="dark"] .modalSheet {
   .appFooterIcon {
     background: color-mix(in srgb, var(--panel) 72%, transparent);
   }
+}
+
+.pwaOfflineBanner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  z-index: 80;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 92, 115, 0.38);
+  background: rgba(34, 10, 16, 0.82);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  padding: 8px 10px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.pwaInstallPrompt {
+  position: fixed;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 65;
+  width: min(360px, calc(100vw - 28px));
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.pwaInstallPromptTitle {
+  font-size: 15px;
+  font-weight: 900;
+  font-family: var(--font-display);
+}
+
+.pwaInstallPromptCopy {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .pwaInstallPrompt {
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    padding: 12px;
+  }
+}
+
+.opsEventCard {
+  border: 1px solid var(--border-soft);
+}
+
+.opsEventCard-info {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.opsEventCard-warning {
+  border-color: rgba(242, 183, 5, 0.34);
+}
+
+.opsEventCard-critical {
+  border-color: rgba(255, 92, 115, 0.42);
+}
+
+.opsEventDetails {
+  margin: 10px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(0, 0, 0, 0.2);
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.5;
 }
 :where(a, button, input, textarea, select):focus-visible {
   outline: 2px solid rgba(242, 183, 5, 0.65);

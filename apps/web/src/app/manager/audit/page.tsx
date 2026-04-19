@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { requireRole } from "@/server/auth/access";
 import { RoleChangesClient } from "@/features/manager/RoleChangesClient";
+import { OpsEventsClient } from "@/features/manager/OpsEventsClient";
 
 export default async function ManagerAuditPage() {
   const access = await requireRole(["manager"]);
@@ -33,6 +34,7 @@ export default async function ManagerAuditPage() {
         </Link>
       </div>
       <RoleChangesClient />
+      <OpsEventsClient />
     </main>
   );
 }

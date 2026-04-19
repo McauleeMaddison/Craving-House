@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordAuditEvent } from "@/server/monitoring/events";
 
 type CreateBody = {
   name: string;
@@ -68,6 +69,20 @@ export async function POST(request: Request) {
       available: body.available ?? true,
       prepSeconds: Math.max(0, Math.round(body.prepSeconds ?? 0)),
       loyaltyEligible: body.loyaltyEligible ?? false
+    }
+  });
+
+  void recordAuditEvent({
+    area: "manager.products",
+    action: "create",
+    userId: access.userId,
+    message: "Manager created product",
+    details: {
+      productId: created.id,
+      name: created.name,
+      priceCents: created.priceCents,
+      available: created.available,
+      loyaltyEligible: created.loyaltyEligible
     }
   });
 

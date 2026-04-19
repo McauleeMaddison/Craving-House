@@ -5,6 +5,7 @@ import { requireRole } from "@/server/auth/access";
 import { hashPassword, validatePasswordForSignup } from "@/server/auth/password";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordAuditEvent } from "@/server/monitoring/events";
 
 export const dynamic = "force-dynamic";
 
@@ -59,12 +60,14 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   const updates: Record<string, unknown> = {};
+  const auditChanges: Record<string, unknown> = {};
 
   if (body.role) {
     const toRole = body.role;
     const fromRole = target.role;
     if (toRole !== fromRole) {
       updates.role = toRole;
+      auditChanges.role = { from: fromRole, to: toRole };
       await prisma.roleChange.create({
         data: {
           byUserId: access.userId,
@@ -79,12 +82,14 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   if (typeof body.disabled === "boolean") {
     updates.disabledAt = body.disabled ? new Date() : null;
+    auditChanges.disabled = body.disabled;
   }
 
   if (typeof body.newPassword === "string" && body.newPassword.trim().length > 0) {
     const err = validatePasswordForSignup(body.newPassword);
     if (err) return NextResponse.json({ error: err }, { status: 400 });
     updates.passwordHash = await hashPassword(body.newPassword);
+    auditChanges.passwordReset = true;
   }
 
   if (Object.keys(updates).length === 0) {
@@ -94,6 +99,18 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   await prisma.user.update({
     where: { id: targetUserId },
     data: updates
+  });
+
+  void recordAuditEvent({
+    area: "manager.users",
+    action: "update",
+    userId: access.userId,
+    message: "Manager updated user account",
+    details: {
+      targetUserId,
+      changes: auditChanges,
+      note: body.note?.trim() || null
+    }
   });
 
   return NextResponse.json({ ok: true });

@@ -189,6 +189,7 @@ export async function GET(request: Request) {
         stripeWebhookIpAllowlistConfigured: webhookIpAllowlist.length > 0,
         stripeEnabled,
         stripeMode,
+        sentryConfigured: Boolean(process.env.SENTRY_DSN?.trim()),
         vapidSubjectConfigured: Boolean(process.env.VAPID_SUBJECT?.trim()),
         vapidSubjectValid: Boolean(vapidSubject),
         vapidSubjectMatchesCanonical: vapidMatchesCanonical,

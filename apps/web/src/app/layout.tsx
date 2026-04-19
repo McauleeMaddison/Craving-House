@@ -5,6 +5,7 @@ import "../styles/globals.css";
 import { AppProviders } from "@/app/providers";
 import { AppChrome } from "@/components/nav/AppChrome";
 import { AppFooter } from "@/components/nav/AppFooter";
+import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
 import { getConfiguredPublicUrl } from "@/lib/public-url";
 
 const themeBootstrapScript = `(() => {
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               {children}
             </div>
 
+            <PwaInstallPrompt />
             <AppFooter />
           </div>
         </AppProviders>

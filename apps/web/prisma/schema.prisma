@@ -36,6 +36,7 @@ model User {
 
   pushSubscriptions PushSubscription[]
   feedback Feedback[]
+  opsEvents OpsEvent[]
 }
 
 model Product {
@@ -237,4 +238,24 @@ model RateLimitBucket {
 
   @@index([resetAt])
   @@index([blockedUntil])
+}
+
+model OpsEvent {
+  id        String   @id @default(cuid())
+  category  String
+  severity  String
+  area      String
+  action    String?
+  message   String
+  details   Json?
+  requestId String?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([category, createdAt])
+  @@index([severity, createdAt])
+  @@index([userId, createdAt])
 }

@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 
 import { useCart } from "@/components/cart/CartContext";
 import { normalizeCustomizations } from "@/lib/drink-customizations";
+import { getFavoriteProductIds, onFavoritesUpdated } from "@/lib/favorites-storage";
 
 type LoyaltyMe = {
   stamps: number;
@@ -82,6 +83,7 @@ export function HomeDashboardClient() {
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [reordering, setReordering] = useState(false);
   const [reorderMessage, setReorderMessage] = useState("");
+  const [favoritesCount, setFavoritesCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,12 +118,23 @@ export function HomeDashboardClient() {
     };
   }, [signedIn]);
 
+  useEffect(() => {
+    function syncFavorites() {
+      setFavoritesCount(getFavoriteProductIds().length);
+    }
+    syncFavorites();
+    return onFavoritesUpdated(syncFavorites);
+  }, []);
+
   const menuCardHint = useMemo(() => {
     if (cartCount > 0) {
       return `${cartCount} ${cartCount === 1 ? "item is" : "items are"} already in your cart.`;
     }
+    if (favoritesCount > 0) {
+      return `${favoritesCount} saved favorite${favoritesCount === 1 ? "" : "s"} ready for quick add.`;
+    }
     return "Browse drinks, bites, and add-ons.";
-  }, [cartCount]);
+  }, [cartCount, favoritesCount]);
 
   const latestOrder = useMemo(() => (orders.length > 0 ? orders[0] : null), [orders]);
   const activeOrder = useMemo(() => orders.find((order) => isActiveOrderStatus(order.status)) ?? null, [orders]);
@@ -167,6 +180,14 @@ export function HomeDashboardClient() {
         sub: "Rebuild your last completed order instantly."
       };
     }
+    if (favoritesCount > 0) {
+      return {
+        kind: "link",
+        href: "/menu?favorites=1",
+        title: "Order favorites",
+        sub: "Jump straight to your saved items."
+      };
+    }
     if (signedIn && loyaltyProgress?.rewardReady) {
       return {
         kind: "link",
@@ -181,7 +202,7 @@ export function HomeDashboardClient() {
       title: "Start an order",
       sub: "Browse menu + customise drinks."
     };
-  }, [activeOrder, cartCount, lastCompletedOrder, loyaltyProgress?.rewardReady, signedIn]);
+  }, [activeOrder, cartCount, favoritesCount, lastCompletedOrder, loyaltyProgress?.rewardReady, signedIn]);
 
   const orderCardHint = useMemo(() => {
     if (!signedIn) return "Track your orders and pickup status.";
@@ -298,6 +319,14 @@ export function HomeDashboardClient() {
               →
             </span>
           </Link>
+          {favoritesCount > 0 ? (
+            <Link className="dashCtaSmall" href="/menu?favorites=1">
+              <span className="dashCtaSmallTitle">Favorites ({favoritesCount})</span>
+              <span aria-hidden="true" className="dashCtaSmallArrow">
+                →
+              </span>
+            </Link>
+          ) : null}
         </div>
         {reorderMessage ? <p className="dashCtaMeta">{reorderMessage}</p> : null}
       </div>

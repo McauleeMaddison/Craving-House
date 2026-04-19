@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordAuditEvent } from "@/server/monitoring/events";
 
 export const dynamic = "force-dynamic";
 
@@ -56,17 +57,29 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "rewardStamps must be between 1 and 20" }, { status: 400 });
   }
 
-  const existing = await prisma.loyaltyProgramSettings.findFirst({ select: { id: true } });
+  const existing = await prisma.loyaltyProgramSettings.findFirst({ select: { id: true, rewardStamps: true } });
+  const nextRewardStamps = Math.round(rewardStamps);
   if (existing) {
     await prisma.loyaltyProgramSettings.update({
       where: { id: existing.id },
-      data: { rewardStamps: Math.round(rewardStamps) }
+      data: { rewardStamps: nextRewardStamps }
     });
   } else {
     await prisma.loyaltyProgramSettings.create({
-      data: { rewardStamps: Math.round(rewardStamps) }
+      data: { rewardStamps: nextRewardStamps }
     });
   }
+
+  void recordAuditEvent({
+    area: "manager.loyalty",
+    action: "update_settings",
+    userId: access.userId,
+    message: "Manager updated loyalty settings",
+    details: {
+      fromRewardStamps: existing?.rewardStamps ?? 5,
+      toRewardStamps: nextRewardStamps
+    }
+  });
 
   return NextResponse.json({ ok: true });
 }

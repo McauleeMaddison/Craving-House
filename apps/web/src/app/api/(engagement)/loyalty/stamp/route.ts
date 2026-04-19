@@ -6,6 +6,7 @@ import { verifyCustomerQrToken } from "@/server/loyalty/qr";
 import { requireRole } from "@/server/auth/access";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordApiErrorEvent, recordAuditEvent } from "@/server/monitoring/events";
 
 type StampRequest = {
   qrToken: string;
@@ -76,48 +77,79 @@ export async function POST(request: Request) {
   }
   if (!customerUserId) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
 
-  const result = await prisma.$transaction(async (tx) => {
-    const idempotencyKey = body.idempotencyKey?.trim() || "";
-    if (idempotencyKey) {
-      const existing = await tx.loyaltyStamp.findUnique({ where: { idempotencyKey } });
-      if (existing) {
-        const account = await tx.loyaltyAccount.findUnique({ where: { id: existing.loyaltyAccountId } });
-        return {
-          earned: calculateEarnedStampsFromEligibleItems({ eligibleItemCount: existing.eligibleItemCount }),
-          totalStamps: account?.stamps ?? 0
-        };
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const idempotencyKey = body.idempotencyKey?.trim() || "";
+      if (idempotencyKey) {
+        const existing = await tx.loyaltyStamp.findUnique({ where: { idempotencyKey } });
+        if (existing) {
+          const account = await tx.loyaltyAccount.findUnique({ where: { id: existing.loyaltyAccountId } });
+          return {
+            earned: calculateEarnedStampsFromEligibleItems({ eligibleItemCount: existing.eligibleItemCount }),
+            totalStamps: account?.stamps ?? 0
+          };
+        }
       }
-    }
 
-    const earned = calculateEarnedStampsFromEligibleItems({
-      eligibleItemCount: body.eligibleItemCount!
+      const earned = calculateEarnedStampsFromEligibleItems({
+        eligibleItemCount: body.eligibleItemCount!
+      });
+      if (earned <= 0) return { earned: 0, totalStamps: 0 };
+
+      const account = await tx.loyaltyAccount.upsert({
+        where: { userId: customerUserId },
+        create: { userId: customerUserId, stamps: 0, rewardsRedeemed: 0 },
+        update: {}
+      });
+
+      const updatedAccount = await tx.loyaltyAccount.update({
+        where: { id: account.id },
+        data: { stamps: { increment: earned } }
+      });
+
+      await tx.loyaltyStamp.create({
+        data: {
+          loyaltyAccountId: account.id,
+          orderId: body.orderId ?? null,
+          eligibleItemCount: body.eligibleItemCount!,
+          createdByStaffId: staffUserId,
+          idempotencyKey: idempotencyKey || null,
+          source: "scan"
+        }
+      });
+
+      return { earned, totalStamps: updatedAccount.stamps };
     });
-    if (earned <= 0) return { earned: 0, totalStamps: 0 };
 
-    const account = await tx.loyaltyAccount.upsert({
-      where: { userId: customerUserId },
-      create: { userId: customerUserId, stamps: 0, rewardsRedeemed: 0 },
-      update: {}
-    });
-
-    const updatedAccount = await tx.loyaltyAccount.update({
-      where: { id: account.id },
-      data: { stamps: { increment: earned } }
-    });
-
-    await tx.loyaltyStamp.create({
-      data: {
-        loyaltyAccountId: account.id,
+    void recordAuditEvent({
+      area: "loyalty.scan",
+      action: "stamp",
+      userId: staffUserId,
+      message: "Staff stamped loyalty account",
+      details: {
+        customerUserId,
         orderId: body.orderId ?? null,
-        eligibleItemCount: body.eligibleItemCount!,
-        createdByStaffId: staffUserId,
-        idempotencyKey: idempotencyKey || null,
-        source: "scan"
+        eligibleItemCount: body.eligibleItemCount,
+        earned: result.earned,
+        totalStamps: result.totalStamps
       }
     });
 
-    return { earned, totalStamps: updatedAccount.stamps };
-  });
-
-  return NextResponse.json(result);
+    return NextResponse.json(result);
+  } catch (error) {
+    void recordApiErrorEvent({
+      area: "loyalty.scan",
+      action: "stamp",
+      severity: "critical",
+      userId: staffUserId,
+      message: "Failed to stamp loyalty account",
+      details: {
+        customerUserId,
+        orderId: body.orderId ?? null,
+        eligibleItemCount: body.eligibleItemCount
+      },
+      error
+    });
+    return NextResponse.json({ error: "Could not stamp loyalty card right now." }, { status: 500 });
+  }
 }

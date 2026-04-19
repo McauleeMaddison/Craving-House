@@ -1,0 +1,28 @@
+name: Uptime Monitor
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  uptime-check:
+    runs-on: ubuntu-latest
+    env:
+      UPTIME_CHECK_URL: ${{ secrets.UPTIME_CHECK_URL }}
+      UPTIME_CHECK_TOKEN: ${{ secrets.UPTIME_CHECK_TOKEN }}
+    steps:
+      - name: Check configuration
+        run: |
+          if [ -z "${UPTIME_CHECK_URL}" ]; then
+            echo "UPTIME_CHECK_URL is not configured. Skipping monitor run."
+            exit 0
+          fi
+
+      - name: Run uptime check
+        run: |
+          if [ -n "${UPTIME_CHECK_TOKEN}" ]; then
+            curl -fSsL -H "x-uptime-token: ${UPTIME_CHECK_TOKEN}" "${UPTIME_CHECK_URL}"
+          else
+            curl -fSsL "${UPTIME_CHECK_URL}"
+          fi

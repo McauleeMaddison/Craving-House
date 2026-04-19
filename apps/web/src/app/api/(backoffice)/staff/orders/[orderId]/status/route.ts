@@ -5,6 +5,7 @@ import { requireRole } from "@/server/auth/access";
 import { notifyCustomerOrderReady } from "@/server/notifications/push";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
+import { recordApiErrorEvent, recordAuditEvent } from "@/server/monitoring/events";
 
 type Body = { status: "received" | "accepted" | "ready" | "collected" | "canceled" };
 
@@ -36,20 +37,58 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
 
   const current = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { paymentStatus: true }
+    select: { paymentStatus: true, status: true, userId: true, pickupName: true }
   });
   if (!current) return NextResponse.json({ error: "Order not found" }, { status: 404 });
   if (status !== "canceled" && current.paymentStatus !== "paid") {
     return NextResponse.json({ error: "Order has not been paid yet." }, { status: 409 });
   }
 
-  const update: any = { status };
-  if (status === "collected") update.collectedAt = new Date();
+  try {
+    const update: any = { status };
+    if (status === "collected") update.collectedAt = new Date();
 
-  const updated = await prisma.order.update({ where: { id: orderId }, data: update });
+    const updated = await prisma.order.update({ where: { id: orderId }, data: update });
 
-  if (status === "ready" && updated.userId) {
-    await notifyCustomerOrderReady({ userId: updated.userId, orderId: updated.id, pickupName: updated.pickupName });
+    void recordAuditEvent({
+      area: "staff.orders",
+      action: "set_status",
+      userId: access.userId,
+      message: "Staff updated order status",
+      details: {
+        orderId: updated.id,
+        pickupName: updated.pickupName,
+        fromStatus: current.status,
+        toStatus: status
+      }
+    });
+
+    if (status === "ready" && updated.userId) {
+      try {
+        await notifyCustomerOrderReady({ userId: updated.userId, orderId: updated.id, pickupName: updated.pickupName });
+      } catch (error) {
+        void recordApiErrorEvent({
+          area: "staff.orders",
+          action: "notify_ready",
+          severity: "warning",
+          userId: access.userId,
+          message: "Failed to send ready notification",
+          details: { orderId: updated.id },
+          error
+        });
+      }
+    }
+  } catch (error) {
+    void recordApiErrorEvent({
+      area: "staff.orders",
+      action: "set_status",
+      severity: "critical",
+      userId: access.userId,
+      message: "Failed to update order status",
+      details: { orderId, status },
+      error
+    });
+    return NextResponse.json({ error: "Could not update status right now." }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });
