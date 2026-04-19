@@ -163,10 +163,9 @@ html[data-shell="portal"][data-theme="dark"] body {
 }
 
 .appMain {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 a {
@@ -980,11 +979,11 @@ code {
 
 .pageDashboard {
   flex: 1;
-  min-height: 100%;
+  min-height: 0;
 }
 
 .pageDashboard .dashHero {
-  min-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -1506,12 +1505,12 @@ code {
 
 @media (max-width: 720px) {
   .pageDashboard {
-    min-height: 100%;
+    min-height: 0;
     gap: 10px;
   }
 
   .pageDashboard .dashHero {
-    min-height: 100%;
+    min-height: 0;
     padding: 16px;
   }
 
@@ -3600,7 +3599,9 @@ html[data-theme="dark"] .modalSheet {
 }
 
 .appFooter {
-  margin-top: 18px;
+  margin-top: auto;
+  padding-top: 18px;
+  position: static;
   border-top: 1px solid var(--border);
   background: var(--color-mix-panel-65);
   -webkit-backdrop-filter: blur(10px);
@@ -3768,7 +3769,7 @@ html[data-theme="dark"] {
 
 .pageHome {
   flex: 1;
-  min-height: 100%;
+  min-height: 0;
   padding: 0;
   gap: 0;
   --home-content-max-width: min(100%, 1000px);
@@ -3784,7 +3785,7 @@ html[data-theme="dark"] {
 
 .pageHome .dashHero {
   width: 100%;
-  min-height: 100%;
+  min-height: 0;
   margin: 0;
   border-radius: 0;
   border: 0;
@@ -3835,6 +3836,7 @@ html[data-theme="dark"] {
 
 .pageHome .dashFooter {
   --home-enter-delay: 170ms;
+  margin-top: auto;
 }
 
 @media (min-width: 1025px) {
@@ -3860,7 +3862,7 @@ html[data-theme="dark"] {
   }
 
   .pageHome .dashHero {
-    min-height: 100%;
+    min-height: 0;
   }
 
   .pageHome .widgetCard {
@@ -3911,9 +3913,7 @@ html[data-theme="dark"] {
   }
 
   .pageHome .dashFooter {
-    position: sticky;
-    bottom: var(--home-footer-offset);
-    z-index: 5;
+    position: static;
     margin-top: auto;
     padding: var(--home-footer-padding);
     gap: var(--home-footer-gap);
