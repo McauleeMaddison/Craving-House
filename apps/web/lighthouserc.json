@@ -10,6 +10,7 @@
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 120000,
       "settings": {
+        "output": "json",
         "preset": "desktop",
         "throttlingMethod": "simulate"
       }
