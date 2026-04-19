@@ -111,19 +111,39 @@ export function LoyaltyQrClient() {
       </div>
 
       {token && qrDataUrl && !imgError ? (
-        <div className="qrFrame u-mt-12">
-          <Image
-            className="qrImage"
-            src={qrDataUrl}
-            alt="Your loyalty QR code"
-            width={240}
-            height={240}
-            unoptimized
-            onError={() => setImgError(true)}
-            onClick={() => setShowLarge(true)}
-          />
-          <div className="muted u-fs-12 u-lh-16 u-mt-10">
-            Show this QR to staff at collection. If scanning fails, use “Copy token”.
+        <div className="loyaltyQrCard u-mt-12">
+          <div className="loyaltyQrMug">
+            <div className="loyaltyQrMugBody">
+              <div className="loyaltyQrMugInner">
+                <div className="loyaltyQrCodePlate">
+                  <Image
+                    className="loyaltyQrImage"
+                    src={qrDataUrl}
+                    alt="Your loyalty QR code"
+                    width={240}
+                    height={240}
+                    unoptimized
+                    onError={() => setImgError(true)}
+                    onClick={() => setShowLarge(true)}
+                  />
+                  <span className="loyaltyQrMark" aria-hidden="true">
+                    <Image
+                      className="loyaltyQrMarkImage"
+                      src="/brand/craving-house-mark.svg"
+                      alt=""
+                      width={68}
+                      height={68}
+                    />
+                  </span>
+                </div>
+                <div className="loyaltyQrScanLabel">SCAN ME</div>
+              </div>
+            </div>
+            <span className="loyaltyQrHandle" aria-hidden="true" />
+          </div>
+
+          <div className="muted u-fs-12 u-lh-16">
+            Show this QR to staff at collection. If scanning fails, use “Copy token”. Each customer token is unique.
           </div>
         </div>
       ) : null}

@@ -755,6 +755,135 @@ code {
   margin-top: 10px;
 }
 
+.loyaltyQrCard {
+  display: grid;
+  gap: 12px;
+}
+
+.loyaltyQrMug {
+  position: relative;
+  width: min(100%, 360px);
+  margin: 0 auto;
+  padding-right: 64px;
+}
+
+.loyaltyQrMugBody {
+  position: relative;
+  z-index: 1;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #08090d;
+  padding: 14px;
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.loyaltyQrMugInner {
+  border-radius: 20px;
+  background: linear-gradient(160deg, #f1c45f 0%, #d9a93f 100%);
+  padding: 14px 12px 12px;
+}
+
+.loyaltyQrCodePlate {
+  position: relative;
+  border-radius: 14px;
+  background: #f3f3f4;
+  padding: 10px;
+}
+
+.loyaltyQrImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: pixelated;
+  background: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.loyaltyQrMark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(46px, 20%, 68px);
+  height: clamp(46px, 20%, 68px);
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  background: rgba(248, 248, 248, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+}
+
+.loyaltyQrMarkImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.76;
+  mix-blend-mode: multiply;
+}
+
+.loyaltyQrScanLabel {
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 6vw, 38px);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  font-weight: 950;
+  color: #050506;
+}
+
+.loyaltyQrHandle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 72px;
+  height: 150px;
+  transform: translateY(-50%);
+  border: 11px solid #08090d;
+  border-left: 0;
+  border-radius: 0 68px 68px 0;
+  opacity: 0.98;
+}
+
+@media (max-width: 540px) {
+  .loyaltyQrMug {
+    width: min(100%, 308px);
+    padding-right: 52px;
+  }
+
+  .loyaltyQrMugBody {
+    border-radius: 22px;
+    padding: 11px;
+  }
+
+  .loyaltyQrMugInner {
+    border-radius: 17px;
+    padding: 11px 10px 10px;
+  }
+
+  .loyaltyQrCodePlate {
+    padding: 8px;
+  }
+
+  .loyaltyQrScanLabel {
+    margin-top: 8px;
+    font-size: clamp(20px, 7vw, 30px);
+  }
+
+  .loyaltyQrHandle {
+    width: 58px;
+    height: 122px;
+    right: 5px;
+    border-width: 9px;
+  }
+}
+
 .loyaltyTokenBox {
   margin-top: 12px;
   padding: 12px;
@@ -3772,6 +3901,7 @@ html[data-theme="dark"] {
   min-height: 0;
   padding: 0;
   gap: 0;
+  background: var(--home-hero-bg);
   --home-content-max-width: min(100%, 1000px);
   --home-hero-pad-top: clamp(16px, 3vw, 28px);
   --home-hero-pad-inline: clamp(16px, 4.2vw, 42px);
@@ -3790,7 +3920,7 @@ html[data-theme="dark"] {
   border-radius: 0;
   border: 0;
   box-shadow: none;
-  background: var(--home-hero-bg);
+  background: transparent;
   display: flex;
   flex-direction: column;
   padding: var(--home-hero-pad-top) var(--home-hero-pad-inline) var(--home-hero-pad-bottom);
