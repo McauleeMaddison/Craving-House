@@ -103,9 +103,9 @@ export function CustomerNotificationsClient() {
     <div className="surface surfaceInset u-pad-14 u-mt-12">
       <div className="u-flex-between-wrap">
         <div>
-          <div className="u-fw-900">Ready notifications</div>
+          <div className="u-fw-900">Order notifications</div>
           <div className="muted u-mt-6 u-fs-13 u-lh-16">
-            Get a push notification when staff marks your order as ready to collect.
+            Get push notifications when staff updates your order status.
           </div>
         </div>
         <span className="pill">
@@ -146,4 +146,3 @@ export function CustomerNotificationsClient() {
     </div>
   );
 }
-

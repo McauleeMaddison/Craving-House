@@ -35,11 +35,15 @@ async function markOrderPaid(params: { orderId: string; sessionId: string; payme
 
   const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
   const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
-  void notifyStaffNewOrder({
-    orderId: order.id,
-    pickupName: order.pickupName,
-    totalCents: order.totalCents
-  });
+  try {
+    await notifyStaffNewOrder({
+      orderId: order.id,
+      pickupName: order.pickupName,
+      totalCents: order.totalCents
+    });
+  } catch (error) {
+    console.error("Failed to send staff new-order push notification", error);
+  }
 
   if (order.guestEmail && order.guestToken && isEmailConfigured()) {
     const baseUrl = getConfiguredPublicOrigin() || "";

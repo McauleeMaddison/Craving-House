@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/server/db";
 import { requireRole } from "@/server/auth/access";
-import { notifyCustomerOrderReady } from "@/server/notifications/push";
+import { notifyCustomerOrderStatus } from "@/server/notifications/push";
 import { isSameOrigin } from "@/server/security/request-security";
 import { getClientIp, rateLimit } from "@/server/security/rate-limit";
 import { recordApiErrorEvent, recordAuditEvent } from "@/server/monitoring/events";
@@ -63,17 +63,22 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
       }
     });
 
-    if (status === "ready" && updated.userId) {
+    if (updated.userId && status !== current.status) {
       try {
-        await notifyCustomerOrderReady({ userId: updated.userId, orderId: updated.id, pickupName: updated.pickupName });
+        await notifyCustomerOrderStatus({
+          userId: updated.userId,
+          orderId: updated.id,
+          pickupName: updated.pickupName,
+          status
+        });
       } catch (error) {
         void recordApiErrorEvent({
           area: "staff.orders",
-          action: "notify_ready",
+          action: "notify_status",
           severity: "warning",
-          userId: access.userId,
-          message: "Failed to send ready notification",
-          details: { orderId: updated.id },
+          userId: updated.userId,
+          message: "Failed to send customer status notification",
+          details: { orderId: updated.id, status },
           error
         });
       }
