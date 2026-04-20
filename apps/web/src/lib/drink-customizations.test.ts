@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   getProductCustomizationKind,
   isStandaloneModifierProduct,
+  normalizeCustomizations,
   normalizeCustomizationsForProduct,
   supportsDrinkToppings
 } from "./drink-customizations.ts";
@@ -80,5 +81,24 @@ test("normalizeCustomizationsForProduct strips drink toppings from unsupported p
       { drinkToppings: ["mini-marshmallows"] }
     ),
     null
+  );
+});
+
+test("normalizeCustomizations accepts legacy add-on keys and object payloads", () => {
+  assert.deepEqual(
+    normalizeCustomizations({
+      sugar: "2",
+      hotdogAddons: [{ key: "mozzarella" }],
+      waffleAddOns: [{ id: "soft ice cream" }],
+      mealAddons: [{ value: "add chips" }],
+      coffeeAddOns: [{ name: "extra_shot" }]
+    }),
+    {
+      sugar: 2,
+      extras: ["extra-shot"],
+      hotDogAddOns: ["mozzarella"],
+      waffleToppings: ["soft-ice-cream"],
+      mealAddOns: ["add-chips"]
+    }
   );
 });

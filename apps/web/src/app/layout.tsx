@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   title: "Craving House",
   description: "Order ahead + loyalty rewards",
   icons: {
-    icon: [{ url: "/icon.svg?v=4", type: "image/svg+xml" }],
-    shortcut: ["/icon.svg?v=4"],
-    apple: [{ url: "/icon.svg?v=4", type: "image/svg+xml" }]
+    icon: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }],
+    shortcut: ["/ch-favicon.jpeg"],
+    apple: [{ url: "/ch-favicon.jpeg", type: "image/jpeg" }]
   }
 };
 

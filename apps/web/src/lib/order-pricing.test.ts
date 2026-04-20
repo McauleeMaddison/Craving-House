@@ -27,6 +27,17 @@ test("getLineUnitPriceCents includes food modifier pricing", () => {
   );
 });
 
+test("getLineUnitPriceCents supports legacy add-on payload formats", () => {
+  assert.equal(
+    getLineUnitPriceCents(600, {
+      hotdogAddons: [{ key: "mozzarella" }],
+      mealAddons: [{ value: "add chips" }],
+      waffleAddOns: ["soft ice cream"]
+    }),
+    1200
+  );
+});
+
 test("getPickupSmallOrderFeeCents applies under the threshold only", () => {
   assert.equal(getPickupSmallOrderFeeCents(PICKUP_SMALL_ORDER_THRESHOLD_CENTS - 1), PICKUP_SMALL_ORDER_FEE_CENTS);
   assert.equal(getPickupSmallOrderFeeCents(PICKUP_SMALL_ORDER_THRESHOLD_CENTS), 0);

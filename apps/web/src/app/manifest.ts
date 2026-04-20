@@ -32,9 +32,9 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     icons: [
       {
-        src: "/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/ch-favicon.jpeg",
+        sizes: "1766x1766",
+        type: "image/jpeg",
         purpose: "any"
       }
     ]

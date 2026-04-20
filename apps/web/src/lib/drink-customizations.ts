@@ -74,6 +74,12 @@ const hotDogAddOnLabelByKey = new Map(HOT_DOG_ADD_ON_OPTIONS.map((x) => [x.key, 
 const drinkToppingLabelByKey = new Map(DRINK_TOPPING_OPTIONS.map((x) => [x.key, x.label]));
 const waffleToppingLabelByKey = new Map(WAFFLE_TOPPING_OPTIONS.map((x) => [x.key, x.label]));
 const mealAddOnLabelByKey = new Map(MEAL_ADD_ON_OPTIONS.map((x) => [x.key, x.label]));
+const syrupKeySet = new Set(SYRUP_OPTIONS.map((x) => x.key));
+const extraKeySet = new Set(EXTRA_OPTIONS.map((x) => x.key));
+const drinkToppingKeySet = new Set(DRINK_TOPPING_OPTIONS.map((x) => x.key));
+const hotDogAddOnKeySet = new Set(HOT_DOG_ADD_ON_OPTIONS.map((x) => x.key));
+const waffleToppingKeySet = new Set(WAFFLE_TOPPING_OPTIONS.map((x) => x.key));
+const mealAddOnKeySet = new Set(MEAL_ADD_ON_OPTIONS.map((x) => x.key));
 
 function normalizeProductText(input: string | null | undefined) {
   return (input ?? "")
@@ -87,10 +93,38 @@ const standaloneModifierNames = new Set(
   [...HOT_DOG_ADD_ON_OPTIONS, ...WAFFLE_TOPPING_OPTIONS, ...MEAL_ADD_ON_OPTIONS].map((x) => normalizeProductText(x.label))
 );
 
+function normalizeModifierKey(input: unknown): string {
+  if (typeof input === "string") {
+    return input
+      .toLowerCase()
+      .trim()
+      .replace(/[_\s]+/g, "-")
+      .replace(/-+/g, "-");
+  }
+  if (typeof input === "object" && input !== null) {
+    const record = input as Record<string, unknown>;
+    if (typeof record.key === "string") return normalizeModifierKey(record.key);
+    if (typeof record.id === "string") return normalizeModifierKey(record.id);
+    if (typeof record.value === "string") return normalizeModifierKey(record.value);
+    if (typeof record.name === "string") return normalizeModifierKey(record.name);
+  }
+  return "";
+}
+
 function normalizeStringArray<T extends string>(input: unknown, allowed: Set<T>) {
   if (!Array.isArray(input)) return [] as T[];
-  const values = input.map((x) => String(x)).filter((x): x is T => allowed.has(x as T));
+  const values = input
+    .map(normalizeModifierKey)
+    .filter((x): x is T => Boolean(x) && allowed.has(x as T));
   return Array.from(new Set(values));
+}
+
+function getArrayField(raw: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = raw[key];
+    if (Array.isArray(value)) return value;
+  }
+  return [];
 }
 
 function getOptionPriceCents<T extends string>(keys: T[] | undefined, options: Array<{ key: T; priceCents: number }>) {
@@ -102,15 +136,69 @@ function getOptionPriceCents<T extends string>(keys: T[] | undefined, options: A
 export function normalizeCustomizations(input: unknown): DrinkCustomizations | null {
   if (!input || typeof input !== "object") return null;
   const raw = input as Record<string, unknown>;
-  const sugarNum = raw.sugar;
-  const sugar = [1, 2, 3, 4].includes(sugarNum as number) ? (sugarNum as 1 | 2 | 3 | 4) : undefined;
+  const sugarNum = Number(raw.sugar);
+  const sugar = [1, 2, 3, 4].includes(sugarNum) ? (sugarNum as 1 | 2 | 3 | 4) : undefined;
 
-  const syrups = normalizeStringArray(raw.syrups, new Set(SYRUP_OPTIONS.map((x) => x.key)));
-  const extras = normalizeStringArray(raw.extras, new Set(EXTRA_OPTIONS.map((x) => x.key)));
-  const drinkToppings = normalizeStringArray(raw.drinkToppings, new Set(DRINK_TOPPING_OPTIONS.map((x) => x.key)));
-  const hotDogAddOns = normalizeStringArray(raw.hotDogAddOns, new Set(HOT_DOG_ADD_ON_OPTIONS.map((x) => x.key)));
-  const waffleToppings = normalizeStringArray(raw.waffleToppings, new Set(WAFFLE_TOPPING_OPTIONS.map((x) => x.key)));
-  const mealAddOns = normalizeStringArray(raw.mealAddOns, new Set(MEAL_ADD_ON_OPTIONS.map((x) => x.key)));
+  const genericAddOns = normalizeStringArray(
+    getArrayField(raw, ["addOns", "addons", "modifiers"]),
+    new Set<string>([
+      ...extraKeySet,
+      ...drinkToppingKeySet,
+      ...hotDogAddOnKeySet,
+      ...waffleToppingKeySet,
+      ...mealAddOnKeySet
+    ])
+  );
+
+  const syrups = normalizeStringArray(
+    getArrayField(raw, ["syrups", "syrupOptions", "syrup"]),
+    syrupKeySet
+  );
+  const extras = Array.from(
+    new Set([
+      ...normalizeStringArray(
+        getArrayField(raw, ["extras", "drinkExtras", "coffeeAddOns", "coffeeAddons"]),
+        extraKeySet
+      ),
+      ...genericAddOns.filter((x): x is DrinkExtra => extraKeySet.has(x as DrinkExtra))
+    ])
+  );
+  const drinkToppings = Array.from(
+    new Set([
+      ...normalizeStringArray(
+        getArrayField(raw, ["drinkToppings", "drinkAddOns", "drinkAddons"]),
+        drinkToppingKeySet
+      ),
+      ...genericAddOns.filter((x): x is DrinkTopping => drinkToppingKeySet.has(x as DrinkTopping))
+    ])
+  );
+  const hotDogAddOns = Array.from(
+    new Set([
+      ...normalizeStringArray(
+        getArrayField(raw, ["hotDogAddOns", "hotDogAddons", "hotdogAddOns", "hotdogAddons"]),
+        hotDogAddOnKeySet
+      ),
+      ...genericAddOns.filter((x): x is HotDogAddOn => hotDogAddOnKeySet.has(x as HotDogAddOn))
+    ])
+  );
+  const waffleToppings = Array.from(
+    new Set([
+      ...normalizeStringArray(
+        getArrayField(raw, ["waffleToppings", "waffleAddOns", "waffleAddons"]),
+        waffleToppingKeySet
+      ),
+      ...genericAddOns.filter((x): x is WaffleTopping => waffleToppingKeySet.has(x as WaffleTopping))
+    ])
+  );
+  const mealAddOns = Array.from(
+    new Set([
+      ...normalizeStringArray(
+        getArrayField(raw, ["mealAddOns", "mealAddons"]),
+        mealAddOnKeySet
+      ),
+      ...genericAddOns.filter((x): x is MealAddOn => mealAddOnKeySet.has(x as MealAddOn))
+    ])
+  );
 
   const cleaned: DrinkCustomizations = {};
   if (typeof sugar === "number") cleaned.sugar = sugar;
