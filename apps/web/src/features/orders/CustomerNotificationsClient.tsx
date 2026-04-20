@@ -105,7 +105,7 @@ export function CustomerNotificationsClient() {
         <div>
           <div className="u-fw-900">Order notifications</div>
           <div className="muted u-mt-6 u-fs-13 u-lh-16">
-            Get push notifications when staff updates your order status.
+            Get push notifications when your order status changes.
           </div>
         </div>
         <span className="pill">

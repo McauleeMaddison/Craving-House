@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import type { IScannerControls } from "@zxing/browser";
 
 import { apiGetJson, apiPostJson } from "@/lib/api";
@@ -56,14 +55,12 @@ function getCameraStartErrorMessage(error: unknown) {
 }
 
 export function LoyaltyScanClient() {
-  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
   const [orderId, setOrderId] = useState<string>("");
   const [cardToken, setCardToken] = useState("");
   const [eligibleItemCount, setEligibleItemCount] = useState<number>(1);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
-  const [captureMode, setCaptureMode] = useState<"camera" | "manual">("camera");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -86,11 +83,6 @@ export function LoyaltyScanClient() {
   }, []);
 
   const selected = useMemo(() => orders.find((o) => o.id === orderId) ?? null, [orders, orderId]);
-
-  useEffect(() => {
-    const mode = searchParams.get("mode");
-    setCaptureMode(mode === "manual" ? "manual" : "camera");
-  }, [searchParams]);
 
   useEffect(() => {
     if (!selected) return;
@@ -175,7 +167,6 @@ export function LoyaltyScanClient() {
 
   async function startScanner() {
     setScannerError("");
-    if (captureMode === "manual") return;
     if (!navigator.mediaDevices?.getUserMedia) {
       setScannerError("Camera access is unavailable in this browser. You can use “Paste token”.");
       return;
@@ -331,22 +322,6 @@ export function LoyaltyScanClient() {
             <span className="muted u-fs-13">
               Customer QR token
             </span>
-            <div className="checkoutModeRow">
-              <button
-                className={`btn btn-secondary btnCompact ${captureMode === "camera" ? "btnActive" : ""}`}
-                type="button"
-                onClick={() => setCaptureMode("camera")}
-              >
-                Camera scan
-              </button>
-              <button
-                className={`btn btn-secondary btnCompact ${captureMode === "manual" ? "btnActive" : ""}`}
-                type="button"
-                onClick={() => setCaptureMode("manual")}
-              >
-                Manual/paste
-              </button>
-            </div>
             <input
               className="input"
               value={cardToken}
@@ -361,9 +336,8 @@ export function LoyaltyScanClient() {
               className="btn btn-secondary"
               type="button"
               onClick={startScanner}
-              disabled={captureMode !== "camera"}
             >
-              {captureMode === "camera" ? "Scan with camera" : "Camera disabled"}
+              Scan with camera
             </button>
             <button className="btn btn-secondary" type="button" onClick={() => void pasteFromClipboard()}>
               Paste from clipboard
@@ -387,11 +361,9 @@ export function LoyaltyScanClient() {
               e.currentTarget.value = "";
             }}
           />
-          {captureMode === "manual" ? (
-            <p className="muted u-mt-10 u-fs-12 u-lh-16">
-              Manual mode is optimised for low-end devices. Paste the token instead of opening the camera.
-            </p>
-          ) : null}
+          <p className="muted u-mt-10 u-fs-12 u-lh-16">
+            If live camera scanning is unavailable, use “Scan from photo” or paste the token.
+          </p>
           {scannerError ? (
             <p className="muted u-mt-10 u-danger">
               {scannerError}

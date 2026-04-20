@@ -240,7 +240,6 @@ export function CheckoutClient() {
               ASAP estimate based on items: <span className="orderInlineName">{etaText}</span>
             </div>
             <div className="pill u-mt-10">
-              {/* Controlled by manager prep time settings */}
               Estimated preparation time
             </div>
           </div>
@@ -433,7 +432,7 @@ export function CheckoutClient() {
           </p>
         ) : null}
         <p className="muted u-mt-10 u-fs-12 u-lh-16">
-          Orders are stored in the shared database so staff devices can see the queue.
+          Your order appears instantly to our team once payment is confirmed.
         </p>
       </section>
     </>

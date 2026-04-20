@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 
 import { useCart } from "@/components/cart/CartContext";
 import { apiGetJson } from "@/lib/api";
@@ -124,9 +123,6 @@ function AddToCartButton(props: { onAdd: () => void; disabled?: boolean }) {
 }
 
 export function MenuClient() {
-  const { data, status } = useSession();
-  const role = (data?.user as any)?.role as string | undefined;
-  const isManager = status === "authenticated" && role === "manager";
   const cart = useCart();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<ProductDto[]>([]);
@@ -258,7 +254,6 @@ export function MenuClient() {
 
         {!item.available ? (
           <p className="muted u-mt-10 u-fs-12 u-lh-16">
-            {/* Note: Availability controlled by admin/manager */}
             This item is temporarily unavailable.
           </p>
         ) : null}
@@ -483,20 +478,9 @@ export function MenuClient() {
               ? "You have no saved favorites yet. Tap “☆ Save” on menu items to build your quick list."
               : "Try a different search, or check back shortly."}
           </p>
-          {isManager ? (
-            <div className="u-flex-wrap-gap-10 u-mt-10">
-              <Link className="btn" href="/manager/products">
-                Add products (manager)
-              </Link>
-              <Link className="btn btn-secondary" href="/manager">
-                Manager home
-              </Link>
-            </div>
-          ) : (
-            <p className="muted u-mt-10 u-fs-12 u-lh-16">
-              If you’re the owner/manager, sign in and use the manager portal to add products.
-            </p>
-          )}
+          <p className="muted u-mt-10 u-fs-12 u-lh-16">
+            We update the menu regularly. Please check back soon.
+          </p>
         </section>
       ) : (
         <section className="menuGroups u-mt-12">

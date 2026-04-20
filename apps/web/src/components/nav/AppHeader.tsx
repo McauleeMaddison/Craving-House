@@ -286,6 +286,11 @@ export function AppHeader() {
             >
               {signedIn ? displayName : "Sign in"}
             </Link>
+            {signedIn ? (
+              <button className="btn btn-secondary" type="button" onClick={() => void onSignOut()}>
+                Sign out
+              </button>
+            ) : null}
           </nav>
         </div>
       </header>

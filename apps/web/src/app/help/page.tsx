@@ -48,26 +48,21 @@ export default function HelpPage() {
 
           <div className="surface surfaceFlat helpCard">
             <div className="helpCardHeader">
-              <div className="u-fw-900">Staff</div>
-              <span className="helpBadge">✓ Queue</span>
+              <div className="u-fw-900">Pickup & loyalty</div>
+              <span className="helpBadge">✓ Collect</span>
             </div>
             <ol className="muted helpList">
-              <li>Sign in (staff account).</li>
               <li>
-                Open <Link href="/staff/orders">Order queue</Link> and update
-                status.
+                After checkout, open <Link href="/orders">Orders</Link> to follow your status.
               </li>
               <li>
-                Open <Link href="/staff/loyalty-scan">Loyalty scan</Link>, scan
-                customer QR, add stamps.
+                When your order is ready, collect at the counter and show your QR from{" "}
+                <Link href="/loyalty">Loyalty</Link>.
               </li>
               <li>
-                Managers can use <Link href="/manager/loyalty-scan">Manager loyalty scan</Link>.
+                Keep notifications enabled in <Link href="/orders">Orders</Link> to get live updates.
               </li>
             </ol>
-            <p className="muted u-mt-10 u-lh-17">
-              Manager tasks live under <Link href="/manager">Manager</Link>.
-            </p>
           </div>
         </div>
 
