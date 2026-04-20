@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import type { IScannerControls } from "@zxing/browser";
 
 import { apiGetJson, apiPostJson } from "@/lib/api";
 
@@ -25,6 +26,35 @@ function eligibleCount(order: StaffOrderDto) {
   return order.lines.reduce((sum, l) => sum + (l.loyaltyEligible ? l.qty : 0), 0);
 }
 
+function normalizeDetectedToken(raw: string) {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+
+  try {
+    const url = new URL(trimmed);
+    const queryToken = url.searchParams.get("token") || url.searchParams.get("cardToken") || url.searchParams.get("t");
+    if (queryToken?.trim()) return queryToken.trim();
+  } catch {
+    // not a URL; fall back to raw token text
+  }
+
+  return trimmed;
+}
+
+function getCameraStartErrorMessage(error: unknown) {
+  const name = typeof error === "object" && error !== null && "name" in error
+    ? String((error as { name?: unknown }).name ?? "")
+    : "";
+
+  if (name === "NotAllowedError" || name === "SecurityError") {
+    return "Camera permission was denied. Allow camera access in browser settings or use “Paste token”.";
+  }
+  if (name === "NotFoundError" || name === "OverconstrainedError") {
+    return "No camera was found on this device/browser. You can use “Paste token”.";
+  }
+  return "Could not start camera scanning on this browser. You can use “Paste token” instead.";
+}
+
 export function LoyaltyScanClient() {
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<StaffOrderDto[]>([]);
@@ -37,8 +67,10 @@ export function LoyaltyScanClient() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const scanTimerRef = useRef<number | null>(null);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const scannerControlsRef = useRef<IScannerControls | null>(null);
+  const scannerSessionRef = useRef(0);
+  const scannerHasResultRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -118,71 +150,126 @@ export function LoyaltyScanClient() {
   }
 
   async function stopScanner() {
-    if (scanTimerRef.current) {
-      window.clearInterval(scanTimerRef.current);
-      scanTimerRef.current = null;
+    scannerSessionRef.current += 1;
+    scannerHasResultRef.current = false;
+
+    const controls = scannerControlsRef.current;
+    scannerControlsRef.current = null;
+    if (controls) {
+      try {
+        controls.stop();
+      } catch {
+        // ignore stop failures
+      }
     }
-    const stream = streamRef.current;
-    streamRef.current = null;
-    if (stream) {
+
+    const video = videoRef.current;
+    const stream = video?.srcObject;
+    if (stream instanceof MediaStream) {
       for (const track of stream.getTracks()) track.stop();
     }
+    if (video) video.srcObject = null;
+
     setScannerOpen(false);
   }
 
   async function startScanner() {
     setScannerError("");
     if (captureMode === "manual") return;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setScannerError("Camera access is unavailable in this browser. You can use “Paste token”.");
+      return;
+    }
 
     if (typeof window !== "undefined" && !window.isSecureContext) {
       setScannerError("Camera scanning requires HTTPS. Open the app using https:// and try again.");
       return;
     }
 
-    const BarcodeDetectorCtor = (window as any).BarcodeDetector as
-      | (new (opts?: { formats?: string[] }) => { detect: (image: CanvasImageSource) => Promise<any[]> })
-      | undefined;
-    if (!BarcodeDetectorCtor) {
-      setScannerError("Camera scanning isn’t supported on this device/browser. Use “Paste token”.");
-      return;
-    }
-
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false
-      });
-      streamRef.current = stream;
+      await stopScanner();
+
+      const sessionId = scannerSessionRef.current + 1;
+      scannerSessionRef.current = sessionId;
+      scannerHasResultRef.current = false;
       setScannerOpen(true);
 
-      // Wait a tick for the video element to exist
-      setTimeout(() => {
-        const video = videoRef.current;
-        if (!video) return;
-        video.srcObject = stream;
-        void video.play();
-      }, 0);
+      let video: HTMLVideoElement | null = null;
+      for (let i = 0; i < 20; i++) {
+        video = videoRef.current;
+        if (video) break;
+        await new Promise((resolve) => window.setTimeout(resolve, 25));
+      }
+      if (!video || scannerSessionRef.current !== sessionId) {
+        await stopScanner();
+        return;
+      }
 
-      const detector = new BarcodeDetectorCtor({ formats: ["qr_code"] });
-      scanTimerRef.current = window.setInterval(async () => {
-        const video = videoRef.current;
-        if (!video) return;
-        if (video.readyState < 2) return;
-        try {
-          const codes = await detector.detect(video);
-          if (!codes || codes.length === 0) return;
-          const value = codes[0]?.rawValue ?? codes[0]?.data ?? "";
-          if (!value) return;
+      const { BrowserQRCodeReader } = await import("@zxing/browser");
+      const reader = new BrowserQRCodeReader(undefined, {
+        delayBetweenScanAttempts: 150,
+        delayBetweenScanSuccess: 750
+      });
 
-          setCardToken(String(value));
+      const controls = await reader.decodeFromConstraints(
+        {
+          audio: false,
+          video: {
+            facingMode: {
+              ideal: "environment"
+            }
+          }
+        },
+        video,
+        (result, _error, runtimeControls) => {
+          if (scannerSessionRef.current !== sessionId) {
+            runtimeControls.stop();
+            return;
+          }
+          if (!result || scannerHasResultRef.current) return;
+
+          const detected = normalizeDetectedToken(result.getText() ?? "");
+          if (!detected) return;
+
+          scannerHasResultRef.current = true;
+          setCardToken(detected);
           if (navigator.vibrate) navigator.vibrate(30);
-          await stopScanner();
-        } catch {
-          // ignore transient detect errors
+          void stopScanner();
         }
-      }, 220);
+      );
+
+      if (scannerSessionRef.current !== sessionId) {
+        controls.stop();
+        return;
+      }
+      scannerControlsRef.current = controls;
+    } catch (error) {
+      setScannerError(getCameraStartErrorMessage(error));
+      await stopScanner();
+    }
+  }
+
+  async function scanFromPhoto(file: File) {
+    setScannerError("");
+    try {
+      const { BrowserQRCodeReader } = await import("@zxing/browser");
+      const reader = new BrowserQRCodeReader();
+      const imageUrl = URL.createObjectURL(file);
+
+      try {
+        const result = await reader.decodeFromImageUrl(imageUrl);
+        const detected = normalizeDetectedToken(result.getText() ?? "");
+        if (!detected) {
+          setScannerError("QR detected, but no token value was found.");
+          return;
+        }
+        setCardToken(detected);
+        if (navigator.vibrate) navigator.vibrate(30);
+      } finally {
+        URL.revokeObjectURL(imageUrl);
+      }
     } catch {
-      setScannerError("Camera permission denied or unavailable. You can paste the token instead.");
+      setScannerError("Could not read a QR code from that photo. Try another image or use camera scan.");
     }
   }
 
@@ -281,10 +368,25 @@ export function LoyaltyScanClient() {
             <button className="btn btn-secondary" type="button" onClick={() => void pasteFromClipboard()}>
               Paste from clipboard
             </button>
+            <button className="btn btn-secondary" type="button" onClick={() => photoInputRef.current?.click()}>
+              Scan from photo
+            </button>
             <button className="btn btn-secondary" type="button" onClick={() => setCardToken("")} disabled={!cardToken}>
               Clear
             </button>
           </div>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              if (file) void scanFromPhoto(file);
+              e.currentTarget.value = "";
+            }}
+          />
           {captureMode === "manual" ? (
             <p className="muted u-mt-10 u-fs-12 u-lh-16">
               Manual mode is optimised for low-end devices. Paste the token instead of opening the camera.
