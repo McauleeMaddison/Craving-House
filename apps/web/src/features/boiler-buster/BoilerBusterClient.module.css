@@ -1,0 +1,101 @@
+.tapZoneInteractive {
+  isolation: isolate;
+}
+
+.tapZonePulse {
+  animation: boilerBusterTapZonePulse 850ms ease-in-out infinite;
+}
+
+@keyframes boilerBusterTapZonePulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(255, 131, 54, 0.08);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(255, 131, 54, 0.34);
+  }
+}
+
+.pressureFill {
+  position: relative;
+}
+
+.pressureFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 16%, rgba(255, 255, 255, 0.42) 50%, transparent 84%);
+  transform: translateX(-115%);
+  animation: boilerBusterPressureSweep 1.3s linear infinite;
+}
+
+.pressureFillHot::after {
+  animation-duration: 760ms;
+}
+
+@keyframes boilerBusterPressureSweep {
+  from {
+    transform: translateX(-115%);
+  }
+  to {
+    transform: translateX(115%);
+  }
+}
+
+.pressureCoach {
+  margin-top: 1px;
+}
+
+.alertBadge {
+  animation: boilerBusterAlertBlink 720ms ease-in-out infinite;
+}
+
+@keyframes boilerBusterAlertBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.64;
+  }
+}
+
+.gaugeWarning {
+  animation: boilerBusterGaugeWarning 720ms ease-in-out infinite;
+}
+
+@keyframes boilerBusterGaugeWarning {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: saturate(1.35) brightness(1.08);
+  }
+}
+
+.needleAlarm {
+  animation: boilerBusterNeedleAlarm 420ms linear infinite;
+}
+
+@keyframes boilerBusterNeedleAlarm {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: brightness(1.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tapZonePulse,
+  .pressureFill::after,
+  .alertBadge,
+  .gaugeWarning,
+  .needleAlarm {
+    animation: none;
+  }
+}
