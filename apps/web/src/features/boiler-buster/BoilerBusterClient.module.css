@@ -1,3 +1,10 @@
+.leadCopy {
+  line-height: 1.62;
+  letter-spacing: 0.005em;
+  word-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
 .tapZoneInteractive {
   isolation: isolate;
 }
@@ -57,6 +64,10 @@
 
 .pressureCoach {
   margin-top: 1px;
+  line-height: 1.52;
+  letter-spacing: 0.005em;
+  word-spacing: 0.03em;
+  text-wrap: pretty;
 }
 
 .meterInfoRow {
@@ -66,22 +77,30 @@
 }
 
 .panelHint {
-  margin-top: 2px;
+  margin-top: 3px;
+  max-width: 40ch;
+  margin-left: auto;
+  margin-right: auto;
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.55;
+  letter-spacing: 0.005em;
+  word-spacing: 0.03em;
+  text-wrap: pretty;
   text-align: center;
 }
 
 .meterTag {
   min-height: 22px;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(248, 249, 250, 0.88);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.012em;
+  word-spacing: 0.02em;
+  line-height: 1.2;
 }
 
 .meterTagActive {
@@ -106,6 +125,24 @@
   border-color: rgba(255, 92, 115, 0.46);
   background: rgba(255, 92, 115, 0.18);
   color: rgba(255, 226, 232, 0.98);
+}
+
+.tapSubline {
+  line-height: 1.58;
+  letter-spacing: 0.005em;
+  word-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
+.noteCopy {
+  line-height: 1.64;
+  letter-spacing: 0.006em;
+  word-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
+.metaRow {
+  margin-top: 10px;
 }
 
 .gaugeWarning {
@@ -141,5 +178,18 @@
   .gaugeWarning,
   .needleAlarm {
     animation: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .meterTag {
+    font-size: 10px;
+    letter-spacing: 0.01em;
+  }
+
+  .panelHint,
+  .tapSubline,
+  .noteCopy {
+    font-size: 12px;
   }
 }

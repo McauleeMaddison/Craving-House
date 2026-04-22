@@ -96,8 +96,8 @@ function getStatusCopy(game: GameState, pressureBand: PressureBand) {
     return "Boiler overheated. Start again and keep pressure away from red.";
   }
   if (game.phase === "playing") {
-    if (pressureBand === "Critical") return "Critical pressure. Rapid taps are needed now.";
-    if (pressureBand === "Danger") return "Pressure is spiking. Keep tapping to pull it down.";
+    if (pressureBand === "Critical") return "Critical pressure. Tap quickly now.";
+    if (pressureBand === "Danger") return "Pressure is spiking. Vent now.";
     if (pressureBand === "Rising") return "Heat is building. Vent now to stay in control.";
     return `Machine is stable. Aim for ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% for bonus vents.`;
   }
@@ -344,7 +344,7 @@ export function BoilerBusterClient() {
       <div className="boilerBusterHeader">
         <div className="boilerBusterHeading">
           <h1 className="boilerBusterTitle">Boiler Buster</h1>
-          <p className="muted boilerBusterLead">
+          <p className={`muted boilerBusterLead ${styles.leadCopy}`}>
             A quick mini-game while your drink is prepared. Vent steam, control pressure, and stay below 100% for 20
             seconds.
           </p>
@@ -466,7 +466,7 @@ export function BoilerBusterClient() {
 
             <span className="boilerBusterTapCopy">
               <span className="boilerBusterTapTitle">{tapTitle}</span>
-              <span className="boilerBusterTapSub">{tapSubline}</span>
+              <span className={`boilerBusterTapSub ${styles.tapSubline}`}>{tapSubline}</span>
             </span>
           </button>
           <p className={`muted ${styles.panelHint}`} aria-live="polite">
@@ -489,7 +489,7 @@ export function BoilerBusterClient() {
         <div className="boilerBusterSide">
           <div className="surface surfaceFlat boilerBusterNote">
             <div className="cardTitle">How to play</div>
-            <p className="muted cardBody">
+            <p className={`muted cardBody ${styles.noteCopy}`}>
               Tap to vent steam and stop the boiler from reaching 100%. Survive for 20 seconds to clear the queue.
               Vents in the sweet spot (65-87%) earn bonus points.
             </p>
@@ -497,10 +497,10 @@ export function BoilerBusterClient() {
 
           <div className="surface surfaceFlat boilerBusterNote">
             <div className="cardTitle">Round status</div>
-            <p className="muted cardBody" aria-live="polite">
+            <p className={`muted cardBody ${styles.noteCopy}`} aria-live="polite">
               {statusCopy}
             </p>
-            <div className="boilerBusterMeta">
+            <div className={`boilerBusterMeta ${styles.metaRow}`}>
               <span className="pill">Taps: {game.taps}</span>
               <span className="pill">Pressure: {pressurePercent}%</span>
               <span className="pill">Zone: {pressureLabel}</span>
