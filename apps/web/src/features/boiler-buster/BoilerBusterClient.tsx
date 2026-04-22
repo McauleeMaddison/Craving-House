@@ -90,7 +90,7 @@ function getPressureBand(pressure: number): PressureBand {
 
 function getStatusCopy(game: GameState, pressureBand: PressureBand) {
   if (game.phase === "won") {
-    return "Round clear. Great control, your order queue is ready.";
+    return "Round clear. Your order queue is ready.";
   }
   if (game.phase === "lost") {
     return "Boiler overheated. Start again and keep pressure away from red.";
@@ -312,7 +312,11 @@ export function BoilerBusterClient() {
           : "Standby";
   const boilerNeedleRotation = -78 + game.pressure * 1.56;
   const statusCopy = getStatusCopy(game, pressureBand);
-  const showTutorial = game.phase !== "playing" || isHotPressure || game.taps < 3;
+  const showTutorial =
+    game.phase === "idle" ||
+    game.phase === "lost" ||
+    isHotPressure ||
+    (game.phase === "playing" && game.taps < 3);
   const lastVentToneClassName =
     game.lastVentTone === "perfect"
       ? styles.meterTagPerfect
@@ -339,7 +343,7 @@ export function BoilerBusterClient() {
           ? "Sweet spot is live. Vent now for bonus points."
           : "Keep pressure controlled and watch for the sweet spot."
       : game.phase === "won"
-        ? "Great control. Tap to run another round."
+        ? "Queue is clear. Tap to run another round."
         : game.phase === "lost"
           ? "Boiler tripped. Tap to begin again."
           : "Tap the boiler to start your 20 second round.";
