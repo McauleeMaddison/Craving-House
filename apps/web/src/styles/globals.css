@@ -613,6 +613,17 @@ code {
   background: rgba(242, 183, 5, 0.16);
 }
 
+.menuAddonOption {
+  position: relative;
+}
+
+.menuAddonOptionSelected {
+  border-color: rgba(242, 183, 5, 0.72);
+  box-shadow:
+    0 0 0 2px rgba(242, 183, 5, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 .customerPageIntro {
   display: grid;
   gap: 12px;

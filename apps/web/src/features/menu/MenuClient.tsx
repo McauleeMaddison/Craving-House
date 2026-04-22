@@ -296,7 +296,7 @@ export function MenuClient() {
                           <button
                             key={s.key}
                             type="button"
-                            className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                            className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                             onClick={() => toggleArrayOption(item.id, "syrups", s.key as Syrup)}
                           >
                             {s.label} (+{formatMoneyGBP(s.priceCents)})
@@ -315,7 +315,7 @@ export function MenuClient() {
                           <button
                             key={extra.key}
                             type="button"
-                            className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                            className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                             onClick={() => toggleArrayOption(item.id, "extras", extra.key as DrinkExtra)}
                           >
                             {extra.label} (+{formatMoneyGBP(extra.priceCents)})
@@ -335,7 +335,7 @@ export function MenuClient() {
                             <button
                               key={option.key}
                               type="button"
-                              className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                              className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                               onClick={() => toggleArrayOption(item.id, "drinkToppings", option.key as DrinkTopping)}
                             >
                               {option.label} (+{formatMoneyGBP(option.priceCents)})
@@ -358,7 +358,7 @@ export function MenuClient() {
                         <button
                           key={option.key}
                           type="button"
-                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                           onClick={() => toggleArrayOption(item.id, "hotDogAddOns", option.key as HotDogAddOn)}
                         >
                           {option.label} (+{formatMoneyGBP(option.priceCents)})
@@ -379,7 +379,7 @@ export function MenuClient() {
                         <button
                           key={option.key}
                           type="button"
-                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                           onClick={() => toggleArrayOption(item.id, "waffleToppings", option.key as WaffleTopping)}
                         >
                           {option.label} (+{formatMoneyGBP(option.priceCents)})
@@ -400,7 +400,7 @@ export function MenuClient() {
                         <button
                           key={option.key}
                           type="button"
-                          className={`btn btn-secondary btnCompact ${selected ? "btnActive" : ""}`}
+                          className={`btn btn-secondary btnCompact menuAddonOption ${selected ? "btnActive menuAddonOptionSelected" : ""}`}
                           onClick={() => toggleArrayOption(item.id, "mealAddOns", option.key as MealAddOn)}
                         >
                           {option.label} (+{formatMoneyGBP(option.priceCents)})
