@@ -190,11 +190,18 @@ export function AppHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  function renderBrandIdentity() {
+  function renderBrandIdentity(options?: { badge?: string; badgeLabel?: string }) {
     return (
       <>
-        <span className="brandMark" aria-hidden="true">
-          <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
+        <span className="brandMarkStack">
+          <span className="brandMark" aria-hidden="true">
+            <Image src="/ch-favicon.jpeg" alt="" width={34} height={34} priority />
+          </span>
+          {options?.badge ? (
+            <span className="navMobileBadge" aria-label={options.badgeLabel}>
+              {options.badge}
+            </span>
+          ) : null}
         </span>
         <span className="brandText">
           <span className="brandName">{store.name}</span>
@@ -242,12 +249,14 @@ export function AppHeader() {
             onClick={toggleDrawer}
             type="button"
           >
-            {renderBrandIdentity()}
-            {cartCount > 0 ? (
-              <span className="navMobileBadge" aria-label={`${cartCount} item${cartCount === 1 ? "" : "s"} in cart`}>
-                {cartBadgeCount}
-              </span>
-            ) : null}
+            {renderBrandIdentity(
+              cartCount > 0
+                ? {
+                    badge: cartBadgeCount,
+                    badgeLabel: `${cartCount} item${cartCount === 1 ? "" : "s"} in cart`
+                  }
+                : undefined
+            )}
           </button>
 
           <nav className="navDesktop" aria-label={isPortal ? "Portal" : "Primary"}>
