@@ -31,7 +31,10 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
   }
 
   const { orderId } = await context.params;
-  const body = (await request.json()) as Partial<Body>;
+  const body = (await request.json().catch(() => null)) as Partial<Body> | null;
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
   const status = body.status;
   if (!status) return NextResponse.json({ error: "Missing status" }, { status: 400 });
 

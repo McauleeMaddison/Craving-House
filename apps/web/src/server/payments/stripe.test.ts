@@ -98,6 +98,7 @@ test("createStripeCheckoutSession enables saved cards for signed-in customers", 
     assert.equal(body.get("payment_method_options[customer_balance][bank_transfer][type]"), "gb_bank_transfer");
     assert.equal(body.get("saved_payment_method_options[payment_method_save]"), "enabled");
     assert.equal(body.get("saved_payment_method_options[payment_method_remove]"), "enabled");
+    assert.equal(body.get("payment_method_collection"), null);
     assert.equal(body.get("customer_email"), null);
     assert.equal(body.get("payment_intent_data[setup_future_usage]"), null);
 
@@ -125,6 +126,7 @@ test("createStripeCheckoutSession enables saved cards for signed-in customers", 
     customerId: "cus_test_123",
     allowSavedPaymentMethods: true,
     allowBankTransfers: true,
+    preferExpressWallets: true,
     lineItems: [{ name: "Flat White", unitAmountCents: 450, qty: 1 }]
   });
 

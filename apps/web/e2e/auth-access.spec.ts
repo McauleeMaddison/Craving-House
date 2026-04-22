@@ -31,7 +31,8 @@ test("staff can access queue tools but not manager pages", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Loyalty scan" })).toBeVisible();
 
   await page.goto("/manager");
-  await expect(page.getByText("You don’t have manager access.")).toBeVisible();
+  await expect(page).toHaveURL(/\/staff/);
+  await expect(page.getByRole("heading", { name: "Staff dashboard" })).toBeVisible();
 });
 
 test("manager can access manager tools but not staff tools", async ({ page }) => {

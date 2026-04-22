@@ -60,7 +60,7 @@ export async function GET() {
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const stripeEnabled = getStripeRuntimeConfig().enabled;
+  const stripeEnabled = process.env.E2E_FAKE_STRIPE === "true" || getStripeRuntimeConfig().enabled;
   if (!stripeEnabled) {
     return NextResponse.json(
       { error: "Online payments are currently unavailable. Please try again shortly." },

@@ -41,7 +41,7 @@ export function PortalDashboardPage({
         </div>
 
         <div className="dashLead">
-          <div className="dashLeadTitle">{title}</div>
+          <h1 className="dashLeadTitle">{title}</h1>
           <p className="muted dashLeadSub">{subtitle}</p>
         </div>
 

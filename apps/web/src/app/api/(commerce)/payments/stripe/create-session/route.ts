@@ -16,6 +16,10 @@ type Body = {
   express?: boolean;
 };
 
+function isE2EFakeStripeEnabled() {
+  return process.env.E2E_FAKE_STRIPE === "true";
+}
+
 function getBaseUrl(request: Request) {
   const configured = getConfiguredPublicOrigin();
   if (configured) return configured;
@@ -40,8 +44,9 @@ export async function POST(request: Request) {
     );
   }
 
+  const fakeStripe = isE2EFakeStripeEnabled();
   const { secretKey } = getStripeRuntimeConfig();
-  if (!secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
+  if (!fakeStripe && !secretKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 });
 
   const body = (await request.json()) as Partial<Body>;
   const orderId = String(body.orderId ?? "");
@@ -60,6 +65,35 @@ export async function POST(request: Request) {
 
   const baseUrl = getBaseUrl(request);
   const returnPath = order.guestToken ? `/orders/guest/${order.guestToken}` : `/orders/${order.id}`;
+
+  if (fakeStripe) {
+    const paidAt = new Date();
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        paymentProvider: "stripe",
+        paymentStatus: "paid",
+        paidAt,
+        stripeCheckoutSessionId: `e2e_${order.id}`,
+        stripeCustomerId: order.stripeCustomerId ?? null
+      }
+    });
+
+    void recordAuditEvent({
+      area: "commerce.payments",
+      action: "start_checkout_e2e_fake",
+      userId: access.ok ? access.userId : null,
+      message: "E2E fake checkout completed",
+      details: {
+        orderId: order.id,
+        express,
+        signedIn: access.ok
+      }
+    });
+
+    return NextResponse.json({ url: `${returnPath}?paid=1&e2e=1` });
+  }
+
   const itemsSubtotalCents = order.items.reduce((sum, i) => sum + i.unitCents * i.qty, 0);
   const serviceFeeCents = getDerivedOrderFeeCents({ itemsSubtotalCents, totalCents: order.totalCents });
 
@@ -67,7 +101,7 @@ export async function POST(request: Request) {
   let session: { id: string; url: string };
   try {
     const customer = await ensureStripeCustomer({
-      secretKey,
+      secretKey: secretKey!,
       stripeCustomerId: order.user?.stripeCustomerId ?? order.stripeCustomerId ?? null,
       email: order.user?.email ?? order.guestEmail ?? null,
       name: order.user?.name ?? order.pickupName,
@@ -76,7 +110,7 @@ export async function POST(request: Request) {
     stripeCustomerId = customer.id;
 
     session = await createStripeCheckoutSession({
-      secretKey,
+      secretKey: secretKey!,
       orderId: order.id,
       successUrl: `${baseUrl}${returnPath}?paid=1`,
       cancelUrl: `${baseUrl}${returnPath}?pay=cancelled`,

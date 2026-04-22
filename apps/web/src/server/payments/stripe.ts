@@ -158,11 +158,6 @@ export async function createStripeCheckoutSession(params: StripeCreateSessionPar
     ["payment_intent_data[metadata][orderId]", params.orderId]
   ];
 
-  if (params.preferExpressWallets) {
-    // Lets returning customers skip unnecessary payment detail collection when possible.
-    pairs.push(["payment_method_collection", "if_required"]);
-  }
-
   if (params.allowBankTransfers) {
     pairs.push(["payment_method_types[0]", "card"]);
     pairs.push(["payment_method_types[1]", "customer_balance"]);
