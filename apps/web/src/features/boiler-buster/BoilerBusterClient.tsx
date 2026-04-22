@@ -58,15 +58,15 @@ function applyVent(state: GameState): GameState {
   const totalPoints = points + bonusPoints + streakBonus;
   const ventTone: VentTone = isPerfectWindow ? "perfect" : isClutchWindow ? "clutch" : "steady";
   let lastVentLabel = isPerfectWindow
-    ? "Perfect vent +2 bonus"
+    ? "Perfect +2"
     : isClutchWindow
-      ? "Clutch vent +1 bonus"
+      ? "Clutch +1"
       : state.pressure < 40
-        ? "Early vent. Lighter points."
-        : "Clean vent.";
+        ? "Early vent"
+        : "Clean vent";
 
   if (streakBonus > 0) {
-    lastVentLabel += ` Streak +${streakBonus}.`;
+    lastVentLabel += ` | Streak +${streakBonus}`;
   }
 
   return {
@@ -288,19 +288,21 @@ export function BoilerBusterClient() {
           : "";
   const tapTitle =
     game.phase === "playing"
-      ? "Vent steam"
+      ? "Tap to vent"
       : game.phase === "won"
-        ? "Play again"
+        ? "Queue cleared"
         : game.phase === "lost"
-          ? "Try again"
-          : "Tap to start";
+          ? "Boiler tripped"
+          : "Start round";
   const tapSubline =
     game.phase === "playing"
-      ? `Tap the machine to vent steam. Bonus zone: ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}%.`
+      ? isPerfectWindow
+        ? `Sweet spot live: ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% for bonus points.`
+        : "Keep pressure below 100% and vent before red."
       : game.phase === "won"
-        ? "Queue complete. Tap to run another round."
+        ? "Tap the machine to run another round."
         : game.phase === "lost"
-          ? "Pressure hit 100%. Tap to restart instantly."
+          ? "Pressure hit 100%. Tap to restart."
           : "Hold pressure under 100% until the timer reaches zero.";
   const statusLabel =
     game.phase === "playing"
@@ -312,45 +314,24 @@ export function BoilerBusterClient() {
           : "Standby";
   const boilerNeedleRotation = -78 + game.pressure * 1.56;
   const statusCopy = getStatusCopy(game, pressureBand);
-  const showTutorial =
-    game.phase === "idle" ||
-    game.phase === "lost" ||
-    isHotPressure ||
-    (game.phase === "playing" && game.taps < 3);
   const lastVentToneClassName =
     game.lastVentTone === "perfect"
       ? styles.meterTagPerfect
       : game.lastVentTone === "clutch"
         ? styles.meterTagClutch
         : styles.meterTagSteady;
-  const tutorialTitle =
+  const panelHint =
     game.phase === "playing"
       ? isHotPressure
-        ? "Vent now"
+        ? "Pressure rising. Tap rapidly to recover."
         : isPerfectWindow
-          ? "Bonus window"
-        : "Keep rhythm"
+          ? "Sweet spot active. Vent now for bonus points."
+          : "Build score while pressure is stable."
       : game.phase === "won"
-        ? "Round clear"
+        ? "Round complete. Tap the machine or start a new round."
         : game.phase === "lost"
-          ? "Restart"
-          : "Quick tip";
-  const tutorialBody =
-    game.phase === "playing"
-      ? isHotPressure
-        ? "Pressure is climbing. Tap quickly."
-        : isPerfectWindow
-          ? "Sweet spot is live. Vent now for bonus points."
-          : "Keep pressure controlled and watch for the sweet spot."
-      : game.phase === "won"
-        ? "Queue is clear. Tap to run another round."
-        : game.phase === "lost"
-          ? "Boiler tripped. Tap to begin again."
-          : "Tap the boiler to start your 20 second round.";
-  const tutorialHint =
-    game.phase === "playing"
-      ? `Sweet spot range: ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% pressure.`
-      : "One tap starts a new round.";
+          ? "Boiler tripped. Tap the machine or restart."
+          : "Tap the machine to start your 20 second round.";
 
   return (
     <section className="surface boilerBusterHero u-maxw-980">
@@ -450,24 +431,12 @@ export function BoilerBusterClient() {
           </div>
 
           <button
-            className={`boilerBusterTapZone ${tapZoneClassName} ${styles.tapZoneInteractive} ${game.phase === "playing" && isHotPressure ? styles.tapZonePulse : ""}`}
+            className={`boilerBusterTapZone ${tapZoneClassName} ${styles.tapZoneInteractive}`}
             type="button"
             onClick={handleTap}
             aria-label={game.phase === "playing" ? "Vent steam" : "Start Boiler Buster"}
             title={game.phase === "playing" ? "Tap rapidly to release steam" : "Tap to start a new round"}
           >
-            {showTutorial ? (
-              <span className="boilerBusterTutorial" aria-live="polite">
-                <span className="boilerBusterTutorialTitle">{tutorialTitle}</span>
-                <span className="boilerBusterTutorialBody">{tutorialBody}</span>
-                <span className="boilerBusterTutorialHint">{tutorialHint}</span>
-              </span>
-            ) : null}
-            {game.phase === "playing" && isHotPressure ? (
-              <span className={`boilerBusterNearMiss ${styles.alertBadge}`}>
-                {pressureBand === "Critical" ? "Critical pressure" : "Pressure spiking"}
-              </span>
-            ) : null}
             <span className="boilerBusterMachine" aria-hidden="true">
               <span className="boilerBusterMachineGlow" />
               <span className="boilerBusterMachineTop" />
@@ -500,6 +469,9 @@ export function BoilerBusterClient() {
               <span className="boilerBusterTapSub">{tapSubline}</span>
             </span>
           </button>
+          <p className={`muted ${styles.panelHint}`} aria-live="polite">
+            {panelHint}
+          </p>
 
           <div className="rowWrap boilerBusterActions">
             <button className="btn" type="button" onClick={startFreshShift}>
