@@ -10,9 +10,12 @@ const GAME_DURATION_MS = 20000;
 const TICK_MS = 300;
 const STEAM_BURST_DURATION_MS = 520;
 const MAX_STEAM_BURSTS = 8;
+const PERFECT_VENT_MIN = 65;
+const PERFECT_VENT_MAX = 87;
 
 type GamePhase = "idle" | "playing" | "won" | "lost";
 type PressureBand = "Calm" | "Steady" | "Rising" | "Danger" | "Critical";
+type VentTone = "steady" | "perfect" | "clutch";
 
 type GameState = {
   phase: GamePhase;
@@ -21,6 +24,8 @@ type GameState = {
   timeLeftMs: number;
   combo: number;
   taps: number;
+  lastVentLabel: string;
+  lastVentTone: VentTone;
 };
 
 type SteamBurst = {
@@ -36,20 +41,42 @@ function createGameState(phase: GamePhase = "idle"): GameState {
     pressure: 34,
     timeLeftMs: GAME_DURATION_MS,
     combo: 0,
-    taps: 0
+    taps: 0,
+    lastVentLabel: "Tap the boiler to begin.",
+    lastVentTone: "steady"
   };
 }
 
 function applyVent(state: GameState): GameState {
+  const isPerfectWindow = state.pressure >= PERFECT_VENT_MIN && state.pressure <= PERFECT_VENT_MAX;
+  const isClutchWindow = state.pressure > PERFECT_VENT_MAX;
   const relief = state.pressure >= 82 ? 26 : state.pressure >= 58 ? 21 : 16;
   const points = state.pressure >= 82 ? 4 : state.pressure >= 58 ? 3 : 2;
+  const bonusPoints = isPerfectWindow ? 2 : isClutchWindow ? 1 : 0;
+  const streakBonus = state.combo >= 5 ? 1 : 0;
+  const reliefBonus = isPerfectWindow ? 4 : isClutchWindow ? 6 : 0;
+  const totalPoints = points + bonusPoints + streakBonus;
+  const ventTone: VentTone = isPerfectWindow ? "perfect" : isClutchWindow ? "clutch" : "steady";
+  let lastVentLabel = isPerfectWindow
+    ? "Perfect vent +2 bonus"
+    : isClutchWindow
+      ? "Clutch vent +1 bonus"
+      : state.pressure < 40
+        ? "Early vent. Lighter points."
+        : "Clean vent.";
+
+  if (streakBonus > 0) {
+    lastVentLabel += ` Streak +${streakBonus}.`;
+  }
 
   return {
     ...state,
-    pressure: Math.max(0, state.pressure - relief),
-    score: state.score + points,
+    pressure: Math.max(0, state.pressure - relief - reliefBonus),
+    score: state.score + totalPoints,
     combo: Math.min(state.combo + 1, 9),
-    taps: state.taps + 1
+    taps: state.taps + 1,
+    lastVentLabel,
+    lastVentTone: ventTone
   };
 }
 
@@ -63,16 +90,16 @@ function getPressureBand(pressure: number): PressureBand {
 
 function getStatusCopy(game: GameState, pressureBand: PressureBand) {
   if (game.phase === "won") {
-    return "Shift clear. Nice control, the queue is almost finished.";
+    return "Round clear. Great control, your order queue is ready.";
   }
   if (game.phase === "lost") {
-    return "Boiler overheated. Start a new shift and keep pressure out of the red zone.";
+    return "Boiler overheated. Start again and keep pressure away from red.";
   }
   if (game.phase === "playing") {
     if (pressureBand === "Critical") return "Critical pressure. Rapid taps are needed now.";
     if (pressureBand === "Danger") return "Pressure is spiking. Keep tapping to pull it down.";
-    if (pressureBand === "Rising") return "Heat is building. Keep venting before it turns red.";
-    return "Machine is stable. Build points while you have room.";
+    if (pressureBand === "Rising") return "Heat is building. Vent now to stay in control.";
+    return `Machine is stable. Aim for ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% for bonus vents.`;
   }
   return "Tap the boiler to start, then hold pressure below 100% for 20 seconds.";
 }
@@ -185,6 +212,8 @@ export function BoilerBusterClient() {
 
   const pressureBand = getPressureBand(game.pressure);
   const isHotPressure = pressureBand === "Danger" || pressureBand === "Critical";
+  const isPerfectWindow =
+    game.phase === "playing" && game.pressure >= PERFECT_VENT_MIN && game.pressure <= PERFECT_VENT_MAX;
 
   useEffect(() => {
     if (game.phase !== "playing") {
@@ -217,14 +246,16 @@ export function BoilerBusterClient() {
             : "Calm";
   const pressureCoach =
     game.phase !== "playing"
-      ? "Tap the boiler to begin a shift."
+      ? "Tap the boiler to begin a round."
+      : isPerfectWindow
+        ? `Perfect zone active (${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}%). Tap now for bonus points.`
       : pressureBand === "Critical"
         ? "Emergency: rapid taps needed."
         : pressureBand === "Danger"
           ? "Tap now to drag pressure back down."
           : pressureBand === "Rising"
-            ? "Good pace, keep pressure below the red."
-            : "Safe zone. Build score before the next spike.";
+            ? "Good pace. Keep pressure below the red zone."
+            : `Safe zone. Push toward ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% for better scores.`;
   const queueHint =
     queueProgress >= 90
       ? "Almost done."
@@ -259,35 +290,44 @@ export function BoilerBusterClient() {
     game.phase === "playing"
       ? "Vent steam"
       : game.phase === "won"
-        ? "Shift cleared"
+        ? "Play again"
         : game.phase === "lost"
           ? "Try again"
-          : "Start shift";
+          : "Tap to start";
   const tapSubline =
     game.phase === "playing"
-      ? "Tap anywhere on the machine to vent steam and score."
+      ? `Tap the machine to vent steam. Bonus zone: ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}%.`
       : game.phase === "won"
-        ? "Queue nearly done. Tap for another round."
+        ? "Queue complete. Tap to run another round."
         : game.phase === "lost"
           ? "Pressure hit 100%. Tap to restart instantly."
           : "Hold pressure under 100% until the timer reaches zero.";
   const statusLabel =
     game.phase === "playing"
-      ? "Shift active"
+      ? "Round live"
       : game.phase === "won"
         ? "Queue cleared"
         : game.phase === "lost"
-          ? "Overheated"
+          ? "Boiler tripped"
           : "Standby";
   const boilerNeedleRotation = -78 + game.pressure * 1.56;
   const statusCopy = getStatusCopy(game, pressureBand);
+  const showTutorial = game.phase !== "playing" || isHotPressure || game.taps < 3;
+  const lastVentToneClassName =
+    game.lastVentTone === "perfect"
+      ? styles.meterTagPerfect
+      : game.lastVentTone === "clutch"
+        ? styles.meterTagClutch
+        : styles.meterTagSteady;
   const tutorialTitle =
     game.phase === "playing"
       ? isHotPressure
         ? "Vent now"
+        : isPerfectWindow
+          ? "Bonus window"
         : "Keep rhythm"
       : game.phase === "won"
-        ? "Shift clear"
+        ? "Round clear"
         : game.phase === "lost"
           ? "Restart"
           : "Quick tip";
@@ -295,15 +335,17 @@ export function BoilerBusterClient() {
     game.phase === "playing"
       ? isHotPressure
         ? "Pressure is climbing. Tap quickly."
-        : "Keep pressure in the green and yellow bands."
+        : isPerfectWindow
+          ? "Sweet spot is live. Vent now for bonus points."
+          : "Keep pressure controlled and watch for the sweet spot."
       : game.phase === "won"
-        ? "Great control. Tap to run another shift."
+        ? "Great control. Tap to run another round."
         : game.phase === "lost"
           ? "Boiler tripped. Tap to begin again."
-          : "Tap the boiler to start your 20 second shift.";
+          : "Tap the boiler to start your 20 second round.";
   const tutorialHint =
     game.phase === "playing"
-      ? "Hotter vents score more but leave less room for mistakes."
+      ? `Sweet spot range: ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% pressure.`
       : "One tap starts a new round.";
 
   return (
@@ -318,8 +360,8 @@ export function BoilerBusterClient() {
         <div className="boilerBusterHeading">
           <h1 className="boilerBusterTitle">Boiler Buster</h1>
           <p className="muted boilerBusterLead">
-            A quick waiting-game while your drink is being made. Vent steam, keep pressure under control, and survive
-            for 20 seconds.
+            A quick mini-game while your drink is prepared. Vent steam, control pressure, and stay below 100% for 20
+            seconds.
           </p>
         </div>
 
@@ -342,7 +384,7 @@ export function BoilerBusterClient() {
               <div className="boilerBusterStatValue">{timeLeftSeconds}s</div>
             </div>
             <div className="boilerBusterStat">
-              <div className="boilerBusterStatLabel">Combo</div>
+              <div className="boilerBusterStatLabel">Streak</div>
               <div className="boilerBusterStatValue">x{Math.max(game.combo, 1)}</div>
             </div>
           </div>
@@ -356,13 +398,17 @@ export function BoilerBusterClient() {
               <div className="boilerBusterMeterValue">{pressurePercent}%</div>
             </div>
             <div
-              className="boilerBusterMeter"
+              className={`boilerBusterMeter ${styles.pressureTrack}`}
               role="progressbar"
               aria-label="Boiler pressure"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={pressurePercent}
             >
+              <div
+                className={`${styles.perfectBand} ${isPerfectWindow ? styles.perfectBandActive : ""}`}
+                aria-hidden="true"
+              />
               <div
                 className={`boilerBusterMeterFill boilerBusterMeterFillPressure ${meterFillPressureClass} ${styles.pressureFill} ${isHotPressure ? styles.pressureFillHot : ""}`}
                 style={{ width: `${clampedPressure}%` }}
@@ -371,6 +417,12 @@ export function BoilerBusterClient() {
             <p className={`muted boilerBusterMeterHint ${styles.pressureCoach}`} aria-live="polite">
               {pressureCoach}
             </p>
+            <div className={styles.meterInfoRow}>
+              <span className={`${styles.meterTag} ${isPerfectWindow ? styles.meterTagActive : ""}`}>
+                Sweet spot {PERFECT_VENT_MIN}-{PERFECT_VENT_MAX}%
+              </span>
+              <span className={`${styles.meterTag} ${lastVentToneClassName}`}>Last vent: {game.lastVentLabel}</span>
+            </div>
             <div className="boilerBusterMeterTop boilerBusterMeterTopSecondary">
               <div>
                 <div className="boilerBusterMeterLabel">Order progress</div>
@@ -398,13 +450,15 @@ export function BoilerBusterClient() {
             type="button"
             onClick={handleTap}
             aria-label={game.phase === "playing" ? "Vent steam" : "Start Boiler Buster"}
-            title={game.phase === "playing" ? "Tap rapidly to release steam" : "Tap to start a new shift"}
+            title={game.phase === "playing" ? "Tap rapidly to release steam" : "Tap to start a new round"}
           >
-            <span className="boilerBusterTutorial" aria-live="polite">
-              <span className="boilerBusterTutorialTitle">{tutorialTitle}</span>
-              <span className="boilerBusterTutorialBody">{tutorialBody}</span>
-              <span className="boilerBusterTutorialHint">{tutorialHint}</span>
-            </span>
+            {showTutorial ? (
+              <span className="boilerBusterTutorial" aria-live="polite">
+                <span className="boilerBusterTutorialTitle">{tutorialTitle}</span>
+                <span className="boilerBusterTutorialBody">{tutorialBody}</span>
+                <span className="boilerBusterTutorialHint">{tutorialHint}</span>
+              </span>
+            ) : null}
             {game.phase === "playing" && isHotPressure ? (
               <span className={`boilerBusterNearMiss ${styles.alertBadge}`}>
                 {pressureBand === "Critical" ? "Critical pressure" : "Pressure spiking"}
@@ -445,7 +499,7 @@ export function BoilerBusterClient() {
 
           <div className="rowWrap boilerBusterActions">
             <button className="btn" type="button" onClick={startFreshShift}>
-              {game.phase === "playing" ? "Restart shift" : "New shift"}
+              {game.phase === "playing" ? "Restart round" : "New round"}
             </button>
             <Link className="btn btn-secondary" href="/orders">
               View orders
@@ -460,13 +514,13 @@ export function BoilerBusterClient() {
           <div className="surface surfaceFlat boilerBusterNote">
             <div className="cardTitle">How to play</div>
             <p className="muted cardBody">
-              Tap the boiler to vent steam. Keep pressure below 100% until the timer hits zero. Vents in hotter zones
-              score more, but leave less recovery time.
+              Tap to vent steam and stop the boiler from reaching 100%. Survive for 20 seconds to clear the queue.
+              Vents in the sweet spot (65-87%) earn bonus points.
             </p>
           </div>
 
           <div className="surface surfaceFlat boilerBusterNote">
-            <div className="cardTitle">Shift status</div>
+            <div className="cardTitle">Round status</div>
             <p className="muted cardBody" aria-live="polite">
               {statusCopy}
             </p>

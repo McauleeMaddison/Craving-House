@@ -2,6 +2,30 @@
   isolation: isolate;
 }
 
+.pressureTrack {
+  position: relative;
+}
+
+.perfectBand {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 65%;
+  width: 22%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.1), rgba(255, 131, 54, 0.3), rgba(255, 92, 115, 0.16));
+  box-shadow: inset 0 0 0 1px rgba(255, 184, 59, 0.24);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.perfectBandActive {
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.2), rgba(255, 131, 54, 0.46), rgba(255, 92, 115, 0.22));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 130, 0.38),
+    0 0 14px rgba(255, 146, 43, 0.24);
+}
+
 .tapZonePulse {
   animation: boilerBusterTapZonePulse 850ms ease-in-out infinite;
 }
@@ -18,6 +42,7 @@
 
 .pressureFill {
   position: relative;
+  z-index: 2;
 }
 
 .pressureFill::after {
@@ -46,6 +71,48 @@
 
 .pressureCoach {
   margin-top: 1px;
+}
+
+.meterInfoRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.meterTag {
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 249, 250, 0.88);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.meterTagActive {
+  border-color: rgba(242, 183, 5, 0.42);
+  background: rgba(242, 183, 5, 0.16);
+  color: rgba(255, 238, 181, 0.98);
+}
+
+.meterTagSteady {
+  border-color: rgba(47, 228, 171, 0.3);
+  background: rgba(47, 228, 171, 0.12);
+  color: rgba(220, 255, 244, 0.96);
+}
+
+.meterTagPerfect {
+  border-color: rgba(242, 183, 5, 0.38);
+  background: rgba(242, 183, 5, 0.16);
+  color: rgba(255, 241, 194, 0.98);
+}
+
+.meterTagClutch {
+  border-color: rgba(255, 92, 115, 0.46);
+  background: rgba(255, 92, 115, 0.18);
+  color: rgba(255, 226, 232, 0.98);
 }
 
 .alertBadge {
