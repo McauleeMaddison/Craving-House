@@ -4,6 +4,7 @@ import { getSession, signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import { getRegisterErrorMessage, getSignInErrorMessage, type RegisterErrorResponse } from "@/lib/auth-messages";
+import { resolvePostSignInRedirect } from "@/lib/post-signin-redirect";
 
 export default function SignInPage() {
   const devEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_ENABLED === "true";
@@ -104,8 +105,14 @@ export default function SignInPage() {
       return;
     }
     await waitForSessionReady();
+    const session = await getSession();
+    const destination = resolvePostSignInRedirect({
+      role: session?.user?.role,
+      resultUrl: result.url,
+      callbackUrl
+    });
     // Hard navigation ensures the new session cookie is picked up immediately.
-    window.location.assign(result.url || callbackUrl || "/");
+    window.location.assign(destination);
   }
 
   async function onGoogleSignIn() {
