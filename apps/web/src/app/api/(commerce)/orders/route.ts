@@ -135,6 +135,26 @@ export async function POST(request: Request) {
     });
   }
 
+  async function ensureGuestOrderToken(orderId: string) {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const candidate = crypto.randomBytes(24).toString("base64url");
+      try {
+        const updated = await prisma.order.update({
+          where: { id: orderId },
+          data: { guestToken: candidate },
+          select: { guestToken: true }
+        });
+        return updated.guestToken;
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          continue;
+        }
+        throw error;
+      }
+    }
+    return null;
+  }
+
   function belongsToCurrentRequester(order: Awaited<ReturnType<typeof findExistingClientRequestOrder>>) {
     if (!order) return false;
     if (access.ok) return order.userId === access.userId;
@@ -145,6 +165,10 @@ export async function POST(request: Request) {
   if (existingOrder) {
     if (!belongsToCurrentRequester(existingOrder)) {
       return NextResponse.json({ error: "conflict" }, { status: 409 });
+    }
+    if (!access.ok && !existingOrder.guestToken) {
+      const guestToken = await ensureGuestOrderToken(existingOrder.id);
+      return NextResponse.json({ id: existingOrder.id, guestToken });
     }
     return NextResponse.json({ id: existingOrder.id, guestToken: existingOrder.guestToken ?? null });
   }

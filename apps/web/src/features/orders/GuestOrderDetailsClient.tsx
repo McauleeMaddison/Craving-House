@@ -51,27 +51,46 @@ function stepIndex(status: OrderStatus) {
   return steps.findIndex((s) => s.key === status);
 }
 
+const STATUS_POLL_MS = 8000;
+
 export function GuestOrderDetailsClient(props: { guestToken: string }) {
   const [order, setOrder] = useState<OrderDto | null>(null);
   const [error, setError] = useState<string>("");
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState<string>("");
   const [stripeEnabled, setStripeEnabled] = useState(false);
+  const [copyState, setCopyState] = useState<"" | "copied" | "failed">("");
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      const res = await apiGetJson<OrderDto>(`/api/orders/guest/${props.guestToken}`);
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    async function refreshOrder() {
+      const res = await apiGetJson<OrderDto>(`/api/orders/guest/${props.guestToken}?ts=${Date.now()}`);
       if (!mounted) return;
       if (!res.ok) {
         setError(res.error);
-        setOrder(null);
         return;
       }
+      setError("");
       setOrder(res.data);
-    })();
+      const status = String(res.data.status ?? "");
+      if (status === "collected" || status === "canceled") {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
+    }
+
+    void refreshOrder();
+    intervalId = setInterval(() => {
+      void refreshOrder();
+    }, STATUS_POLL_MS);
+
     return () => {
       mounted = false;
+      if (intervalId) clearInterval(intervalId);
     };
   }, [props.guestToken]);
 
@@ -131,6 +150,23 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
           <div className="u-text-right">
             <div className="pill">Total: {formatMoneyGBP(order.totalCents)}</div>
             <div className="muted u-mt-8 u-fs-12">Created: {formatDateTime(order.createdAtIso)}</div>
+            <button
+              className="btn btn-secondary btnCompact u-mt-8"
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  setCopyState("copied");
+                } catch {
+                  setCopyState("failed");
+                }
+                window.setTimeout(() => setCopyState(""), 1800);
+              }}
+            >
+              Copy tracking link
+            </button>
+            {copyState === "copied" ? <div className="muted u-mt-6 u-fs-12">Tracking link copied.</div> : null}
+            {copyState === "failed" ? <div className="muted u-mt-6 u-fs-12 u-danger">Could not copy tracking link.</div> : null}
           </div>
         </div>
       </section>
@@ -165,6 +201,21 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
           <Link className="btn btn-secondary" href="/menu">
             Menu
           </Link>
+          <button
+            className="btn btn-secondary"
+            type="button"
+            onClick={async () => {
+              const res = await apiGetJson<OrderDto>(`/api/orders/guest/${props.guestToken}?manual=${Date.now()}`);
+              if (!res.ok) {
+                setError(res.error);
+                return;
+              }
+              setError("");
+              setOrder(res.data);
+            }}
+          >
+            Refresh status
+          </button>
           {stripeEnabled && order.paymentStatus !== "paid" ? (
             <button
               className="btn btn-secondary"
@@ -202,7 +253,11 @@ export function GuestOrderDetailsClient(props: { guestToken: string }) {
             If you chose bank transfer, this order will stay pending until Stripe confirms the funds.
           </p>
         ) : null}
+        {order.status !== "collected" && order.status !== "canceled" ? (
+          <p className="muted u-mt-10 u-lh-16">Tracking updates every few seconds while this order is active.</p>
+        ) : null}
         {payError ? <p className="muted u-mt-10 u-danger">{payError}</p> : null}
+        {error ? <p className="muted u-mt-10 u-danger">{error}</p> : null}
       </section>
 
       <section className="surface u-pad-18 u-mt-12">
