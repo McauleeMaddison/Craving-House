@@ -4,7 +4,7 @@ import { OrderQueueClient } from "@/features/staff/OrderQueueClient";
 import { requireRole } from "@/server/auth/access";
 
 export default async function StaffOrdersPage() {
-  const access = await requireRole(["staff"]);
+  const access = await requireRole(["staff", "manager"], { requireManagerMfa: false });
   if (!access.ok) {
     return (
       <main className="container page">
@@ -13,7 +13,7 @@ export default async function StaffOrdersPage() {
           <p className="muted u-mt-10 u-lh-16">
             {access.reason === "unauthorized"
               ? "You need to sign in."
-              : "You don’t have staff access."}
+              : "You don’t have staff or manager access."}
           </p>
           <Link className="btn u-mt-10" href="/signin">
             Go to sign-in

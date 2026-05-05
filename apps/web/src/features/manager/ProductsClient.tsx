@@ -52,6 +52,10 @@ export function ProductsClient() {
     return { count, active, eligible };
   }, [products]);
 
+  function updateDraftProduct(id: string, updates: Partial<ProductDto>) {
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+  }
+
   async function patchViaFetch(id: string, body: any) {
     setSavingId(id);
     setError("");
@@ -125,7 +129,7 @@ export function ProductsClient() {
           <div>
             <h1 className="u-title-26">Menu editor</h1>
             <p className="muted u-mt-10 u-lh-16">
-              Toggle availability, prep times, prices, and loyalty eligibility.
+              Managers have full menu control: edit names, descriptions, prices, prep times, and availability.
             </p>
             {error ? (
               <p className="muted u-mt-10 u-danger">
@@ -234,6 +238,26 @@ export function ProductsClient() {
               </div>
             </div>
 
+            <div className="grid-2 u-mt-12">
+              <label className="u-grid-gap-8">
+                <span className="muted u-fs-12">Name</span>
+                <input
+                  className="input"
+                  value={p.name}
+                  onChange={(e) => updateDraftProduct(p.id, { name: e.target.value })}
+                />
+              </label>
+              <label className="u-grid-gap-8">
+                <span className="muted u-fs-12">Description</span>
+                <input
+                  className="input"
+                  value={p.description}
+                  onChange={(e) => updateDraftProduct(p.id, { description: e.target.value })}
+                  placeholder="Optional description"
+                />
+              </label>
+            </div>
+
             <div className="rowWrap u-mt-12">
               <label className="pill pillButton">
                 <input
@@ -269,11 +293,7 @@ export function ProductsClient() {
                   type="number"
                   value={p.priceCents}
                   onChange={(e) =>
-                    setProducts((prev) =>
-                      prev.map((x) =>
-                        x.id === p.id ? { ...x, priceCents: Number(e.target.value) } : x
-                      )
-                    )
+                    updateDraftProduct(p.id, { priceCents: Number(e.target.value) })
                   }
                 />
               </label>
@@ -286,11 +306,7 @@ export function ProductsClient() {
                   type="number"
                   value={p.prepSeconds}
                   onChange={(e) =>
-                    setProducts((prev) =>
-                      prev.map((x) =>
-                        x.id === p.id ? { ...x, prepSeconds: Number(e.target.value) } : x
-                      )
-                    )
+                    updateDraftProduct(p.id, { prepSeconds: Number(e.target.value) })
                   }
                 />
               </label>
@@ -300,9 +316,21 @@ export function ProductsClient() {
               <button
                 className="btn u-w-full"
                 onClick={() =>
-                  patchViaFetch(p.id, { priceCents: p.priceCents, prepSeconds: p.prepSeconds })
+                  patchViaFetch(p.id, {
+                    name: p.name.trim(),
+                    description: p.description.trim() || null,
+                    priceCents: Math.max(0, Math.round(Number(p.priceCents))),
+                    prepSeconds: Math.max(0, Math.round(Number(p.prepSeconds)))
+                  })
                 }
-                disabled={savingId === p.id}
+                disabled={
+                  savingId === p.id ||
+                  !p.name.trim() ||
+                  !Number.isFinite(p.priceCents) ||
+                  p.priceCents < 0 ||
+                  !Number.isFinite(p.prepSeconds) ||
+                  p.prepSeconds < 0
+                }
               >
                 {savingId === p.id ? "Saving…" : "Save changes"}
               </button>

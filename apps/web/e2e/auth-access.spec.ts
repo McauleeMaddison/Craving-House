@@ -13,7 +13,7 @@ test("customer sign-in loads loyalty and blocks staff/manager portals", async ({
   await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible();
 
   await page.goto("/staff");
-  await expect(page.getByText("You don’t have staff access.")).toBeVisible();
+  await expect(page.getByText("You don’t have staff or manager access.")).toBeVisible();
 
   await page.goto("/manager");
   await expect(page.getByText("You don’t have manager access.")).toBeVisible();
@@ -35,7 +35,7 @@ test("staff can access queue tools but not manager pages", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Staff dashboard" })).toBeVisible();
 });
 
-test("manager can access manager tools but not staff tools", async ({ page }) => {
+test("manager can access manager tools and shared staff tools", async ({ page }) => {
   await signIn(page, { ...e2eAccounts.manager, callbackUrl: "/manager" });
 
   await expect(page).toHaveURL(/\/manager\/settings$/);
@@ -51,8 +51,8 @@ test("manager can access manager tools but not staff tools", async ({ page }) =>
   await expect(page.getByText("Manager 2FA required")).toBeVisible();
 
   await page.goto("/staff/orders");
-  await expect(page).toHaveURL(/\/manager\/settings$/);
-  await expect(page.getByText("Manager 2FA required")).toBeVisible();
+  await expect(page).toHaveURL(/\/staff\/orders$/);
+  await expect(page.getByRole("heading", { name: "Order queue" })).toBeVisible();
 
   await clearSession(page);
 });

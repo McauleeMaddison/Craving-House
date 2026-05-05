@@ -4,6 +4,7 @@ function hasPathPrefix(pathname: string, prefix: string) {
 
 export function shouldRedirectManagerToPortal(pathname: string) {
   if (hasPathPrefix(pathname, "/manager")) return false;
+  if (hasPathPrefix(pathname, "/staff")) return false;
   if (hasPathPrefix(pathname, "/api")) return false;
   return true;
 }

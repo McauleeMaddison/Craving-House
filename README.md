@@ -68,6 +68,7 @@ npm run build
 - Set production env vars in your host (including auth, database, and Stripe keys).
 - Ensure `NEXTAUTH_URL` uses your public HTTPS domain.
 - Configure Stripe webhook endpoint to `/api/webhooks/stripe`.
+- Use `CLIENT_HANDOVER.md` for final release and ownership-transfer checks.
 
 ## Security Baseline
 

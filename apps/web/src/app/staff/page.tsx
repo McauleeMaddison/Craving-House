@@ -18,14 +18,14 @@ export default async function StaffHomePage() {
     }
   ] as const;
 
-  const access = await requireRole(["staff"]);
+  const access = await requireRole(["staff", "manager"], { requireManagerMfa: false });
   if (!access.ok) {
     return (
       <main className="container page">
         <section className="surface u-pad-18 u-maxw-720">
           <h1 className="u-title-26">Staff Portal</h1>
           <p className="muted u-mt-10 u-lh-16">
-            {access.reason === "unauthorized" ? "You need to sign in." : "You don’t have staff access."}
+            {access.reason === "unauthorized" ? "You need to sign in." : "You don’t have staff or manager access."}
           </p>
           <div className="u-flex-wrap-gap-10 u-mt-10">
             <Link className="btn" href="/signin?callbackUrl=/staff">

@@ -52,16 +52,41 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   });
   if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  const updates: PatchBody = {};
+  if (body.name !== undefined) {
+    const name = body.name.trim();
+    if (!name) return NextResponse.json({ error: "Missing name" }, { status: 400 });
+    updates.name = name;
+  }
+  if (body.description !== undefined) {
+    const description = body.description === null ? null : body.description.trim();
+    updates.description = description || null;
+  }
+  if (body.priceCents !== undefined) {
+    if (!Number.isFinite(body.priceCents) || body.priceCents < 0) {
+      return NextResponse.json({ error: "Invalid priceCents" }, { status: 400 });
+    }
+    updates.priceCents = Math.round(body.priceCents);
+  }
+  if (body.prepSeconds !== undefined) {
+    if (!Number.isFinite(body.prepSeconds) || body.prepSeconds < 0) {
+      return NextResponse.json({ error: "Invalid prepSeconds" }, { status: 400 });
+    }
+    updates.prepSeconds = Math.max(0, Math.round(body.prepSeconds));
+  }
+  if (typeof body.available === "boolean") {
+    updates.available = body.available;
+  }
+  if (typeof body.loyaltyEligible === "boolean") {
+    updates.loyaltyEligible = body.loyaltyEligible;
+  }
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "No changes provided" }, { status: 400 });
+  }
+
   const updated = await prisma.product.update({
     where: { id },
-    data: {
-      name: body.name?.trim(),
-      description: body.description === null ? null : body.description?.trim(),
-      priceCents: body.priceCents === undefined ? undefined : Math.round(body.priceCents),
-      available: body.available,
-      prepSeconds: body.prepSeconds === undefined ? undefined : Math.max(0, Math.round(body.prepSeconds)),
-      loyaltyEligible: body.loyaltyEligible
-    }
+    data: updates
   });
 
   void recordAuditEvent({
