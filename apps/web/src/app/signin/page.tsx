@@ -131,34 +131,45 @@ export default function SignInPage() {
     }
   }
 
+  const authHeading = managerMode ? "Manager sign in" : mode === "signin" ? "Sign in" : "Create account";
+  const authSubcopy = managerMode
+    ? "Use email + password. After 2FA is enrolled, an authenticator code is required."
+    : mode === "signin"
+      ? "Use Google or email + password to access your account."
+      : "Create a customer account with email + password.";
+
   return (
-    <main className="container page">
-      <section className="surface u-pad-18 u-maxw-560">
-        <h1 className="u-title-26">Sign in</h1>
-        <p className="muted u-mt-10 u-lh-16">
-          Sign in with Google or with your email + password.
-        </p>
-        <p className="muted u-mt-8 u-lh-16">
-          Staff and manager use the same sign-in page and account credentials.
-        </p>
+    <main className="container page pageSignIn">
+      <section className="surface signInShell">
+        <div className="signInIntro">
+          <div className="pill pillFit">Secure account access</div>
+          <h1 className="signInTitle">Craving House sign-in</h1>
+          <p className="muted signInLead">
+            Sign in with Google or with your email + password. This page handles customer, staff, and manager access.
+          </p>
 
-        <div className="u-grid-gap-12 u-mt-16">
-          {googleAvailable && !managerMode ? (
-            <button className="btn btn-secondary" onClick={() => void onGoogleSignIn()} disabled={oauthBusy}>
-              {oauthBusy ? "Redirecting…" : "Continue with Google"}
-            </button>
-          ) : managerMode ? (
-            <div className="pill">
-              Manager sign-in uses email + password. After 2FA is enrolled, the authenticator code is required too.
-            </div>
-          ) : (
-            <div className="pill">Google sign-in not available. Set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.</div>
-          )}
+          <div className="signInFeatureGrid">
+            <article className="surface surfaceFlat signInFeatureCard">
+              <div className="signInFeatureTitle">Role-based control</div>
+              <p className="muted signInFeatureBody">
+                Managers and staff use the same entrypoint, with secure permissions applied automatically after sign-in.
+              </p>
+            </article>
+            <article className="surface surfaceFlat signInFeatureCard">
+              <div className="signInFeatureTitle">Manager safety checks</div>
+              <p className="muted signInFeatureBody">
+                Manager accounts require stronger safeguards, including authenticator code after 2FA enrollment.
+              </p>
+            </article>
+          </div>
+        </div>
 
-          <div className="surface surfaceFlat u-pad-14">
-            <div className="rowWrap u-justify-between">
-              <div className="u-fw-950">
-                {managerMode ? "Manager email sign in" : mode === "signin" ? "Email sign in" : "Create account"}
+        <div className="signInAuthColumn">
+          <div className="surface surfaceFlat signInAuthCard">
+            <div className="signInAuthHeader">
+              <div>
+                <div className="signInAuthTitle">{authHeading}</div>
+                <p className="muted signInAuthCopy">{authSubcopy}</p>
               </div>
               {!managerMode ? (
                 <button
@@ -174,94 +185,108 @@ export default function SignInPage() {
               ) : null}
             </div>
 
-            <div className="u-grid-gap-10 u-mt-12">
-              <input
-                className="input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                type="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-              />
-              <div className="inputEndWrap">
-                <input
-                  className="input inputWithEndButton"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                />
-                <button
-                  className="inputEndButton"
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? "Hide" : "Show"}
+            <div className="signInAuthStack">
+              {googleAvailable && !managerMode ? (
+                <button className="btn btn-secondary signInWideButton" onClick={() => void onGoogleSignIn()} disabled={oauthBusy}>
+                  {oauthBusy ? "Redirecting…" : "Continue with Google"}
                 </button>
+              ) : managerMode ? (
+                <div className="pill">Manager sign-in uses email + password and can require authenticator code.</div>
+              ) : (
+                <div className="pill">Google sign-in not available. Set GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.</div>
+              )}
+
+              <div className="surface surfaceInset signInEmailCard">
+                <div className="u-grid-gap-10">
+                  <input
+                    className="input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    type="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                  />
+                  <div className="inputEndWrap">
+                    <input
+                      className="input inputWithEndButton"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Password"
+                      type={showPassword ? "text" : "password"}
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                    />
+                    <button
+                      className="inputEndButton"
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                  <input
+                    className="input"
+                    value={totp}
+                    onChange={(e) => setTotp(e.target.value)}
+                    placeholder="Authenticator code (required after manager 2FA setup)"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                  />
+                  {message ? <div className="pill">{message}</div> : null}
+                  <button
+                    className="btn btn-secondary signInWideButton"
+                    type="button"
+                    onClick={onEmailSubmit}
+                    disabled={!email.trim() || !password.trim()}
+                  >
+                    {mode === "signin" ? "Sign in" : "Create account + sign in"}
+                  </button>
+                  {mode === "signin" ? (
+                    <p className="muted u-m-0 u-fs-12 u-lh-16">
+                      <a className="u-underline" href="/reset-password">
+                        Forgot your password?
+                      </a>
+                    </p>
+                  ) : null}
+                  {mode === "signup" ? (
+                    <p className="muted u-m-0 u-fs-12 u-lh-16">
+                      Password must be at least 9 characters.
+                    </p>
+                  ) : null}
+                </div>
               </div>
-              <input
-                className="input"
-                value={totp}
-                onChange={(e) => setTotp(e.target.value)}
-                placeholder="Authenticator code (required after manager 2FA setup)"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-              />
-              {message ? <div className="pill">{message}</div> : null}
-              <button
-                className="btn btn-secondary"
-                type="button"
-                onClick={onEmailSubmit}
-                disabled={!email.trim() || !password.trim()}
-              >
-                {mode === "signin" ? "Sign in" : "Create account + sign in"}
-              </button>
-              {mode === "signin" ? (
-                <p className="muted u-m-0 u-fs-12 u-lh-16">
-                  <a className="u-underline" href="/reset-password">
-                    Forgot your password?
-                  </a>
-                </p>
-              ) : null}
-              {mode === "signup" ? (
-                <p className="muted u-m-0 u-fs-12 u-lh-16">
-                  Password must be at least 9 characters.
-                </p>
-              ) : null}
             </div>
+
+            {devEnabled ? (
+              <div className="signInDevBlock">
+                <div className="pill pillFit">Dev sign-in (local only)</div>
+                <div className="u-grid-gap-10 u-mt-10">
+                  <input
+                    className="input"
+                    value={devCode}
+                    onChange={(e) => setDevCode(e.target.value)}
+                    placeholder="Dev code"
+                    type="password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                  />
+                  <button
+                    className="btn btn-secondary signInWideButton"
+                    onClick={() => signIn("dev", { code: devCode })}
+                    disabled={!devCode.trim()}
+                  >
+                    Sign in (dev)
+                  </button>
+                  <p className="muted u-m-0 u-fs-12 u-lh-16">
+                    Turn this off for real launch. It exists so you can see the app working before Google is configured.
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
-
-        {devEnabled ? (
-          <div className="u-mt-16">
-            <div className="pill">Dev sign-in (local only)</div>
-            <div className="u-grid-gap-10 u-mt-10">
-              <input
-                className="input"
-                value={devCode}
-                onChange={(e) => setDevCode(e.target.value)}
-                placeholder="Dev code"
-                type="password"
-                autoCapitalize="none"
-                autoCorrect="off"
-              />
-              <button
-                className="btn btn-secondary"
-                onClick={() => signIn("dev", { code: devCode })}
-                disabled={!devCode.trim()}
-              >
-                Sign in (dev)
-              </button>
-              <p className="muted u-m-0 u-fs-12 u-lh-16">
-                Turn this off for real launch. It exists so you can see the app working before Google is configured.
-              </p>
-            </div>
-          </div>
-        ) : null}
       </section>
     </main>
   );

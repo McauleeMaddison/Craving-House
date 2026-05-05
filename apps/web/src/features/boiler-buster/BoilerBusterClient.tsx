@@ -101,7 +101,7 @@ function getStatusCopy(game: GameState, pressureBand: PressureBand) {
     if (pressureBand === "Rising") return "Heat is building. Vent now to stay in control.";
     return `Machine is stable. Aim for ${PERFECT_VENT_MIN}-${PERFECT_VENT_MAX}% for bonus vents.`;
   }
-  return "Tap the boiler to start, then hold pressure below 100% for 20 seconds.";
+  return "Tap the boiler to start, then keep pressure below 100% for 20 seconds.";
 }
 
 export function BoilerBusterClient() {
@@ -331,7 +331,7 @@ export function BoilerBusterClient() {
         ? "Round complete. Tap the machine or start a new round."
         : game.phase === "lost"
           ? "Boiler tripped. Tap the machine or restart."
-          : "Tap the machine to start your 20 second round.";
+          : "Tap the machine to start your 20-second round.";
 
   return (
     <section className="surface boilerBusterHero u-maxw-980">
@@ -345,7 +345,7 @@ export function BoilerBusterClient() {
         <div className="boilerBusterHeading">
           <h1 className="boilerBusterTitle">Boiler Buster</h1>
           <p className={`muted boilerBusterLead ${styles.leadCopy}`}>
-            A quick mini-game while your drink is prepared. Vent steam, control pressure, and stay below 100% for 20
+            A quick mini-game while your drink is prepared. Vent steam, keep pressure below 100%, and survive for 20
             seconds.
           </p>
         </div>

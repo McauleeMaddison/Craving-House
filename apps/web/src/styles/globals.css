@@ -528,6 +528,157 @@ code {
   border-radius: var(--radius-md);
 }
 
+.container.pageSignIn {
+  max-width: 1480px;
+}
+
+.pageSignIn {
+  min-height: calc(100dvh - 170px);
+  align-content: stretch;
+}
+
+.signInShell {
+  width: 100%;
+  padding: clamp(18px, 3vw, 34px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(16px, 2.6vw, 32px);
+  align-items: start;
+  border-radius: clamp(22px, 2.5vw, 30px);
+  background:
+    radial-gradient(780px 420px at 0% 0%, rgba(242, 183, 5, 0.18), transparent 62%),
+    radial-gradient(860px 520px at 100% 100%, rgba(255, 255, 255, 0.05), transparent 66%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel));
+}
+
+.signInIntro {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.signInTitle {
+  font-size: clamp(34px, 5.2vw, 56px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+  font-family: var(--font-display);
+}
+
+.signInLead {
+  max-width: 46ch;
+  font-size: clamp(15px, 1.35vw, 19px);
+  line-height: 1.62;
+}
+
+.signInFeatureGrid {
+  margin-top: 4px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.signInFeatureCard {
+  min-height: 130px;
+  padding: 14px;
+}
+
+.signInFeatureTitle {
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: 0.01em;
+}
+
+.signInFeatureBody {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.signInAuthColumn {
+  display: grid;
+  align-content: start;
+}
+
+.signInAuthCard {
+  padding: clamp(14px, 2vw, 22px);
+  border-radius: clamp(20px, 2vw, 26px);
+  display: grid;
+  gap: 14px;
+}
+
+.signInAuthHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.signInAuthTitle {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 950;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+}
+
+.signInAuthCopy {
+  margin-top: 8px;
+  max-width: 48ch;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.signInAuthStack {
+  display: grid;
+  gap: 12px;
+}
+
+.signInWideButton {
+  width: 100%;
+  justify-content: center;
+}
+
+.signInEmailCard {
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.signInDevBlock {
+  margin-top: 4px;
+}
+
+@media (max-width: 1080px) {
+  .signInShell {
+    grid-template-columns: 1fr;
+  }
+
+  .signInTitle {
+    font-size: clamp(30px, 7.6vw, 44px);
+  }
+}
+
+@media (max-width: 760px) {
+  .signInShell {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .signInFeatureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .signInFeatureCard {
+    min-height: 0;
+  }
+
+  .signInAuthCard {
+    padding: 14px;
+  }
+}
+
 .surface {
   border: 1px solid var(--border-soft);
   background: linear-gradient(180deg, var(--panel-strong), var(--panel));
@@ -2188,9 +2339,10 @@ code {
 }
 
 .boilerBusterHero {
-  padding: clamp(16px, 4vw, 22px);
+  padding: clamp(18px, 4vw, 26px);
   display: grid;
-  gap: 12px;
+  gap: 16px;
+  background: radial-gradient(140% 100% at 50% 0%, rgba(255, 255, 255, 0.06), transparent 62%);
 }
 
 .boilerBusterHeader {
@@ -2203,34 +2355,39 @@ code {
 
 .boilerBusterHeading {
   display: grid;
-  gap: 6px;
+  gap: 7px;
 }
 
 .boilerBusterTitle {
-  font-size: clamp(28px, 5vw, 40px);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  font-weight: 950;
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: 900;
+  font-family: var(--font-display);
+  text-wrap: balance;
 }
 
 .boilerBusterLead {
-  max-width: 34ch;
-  font-size: 14px;
-  line-height: 1.55;
+  max-width: 46ch;
+  font-size: clamp(14px, 1.5vw, 16px);
+  line-height: 1.65;
+  letter-spacing: 0.004em;
+  color: rgba(243, 241, 232, 0.9);
+  text-wrap: pretty;
 }
 
 .boilerBusterStatus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 7px 11px;
+  min-height: 36px;
+  padding: 7px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--color-mix-panel-72);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -2255,23 +2412,28 @@ code {
   background: rgba(255, 92, 115, 0.14);
 }
 
-.boilerBusterBoard {
-  padding: 14px;
+.boilerBusterLayout {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+}
+
+.boilerBusterBoard {
+  padding: clamp(14px, 3vw, 18px);
+  display: grid;
+  gap: 12px;
 }
 
 .boilerBusterStats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .boilerBusterStat {
   position: relative;
-  min-height: 76px;
-  padding: 10px;
-  border-radius: 14px;
+  min-height: 82px;
+  padding: 12px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--color-mix-panel-78);
   overflow: hidden;
@@ -2284,18 +2446,19 @@ code {
 }
 
 .boilerBusterStatLabel {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .boilerBusterStatValue {
-  margin-top: 6px;
-  font-size: clamp(18px, 4.8vw, 24px);
-  line-height: 1;
-  letter-spacing: -0.04em;
-  font-weight: 950;
+  margin-top: 7px;
+  font-size: clamp(20px, 4.8vw, 26px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  font-weight: 900;
 }
 
 .boilerBusterStatValueFlash {
@@ -2341,14 +2504,14 @@ code {
 }
 
 .boilerBusterMeterCard {
-  padding: 12px;
+  padding: clamp(12px, 2.5vw, 15px);
   border-radius: 18px;
   border: 1px solid var(--border);
   background:
     radial-gradient(120% 120% at 0% 0%, rgba(242, 183, 5, 0.08), transparent 48%),
     var(--color-mix-panel-82);
   display: grid;
-  gap: 10px;
+  gap: 11px;
 }
 
 @supports (color-mix(in srgb, #000 50%, #fff)) {
@@ -2372,20 +2535,23 @@ code {
 
 .boilerBusterMeterLabel {
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 850;
+  letter-spacing: 0.01em;
 }
 
 .boilerBusterMeterHint {
   margin-top: 2px;
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing: 0.002em;
+  text-wrap: pretty;
 }
 
 .boilerBusterMeterValue {
-  font-size: 17px;
+  font-size: clamp(18px, 3vw, 22px);
   line-height: 1;
-  letter-spacing: -0.03em;
-  font-weight: 950;
+  letter-spacing: -0.02em;
+  font-weight: 900;
 }
 
 .boilerBusterMeter {
@@ -2894,28 +3060,30 @@ code {
 .boilerBusterTapCopy {
   display: grid;
   justify-items: center;
-  gap: 4px;
-  max-width: 28ch;
+  gap: 6px;
+  max-width: 34ch;
+  text-align: center;
 }
 
 .boilerBusterTapTitle {
-  font-size: clamp(22px, 5vw, 28px);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  font-weight: 950;
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: 900;
+  font-family: var(--font-display);
 }
 
 .boilerBusterTapSub {
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--muted);
+  font-size: clamp(13px, 2.2vw, 15px);
+  line-height: 1.62;
+  color: rgba(243, 241, 232, 0.82);
 }
 
 .boilerBusterActions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -2964,8 +3132,38 @@ code {
 
 .boilerBusterMeta {
   display: flex;
-  gap: 8px;
+  gap: 9px;
   flex-wrap: wrap;
+}
+
+.boilerBusterSide {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.boilerBusterNote {
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.boilerBusterNote .cardTitle {
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.boilerBusterNote .cardBody {
+  margin-top: 9px;
+  font-size: 14px;
+  line-height: 1.68;
+  color: rgba(243, 241, 232, 0.88);
+}
+
+@media (min-width: 980px) {
+  .boilerBusterLayout {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: start;
+  }
 }
 
 @media (max-width: 720px) {
@@ -2975,6 +3173,16 @@ code {
 
   .boilerBusterTapZone {
     min-height: 232px;
+  }
+
+  .boilerBusterHero {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .boilerBusterStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -3019,10 +3227,6 @@ code {
 }
 
 @media (max-width: 380px) {
-  .boilerBusterStats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .boilerBusterActions {
     align-items: stretch;
   }
@@ -3866,6 +4070,19 @@ html[data-theme="dark"] .modalSheet {
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+@media (max-width: 760px) {
+  .appFooterInner {
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .appFooterLinksRow {
+    width: 100%;
+    padding-inline-start: 6px;
+  }
 }
 
 .appFooterLink {

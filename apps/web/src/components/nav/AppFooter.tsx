@@ -20,7 +20,7 @@ export function AppFooter() {
         <div className="appFooterRow">
           © {new Date().getFullYear()} {store.name} • {store.addressLine} • {store.postcodeLine}
         </div>
-        <nav className="appFooterRow" aria-label="Footer">
+        <nav className="appFooterRow appFooterLinksRow" aria-label="Footer">
           <a
             className="appFooterLink appFooterLinkIconOnly"
             href={instagramUrl}

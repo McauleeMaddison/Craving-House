@@ -1,6 +1,6 @@
 .leadCopy {
-  line-height: 1.62;
-  letter-spacing: 0.002em;
+  line-height: 1.68;
+  letter-spacing: 0.003em;
   word-spacing: normal;
   text-wrap: pretty;
 }
@@ -64,8 +64,9 @@
 
 .pressureCoach {
   margin-top: 1px;
-  line-height: 1.52;
-  letter-spacing: 0.002em;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.003em;
   word-spacing: normal;
   text-wrap: pretty;
 }
@@ -81,9 +82,9 @@
   max-width: 40ch;
   margin-left: auto;
   margin-right: auto;
-  font-size: 12px;
-  line-height: 1.55;
-  letter-spacing: 0.002em;
+  font-size: clamp(12px, 1.9vw, 13px);
+  line-height: 1.62;
+  letter-spacing: 0.003em;
   word-spacing: normal;
   text-wrap: pretty;
   text-align: center;
@@ -91,16 +92,16 @@
 
 .meterTag {
   min-height: 22px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(248, 249, 250, 0.88);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.008em;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   word-spacing: normal;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .meterTagActive {
@@ -128,21 +129,21 @@
 }
 
 .tapSubline {
-  line-height: 1.58;
-  letter-spacing: 0.002em;
-  word-spacing: normal;
-  text-wrap: pretty;
-}
-
-.noteCopy {
-  line-height: 1.64;
+  line-height: 1.62;
   letter-spacing: 0.003em;
   word-spacing: normal;
   text-wrap: pretty;
 }
 
+.noteCopy {
+  line-height: 1.7;
+  letter-spacing: 0.0035em;
+  word-spacing: normal;
+  text-wrap: pretty;
+}
+
 .metaRow {
-  margin-top: 10px;
+  margin-top: 11px;
 }
 
 .gaugeWarning {
