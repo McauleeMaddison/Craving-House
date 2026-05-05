@@ -529,7 +529,7 @@ code {
 }
 
 .container.pageSignIn {
-  max-width: 1480px;
+  max-width: 1240px;
 }
 
 .pageSignIn {
@@ -539,10 +539,12 @@ code {
 
 .signInShell {
   width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
   padding: clamp(18px, 3vw, 34px);
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  gap: clamp(16px, 2.6vw, 32px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(14px, 2.2vw, 22px);
   align-items: start;
   border-radius: clamp(22px, 2.5vw, 30px);
   background:
@@ -553,7 +555,9 @@ code {
 
 .signInIntro {
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  max-width: 980px;
+  margin: 0 auto;
   align-content: start;
 }
 
@@ -566,7 +570,7 @@ code {
 }
 
 .signInLead {
-  max-width: 46ch;
+  max-width: 58ch;
   font-size: clamp(15px, 1.35vw, 19px);
   line-height: 1.62;
 }
@@ -574,7 +578,7 @@ code {
 .signInFeatureGrid {
   margin-top: 4px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
 
@@ -597,6 +601,9 @@ code {
 
 .signInAuthColumn {
   display: grid;
+  grid-column: 1 / -1;
+  width: min(100%, 860px);
+  margin: 0 auto;
   align-content: start;
 }
 
@@ -651,10 +658,6 @@ code {
 }
 
 @media (max-width: 1080px) {
-  .signInShell {
-    grid-template-columns: 1fr;
-  }
-
   .signInTitle {
     font-size: clamp(30px, 7.6vw, 44px);
   }
