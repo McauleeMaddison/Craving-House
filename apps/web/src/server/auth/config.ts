@@ -208,11 +208,36 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }) {
-      if (user) {
+      if (user?.id) {
         token.sub = user.id;
-        // Store role in JWT for later retrieval in session callback
-        const userRole = typeof (user as any).role === "string" ? (user as any).role : undefined;
-        token.role = normalizeRole(userRole ?? "customer");
+      }
+
+      const userId = typeof token.sub === "string" ? token.sub : "";
+      if (!userId) {
+        token.role = normalizeRole(token.role ?? "customer");
+        return token;
+      }
+
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { role: true, disabledAt: true }
+        });
+
+        if (!dbUser || dbUser.disabledAt) {
+          token.role = "customer";
+          return token;
+        }
+
+        token.role = normalizeRole(dbUser.role);
+      } catch {
+        // Fall back to whatever role data is already available on token/user.
+        if (typeof token.role !== "string" || !token.role) {
+          const userRole = typeof (user as any)?.role === "string" ? (user as any).role : "customer";
+          token.role = normalizeRole(userRole);
+        } else {
+          token.role = normalizeRole(token.role);
+        }
       }
       return token;
     },

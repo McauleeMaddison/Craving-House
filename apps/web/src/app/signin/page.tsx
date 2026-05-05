@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import { getRegisterErrorMessage, getSignInErrorMessage, type RegisterErrorResponse } from "@/lib/auth-messages";
@@ -54,13 +54,22 @@ export default function SignInPage() {
     };
   }, []);
 
-  async function waitForSessionReady() {
-    for (let attempt = 0; attempt < 8; attempt += 1) {
+  async function waitForSessionReady(expectedEmail?: string) {
+    const normalizedExpectedEmail = expectedEmail?.trim().toLowerCase() ?? "";
+
+    for (let attempt = 0; attempt < 20; attempt += 1) {
       const session = await getSession();
-      if (session?.user?.id) return true;
+      const sessionEmail =
+        typeof session?.user?.email === "string" ? session.user.email.trim().toLowerCase() : "";
+
+      if (session?.user?.id) {
+        if (!normalizedExpectedEmail || !sessionEmail || sessionEmail === normalizedExpectedEmail) {
+          return session;
+        }
+      }
       await new Promise((resolve) => window.setTimeout(resolve, 150));
     }
-    return false;
+    return null;
   }
 
   async function onEmailSubmit() {
@@ -89,6 +98,15 @@ export default function SignInPage() {
       }
     }
 
+    try {
+      const existingSession = await getSession();
+      if (existingSession?.user?.id) {
+        await signOut({ redirect: false });
+      }
+    } catch {
+      // Ignore sign-out edge cases and proceed with sign-in.
+    }
+
     const result = await signIn("credentials", {
       email: cleanEmail,
       password,
@@ -104,8 +122,7 @@ export default function SignInPage() {
       setMessage(getSignInErrorMessage(result.error));
       return;
     }
-    await waitForSessionReady();
-    const session = await getSession();
+    const session = await waitForSessionReady(cleanEmail);
     const destination = resolvePostSignInRedirect({
       role: session?.user?.role,
       resultUrl: result.url,
