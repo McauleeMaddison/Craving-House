@@ -79,6 +79,53 @@ export function LoyaltyQrClient() {
     }
   }
 
+  type RenderQrMugOptions = {
+    large?: boolean;
+    interactive?: boolean;
+  };
+
+  function renderQrMug(options: RenderQrMugOptions = {}) {
+    const mugClassName = options.large ? "loyaltyQrMug loyaltyQrMugLarge" : "loyaltyQrMug";
+    const scanLabelClassName = options.large
+      ? "loyaltyQrScanLabel loyaltyQrScanLabelLarge"
+      : "loyaltyQrScanLabel";
+    const qrImageClassName = options.interactive
+      ? "loyaltyQrImage loyaltyQrImageInteractive"
+      : "loyaltyQrImage";
+
+    return (
+      <div className={mugClassName}>
+        <div className="loyaltyQrMugBody">
+          <div className="loyaltyQrMugInner">
+            <div className="loyaltyQrCodePlate">
+              <Image
+                className={qrImageClassName}
+                src={qrDataUrl}
+                alt="Your loyalty QR code"
+                width={240}
+                height={240}
+                unoptimized
+                onError={() => setImgError(true)}
+                onClick={options.interactive ? () => setShowLarge(true) : undefined}
+              />
+              <span className="loyaltyQrMark" aria-hidden="true">
+                <Image
+                  className="loyaltyQrMarkImage"
+                  src="/brand/craving-house-mark.svg"
+                  alt=""
+                  width={68}
+                  height={68}
+                />
+              </span>
+            </div>
+            <div className={scanLabelClassName}>SCAN ME</div>
+          </div>
+        </div>
+        <span className="loyaltyQrHandle" aria-hidden="true" />
+      </div>
+    );
+  }
+
   return (
     <div className="u-mt-12">
       {error ? (
@@ -112,35 +159,7 @@ export function LoyaltyQrClient() {
 
       {token && qrDataUrl && !imgError ? (
         <div className="loyaltyQrCard u-mt-12">
-          <div className="loyaltyQrMug">
-            <div className="loyaltyQrMugBody">
-              <div className="loyaltyQrMugInner">
-                <div className="loyaltyQrCodePlate">
-                  <Image
-                    className="loyaltyQrImage"
-                    src={qrDataUrl}
-                    alt="Your loyalty QR code"
-                    width={240}
-                    height={240}
-                    unoptimized
-                    onError={() => setImgError(true)}
-                    onClick={() => setShowLarge(true)}
-                  />
-                  <span className="loyaltyQrMark" aria-hidden="true">
-                    <Image
-                      className="loyaltyQrMarkImage"
-                      src="/brand/craving-house-mark.svg"
-                      alt=""
-                      width={68}
-                      height={68}
-                    />
-                  </span>
-                </div>
-                <div className="loyaltyQrScanLabel">SCAN ME</div>
-              </div>
-            </div>
-            <span className="loyaltyQrHandle" aria-hidden="true" />
-          </div>
+          {renderQrMug({ interactive: true })}
 
           <div className="muted u-fs-12 u-lh-16">
             Show this QR to staff at collection. If scanning fails, use “Copy token”. Each customer token is unique.
@@ -169,16 +188,8 @@ export function LoyaltyQrClient() {
               </button>
             </div>
             {!imgError && qrDataUrl ? (
-              <div className="qrFrame u-mt-12">
-                <Image
-                  className="qrImage"
-                  src={qrDataUrl}
-                  alt="Your loyalty QR code"
-                  width={360}
-                  height={360}
-                  unoptimized
-                  onError={() => setImgError(true)}
-                />
+              <div className="loyaltyQrModalVisual u-mt-12">
+                {renderQrMug({ large: true })}
               </div>
             ) : null}
             <div className="muted u-mt-12 u-lh-16">
