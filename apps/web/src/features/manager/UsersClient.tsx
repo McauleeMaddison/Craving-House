@@ -119,7 +119,7 @@ export function UsersClient() {
           <div>
             <h1 className="u-title-26">Users & roles</h1>
             <p className="muted u-mt-10 u-lh-16">
-              Search users, promote to staff, and disable accounts.
+              Search users, manage roles, and terminate unsafe customer accounts.
             </p>
             {error ? (
               <p className="muted u-mt-10 u-danger">
@@ -201,8 +201,12 @@ export function UsersClient() {
       </section>
 
       <section className="u-mt-12 u-grid-gap-10">
-        {users.map((u) => (
-          <article key={u.id} className="surface surfaceFlat u-pad-16">
+        {users.map((u) => {
+          const isCustomer = u.role === "customer";
+          const isDisabled = Boolean(u.disabledAtIso);
+
+          return (
+            <article key={u.id} className="surface surfaceFlat u-pad-16">
             <div className="u-flex-between-wrap">
               <div>
                 <div className="u-fw-900">
@@ -215,7 +219,7 @@ export function UsersClient() {
 
               <div className="rowWrap">
                 <span className="pill">Role: {u.role}</span>
-                {u.disabledAtIso ? <span className="pill">Disabled</span> : <span className="pill">Active</span>}
+                {isDisabled ? <span className="pill">{isCustomer ? "Terminated" : "Disabled"}</span> : <span className="pill">Active</span>}
               </div>
             </div>
 
@@ -247,14 +251,39 @@ export function UsersClient() {
               >
                 Make manager
               </button>
-              <button
-                className="btn btn-danger"
-                type="button"
-                onClick={() => patch(u.id, { disabled: !u.disabledAtIso })}
-                disabled={savingId === u.id}
-              >
-                {u.disabledAtIso ? "Re-enable" : "Disable"}
-              </button>
+              {isCustomer ? (
+                isDisabled ? (
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    onClick={() => patch(u.id, { disabled: false, note })}
+                    disabled={savingId === u.id}
+                  >
+                    Re-enable customer
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-danger"
+                    type="button"
+                    onClick={() => {
+                      if (!confirm("Terminate this customer account now? This revokes sign-in access and disables their loyalty card.")) return;
+                      void patch(u.id, { terminate: true, note });
+                    }}
+                    disabled={savingId === u.id}
+                  >
+                    Terminate customer
+                  </button>
+                )
+              ) : (
+                <button
+                  className="btn btn-danger"
+                  type="button"
+                  onClick={() => patch(u.id, { disabled: !u.disabledAtIso, note })}
+                  disabled={savingId === u.id}
+                >
+                  {u.disabledAtIso ? "Re-enable access" : "Disable access"}
+                </button>
+              )}
             </div>
 
             <div className="surface surfaceInset u-pad-12 u-mt-12">
@@ -285,7 +314,8 @@ export function UsersClient() {
               )}
             </div>
           </article>
-        ))}
+          );
+        })}
       </section>
     </>
   );

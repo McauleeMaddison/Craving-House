@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 type PatchBody = Partial<{
   role: "customer" | "staff" | "manager";
   disabled: boolean;
+  terminate: boolean;
   note: string;
   newPassword: string;
 }>;
@@ -49,6 +50,19 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   });
   if (!target) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  const terminateRequested = body.terminate === true;
+  if (terminateRequested) {
+    if (target.role !== "customer") {
+      return NextResponse.json({ error: "Only customer accounts can be terminated." }, { status: 400 });
+    }
+    if (typeof body.role === "string" && body.role !== "customer") {
+      return NextResponse.json({ error: "Cannot change role when terminating a customer account." }, { status: 400 });
+    }
+    if (body.disabled === false) {
+      return NextResponse.json({ error: "Termination requires disabling the account." }, { status: 400 });
+    }
+  }
+
   const canMutateManagerRoleOrAccess =
     target.role === "manager" &&
     ((typeof body.role === "string" && body.role !== "manager") || body.disabled === true);
@@ -61,31 +75,48 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const updates: Record<string, unknown> = {};
   const auditChanges: Record<string, unknown> = {};
+  let roleChangeToCreate:
+    | {
+        byUserId: string;
+        targetUserId: string;
+        fromRole: string;
+        toRole: "customer" | "staff" | "manager";
+        note: string | null;
+      }
+    | null = null;
 
-  if (body.role) {
+  if (body.role && !terminateRequested) {
     const toRole = body.role;
     const fromRole = target.role;
     if (toRole !== fromRole) {
       updates.role = toRole;
       auditChanges.role = { from: fromRole, to: toRole };
-      await prisma.roleChange.create({
-        data: {
-          byUserId: access.userId,
-          targetUserId,
-          fromRole,
-          toRole,
-          note: body.note?.trim() || null
-        }
-      });
+      roleChangeToCreate = {
+        byUserId: access.userId,
+        targetUserId,
+        fromRole,
+        toRole,
+        note: body.note?.trim() || null
+      };
     }
   }
 
-  if (typeof body.disabled === "boolean") {
+  if (terminateRequested) {
+    updates.disabledAt = new Date();
+    updates.passwordHash = null;
+    updates.mfaTotpSecret = null;
+    updates.mfaTotpEnabledAt = null;
+    auditChanges.terminated = true;
+    auditChanges.disabled = true;
+  } else if (typeof body.disabled === "boolean") {
     updates.disabledAt = body.disabled ? new Date() : null;
     auditChanges.disabled = body.disabled;
   }
 
   if (typeof body.newPassword === "string" && body.newPassword.trim().length > 0) {
+    if (terminateRequested) {
+      return NextResponse.json({ error: "Cannot set password while terminating an account." }, { status: 400 });
+    }
     const err = validatePasswordForSignup(body.newPassword);
     if (err) return NextResponse.json({ error: err }, { status: 400 });
     updates.passwordHash = await hashPassword(body.newPassword);
@@ -96,16 +127,57 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ ok: true });
   }
 
-  await prisma.user.update({
-    where: { id: targetUserId },
-    data: updates
+  let revokedSessions = 0;
+  let revokedOAuthAccounts = 0;
+  let revokedPushSubscriptions = 0;
+  let loyaltyTokensRevoked = 0;
+
+  await prisma.$transaction(async (tx) => {
+    if (roleChangeToCreate) {
+      await tx.roleChange.create({ data: roleChangeToCreate });
+    }
+
+    await tx.user.update({
+      where: { id: targetUserId },
+      data: updates
+    });
+
+    if (terminateRequested || body.disabled === true) {
+      const [sessionsResult, accountsResult, pushResult] = await Promise.all([
+        tx.session.deleteMany({ where: { userId: targetUserId } }),
+        tx.account.deleteMany({ where: { userId: targetUserId } }),
+        tx.pushSubscription.deleteMany({ where: { userId: targetUserId } })
+      ]);
+      revokedSessions = sessionsResult.count;
+      revokedOAuthAccounts = accountsResult.count;
+      revokedPushSubscriptions = pushResult.count;
+    }
+
+    if (terminateRequested) {
+      const loyaltyResult = await tx.loyaltyAccount.updateMany({
+        where: { userId: targetUserId, cardToken: { not: null } },
+        data: { cardToken: null }
+      });
+      loyaltyTokensRevoked = loyaltyResult.count;
+    }
   });
+
+  if (terminateRequested || body.disabled === true) {
+    auditChanges.revokedAccess = {
+      sessions: revokedSessions,
+      oauthAccounts: revokedOAuthAccounts,
+      pushSubscriptions: revokedPushSubscriptions
+    };
+  }
+  if (terminateRequested) {
+    auditChanges.loyaltyTokensRevoked = loyaltyTokensRevoked;
+  }
 
   void recordAuditEvent({
     area: "manager.users",
-    action: "update",
+    action: terminateRequested ? "terminate" : "update",
     userId: access.userId,
-    message: "Manager updated user account",
+    message: terminateRequested ? "Manager terminated customer account" : "Manager updated user account",
     details: {
       targetUserId,
       changes: auditChanges,
