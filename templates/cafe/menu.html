@@ -3,33 +3,77 @@
 {% block title %}Menu | Craving House{% endblock %}
 
 {% block content %}
-  <section class="page-title">
-    <p class="eyebrow">Pickup menu</p>
-    <h1>Choose your order</h1>
+  <section class="menuHero">
+    <div class="rowWrap">
+      <span class="pill">Pickup menu</span>
+      <span class="pill">Counter payment</span>
+      <span class="pill">Freshly prepared</span>
+    </div>
+    <div class="menuHeroText">
+      <h1>Craving House Menu</h1>
+      <p class="muted">Browse hot drinks, cold drinks, bites, meals, hot dogs, waffles, and toppings.</p>
+    </div>
+    <div class="menuHeroActions">
+      <a class="btn" href="{% url 'cafe:cart' %}">View cart</a>
+      <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty card</a>
+    </div>
   </section>
 
+  <nav class="menuCategoryNav" aria-label="Menu categories">
+    {% for category in categories %}
+      <a href="#{{ category.slug }}">{{ category.name }}</a>
+    {% endfor %}
+  </nav>
+
+  <section class="cartLiveRegion" aria-live="polite" data-cart-live></section>
+
   {% for category in categories %}
-    <section class="menu-section" id="{{ category.slug }}">
-      <h2>{{ category.name }}</h2>
-      <div class="item-grid">
+    <section class="menu-section premiumMenuSection" id="{{ category.slug }}">
+      <div class="menuSectionHeader">
+        <div>
+          <p class="eyebrow">{{ category.items.all|length }} item{{ category.items.all|length|pluralize }}</p>
+          <h2>{{ category.name }}</h2>
+        </div>
+        <a class="menuSectionTop" href="#main-content">Top</a>
+      </div>
+      <div class="item-grid premiumItemGrid">
         {% for item in category.items.all %}
-          <article class="item-card {% if not item.available %}is-muted{% endif %}">
-            <div>
-              <p class="item-category">{{ item.prep_minutes }} min prep{% if item.loyalty_eligible %} · loyalty eligible{% endif %}</p>
-              <h3>{{ item.name }}</h3>
-              <p>{{ item.description }}</p>
+          <article class="item-card menuItemCard {% if not item.available %}is-muted{% endif %}">
+            <div class="menuItemBody">
+              <div class="menuItemTop">
+                <div>
+                  <p class="item-category">{{ item.prep_minutes }} min prep{% if item.loyalty_eligible %} · earns stamp{% endif %}</p>
+                  <h3>{{ item.name }}</h3>
+                </div>
+                <strong class="price">£{{ item.price }}</strong>
+              </div>
+              <p class="menuItemDescription">{{ item.description }}</p>
             </div>
-            <form action="{% url 'cafe:add_to_cart' item.id %}" method="post" class="card-actions">
+
+            <form
+              action="{% url 'cafe:add_to_cart' item.id %}"
+              method="post"
+              class="card-actions menuAddForm"
+              data-cart-form
+              data-item-name="{{ item.name }}"
+            >
               {% csrf_token %}
               <input type="hidden" name="next" value="{% url 'cafe:menu' %}">
-              <label>
+              <label class="quantityControl">
                 <span class="sr-only">Quantity for {{ item.name }}</span>
+                <span aria-hidden="true">Qty</span>
                 <input type="number" name="quantity" value="1" min="1" max="20">
               </label>
-              <span class="price">£{{ item.price }}</span>
-              <button type="submit" {% if not item.available %}disabled{% endif %}>
-                {% if item.available %}Add{% else %}Unavailable{% endif %}
+              <button
+                class="btn menuAddButton"
+                type="submit"
+                data-add-button
+                data-default-label="{% if item.available %}Add to cart{% else %}Unavailable{% endif %}"
+                {% if not item.available %}disabled{% endif %}
+              >
+                <span data-add-label>{% if item.available %}Add to cart{% else %}Unavailable{% endif %}</span>
               </button>
+              <span class="cartActionStatus" data-cart-status-text aria-live="polite"></span>
             </form>
           </article>
         {% empty %}

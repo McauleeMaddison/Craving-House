@@ -6,11 +6,14 @@
 
   const bestScoreKey = "ch.boiler-buster.best-score";
   const gameDurationMs = 20000;
-  const tickMs = 300;
+  const tickMs = 400;
   const perfectVentMin = 65;
   const perfectVentMax = 87;
-  const maxSteamBursts = 8;
-  const steamBurstDurationMs = 520;
+  const maxSteamBursts = 4;
+  const steamBurstDurationMs = 320;
+  const reduceVisualEffects = window.matchMedia(
+    "(pointer: coarse), (prefers-reduced-motion: reduce)",
+  ).matches;
 
   const elements = {
     status: document.getElementById("bb-status"),
@@ -46,6 +49,7 @@
 
   let bestScore = readBestScore();
   let steamBurstId = 0;
+  let lastPointerTapAt = 0;
   let state = createGameState("idle");
 
   function createGameState(phase) {
@@ -167,6 +171,10 @@
   }
 
   function queueSteamBurst(event) {
+    if (reduceVisualEffects) {
+      return;
+    }
+
     const bounds = elements.tapZone.getBoundingClientRect();
     const isKeyboardTrigger = event.clientX === 0 && event.clientY === 0;
     const left = isKeyboardTrigger ? bounds.width / 2 : event.clientX - bounds.left;
@@ -345,7 +353,21 @@
     return "";
   }
 
-  elements.tapZone.addEventListener("click", handleTap);
+  elements.tapZone.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 && event.pointerType === "mouse") {
+      return;
+    }
+    event.preventDefault();
+    lastPointerTapAt = Date.now();
+    handleTap(event);
+  });
+
+  elements.tapZone.addEventListener("click", (event) => {
+    if (Date.now() - lastPointerTapAt < 450) {
+      return;
+    }
+    handleTap(event);
+  });
   elements.newRound.addEventListener("click", startFreshRound);
   window.addEventListener("keydown", (event) => {
     if (event.code === "Space" && event.target === document.body) {

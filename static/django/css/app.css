@@ -114,6 +114,10 @@ html[data-theme="dark"] {
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -487,40 +491,45 @@ label {
   border-color: rgba(8, 10, 14, 0.82);
 }
 
-.brandButton {
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  box-shadow: none;
-}
-
-.brandButton:hover {
-  background: transparent;
-  border-color: transparent;
-  transform: none;
-}
-
-.appHeaderBrandButton {
+.appHeaderMenuButton {
   display: none;
-  min-height: 44px;
-  padding: 0 10px;
+  min-height: 42px;
+  padding: 0 12px 0 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-pill);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.06)),
+    rgba(11, 13, 18, 0.42);
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 950;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  touch-action: manipulation;
 }
 
-.appHeaderBrandButton.iconButtonActive {
+.appHeaderMenuButton.iconButtonActive {
   border-color: rgba(242, 183, 5, 0.42);
-  background: rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(242, 183, 5, 0.2), rgba(255, 255, 255, 0.08)),
+    rgba(11, 13, 18, 0.58);
+}
+
+.appHeaderMenuButton:focus-visible {
+  outline: 3px solid rgba(242, 183, 5, 0.72);
+  outline-offset: 3px;
+}
+
+.appHeaderMenuLabel {
+  line-height: 1;
 }
 
 .iconLines {
-  width: 18px;
-  height: 12px;
+  width: 16px;
+  height: 11px;
   border-top: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   position: relative;
@@ -1211,6 +1220,122 @@ body.navOpen {
   gap: 14px;
 }
 
+.menuHero {
+  display: grid;
+  gap: 16px;
+  padding: clamp(18px, 4vw, 26px);
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  background:
+    radial-gradient(720px 360px at 0% 0%, rgba(255, 255, 255, 0.1), transparent 62%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel));
+  box-shadow: var(--shadow);
+}
+
+.menuHeroText {
+  display: grid;
+  gap: 8px;
+  max-width: 720px;
+}
+
+.menuHeroText h1 {
+  font-size: clamp(34px, 8vw, 64px);
+  line-height: 0.98;
+}
+
+.menuHeroText p {
+  max-width: 58ch;
+  font-size: clamp(14px, 2.2vw, 17px);
+  line-height: 1.65;
+}
+
+.menuHeroActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.menuCategoryNav {
+  margin-top: 14px;
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 2px 0 10px;
+  scrollbar-width: none;
+}
+
+.menuCategoryNav::-webkit-scrollbar {
+  display: none;
+}
+
+.menuCategoryNav a {
+  min-height: 38px;
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.menuCategoryNav a:focus-visible {
+  outline: 3px solid rgba(242, 183, 5, 0.72);
+  outline-offset: 2px;
+}
+
+.cartLiveRegion {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.premiumMenuSection {
+  scroll-margin-top: 92px;
+}
+
+.menuSectionHeader {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menuSectionHeader h2 {
+  margin-bottom: 0;
+  font-size: clamp(24px, 4vw, 34px);
+}
+
+.menuSectionTop {
+  min-height: 34px;
+  padding: 7px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.premiumItemGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 1180px) {
+  .premiumItemGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .item-card {
   min-height: 250px;
   padding: 18px;
@@ -1229,6 +1354,40 @@ body.navOpen {
   opacity: 0.62;
 }
 
+.menuItemCard {
+  min-height: 0;
+  padding: 14px;
+  border-radius: 18px;
+  gap: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)),
+    rgba(11, 13, 18, 0.36);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.menuItemBody {
+  display: grid;
+  gap: 10px;
+}
+
+.menuItemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menuItemTop h3 {
+  margin-top: 4px;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.menuItemDescription {
+  min-height: 44px;
+  font-size: 13px;
+}
+
 .card-actions {
   display: grid;
   grid-template-columns: minmax(58px, 82px) auto auto;
@@ -1238,6 +1397,68 @@ body.navOpen {
 
 .card-actions input {
   min-width: 0;
+}
+
+.menuAddForm {
+  grid-template-columns: minmax(82px, 0.44fr) minmax(132px, 1fr);
+  align-items: stretch;
+}
+
+.quantityControl {
+  min-height: var(--control-h);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+  align-items: center;
+}
+
+.quantityControl span:not(.sr-only) {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.quantityControl input {
+  width: 100%;
+  min-height: 30px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+  text-align: right;
+}
+
+.menuAddButton {
+  width: 100%;
+  border-color: rgba(242, 183, 5, 0.38);
+  background: linear-gradient(180deg, rgba(255, 219, 132, 0.98), rgba(242, 183, 5, 0.94));
+  color: rgba(11, 13, 18, 0.96);
+  font-weight: 950;
+}
+
+.menuAddButton.isAdded {
+  border-color: rgba(47, 228, 171, 0.5);
+  background: linear-gradient(180deg, rgba(119, 249, 210, 0.98), rgba(47, 228, 171, 0.92));
+  color: rgba(6, 24, 19, 0.98);
+}
+
+.menuAddForm.isSubmitting .menuAddButton {
+  opacity: 0.82;
+}
+
+.cartActionStatus {
+  min-height: 17px;
+  grid-column: 1 / -1;
+  color: rgba(220, 255, 244, 0.94);
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .price {
@@ -1945,7 +2166,7 @@ body.navOpen {
 }
 
 .boilerBusterMeterFillPressure {
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
+  box-shadow: none;
 }
 
 .boilerBusterMeterFillCalm {
@@ -2009,7 +2230,7 @@ body.navOpen {
   pointer-events: none;
   background: linear-gradient(110deg, transparent 16%, rgba(255, 255, 255, 0.42) 50%, transparent 84%);
   transform: translateX(-115%);
-  animation: boilerBusterPressureSweep 1.3s linear infinite;
+  display: none;
 }
 
 .pressureFillHot::after {
@@ -2133,7 +2354,8 @@ body.navOpen {
   height: 36px;
   border-radius: var(--radius-pill);
   background: radial-gradient(circle, rgba(242, 183, 5, 0.36), transparent 72%);
-  filter: blur(14px);
+  filter: none;
+  opacity: 0.46;
 }
 
 .boilerBusterMachineTop {
@@ -2244,7 +2466,8 @@ body.navOpen {
   background: var(--boiler-gauge-accent);
   transform-origin: 0% 50%;
   transition: transform 180ms ease;
-  box-shadow: 0 0 12px rgba(255, 92, 115, 0.68);
+  box-shadow: none;
+  will-change: transform;
 }
 
 .boilerBusterNeedle::after {
@@ -2258,11 +2481,14 @@ body.navOpen {
 }
 
 .gaugeWarning {
-  animation: boilerBusterGaugeWarning 720ms ease-in-out infinite;
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.34),
+    0 8px 16px rgba(0, 0, 0, 0.18),
+    0 0 0 3px rgba(255, 92, 115, 0.2);
 }
 
 .needleAlarm {
-  animation: boilerBusterNeedleAlarm 420ms linear infinite;
+  filter: none;
 }
 
 @keyframes boilerBusterGaugeWarning {
@@ -2339,21 +2565,21 @@ body.navOpen {
   height: 76px;
   border-radius: var(--radius-pill);
   background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08) 72%, transparent);
-  filter: blur(2px);
-  opacity: 0.16;
-  animation: boilerBusterSteam 1.6s ease-in-out infinite;
+  filter: none;
+  opacity: 0;
+  animation: none;
 }
 
 .boilerBusterTapZonePlaying .boilerBusterSteam {
-  opacity: 0.72;
+  opacity: 0.38;
 }
 
 .boilerBusterTapZoneWon .boilerBusterSteam {
-  opacity: 0.4;
+  opacity: 0.2;
 }
 
 .boilerBusterTapZoneLost .boilerBusterSteam {
-  opacity: 0.92;
+  opacity: 0.5;
 }
 
 .boilerBusterSteamA {
@@ -2384,8 +2610,9 @@ body.navOpen {
   background:
     radial-gradient(circle, rgba(255, 255, 255, 0.88) 0 28%, rgba(255, 255, 255, 0.38) 29% 54%, transparent 55%),
     radial-gradient(circle, rgba(242, 183, 5, 0.42), transparent 70%);
-  filter: blur(0.4px);
-  animation: boilerBusterSteamBurst 520ms ease-out forwards;
+  filter: none;
+  animation: boilerBusterSteamBurst 320ms ease-out forwards;
+  will-change: opacity, transform;
 }
 
 @keyframes boilerBusterSteamBurst {
@@ -2613,10 +2840,10 @@ body.navOpen {
   }
 
   .appHeaderBrandLink {
-    display: none;
+    display: flex;
   }
 
-  .appHeaderBrandButton {
+  .appHeaderMenuButton {
     display: inline-flex;
   }
 
@@ -2643,8 +2870,11 @@ body.navOpen {
 
   .order-line,
   .manager-row,
-  .card-actions,
   .inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions:not(.menuAddForm) {
     grid-template-columns: 1fr;
   }
 
@@ -2745,6 +2975,38 @@ body.navOpen {
 }
 
 @media (max-width: 720px) {
+  .menuHero {
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .menuHeroActions .btn {
+    flex: 1 1 132px;
+  }
+
+  .menuSectionHeader {
+    align-items: flex-start;
+  }
+
+  .premiumMenuSection {
+    margin-top: 22px;
+    scroll-margin-top: 78px;
+  }
+
+  .menuItemCard {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .menuItemTop {
+    gap: 10px;
+  }
+
+  .menuItemDescription {
+    min-height: 0;
+  }
+
   .game-shell {
     gap: 12px;
     padding-bottom: 26px;
@@ -2826,8 +3088,25 @@ body.navOpen {
     padding-inline: 10px;
   }
 
-  .appHeader .brandText {
+  .appHeader .brandName {
+    max-width: 152px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .appHeader .brandTag {
     display: none;
+  }
+
+  .appHeaderMenuLabel {
+    display: none;
+  }
+
+  .appHeaderMenuButton {
+    width: 44px;
+    padding: 0;
+    border-radius: 15px;
   }
 
   .drawer .brandText {
@@ -2852,6 +3131,32 @@ body.navOpen {
 
   .game-board {
     padding: 14px;
+  }
+
+  .menuHero {
+    padding: 14px;
+  }
+
+  .menuHeroText h1 {
+    font-size: clamp(32px, 11vw, 42px);
+  }
+
+  .menuHeroActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .menuCategoryNav {
+    margin-inline: -10px;
+    padding-inline: 10px;
+  }
+
+  .menuSectionTop {
+    display: none;
+  }
+
+  .menuAddForm {
+    grid-template-columns: 78px minmax(0, 1fr);
   }
 
   .brew-button {

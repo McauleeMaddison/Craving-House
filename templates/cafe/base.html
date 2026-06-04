@@ -29,9 +29,7 @@
               <span class="brandMark" aria-hidden="true">
                 <img src="{% static 'brand/ch-logo.png' %}" alt="">
               </span>
-              {% if cart_count %}
-                <span class="navMobileBadge" aria-label="{{ cart_count }} items in cart">{{ cart_count }}</span>
-              {% endif %}
+              <span class="navMobileBadge" data-cart-count aria-label="{{ cart_count }} items in cart" {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
             </span>
             <span class="brandText">
               <span class="brandName">Craving House</span>
@@ -40,28 +38,24 @@
           </a>
 
           <button
-            class="brandLink brandButton appHeaderBrandButton"
+            class="appHeaderMenuButton"
             type="button"
             aria-label="Open menu"
             aria-expanded="false"
             aria-controls="mobile-drawer"
             data-nav-toggle
           >
-            <span class="brandMarkStack">
-              <span class="brandMark" aria-hidden="true">
-                <img src="{% static 'brand/ch-logo.png' %}" alt="">
-              </span>
-              {% if cart_count %}
-                <span class="navMobileBadge" aria-label="{{ cart_count }} items in cart">{{ cart_count }}</span>
-              {% endif %}
-            </span>
+            <span class="appHeaderMenuLabel">Menu</span>
             <span class="iconLines" aria-hidden="true"></span>
           </button>
 
           <nav class="navDesktop" aria-label="Primary navigation">
             <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Menu</a>
             <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">
-              <span class="navDesktopLinkLabel">Cart{% if cart_count %}<span class="navDesktopBadge">{{ cart_count }}</span>{% endif %}</span>
+              <span class="navDesktopLinkLabel">
+                Cart
+                <span class="navDesktopBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
+              </span>
             </a>
             <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
             <a class="btn btn-secondary" href="{% url 'cafe:boiler_buster' %}">Boiler Buster</a>
@@ -153,7 +147,7 @@
             <a class="drawerStatusRow drawerStatusAction" href="{% url 'cafe:cart' %}" data-nav-close>
               <span class="drawerStatusLabel">Cart</span>
               <span class="drawerStatusMeta">
-                <span class="drawerStatusValue">{% if cart_count %}{{ cart_count }} item{{ cart_count|pluralize }}{% else %}Empty{% endif %}</span>
+                <span class="drawerStatusValue" data-cart-status>{% if cart_count %}{{ cart_count }} item{{ cart_count|pluralize }}{% else %}Empty{% endif %}</span>
                 <span class="drawerStatusChevron" aria-hidden="true">›</span>
               </span>
             </a>
@@ -164,7 +158,10 @@
               <span class="drawerLinkLabel">Menu</span>
             </a>
             <a class="drawerLink" href="{% url 'cafe:cart' %}" data-nav-close>
-              <span class="drawerLinkLabel">Cart{% if cart_count %}<span class="drawerLinkBadge">{{ cart_count }}</span>{% endif %}</span>
+              <span class="drawerLinkLabel">
+                Cart
+                <span class="drawerLinkBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
+              </span>
             </a>
             <a class="drawerLink" href="{% url 'cafe:loyalty' %}" data-nav-close>
               <span class="drawerLinkLabel">Loyalty</span>

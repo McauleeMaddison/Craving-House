@@ -60,6 +60,18 @@ def add_to_cart(request, item_id):
   cart = get_cart(request)
   cart[str(item.id)] = min(20, int(cart.get(str(item.id), 0)) + quantity)
   set_cart(request, cart)
+
+  if request.headers.get("x-requested-with") == "XMLHttpRequest":
+    summary = cart_summary(request)
+    return JsonResponse(
+      {
+        "ok": True,
+        "item_name": item.name,
+        "item_quantity": cart[str(item.id)],
+        "cart_count": summary["count"],
+      }
+    )
+
   messages.success(request, f"Added {item.name} to your order.")
   return redirect(request.POST.get("next") or "cafe:menu")
 

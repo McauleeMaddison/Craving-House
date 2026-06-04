@@ -96,3 +96,105 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
     }
   });
 })();
+
+(function () {
+  const forms = Array.from(document.querySelectorAll("[data-cart-form]"));
+  const resetTimers = new WeakMap();
+
+  if (!forms.length) {
+    return;
+  }
+
+  function cartStatusText(count) {
+    if (!count) {
+      return "Empty";
+    }
+    return `${count} item${count === 1 ? "" : "s"}`;
+  }
+
+  function updateCartCount(count) {
+    document.querySelectorAll("[data-cart-count]").forEach((badge) => {
+      badge.textContent = String(count);
+      badge.hidden = count < 1;
+      badge.setAttribute("aria-label", `${count} item${count === 1 ? "" : "s"} in cart`);
+    });
+
+    document.querySelectorAll("[data-cart-status]").forEach((status) => {
+      status.textContent = cartStatusText(count);
+    });
+  }
+
+  function setButtonLabel(button, label) {
+    const labelNode = button.querySelector("[data-add-label]");
+    if (labelNode) {
+      labelNode.textContent = label;
+    } else {
+      button.textContent = label;
+    }
+  }
+
+  forms.forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      const button = form.querySelector("[data-add-button]");
+      const status = form.querySelector("[data-cart-status-text]");
+      if (!button || button.disabled) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const defaultLabel = button.dataset.defaultLabel || "Add to cart";
+      const existingTimer = resetTimers.get(button);
+      if (existingTimer) {
+        window.clearTimeout(existingTimer);
+      }
+
+      button.disabled = true;
+      button.classList.remove("isAdded");
+      form.classList.add("isSubmitting");
+      setButtonLabel(button, "Adding...");
+      if (status) {
+        status.textContent = "";
+      }
+
+      try {
+        const response = await window.fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Cart request failed");
+        }
+
+        const data = await response.json();
+        updateCartCount(Number(data.cart_count || 0));
+        button.classList.add("isAdded");
+        setButtonLabel(button, "Added");
+        if (status) {
+          status.textContent = `${data.item_name || form.dataset.itemName || "Item"} added`;
+        }
+
+        const resetTimer = window.setTimeout(() => {
+          button.classList.remove("isAdded");
+          setButtonLabel(button, defaultLabel);
+          if (status) {
+            status.textContent = "";
+          }
+          resetTimers.delete(button);
+        }, 1100);
+        resetTimers.set(button, resetTimer);
+      } catch (error) {
+        form.submit();
+        return;
+      } finally {
+        form.classList.remove("isSubmitting");
+        button.disabled = false;
+      }
+    });
+  });
+})();

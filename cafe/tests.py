@@ -25,7 +25,26 @@ class CafeFlowTests(TestCase):
 
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "House Latte")
-    self.assertContains(response, "Add")
+    self.assertContains(response, "Add to cart")
+
+  def test_ajax_add_to_cart_returns_live_cart_payload(self):
+    response = self.client.post(
+      reverse("cafe:add_to_cart", args=[self.item.id]),
+      {"quantity": "2"},
+      HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+      HTTP_ACCEPT="application/json",
+    )
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(
+      response.json(),
+      {
+        "ok": True,
+        "item_name": "House Latte",
+        "item_quantity": 2,
+        "cart_count": 2,
+      },
+    )
 
   def test_checkout_creates_order_from_session_cart(self):
     self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "2"})
