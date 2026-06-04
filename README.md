@@ -4,6 +4,12 @@ Craving House is a Python and Django web application for a coffee shop. It allow
 
 This project is built with the required Python and Django stack.
 
+Official repository:
+
+```text
+https://github.com/McauleeMaddison/Craving-House
+```
+
 ## Technology Stack
 
 - Python 3.9+
@@ -132,7 +138,52 @@ Use this checklist before submitting or demonstrating the project:
 - Set `DJANGO_SECRET_KEY` to a unique production value.
 - Set `DJANGO_DEBUG=false`.
 - Set `DJANGO_ALLOWED_HOSTS` to the deployed domain names.
+- Keep `DJANGO_SECURE_SSL_REDIRECT=true` for HTTPS deployments.
 - Run `python3 manage.py migrate` before first production use.
 - Create a production admin account with `python3 manage.py createsuperuser`.
 - Replace or delete demo accounts before real use.
 - Do not commit real `.env` files or production secrets.
+
+## Render Deployment
+
+This project includes a root `Dockerfile` for Render Docker deployments.
+
+Recommended Render settings:
+
+- Environment: Docker
+- Repository: `McauleeMaddison/Craving-House`
+- Branch: `main`
+- Dockerfile path: `Dockerfile`
+- Root directory: leave blank unless the repository is inside a subfolder
+
+If you use a Render Python service instead of Docker, use these commands:
+
+```text
+Build Command: sh ./render-build.sh
+Start Command: sh ./render-start.sh
+```
+
+Do not use any `npm`, `apps/web`, Prisma, Next.js, or Node build command for this project. This is a Django application.
+
+Recommended environment variables:
+
+```text
+DJANGO_SECRET_KEY=<generate-a-long-random-secret>
+DJANGO_DEBUG=false
+DJANGO_ALLOWED_HOSTS=.onrender.com,<your-render-domain>
+DJANGO_CSRF_TRUSTED_ORIGINS=https://*.onrender.com,https://<your-render-domain>
+DJANGO_SECURE_SSL_REDIRECT=true
+DJANGO_SECURE_HSTS_SECONDS=31536000
+DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=false
+SEED_DEMO_DATA=true
+```
+
+If you attach a Render PostgreSQL database, Render provides `DATABASE_URL` automatically. The application will use it. If no `DATABASE_URL` is present, the container falls back to SQLite, which is suitable only for a temporary demo because container storage is not permanent.
+
+The Docker startup script runs:
+
+```bash
+python manage.py migrate --noinput
+python manage.py seed_demo
+gunicorn craving_house.wsgi:application
+```

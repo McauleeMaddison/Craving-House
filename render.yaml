@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: craving-house
+    runtime: docker
+    plan: free
+    repo: https://github.com/McauleeMaddison/Craving-House
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "true"
+      - key: DJANGO_SECURE_HSTS_SECONDS
+        value: "31536000"
+      - key: DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
+        value: "false"
+      - key: SEED_DEMO_DATA
+        value: "true"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
