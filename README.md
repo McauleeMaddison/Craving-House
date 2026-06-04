@@ -1,34 +1,52 @@
 # Craving House Coffee App
 
-Craving House is a Django web application for a coffee shop. Customers can browse the menu, build a pickup order, place it for counter payment, collect loyalty stamps, and send feedback. Staff can manage the live order queue and scan loyalty cards, while managers can maintain menu items and availability.
+Craving House is a Python and Django web application for a coffee shop. It allows customers to browse a menu, create a pickup order, collect loyalty stamps, and send feedback. It also gives staff a live order queue and gives managers control over menu items and availability.
+
+This project is built with the required Python and Django stack.
 
 ## Technology Stack
 
 - Python 3.9+
 - Django 4.2
 - SQLite for local development
-- Django templates, forms, authentication, admin, ORM, and test runner
+- Django templates for server-rendered pages
+- Django forms for validation
+- Django ORM for database models and queries
+- Django authentication and admin
+- Django test runner for quality checks
 
-## Features
+## Main Features
 
-- Menu browsing with item availability, prices, prep times, and loyalty eligibility
-- Session-based cart and pickup checkout
-- Order confirmation pages with private lookup links
-- Staff dashboard for order status updates
+- Customer menu browsing with prices, prep times, and item availability
+- Session-based cart for pickup orders
+- Checkout flow for counter payment
+- Private order confirmation pages with lookup codes
+- Staff dashboard for viewing and updating active orders
 - Digital loyalty card with staff stamp scanning
-- Customer feedback form stored in the database
-- Manager dashboard for menu item creation, editing, and visibility control
+- Customer feedback form saved to the database
+- Manager dashboard for creating, editing, showing, and hiding menu items
 - Django admin for full data management
 
 ## Project Structure
 
-- `manage.py` - Django command entry point
-- `craving_house/` - project settings, ASGI/WSGI config, and root URLs
-- `cafe/` - application models, forms, views, admin, tests, and seed command
-- `templates/` - server-rendered Django templates
+- `manage.py` - Django command-line entry point
+- `craving_house/` - Django project settings, root URLs, ASGI, and WSGI config
+- `cafe/` - main application code, including models, forms, views, admin, tests, and demo seed command
+- `templates/` - Django HTML templates
 - `static/django/` - application CSS and JavaScript
 - `images/` - Craving House brand assets served as static files
 - `requirements.txt` - Python dependencies
+- `.env.example` - example production environment variables
+
+## Required Stack Evidence
+
+- `manage.py` starts and manages the Django application.
+- `craving_house/settings.py` configures the Django project.
+- `cafe/models.py` defines the database schema using the Django ORM.
+- `cafe/views.py` handles customer, staff, manager, and loyalty workflows.
+- `templates/` contains server-rendered Django pages.
+- `cafe/tests.py` verifies ordering and access-control behaviour.
+- `requirements.txt` lists Django as the application dependency.
 
 ## Setup
 
@@ -63,7 +81,11 @@ Start the development server:
 python3 manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/` in a browser.
+Open the application at:
+
+```text
+http://127.0.0.1:8000/
+```
 
 ## Demo Accounts
 
@@ -85,6 +107,23 @@ python3 manage.py test
 python3 manage.py collectstatic --noinput
 ```
 
+Expected result: all commands complete successfully.
+
+## Functional Acceptance Checklist
+
+Use this checklist before submitting or demonstrating the project:
+
+- Open `/` and confirm the homepage loads.
+- Open `/menu/` and confirm seeded menu items appear.
+- Add an item to the cart.
+- Place a pickup order from checkout.
+- Confirm the order appears in `/staff/`.
+- Update the order status from the staff dashboard.
+- Create or sign into a customer account and open `/loyalty/`.
+- Add loyalty stamps from the staff dashboard.
+- Submit feedback from `/feedback/`.
+- Sign into `/admin/` or `/manager/` and confirm menu data is manageable.
+
 ## Deployment Notes
 
 - Set `DJANGO_SECRET_KEY` to a unique production value.
@@ -92,3 +131,5 @@ python3 manage.py collectstatic --noinput
 - Set `DJANGO_ALLOWED_HOSTS` to the deployed domain names.
 - Run `python3 manage.py migrate` before first production use.
 - Create a production admin account with `python3 manage.py createsuperuser`.
+- Replace or delete demo accounts before real use.
+- Do not commit real `.env` files or production secrets.

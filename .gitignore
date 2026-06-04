@@ -6,34 +6,16 @@ __pycache__
 db.sqlite3
 staticfiles
 
-# legacy dependencies
-node_modules
-
-# next.js
-.next
-out
-playwright-report
-apps/web/test-results
-apps/web/.lighthouseci
-
 # env files
 .env
 .env.*.local
-apps/**/.env
 
 # logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# prisma
-*.db
-*.db-journal
+*.log
 
 # OS/editor
 .DS_Store
 .vscode
 
-# generated build metadata
-*.tsbuildinfo
+# generated archives
+dist
