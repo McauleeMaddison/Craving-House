@@ -1,0 +1,51 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Staff | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Staff workspace</p>
+    <h1>Order queue</h1>
+  </section>
+
+  <div class="two-column">
+    <section class="panel">
+      <h2>Active orders</h2>
+      <div class="staff-list">
+        {% for order in orders %}
+          <article class="staff-order">
+            <div>
+              <strong>#{{ order.pk }} · {{ order.guest_name }}</strong>
+              <span>{{ order.get_status_display }} · {{ order.prep_minutes }} min · £{{ order.subtotal }}</span>
+            </div>
+            <ul>
+              {% for item in order.items.all %}
+                <li>{{ item.quantity }} x {{ item.item_name }}</li>
+              {% endfor %}
+            </ul>
+            <form action="{% url 'cafe:update_order_status' order.pk %}" method="post" class="inline-form">
+              {% csrf_token %}
+              <select name="status">
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit">Update</button>
+            </form>
+          </article>
+        {% empty %}
+          <p>No active orders.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>Loyalty scan</h2>
+      <form action="{% url 'cafe:scan_loyalty' %}" method="post" class="form-panel">
+        {% csrf_token %}
+        {{ scan_form.as_p }}
+        <button type="submit" class="button-primary">Add stamps</button>
+      </form>
+    </aside>
+  </div>
+{% endblock %}

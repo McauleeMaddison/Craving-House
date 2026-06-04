@@ -1,77 +1,80 @@
 # Craving House Coffee App
 
-Production-ready monorepo for the Craving House mobile-first web application.
-
-## Overview
-
-This project powers customer ordering and loyalty, plus staff and manager
-operational portals.
+Craving House is a Python and Django web application for a coffee shop. It supports customer pickup ordering, session carts, loyalty stamps, feedback collection, staff order handling, and manager menu control.
 
 ## Stack
 
-- Next.js 16
-- React 18
-- TypeScript
-- NextAuth
-- Prisma
-- Stripe Checkout + Webhooks
+- Python 3
+- Django 4.2
+- SQLite for local development
+- Django templates, forms, ORM, authentication, admin, and tests
 
-## Repository Layout
+The submitted application is the Django project at the repository root. Historical files under `apps/web` are not needed to run or assess this Django submission.
 
-- `apps/web` - Main web application (app routes, API handlers, UI, server modules)
-- `static` - Static assets
-- `scripts` - Workspace-level utility scripts
+## Project Layout
 
-## Prerequisites
-
-- Node.js `24.14.1` LTS
-- npm
-- A Prisma-compatible database
+- `manage.py` - Django command entry point
+- `craving_house/` - project settings and root URL configuration
+- `cafe/` - Django app with models, forms, views, admin, tests, and seed command
+- `templates/` - server-rendered Django templates
+- `static/django/` - CSS and JavaScript used by the Django templates
+- `images/` - Craving House brand and loyalty assets served through Django static files
 
 ## Local Setup
 
-1. Install dependencies:
+Create and activate a virtual environment:
 
 ```bash
-npm install
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-2. Create environment file:
+Install dependencies:
 
 ```bash
-touch apps/web/.env
+python3 -m pip install -r requirements.txt
 ```
 
-3. Configure required variables in `apps/web/.env`.
-4. Initialize schema and seed data:
+Create the database and demo data:
 
 ```bash
-npm run dev:setup -w apps/web
+python3 manage.py migrate
+python3 manage.py seed_demo
 ```
 
-## Run
+Run the app:
 
 ```bash
-npm run dev
+python3 manage.py runserver
 ```
+
+Open `http://127.0.0.1:8000/`.
+
+## Demo Accounts
+
+The seed command creates these accounts:
+
+- Manager: `manager` / `ManagerPass123`
+- Staff: `staff` / `StaffPass123`
+- Customer: `customer` / `CustomerPass123`
+
+Change these passwords before using the project outside local demonstration.
 
 ## Quality Checks
 
 ```bash
-npm run lint
-npm run test
-npm run build
+python3 manage.py check
+python3 manage.py test
+python3 manage.py collectstatic --noinput
 ```
 
-## Deployment Notes
+## Main Features
 
-- Set production env vars in your host (including auth, database, and Stripe keys).
-- Ensure `NEXTAUTH_URL` uses your public HTTPS domain.
-- Configure Stripe webhook endpoint to `/api/webhooks/stripe`.
-- Use `CLIENT_HANDOVER.md` for final release and ownership-transfer checks.
-
-## Security Baseline
-
-- Keep development auth toggles disabled in production.
-- Never commit secrets or `.env` files.
-- Use a dedicated `MFA_ENCRYPTION_KEY` distinct from `NEXTAUTH_SECRET`.
+- Customer menu browsing and cart-based pickup checkout
+- Order totals and prep-time calculations stored with each order
+- Private order confirmation links with lookup codes
+- Digital loyalty card with staff stamp scanning
+- Feedback form saved to the database
+- Staff dashboard for order status changes
+- Manager dashboard for menu item create, edit, and availability control
+- Django admin for full data management

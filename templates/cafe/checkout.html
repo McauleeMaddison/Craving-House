@@ -1,0 +1,36 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Checkout | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Pickup checkout</p>
+    <h1>Confirm your order</h1>
+  </section>
+
+  <div class="two-column">
+    <form method="post" class="panel form-panel">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="button-primary">Place order</button>
+    </form>
+    <aside class="panel">
+      <h2>Order summary</h2>
+      {% for line in summary.lines %}
+        <div class="summary-row">
+          <span>{{ line.quantity }} x {{ line.item.name }}</span>
+          <strong>£{{ line.line_total }}</strong>
+        </div>
+      {% endfor %}
+      <div class="summary-row">
+        <span>Estimated prep</span>
+        <strong>{{ summary.prep_minutes }} min</strong>
+      </div>
+      <div class="summary-row">
+        <span>Total</span>
+        <strong>£{{ summary.subtotal }}</strong>
+      </div>
+      <p class="muted">Payment is taken at the counter when you collect.</p>
+    </aside>
+  </div>
+{% endblock %}

@@ -1,4 +1,12 @@
-# dependencies
+# Python/Django
+.venv
+venv
+__pycache__
+*.py[cod]
+db.sqlite3
+staticfiles
+
+# legacy dependencies
 node_modules
 
 # next.js

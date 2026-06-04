@@ -1,0 +1,31 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Order #{{ order.pk }} | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Order confirmed</p>
+    <h1>Order #{{ order.pk }}</h1>
+  </section>
+
+  <section class="panel">
+    <div class="status-pill">{{ order.get_status_display }}</div>
+    <p>Thanks, {{ order.guest_name }}. Keep this page to track your order.</p>
+    <div class="order-lines">
+      {% for item in order.items.all %}
+        <div class="summary-row">
+          <span>{{ item.quantity }} x {{ item.item_name }}</span>
+          <strong>£{{ item.line_total }}</strong>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="summary-row">
+      <span>Estimated prep</span>
+      <strong>{{ order.prep_minutes }} min</strong>
+    </div>
+    <div class="summary-row">
+      <span>Total due at collection</span>
+      <strong>£{{ order.subtotal }}</strong>
+    </div>
+  </section>
+{% endblock %}

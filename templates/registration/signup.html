@@ -1,0 +1,16 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Create Account | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Account</p>
+    <h1>Create your loyalty account</h1>
+  </section>
+
+  <form method="post" class="panel form-panel narrow">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button-primary">Create account</button>
+  </form>
+{% endblock %}

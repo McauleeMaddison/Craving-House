@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Craving House — Starter</title>
+    <title>Craving House — Django Starter</title>
     <link rel="stylesheet" href="../css/style.css" />
   </head>
   <body>
@@ -16,9 +16,9 @@
         </div>
       </div>
       <nav class="nav">
-        <a class="link" href="../../apps/web/src/app/page.tsx">Web Home</a>
-        <a class="link" href="../../apps/web/src/app/menu/page.tsx">Menu</a>
-        <a class="link" href="../../apps/web/src/app/manager/page.tsx">Manager</a>
+        <a class="link" href="../../README.md">Setup</a>
+        <a class="link" href="../../cafe/views.py">Django Views</a>
+        <a class="link" href="../../cafe/models.py">Django Models</a>
       </nav>
     </header>
 
@@ -26,16 +26,17 @@
       <section class="hero">
         <h1 class="h1">coffee, bites, vibes</h1>
         <p class="p">
-          This is a lightweight HTML/CSS/JS landing page. The actual app runs in Next.js
-          under <code>apps/web</code>.
+          This page is a static project launcher. The submitted application runs with
+          Python and Django from the repository root.
         </p>
         <div class="actions">
-          <button id="copy-run" class="button">Copy “run dev” commands</button>
-          <a class="button button-secondary" href="../../apps/web/src/app/page.tsx">Open web home</a>
+          <button id="copy-run" class="button">Copy Django run commands</button>
+          <a class="button button-secondary" href="../../README.md">Read setup</a>
         </div>
-        <pre id="commands" class="commands" aria-label="Commands">touch apps/web/.env
-npm install
-npm run dev</pre>
+        <pre id="commands" class="commands" aria-label="Commands">python3 -m pip install -r requirements.txt
+python3 manage.py migrate
+python3 manage.py seed_demo
+python3 manage.py runserver</pre>
         <div id="status" class="status" role="status" aria-live="polite"></div>
       </section>
 
@@ -45,7 +46,7 @@ npm run dev</pre>
           <ul class="list">
             <li>Order ahead (pay in store)</li>
             <li>Pickup ETA based on prep times</li>
-            <li>QR loyalty card</li>
+            <li>Django session cart and loyalty card</li>
           </ul>
         </article>
         <article class="card">
@@ -53,7 +54,7 @@ npm run dev</pre>
           <ul class="list">
             <li>Scan customer QR to add stamps</li>
             <li>Update order status</li>
-            <li>Secure role-based access</li>
+            <li>Django role-based access</li>
           </ul>
         </article>
         <article class="card">
@@ -61,7 +62,7 @@ npm run dev</pre>
           <ul class="list">
             <li>Manage menu and availability</li>
             <li>Set per-item prep times</li>
-            <li>Configure loyalty eligibility</li>
+            <li>Use Django admin for full data management</li>
           </ul>
         </article>
       </section>

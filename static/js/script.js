@@ -6,7 +6,7 @@ copyButton?.addEventListener("click", async () => {
   const text = commandsEl?.textContent ?? "";
   try {
     await navigator.clipboard.writeText(text);
-    statusEl.textContent = "Copied commands to clipboard.";
+    statusEl.textContent = "Copied Django commands to clipboard.";
     setTimeout(() => {
       statusEl.textContent = "";
     }, 1800);

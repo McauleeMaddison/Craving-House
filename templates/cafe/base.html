@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Craving House{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'django/css/app.css' %}">
+    <script src="{% static 'django/js/app.js' %}" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="{% url 'cafe:home' %}" aria-label="Craving House home">
+        <img src="{% static 'brand/ch-logo.png' %}" alt="" class="brand-mark">
+        <span>
+          <strong>Craving House</strong>
+          <small>Coffee, bites, vibes</small>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="{% url 'cafe:menu' %}">Menu</a>
+        <a href="{% url 'cafe:cart' %}">Cart{% if cart_count %} ({{ cart_count }}){% endif %}</a>
+        <a href="{% url 'cafe:loyalty' %}">Loyalty</a>
+        <a href="{% url 'cafe:feedback' %}">Feedback</a>
+        {% if user.is_staff %}
+          <a href="{% url 'cafe:staff_dashboard' %}">Staff</a>
+        {% endif %}
+        {% if user.is_superuser %}
+          <a href="{% url 'cafe:manager_dashboard' %}">Manager</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <form action="{% url 'logout' %}" method="post" class="nav-form">
+            {% csrf_token %}
+            <button type="submit">Sign out</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}">Sign in</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    {% if messages %}
+      <div class="messages" role="status" aria-live="polite">
+        {% for message in messages %}
+          <div class="message message-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <span>Craving House Django project</span>
+      <span>Order ahead, collect in store, earn loyalty rewards.</span>
+    </footer>
+  </body>
+</html>

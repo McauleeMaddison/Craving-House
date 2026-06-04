@@ -1,65 +1,48 @@
-name: Web Quality
+name: Django Quality
 
 on:
   push:
     branches: ["main"]
     paths:
-      - "apps/web/**"
+      - "cafe/**"
+      - "craving_house/**"
+      - "templates/**"
+      - "static/django/**"
       - ".github/workflows/web-quality.yml"
-      - "package.json"
-      - "package-lock.json"
+      - "manage.py"
+      - "requirements.txt"
   pull_request:
     paths:
-      - "apps/web/**"
+      - "cafe/**"
+      - "craving_house/**"
+      - "templates/**"
+      - "static/django/**"
       - ".github/workflows/web-quality.yml"
-      - "package.json"
-      - "package-lock.json"
+      - "manage.py"
+      - "requirements.txt"
 
 jobs:
-  web-quality:
+  django-quality:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
-    env:
-      NEXTAUTH_URL: http://127.0.0.1:3000
-      NEXTAUTH_SECRET: ci-nextauth-secret
-      QR_SECRET: ci-qr-secret
-      MFA_ENCRYPTION_KEY: ci-mfa-encryption-key
-      SKIP_PRISMA_DEPLOY: "true"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: "24"
-          cache: npm
-          cache-dependency-path: package-lock.json
+          python-version: "3.11"
+          cache: pip
 
-      - name: Install Dependencies
-        run: npm ci
-        working-directory: .
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
 
-      - name: Lint
-        run: npm run lint
+      - name: Django system check
+        run: python manage.py check
 
-      - name: Unit Tests
-        run: npm run test
+      - name: Unit tests
+        run: python manage.py test
 
-      - name: Build
-        run: npm run build
-
-      - name: Bundle Size Budget
-        run: npm run quality:bundle
-
-      - name: Install Playwright Chromium
-        run: npm exec playwright install --with-deps chromium
-
-      - name: Visual Regression (Home Shell)
-        run: npm run e2e:visual
-
-      - name: Lighthouse Budget
-        run: npm run quality:lighthouse
+      - name: Static asset collection
+        run: python manage.py collectstatic --noinput

@@ -1,0 +1,47 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Cart | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Your order</p>
+    <h1>Cart</h1>
+  </section>
+
+  {% if summary.lines %}
+    <section class="panel">
+      <div class="order-lines">
+        {% for line in summary.lines %}
+          <form action="{% url 'cafe:update_cart' line.item.id %}" method="post" class="order-line">
+            {% csrf_token %}
+            <div>
+              <strong>{{ line.item.name }}</strong>
+              <span>£{{ line.item.price }} each</span>
+            </div>
+            <input type="number" name="quantity" value="{{ line.quantity }}" min="0" max="20">
+            <strong>£{{ line.line_total }}</strong>
+            <button type="submit">Update</button>
+            <button type="submit" name="action" value="remove" class="button-ghost">Remove</button>
+          </form>
+        {% endfor %}
+      </div>
+      <div class="summary-row">
+        <span>Estimated prep</span>
+        <strong>{{ summary.prep_minutes }} min</strong>
+      </div>
+      <div class="summary-row">
+        <span>Total</span>
+        <strong>£{{ summary.subtotal }}</strong>
+      </div>
+      <div class="actions">
+        <a class="button" href="{% url 'cafe:menu' %}">Add more</a>
+        <a class="button button-primary" href="{% url 'cafe:checkout' %}">Checkout</a>
+      </div>
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <h2>Your cart is empty</h2>
+      <a class="button button-primary" href="{% url 'cafe:menu' %}">Browse menu</a>
+    </section>
+  {% endif %}
+{% endblock %}

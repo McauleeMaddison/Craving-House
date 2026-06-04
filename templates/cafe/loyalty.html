@@ -1,0 +1,24 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Loyalty | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Digital loyalty</p>
+    <h1>Your stamp card</h1>
+  </section>
+
+  <section class="loyalty-card">
+    <div>
+      <p class="eyebrow">Card code</p>
+      <h2>{{ profile.card_code }}</h2>
+      <p>{{ profile.stamps }} of {{ stamps_required }} stamps collected</p>
+      <p>{{ profile.rewards_available }} reward{{ profile.rewards_available|pluralize }} available</p>
+    </div>
+    <div class="stamps" aria-label="{{ profile.stamps }} loyalty stamps">
+      {% for _ in stamp_range %}
+        <span class="{% if forloop.counter <= profile.stamps %}is-filled{% endif %}">{{ forloop.counter }}</span>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

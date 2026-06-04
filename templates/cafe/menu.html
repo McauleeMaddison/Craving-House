@@ -1,0 +1,43 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}Menu | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Pickup menu</p>
+    <h1>Choose your order</h1>
+  </section>
+
+  {% for category in categories %}
+    <section class="menu-section" id="{{ category.slug }}">
+      <h2>{{ category.name }}</h2>
+      <div class="item-grid">
+        {% for item in category.items.all %}
+          <article class="item-card {% if not item.available %}is-muted{% endif %}">
+            <div>
+              <p class="item-category">{{ item.prep_minutes }} min prep{% if item.loyalty_eligible %} · loyalty eligible{% endif %}</p>
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.description }}</p>
+            </div>
+            <form action="{% url 'cafe:add_to_cart' item.id %}" method="post" class="card-actions">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'cafe:menu' %}">
+              <label>
+                <span class="sr-only">Quantity for {{ item.name }}</span>
+                <input type="number" name="quantity" value="1" min="1" max="20">
+              </label>
+              <span class="price">£{{ item.price }}</span>
+              <button type="submit" {% if not item.available %}disabled{% endif %}>
+                {% if item.available %}Add{% else %}Unavailable{% endif %}
+              </button>
+            </form>
+          </article>
+        {% empty %}
+          <p>No items in this category yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+  {% empty %}
+    <p class="empty-state">No menu is configured. Run <code>python3 manage.py seed_demo</code> or add items in the manager dashboard.</p>
+  {% endfor %}
+{% endblock %}

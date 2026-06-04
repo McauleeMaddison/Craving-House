@@ -1,0 +1,62 @@
+{% extends "cafe/base.html" %}
+{% load static %}
+
+{% block title %}Craving House Coffee App{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Python and Django coffee ordering app</p>
+      <h1>Craving House</h1>
+      <p class="lede">Browse the menu, place a pickup order, collect loyalty stamps, and manage cafe operations from staff and manager dashboards.</p>
+      <div class="actions">
+        <a class="button button-primary" href="{% url 'cafe:menu' %}">Order now</a>
+        <a class="button" href="{% url 'cafe:loyalty' %}">View loyalty card</a>
+      </div>
+    </div>
+    <img src="{% static 'brand/ch-poster.jpeg' %}" alt="Craving House coffee poster" class="hero-image">
+  </section>
+
+  <section class="dashboard-strip" aria-label="App highlights">
+    <div>
+      <strong>{{ active_order_count }}</strong>
+      <span>active orders</span>
+    </div>
+    <div>
+      <strong>8</strong>
+      <span>stamps per reward</span>
+    </div>
+    <div>
+      <strong>Pay</strong>
+      <span>at counter</span>
+    </div>
+  </section>
+
+  <section class="section-heading">
+    <div>
+      <p class="eyebrow">Popular today</p>
+      <h2>Featured menu</h2>
+    </div>
+    <a href="{% url 'cafe:menu' %}">See full menu</a>
+  </section>
+
+  <section class="item-grid">
+    {% for item in featured_items %}
+      <article class="item-card">
+        <div>
+          <p class="item-category">{{ item.category.name }}</p>
+          <h3>{{ item.name }}</h3>
+          <p>{{ item.description }}</p>
+        </div>
+        <form action="{% url 'cafe:add_to_cart' item.id %}" method="post" class="card-actions">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'cafe:home' %}">
+          <span class="price">£{{ item.price }}</span>
+          <button type="submit">Add</button>
+        </form>
+      </article>
+    {% empty %}
+      <p>No menu items are available yet. Run <code>python3 manage.py seed_demo</code>.</p>
+    {% endfor %}
+  </section>
+{% endblock %}
