@@ -1,26 +1,36 @@
 # Craving House Coffee App
 
-Craving House is a Python and Django web application for a coffee shop. It supports customer pickup ordering, session carts, loyalty stamps, feedback collection, staff order handling, and manager menu control.
+Craving House is a Django web application for a coffee shop. Customers can browse the menu, build a pickup order, place it for counter payment, collect loyalty stamps, and send feedback. Staff can manage the live order queue and scan loyalty cards, while managers can maintain menu items and availability.
 
-## Stack
+## Technology Stack
 
-- Python 3
+- Python 3.9+
 - Django 4.2
 - SQLite for local development
-- Django templates, forms, ORM, authentication, admin, and tests
+- Django templates, forms, authentication, admin, ORM, and test runner
 
-The submitted application is the Django project at the repository root. Historical files under `apps/web` are not needed to run or assess this Django submission.
+## Features
 
-## Project Layout
+- Menu browsing with item availability, prices, prep times, and loyalty eligibility
+- Session-based cart and pickup checkout
+- Order confirmation pages with private lookup links
+- Staff dashboard for order status updates
+- Digital loyalty card with staff stamp scanning
+- Customer feedback form stored in the database
+- Manager dashboard for menu item creation, editing, and visibility control
+- Django admin for full data management
+
+## Project Structure
 
 - `manage.py` - Django command entry point
-- `craving_house/` - project settings and root URL configuration
-- `cafe/` - Django app with models, forms, views, admin, tests, and seed command
+- `craving_house/` - project settings, ASGI/WSGI config, and root URLs
+- `cafe/` - application models, forms, views, admin, tests, and seed command
 - `templates/` - server-rendered Django templates
-- `static/django/` - CSS and JavaScript used by the Django templates
-- `images/` - Craving House brand and loyalty assets served through Django static files
+- `static/django/` - application CSS and JavaScript
+- `images/` - Craving House brand assets served as static files
+- `requirements.txt` - Python dependencies
 
-## Local Setup
+## Setup
 
 Create and activate a virtual environment:
 
@@ -35,32 +45,39 @@ Install dependencies:
 python3 -m pip install -r requirements.txt
 ```
 
-Create the database and demo data:
+Create the local database:
 
 ```bash
 python3 manage.py migrate
+```
+
+Load demo menu data and test accounts:
+
+```bash
 python3 manage.py seed_demo
 ```
 
-Run the app:
+Start the development server:
 
 ```bash
 python3 manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/`.
+Open `http://127.0.0.1:8000/` in a browser.
 
 ## Demo Accounts
 
-The seed command creates these accounts:
+The seed command creates these local demonstration accounts:
 
 - Manager: `manager` / `ManagerPass123`
 - Staff: `staff` / `StaffPass123`
 - Customer: `customer` / `CustomerPass123`
 
-Change these passwords before using the project outside local demonstration.
+These credentials are for local assessment only. Create new accounts and passwords before using the application in any real environment.
 
 ## Quality Checks
+
+Run these commands from the repository root:
 
 ```bash
 python3 manage.py check
@@ -68,13 +85,10 @@ python3 manage.py test
 python3 manage.py collectstatic --noinput
 ```
 
-## Main Features
+## Deployment Notes
 
-- Customer menu browsing and cart-based pickup checkout
-- Order totals and prep-time calculations stored with each order
-- Private order confirmation links with lookup codes
-- Digital loyalty card with staff stamp scanning
-- Feedback form saved to the database
-- Staff dashboard for order status changes
-- Manager dashboard for menu item create, edit, and availability control
-- Django admin for full data management
+- Set `DJANGO_SECRET_KEY` to a unique production value.
+- Set `DJANGO_DEBUG=false`.
+- Set `DJANGO_ALLOWED_HOSTS` to the deployed domain names.
+- Run `python3 manage.py migrate` before first production use.
+- Create a production admin account with `python3 manage.py createsuperuser`.
