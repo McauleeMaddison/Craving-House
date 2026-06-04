@@ -10,53 +10,70 @@
     {% block extra_head %}{% endblock %}
   </head>
   <body>
-    <header class="site-header">
-      <a class="brand" href="{% url 'cafe:home' %}" aria-label="Craving House home">
-        <img src="{% static 'brand/ch-logo.png' %}" alt="" class="brand-mark">
-        <span>
-          <strong>Craving House</strong>
-          <small>Coffee, bites, vibes</small>
-        </span>
-      </a>
-      <nav class="site-nav" aria-label="Primary navigation">
-        <a href="{% url 'cafe:menu' %}">Menu</a>
-        <a href="{% url 'cafe:cart' %}">Cart{% if cart_count %} ({{ cart_count }}){% endif %}</a>
-        <a href="{% url 'cafe:loyalty' %}">Loyalty</a>
-        <a href="{% url 'cafe:clicker' %}">Game</a>
-        <a href="{% url 'cafe:feedback' %}">Feedback</a>
-        {% if user.is_staff %}
-          <a href="{% url 'cafe:staff_dashboard' %}">Staff</a>
-        {% endif %}
-        {% if user.is_superuser %}
-          <a href="{% url 'cafe:manager_dashboard' %}">Manager</a>
-        {% endif %}
-        {% if user.is_authenticated %}
-          <form action="{% url 'logout' %}" method="post" class="nav-form">
-            {% csrf_token %}
-            <button type="submit">Sign out</button>
-          </form>
-        {% else %}
-          <a href="{% url 'login' %}">Sign in</a>
-        {% endif %}
-      </nav>
-    </header>
+    <a class="skipLink" href="#main-content">Skip to content</a>
+    <div class="app-shell">
+      <header class="appHeader">
+        <div class="container appHeaderInner">
+          <a class="brandLink" href="{% url 'cafe:home' %}" aria-label="Craving House home">
+            <span class="brandMarkStack">
+              <span class="brandMark" aria-hidden="true">
+                <img src="{% static 'brand/ch-logo.png' %}" alt="">
+              </span>
+              {% if cart_count %}
+                <span class="navMobileBadge" aria-label="{{ cart_count }} items in cart">{{ cart_count }}</span>
+              {% endif %}
+            </span>
+            <span class="brandText">
+              <span class="brandName">Craving House</span>
+              <span class="brandTag muted">Coffee, bites, vibes</span>
+            </span>
+          </a>
 
-    {% if messages %}
-      <div class="messages" role="status" aria-live="polite">
-        {% for message in messages %}
-          <div class="message message-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
+          <nav class="navDesktop" aria-label="Primary navigation">
+            <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Menu</a>
+            <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">
+              <span class="navDesktopLinkLabel">Cart{% if cart_count %}<span class="navDesktopBadge">{{ cart_count }}</span>{% endif %}</span>
+            </a>
+            <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
+            <a class="btn btn-secondary" href="{% url 'cafe:clicker' %}">Game</a>
+            <a class="btn btn-secondary" href="{% url 'cafe:feedback' %}">Feedback</a>
+            {% if user.is_staff %}
+              <a class="btn btn-secondary" href="{% url 'cafe:staff_dashboard' %}">Staff</a>
+            {% endif %}
+            {% if user.is_superuser %}
+              <a class="btn btn-secondary" href="{% url 'cafe:manager_dashboard' %}">Manager</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+              <form action="{% url 'logout' %}" method="post" class="nav-form">
+                {% csrf_token %}
+                <button class="btn btn-secondary" type="submit">Sign out</button>
+              </form>
+            {% else %}
+              <a class="btn btn-secondary" href="{% url 'login' %}">Sign in</a>
+            {% endif %}
+          </nav>
+        </div>
+      </header>
 
-    <main>
-      {% block content %}{% endblock %}
-    </main>
+      {% if messages %}
+        <div class="container messages" role="status" aria-live="polite">
+          {% for message in messages %}
+            <div class="message message-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
-    <footer class="site-footer">
-      <span>Craving House Django project</span>
-      <span>Order ahead, collect in store, earn loyalty rewards.</span>
-    </footer>
+      <main id="main-content" class="appMain">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="appFooter">
+        <div class="container appFooterInner">
+          <span>Craving House Django project</span>
+          <span>Order ahead, collect in store, earn loyalty rewards.</span>
+        </div>
+      </footer>
+    </div>
     {% block extra_scripts %}{% endblock %}
   </body>
 </html>
