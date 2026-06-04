@@ -25,7 +25,7 @@ https://github.com/McauleeMaddison/Craving-House
 
 - Customer menu browsing with prices, prep times, and item availability
 - Session-based cart for pickup orders
-- Checkout flow for counter payment
+- Checkout flow for Stripe test card payment or counter payment
 - Private order confirmation pages with lookup codes
 - Staff dashboard for viewing and updating active orders
 - Digital loyalty card with staff stamp scanning
@@ -51,6 +51,7 @@ https://github.com/McauleeMaddison/Craving-House
 - `craving_house/settings.py` configures the Django project.
 - `cafe/models.py` defines the database schema using the Django ORM.
 - `cafe/views.py` handles customer, staff, manager, and loyalty workflows.
+- `cafe/payments.py` creates Stripe Checkout sessions for test card payments.
 - `templates/` contains server-rendered Django pages.
 - `static/django/js/clicker.js` powers the interactive Boiler Buster game.
 - `cafe/tests.py` verifies ordering and access-control behaviour.
@@ -95,15 +96,49 @@ Open the application at:
 http://127.0.0.1:8000/
 ```
 
-## Demo Accounts
+## Assessor Test Access
 
-The seed command creates these local demonstration accounts:
+The seed command creates these demonstration accounts for assessment:
 
 - Manager: `manager` / `ManagerPass123`
 - Staff: `staff` / `StaffPass123`
 - Customer: `customer` / `CustomerPass123`
 
-These credentials are for local assessment only. Create new accounts and passwords before using the application in any real environment.
+The demo customer loyalty card code is:
+
+```text
+11111111-1111-4111-8111-111111111111
+```
+
+Public users can also create their own account from `/signup/` or the **Create account** link in the navigation. After login, the navigation displays `Welcome, <username>` so assessors can confirm which account is active.
+
+These credentials are for assessment only. Create new accounts and passwords before using the application in any real environment.
+
+## Payment Testing
+
+Stripe Checkout is supported when `STRIPE_SECRET_KEY` is configured with a Stripe test-mode secret key. The application redirects to Stripe Checkout and does not store card numbers.
+
+Use these Stripe test card details in test mode:
+
+```text
+Card number: 4242 4242 4242 4242
+Expiry: any future date, for example 12/34
+CVC: any 3 digits, for example 123
+Postcode: any valid postcode, for example SW1A 1AA
+```
+
+If `STRIPE_SECRET_KEY` is not set, the Stripe button is disabled and the assessor can still test the checkout workflow with **Pay at counter**.
+
+## Loyalty Scan Testing
+
+To test staff loyalty scanning:
+
+1. Sign in as staff with `staff` / `StaffPass123`.
+2. Open `/staff/`.
+3. Enter the demo customer card code `11111111-1111-4111-8111-111111111111`.
+4. Enter a stamp count, for example `3`.
+5. Submit **Add stamps**.
+6. Sign in as customer with `customer` / `CustomerPass123` and open `/loyalty/` to confirm the stamps were added.
 
 ## Quality Checks
 
@@ -124,7 +159,7 @@ Use this checklist before submitting or demonstrating the project:
 - Open `/` and confirm the homepage loads.
 - Open `/menu/` and confirm seeded menu items appear.
 - Add an item to the cart.
-- Place a pickup order from checkout.
+- Place a pickup order from checkout with Stripe test payment or counter payment.
 - Confirm the order appears in `/staff/`.
 - Update the order status from the staff dashboard.
 - Create or sign into a customer account and open `/loyalty/`.
@@ -138,6 +173,7 @@ Use this checklist before submitting or demonstrating the project:
 - Set `DJANGO_SECRET_KEY` to a unique production value.
 - Set `DJANGO_DEBUG=false`.
 - Set `DJANGO_ALLOWED_HOSTS` to the deployed domain names.
+- Set `STRIPE_SECRET_KEY` to a Stripe test-mode key for assessor card-payment testing.
 - Keep `DJANGO_SECURE_SSL_REDIRECT=true` for HTTPS deployments.
 - Run `python3 manage.py migrate` before first production use.
 - Create a production admin account with `python3 manage.py createsuperuser`.
@@ -175,6 +211,7 @@ DJANGO_CSRF_TRUSTED_ORIGINS=https://*.onrender.com,https://<your-render-domain>
 DJANGO_SECURE_SSL_REDIRECT=true
 DJANGO_SECURE_HSTS_SECONDS=31536000
 DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=false
+STRIPE_SECRET_KEY=<your Stripe test secret key from the Stripe dashboard>
 SEED_DEMO_DATA=true
 ```
 

@@ -6,11 +6,13 @@ from django.db import transaction
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .cart import cart_summary, get_cart, set_cart
 from .forms import CheckoutForm, FeedbackForm, LoyaltyScanForm, MenuItemForm, SignUpForm
 from .models import CustomerProfile, Feedback, LoyaltyScan, MenuCategory, MenuItem, Order, OrderItem
+from .payments import StripePaymentError, create_stripe_checkout_session, stripe_enabled
 
 
 def is_staff_member(user):
@@ -102,6 +104,30 @@ def update_cart(request, item_id):
   return redirect("cafe:cart")
 
 
+def create_order_from_cart(request, form, summary):
+  with transaction.atomic():
+    order = Order.objects.create(
+      customer=request.user if request.user.is_authenticated else None,
+      guest_name=form.cleaned_data["name"],
+      guest_email=form.cleaned_data["email"],
+      guest_phone=form.cleaned_data["phone"],
+      notes=form.cleaned_data["notes"],
+    )
+    for line in summary["lines"]:
+      item = line["item"]
+      OrderItem.objects.create(
+        order=order,
+        menu_item=item,
+        item_name=item.name,
+        quantity=line["quantity"],
+        unit_price=item.price,
+        prep_minutes_each=item.prep_minutes,
+        line_total=line["line_total"],
+      )
+    order.recalculate_totals()
+  return order
+
+
 def checkout(request):
   summary = cart_summary(request)
   if not summary["lines"]:
@@ -115,34 +141,36 @@ def checkout(request):
       "email": request.user.email,
     }
 
+  can_use_stripe = stripe_enabled()
   form = CheckoutForm(request.POST or None, initial=initial)
   if request.method == "POST" and form.is_valid():
-    with transaction.atomic():
-      order = Order.objects.create(
-        customer=request.user if request.user.is_authenticated else None,
-        guest_name=form.cleaned_data["name"],
-        guest_email=form.cleaned_data["email"],
-        guest_phone=form.cleaned_data["phone"],
-        notes=form.cleaned_data["notes"],
+    payment_method = request.POST.get("payment_method", "counter")
+    if payment_method == "stripe" and not can_use_stripe:
+      messages.error(request, "Stripe test payments are not configured for this deployment.")
+      return render(request, "cafe/checkout.html", {"form": form, "summary": summary, "stripe_enabled": can_use_stripe})
+
+    order = create_order_from_cart(request, form, summary)
+
+    if payment_method == "stripe":
+      success_url = request.build_absolute_uri(
+        reverse("cafe:order_detail", args=[order.pk, order.lookup_code])
       )
-      for line in summary["lines"]:
-        item = line["item"]
-        OrderItem.objects.create(
-          order=order,
-          menu_item=item,
-          item_name=item.name,
-          quantity=line["quantity"],
-          unit_price=item.price,
-          prep_minutes_each=item.prep_minutes,
-          line_total=line["line_total"],
-        )
-      order.recalculate_totals()
+      cancel_url = request.build_absolute_uri(reverse("cafe:checkout"))
+      try:
+        stripe_checkout_url = create_stripe_checkout_session(order, success_url, cancel_url)
+      except StripePaymentError as error:
+        order.delete()
+        messages.error(request, str(error))
+        return render(request, "cafe/checkout.html", {"form": form, "summary": summary, "stripe_enabled": can_use_stripe})
+
+      set_cart(request, {})
+      return redirect(stripe_checkout_url)
 
     set_cart(request, {})
     messages.success(request, "Order placed. Pay at the counter when you collect.")
     return redirect("cafe:order_detail", pk=order.pk, lookup_code=order.lookup_code)
 
-  return render(request, "cafe/checkout.html", {"form": form, "summary": summary})
+  return render(request, "cafe/checkout.html", {"form": form, "summary": summary, "stripe_enabled": can_use_stripe})
 
 
 def order_detail(request, pk, lookup_code):

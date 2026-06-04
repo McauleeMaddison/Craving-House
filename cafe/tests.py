@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import MenuCategory, MenuItem, Order
+from .models import CustomerProfile, MenuCategory, MenuItem, Order
 
 
 class CafeFlowTests(TestCase):
@@ -45,6 +45,24 @@ class CafeFlowTests(TestCase):
         "cart_count": 2,
       },
     )
+
+  def test_public_user_can_create_account_and_sees_welcome_username(self):
+    response = self.client.post(
+      reverse("cafe:signup"),
+      {
+        "username": "newcustomer",
+        "email": "newcustomer@example.com",
+        "password1": "CustomerPass123!",
+        "password2": "CustomerPass123!",
+      },
+    )
+
+    user = User.objects.get(username="newcustomer")
+    self.assertRedirects(response, reverse("cafe:loyalty"))
+    self.assertTrue(CustomerProfile.objects.filter(user=user).exists())
+
+    home_response = self.client.get(reverse("cafe:home"))
+    self.assertContains(home_response, "Welcome, newcustomer")
 
   def test_checkout_creates_order_from_session_cart(self):
     self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "2"})
@@ -87,6 +105,23 @@ class CafeFlowTests(TestCase):
 
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "Order queue")
+
+  def test_staff_member_can_add_loyalty_stamps_to_customer_card(self):
+    group = Group.objects.create(name="Staff")
+    staff_user = User.objects.create_user("staff", password="StaffPass123")
+    staff_user.groups.add(group)
+    customer = User.objects.create_user("customer", password="CustomerPass123")
+    profile = CustomerProfile.objects.create(user=customer)
+    self.client.force_login(staff_user)
+
+    response = self.client.post(
+      reverse("cafe:scan_loyalty"),
+      {"card_code": str(profile.card_code), "stamps": "3"},
+    )
+
+    profile.refresh_from_db()
+    self.assertRedirects(response, reverse("cafe:staff_dashboard"))
+    self.assertEqual(profile.stamps, 3)
 
   def test_health_endpoint_identifies_django(self):
     response = self.client.get(reverse("cafe:health"))

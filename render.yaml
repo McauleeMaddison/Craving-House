@@ -22,5 +22,7 @@ services:
         value: "false"
       - key: SEED_DEMO_DATA
         value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
       - key: DJANGO_SECRET_KEY
         generateValue: true

@@ -36,6 +36,30 @@
   --drawer-sep: rgba(11, 13, 18, 0.12);
   --drawer-chevron: rgba(11, 13, 18, 0.38);
   --drawer-link-active-bg: rgba(242, 183, 5, 0.22);
+  --nav-hover-bg:
+    linear-gradient(135deg, rgba(255, 216, 116, 0.26), rgba(255, 255, 255, 0.1) 45%, rgba(242, 183, 5, 0.18));
+  --nav-hover-border: rgba(255, 216, 116, 0.58);
+  --nav-hover-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --drawer-link-hover-bg:
+    linear-gradient(135deg, rgba(242, 183, 5, 0.28), rgba(255, 255, 255, 0.72) 52%, rgba(11, 13, 18, 0.08));
+  --drawer-link-hover-border: rgba(242, 183, 5, 0.3);
+  --drawer-link-hover-shadow:
+    inset 4px 0 0 rgba(242, 183, 5, 0.84),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  --menu-add-bg:
+    linear-gradient(135deg, rgba(255, 250, 230, 0.96), rgba(255, 216, 116, 0.9) 48%, rgba(242, 183, 5, 0.78));
+  --menu-add-hover-bg:
+    linear-gradient(135deg, rgba(255, 255, 245, 0.98), rgba(255, 225, 139, 0.94) 45%, rgba(242, 183, 5, 0.88));
+  --menu-add-border: rgba(255, 216, 116, 0.64);
+  --menu-add-text: rgba(11, 13, 18, 0.96);
+  --menu-add-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  --menu-add-added-bg:
+    linear-gradient(135deg, rgba(225, 255, 244, 0.96), rgba(47, 228, 171, 0.84), rgba(20, 146, 112, 0.82));
+  --menu-add-added-text: rgba(5, 29, 22, 0.98);
   --drawer-overlay-bg:
     linear-gradient(
       90deg,
@@ -101,6 +125,30 @@ html[data-theme="dark"] {
   --drawer-sep: rgba(255, 255, 255, 0.12);
   --drawer-chevron: rgba(255, 255, 255, 0.38);
   --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
+  --nav-hover-bg:
+    linear-gradient(135deg, rgba(242, 183, 5, 0.2), rgba(255, 255, 255, 0.08) 46%, rgba(105, 148, 219, 0.16));
+  --nav-hover-border: rgba(242, 183, 5, 0.46);
+  --nav-hover-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --drawer-link-hover-bg:
+    linear-gradient(135deg, rgba(242, 183, 5, 0.22), rgba(255, 255, 255, 0.08) 54%, rgba(105, 148, 219, 0.12));
+  --drawer-link-hover-border: rgba(242, 183, 5, 0.28);
+  --drawer-link-hover-shadow:
+    inset 4px 0 0 rgba(242, 183, 5, 0.82),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --menu-add-bg:
+    linear-gradient(135deg, rgba(255, 221, 132, 0.2), rgba(255, 255, 255, 0.08) 42%, rgba(242, 183, 5, 0.18) 68%, rgba(12, 14, 20, 0.92));
+  --menu-add-hover-bg:
+    linear-gradient(135deg, rgba(255, 221, 132, 0.28), rgba(255, 255, 255, 0.11) 44%, rgba(242, 183, 5, 0.24) 70%, rgba(12, 14, 20, 0.96));
+  --menu-add-border: rgba(242, 183, 5, 0.48);
+  --menu-add-text: rgba(255, 247, 225, 0.96);
+  --menu-add-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --menu-add-added-bg:
+    linear-gradient(135deg, rgba(47, 228, 171, 0.24), rgba(255, 255, 255, 0.08), rgba(12, 14, 20, 0.92));
+  --menu-add-added-text: rgba(219, 255, 244, 0.96);
   --drawer-overlay-bg:
     linear-gradient(
       90deg,
@@ -460,6 +508,46 @@ label {
   white-space: nowrap;
 }
 
+.navDesktop .btn-secondary,
+.nav-form button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-color: rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.navDesktop .btn-secondary::before,
+.nav-form button::before,
+.appHeaderMenuButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--nav-hover-bg);
+  opacity: 0;
+  transition: opacity 170ms ease;
+}
+
+.navDesktop .btn-secondary:hover,
+.navDesktop .btn-secondary:focus-visible,
+.nav-form button:hover,
+.nav-form button:focus-visible {
+  border-color: var(--nav-hover-border);
+  background: var(--nav-hover-bg);
+  box-shadow: var(--nav-hover-shadow);
+  color: var(--text);
+}
+
+.navDesktop .btn-secondary:hover::before,
+.navDesktop .btn-secondary:focus-visible::before,
+.nav-form button:hover::before,
+.nav-form button:focus-visible::before {
+  opacity: 1;
+}
+
 .navDesktopLinkLabel {
   display: inline-flex;
   align-items: center;
@@ -491,8 +579,31 @@ label {
   border-color: rgba(8, 10, 14, 0.82);
 }
 
+.accountWelcome {
+  min-height: 40px;
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(242, 183, 5, 0.26);
+  background: rgba(242, 183, 5, 0.11);
+  color: rgba(255, 242, 200, 0.96);
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.drawerWelcome {
+  color: var(--drawer-text);
+  border-color: rgba(242, 183, 5, 0.34);
+  background: rgba(242, 183, 5, 0.18);
+}
+
 .appHeaderMenuButton {
   display: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   min-height: 42px;
   padding: 0 12px 0 14px;
   border: 1px solid var(--border);
@@ -509,6 +620,18 @@ label {
   font-weight: 950;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   touch-action: manipulation;
+}
+
+.appHeaderMenuButton:hover,
+.appHeaderMenuButton:focus-visible {
+  border-color: var(--nav-hover-border);
+  background: var(--nav-hover-bg);
+  box-shadow: var(--nav-hover-shadow);
+}
+
+.appHeaderMenuButton:hover::before,
+.appHeaderMenuButton:focus-visible::before {
+  opacity: 1;
 }
 
 .appHeaderMenuButton.iconButtonActive {
@@ -811,6 +934,9 @@ body.navOpen {
 
 .drawerStatusRow,
 .drawerLink {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   min-height: 52px;
   padding: 12px 14px;
   border: 0;
@@ -825,6 +951,35 @@ body.navOpen {
   font-weight: 850;
   text-align: left;
   width: 100%;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.drawerLink::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--drawer-link-hover-bg);
+  opacity: 0;
+  transition: opacity 170ms ease;
+}
+
+.drawerLink:hover,
+.drawerLink:focus-visible {
+  border-top-color: var(--drawer-link-hover-border);
+  background: var(--drawer-link-hover-bg);
+  box-shadow: var(--drawer-link-hover-shadow);
+  color: var(--drawer-text);
+  transform: translateX(-1px);
+}
+
+.drawerLink:hover::before,
+.drawerLink:focus-visible::before {
+  opacity: 1;
 }
 
 .drawerStatusRow:first-child,
@@ -842,6 +997,13 @@ body.navOpen {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.drawerLinkMeta {
+  margin-left: auto;
+  color: var(--drawer-muted);
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .drawerStatusValue {
@@ -1255,38 +1417,6 @@ body.navOpen {
   flex-wrap: wrap;
 }
 
-.menuCategoryNav {
-  margin-top: 14px;
-  display: flex;
-  gap: 9px;
-  overflow-x: auto;
-  padding: 2px 0 10px;
-  scrollbar-width: none;
-}
-
-.menuCategoryNav::-webkit-scrollbar {
-  display: none;
-}
-
-.menuCategoryNav a {
-  min-height: 38px;
-  padding: 9px 12px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.menuCategoryNav a:focus-visible {
-  outline: 3px solid rgba(242, 183, 5, 0.72);
-  outline-offset: 2px;
-}
-
 .cartLiveRegion {
   position: absolute;
   width: 1px;
@@ -1310,19 +1440,6 @@ body.navOpen {
 .menuSectionHeader h2 {
   margin-bottom: 0;
   font-size: clamp(24px, 4vw, 34px);
-}
-
-.menuSectionTop {
-  min-height: 34px;
-  padding: 7px 11px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 850;
 }
 
 .premiumItemGrid {
@@ -1399,6 +1516,12 @@ body.navOpen {
   min-width: 0;
 }
 
+.checkoutPaymentActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .menuAddForm {
   grid-template-columns: minmax(82px, 0.44fr) minmax(132px, 1fr);
   align-items: stretch;
@@ -1437,16 +1560,24 @@ body.navOpen {
 
 .menuAddButton {
   width: 100%;
-  border-color: rgba(242, 183, 5, 0.38);
-  background: linear-gradient(180deg, rgba(255, 219, 132, 0.98), rgba(242, 183, 5, 0.94));
-  color: rgba(11, 13, 18, 0.96);
+  border-color: var(--menu-add-border);
+  background: var(--menu-add-bg);
+  color: var(--menu-add-text);
+  box-shadow: var(--menu-add-shadow);
   font-weight: 950;
+}
+
+.menuAddButton:hover,
+.menuAddButton:focus-visible {
+  border-color: var(--menu-add-border);
+  background: var(--menu-add-hover-bg);
+  color: var(--menu-add-text);
 }
 
 .menuAddButton.isAdded {
   border-color: rgba(47, 228, 171, 0.5);
-  background: linear-gradient(180deg, rgba(119, 249, 210, 0.98), rgba(47, 228, 171, 0.92));
-  color: rgba(6, 24, 19, 0.98);
+  background: var(--menu-add-added-bg);
+  color: var(--menu-add-added-text);
 }
 
 .menuAddForm.isSubmitting .menuAddButton {
@@ -2870,6 +3001,7 @@ body.navOpen {
 
   .order-line,
   .manager-row,
+  .checkoutPaymentActions,
   .inline-form {
     grid-template-columns: 1fr;
   }
@@ -3144,15 +3276,6 @@ body.navOpen {
   .menuHeroActions {
     display: grid;
     grid-template-columns: 1fr;
-  }
-
-  .menuCategoryNav {
-    margin-inline: -10px;
-    padding-inline: 10px;
-  }
-
-  .menuSectionTop {
-    display: none;
   }
 
   .menuAddForm {

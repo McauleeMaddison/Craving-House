@@ -12,7 +12,25 @@
     <form method="post" class="panel form-panel">
       {% csrf_token %}
       {{ form.as_p }}
-      <button type="submit" class="button-primary">Place order</button>
+      <div class="checkoutPaymentActions">
+        <button
+          type="submit"
+          name="payment_method"
+          value="stripe"
+          class="button-primary"
+          {% if not stripe_enabled %}disabled{% endif %}
+        >
+          Pay by card with Stripe
+        </button>
+        <button type="submit" name="payment_method" value="counter" class="btn btn-secondary">
+          Pay at counter
+        </button>
+      </div>
+      {% if stripe_enabled %}
+        <p class="muted">Stripe Checkout opens after this step. Use Stripe test card details in test mode.</p>
+      {% else %}
+        <p class="muted">Stripe card payments are not configured on this deployment. Counter payment still works.</p>
+      {% endif %}
     </form>
     <aside class="panel">
       <h2>Order summary</h2>
@@ -30,7 +48,7 @@
         <span>Total</span>
         <strong>£{{ summary.subtotal }}</strong>
       </div>
-      <p class="muted">Payment is taken at the counter when you collect.</p>
+      <p class="muted">Choose Stripe test payment when configured, or pay at the counter when you collect.</p>
     </aside>
   </div>
 {% endblock %}

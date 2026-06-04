@@ -19,12 +19,6 @@
     </div>
   </section>
 
-  <nav class="menuCategoryNav" aria-label="Menu categories">
-    {% for category in categories %}
-      <a href="#{{ category.slug }}">{{ category.name }}</a>
-    {% endfor %}
-  </nav>
-
   <section class="cartLiveRegion" aria-live="polite" data-cart-live></section>
 
   {% for category in categories %}
@@ -34,7 +28,6 @@
           <p class="eyebrow">{{ category.items.all|length }} item{{ category.items.all|length|pluralize }}</p>
           <h2>{{ category.name }}</h2>
         </div>
-        <a class="menuSectionTop" href="#main-content">Top</a>
       </div>
       <div class="item-grid premiumItemGrid">
         {% for item in category.items.all %}

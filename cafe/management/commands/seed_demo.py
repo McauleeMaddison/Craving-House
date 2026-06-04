@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from cafe.models import CustomerProfile, MenuCategory, MenuItem
 
 
+DEMO_CUSTOMER_CARD_CODE = "11111111-1111-4111-8111-111111111111"
+
 MENU = {
   "Hot drinks": [
     ("Espresso", "Short, bold espresso pulled to order.", "2.50", 2, True),
@@ -152,6 +154,9 @@ class Command(BaseCommand):
     if created:
       customer.set_password("CustomerPass123")
       customer.save()
-    CustomerProfile.objects.get_or_create(user=customer)
+    profile, _ = CustomerProfile.objects.get_or_create(user=customer)
+    if str(profile.card_code) != DEMO_CUSTOMER_CARD_CODE:
+      profile.card_code = DEMO_CUSTOMER_CARD_CODE
+      profile.save(update_fields=["card_code", "updated_at"])
 
     self.stdout.write(self.style.SUCCESS("Demo data ready."))
