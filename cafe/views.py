@@ -157,6 +157,10 @@ def loyalty(request):
   )
 
 
+def clicker(request):
+  return render(request, "cafe/clicker.html")
+
+
 def feedback(request):
   form = FeedbackForm(request.POST or None)
   if request.method == "POST" and form.is_valid():

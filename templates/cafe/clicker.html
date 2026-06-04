@@ -1,0 +1,85 @@
+{% extends "cafe/base.html" %}
+{% load static %}
+
+{% block title %}Bean Roaster Clicker | Craving House{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'django/js/clicker.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+  <section class="game-shell" data-clicker-game>
+    <div class="game-hero">
+      <div>
+        <p class="eyebrow">Craving House mini game</p>
+        <h1>Bean Roaster Clicker</h1>
+        <p class="lede">Tap the cup, earn beans, buy cafe upgrades, and grow a tiny coffee counter into a busy Craving House rush.</p>
+      </div>
+      <div class="game-save" aria-live="polite">
+        <span id="save-status">Progress saves automatically</span>
+        <button type="button" id="reset-game" class="button-ghost">Reset</button>
+      </div>
+    </div>
+
+    <div class="game-grid">
+      <section class="game-board" aria-label="Clicker game board">
+        <div class="bean-counter">
+          <span>Total beans</span>
+          <strong id="bean-count">0</strong>
+        </div>
+
+        <button type="button" id="brew-button" class="brew-button" aria-label="Brew coffee and earn beans">
+          <span class="cup">
+            <img src="{% static 'brand/ch-logo.png' %}" alt="">
+          </span>
+          <span class="brew-text">Brew</span>
+        </button>
+
+        <div class="game-stats">
+          <div>
+            <span>Per click</span>
+            <strong id="per-click">1</strong>
+          </div>
+          <div>
+            <span>Per second</span>
+            <strong id="per-second">0</strong>
+          </div>
+          <div>
+            <span>Best roast</span>
+            <strong id="roast-level">Starter</strong>
+          </div>
+        </div>
+
+        <div class="roast-progress" aria-label="Roast level progress">
+          <div>
+            <span id="next-roast-label">Next roast: House Blend</span>
+            <strong id="next-roast-count">50 beans</strong>
+          </div>
+          <div class="progress-track">
+            <span id="roast-progress-bar"></span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="game-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Cafe upgrades</p>
+            <h2>Spend beans</h2>
+          </div>
+        </div>
+        <div id="upgrade-list" class="upgrade-list"></div>
+      </aside>
+
+      <aside class="game-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Milestones</p>
+            <h2>Achievements</h2>
+          </div>
+        </div>
+        <div id="achievement-list" class="achievement-list"></div>
+      </aside>
+    </div>
+  </section>
+{% endblock %}
