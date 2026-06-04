@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import CustomerProfile, MenuCategory, MenuItem, Order
+from .models import CustomerProfile, MenuCategory, MenuItem, MenuItemAddOn, Order
 
 
 class CafeFlowTests(TestCase):
@@ -18,6 +18,11 @@ class CafeFlowTests(TestCase):
       price=Decimal("3.80"),
       prep_minutes=4,
       featured=True,
+    )
+    cls.add_on = MenuItemAddOn.objects.create(
+      menu_item=cls.item,
+      name="Oat milk",
+      price=Decimal("0.50"),
     )
 
   def test_menu_page_lists_available_items(self):
@@ -41,10 +46,26 @@ class CafeFlowTests(TestCase):
       {
         "ok": True,
         "item_name": "House Latte",
+        "add_on_names": [],
         "item_quantity": 2,
         "cart_count": 2,
       },
     )
+
+  def test_add_ons_are_added_to_cart_line_total(self):
+    response = self.client.post(
+      reverse("cafe:add_to_cart", args=[self.item.id]),
+      {"quantity": "2", "add_ons": [str(self.add_on.id)]},
+      HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+      HTTP_ACCEPT="application/json",
+    )
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response.json()["add_on_names"], ["Oat milk"])
+
+    cart_response = self.client.get(reverse("cafe:cart"))
+    self.assertContains(cart_response, "Oat milk +£0.50")
+    self.assertContains(cart_response, "£8.60")
 
   def test_public_user_can_create_account_and_sees_welcome_username(self):
     response = self.client.post(
@@ -65,7 +86,10 @@ class CafeFlowTests(TestCase):
     self.assertContains(home_response, "Welcome, newcustomer")
 
   def test_checkout_creates_order_from_session_cart(self):
-    self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "2"})
+    self.client.post(
+      reverse("cafe:add_to_cart", args=[self.item.id]),
+      {"quantity": "2", "add_ons": [str(self.add_on.id)]},
+    )
 
     response = self.client.post(
       reverse("cafe:checkout"),
@@ -82,9 +106,13 @@ class CafeFlowTests(TestCase):
       response,
       reverse("cafe:order_detail", args=[order.pk, order.lookup_code]),
     )
-    self.assertEqual(order.subtotal, Decimal("7.60"))
+    self.assertEqual(order.subtotal, Decimal("8.60"))
     self.assertEqual(order.prep_minutes, 8)
     self.assertEqual(order.items.count(), 1)
+    order_item = order.items.get()
+    self.assertEqual(order_item.unit_price, Decimal("4.30"))
+    self.assertEqual(order_item.add_on_total, Decimal("0.50"))
+    self.assertEqual(order_item.add_on_names, "Oat milk")
 
   def test_staff_dashboard_requires_staff_access(self):
     user = User.objects.create_user("customer", password="CustomerPass123")

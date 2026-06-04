@@ -36,7 +36,12 @@
       <h2>Order summary</h2>
       {% for line in summary.lines %}
         <div class="summary-row">
-          <span>{{ line.quantity }} x {{ line.item.name }}</span>
+          <span>
+            {{ line.quantity }} x {{ line.item.name }}
+            {% if line.add_ons %}
+              <small class="lineAddOns">{{ line.add_on_names }}</small>
+            {% endif %}
+          </span>
           <strong>£{{ line.line_total }}</strong>
         </div>
       {% endfor %}

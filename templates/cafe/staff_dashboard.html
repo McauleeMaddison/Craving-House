@@ -20,7 +20,12 @@
             </div>
             <ul>
               {% for item in order.items.all %}
-                <li>{{ item.quantity }} x {{ item.item_name }}</li>
+                <li>
+                  {{ item.quantity }} x {{ item.item_name }}
+                  {% if item.add_on_names %}
+                    <small class="lineAddOns">{{ item.add_on_names }}</small>
+                  {% endif %}
+                </li>
               {% endfor %}
             </ul>
             <form action="{% url 'cafe:update_order_status' order.pk %}" method="post" class="inline-form">

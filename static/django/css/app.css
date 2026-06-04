@@ -1527,6 +1527,76 @@ body.navOpen {
   align-items: stretch;
 }
 
+.menuCustomize {
+  grid-column: 1 / -1;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.menuCustomize summary {
+  min-height: 42px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 950;
+  list-style: none;
+}
+
+.menuCustomize summary::-webkit-details-marker {
+  display: none;
+}
+
+.menuCustomize summary::after {
+  content: "+";
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.menuCustomize[open] summary::after {
+  content: "-";
+}
+
+.addOnChoices {
+  display: grid;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.addOnChoice {
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.addOnChoice input {
+  width: auto;
+  min-height: auto;
+  accent-color: var(--accent);
+}
+
+.addOnChoice strong {
+  white-space: nowrap;
+}
+
 .quantityControl {
   min-height: var(--control-h);
   padding: 6px 8px;
@@ -1590,6 +1660,15 @@ body.navOpen {
   color: rgba(220, 255, 244, 0.94);
   font-size: 12px;
   font-weight: 850;
+}
+
+.lineAddOns {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
 }
 
 .price {

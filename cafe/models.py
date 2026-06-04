@@ -55,6 +55,27 @@ class MenuItem(models.Model):
     return reverse("cafe:menu")
 
 
+class MenuItemAddOn(models.Model):
+  menu_item = models.ForeignKey(
+    MenuItem,
+    related_name="add_ons",
+    on_delete=models.CASCADE,
+  )
+  name = models.CharField(max_length=80)
+  price = models.DecimalField(max_digits=6, decimal_places=2)
+  available = models.BooleanField(default=True)
+  display_order = models.PositiveIntegerField(default=0)
+
+  class Meta:
+    ordering = ["display_order", "name"]
+    constraints = [
+      models.UniqueConstraint(fields=["menu_item", "name"], name="unique_menu_item_add_on")
+    ]
+
+  def __str__(self):
+    return f"{self.name} for {self.menu_item.name}"
+
+
 class CustomerProfile(models.Model):
   LOYALTY_STAMPS_REQUIRED = 8
 
@@ -128,6 +149,8 @@ class OrderItem(models.Model):
   order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
   menu_item = models.ForeignKey(MenuItem, blank=True, null=True, on_delete=models.SET_NULL)
   item_name = models.CharField(max_length=120)
+  add_on_names = models.CharField(max_length=240, blank=True)
+  add_on_total = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal("0.00"))
   quantity = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(20)])
   unit_price = models.DecimalField(max_digits=6, decimal_places=2)
   prep_minutes_each = models.PositiveIntegerField(default=5)
@@ -139,6 +162,12 @@ class OrderItem(models.Model):
   @property
   def prep_minutes_total(self):
     return self.quantity * self.prep_minutes_each
+
+  @property
+  def add_on_list(self):
+    if not self.add_on_names:
+      return []
+    return [name.strip() for name in self.add_on_names.split(",") if name.strip()]
 
   def save(self, *args, **kwargs):
     self.line_total = self.unit_price * self.quantity

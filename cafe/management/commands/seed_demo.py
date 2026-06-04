@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.contrib.auth.models import Group, User
 from django.core.management.base import BaseCommand
 
-from cafe.models import CustomerProfile, MenuCategory, MenuItem
+from cafe.models import CustomerProfile, MenuCategory, MenuItem, MenuItemAddOn
 
 
 DEMO_CUSTOMER_CARD_CODE = "11111111-1111-4111-8111-111111111111"
@@ -59,8 +59,6 @@ MENU = {
     ("Bratwurst XXL", "Large bratwurst hot dog.", "7.50", 6, False),
     ("Cheese Bratwurst XXL", "Large bratwurst hot dog with cheese.", "8.00", 6, False),
     ("Choripan", "Chorizo-style hot dog.", "6.00", 6, False),
-    ("Mozzarella", "Hot dog add-on.", "1.00", 1, False),
-    ("Shoestring Potatoes", "Crispy hot dog topping.", "1.00", 1, False),
   ],
   "Meals": [
     ("Chicken Cotoletta with Chips", "Chicken cotoletta served with chips.", "8.00", 7, False),
@@ -69,19 +67,43 @@ MENU = {
     ("Homemade Rice", "House rice side.", "3.95", 3, False),
     ("6 Parmesan Wings", "Six parmesan wings.", "6.10", 6, False),
     ("6 Buffalo Wings", "Six buffalo wings.", "6.10", 6, False),
-    ("Add Chips", "Add chips to your meal.", "3.50", 2, False),
   ],
-  "Waffles & toppings": [
+  "Waffles": [
     ("Waffle Plain", "Fresh plain waffle.", "5.30", 5, False),
     ("Waffle Protein", "Protein waffle.", "6.80", 5, False),
-    ("Biscuit Crumbs", "Waffle topping.", "1.10", 1, False),
-    ("Nutella", "Waffle topping.", "1.10", 1, False),
-    ("Dulce de Leche", "Waffle topping.", "1.30", 1, False),
-    ("Sprinkles", "Waffle topping.", "1.10", 1, False),
-    ("Chocolate Chips", "Waffle topping.", "1.20", 1, False),
-    ("Mini Marshmallows", "Waffle topping.", "1.20", 1, False),
-    ("Soft Ice Cream", "Waffle topping.", "1.50", 1, False),
   ],
+}
+
+HOT_DOG_ADD_ONS = [
+  ("Mozzarella", "1.00"),
+  ("Shoestring Potatoes", "1.00"),
+]
+
+WAFFLE_ADD_ONS = [
+  ("Biscuit Crumbs", "1.10"),
+  ("Nutella", "1.10"),
+  ("Dulce de Leche", "1.30"),
+  ("Sprinkles", "1.10"),
+  ("Chocolate Chips", "1.20"),
+  ("Mini Marshmallows", "1.20"),
+  ("Soft Ice Cream", "1.50"),
+]
+
+ADD_ONS = {
+  "Bratwurst XXL": HOT_DOG_ADD_ONS,
+  "Cheese Bratwurst XXL": [("Shoestring Potatoes", "1.00")],
+  "Choripan": HOT_DOG_ADD_ONS,
+  "6 Chicken Wings": [("Add Chips", "3.50")],
+  "6 Parmesan Wings": [("Add Chips", "3.50")],
+  "6 Buffalo Wings": [("Add Chips", "3.50")],
+  "Waffle Plain": WAFFLE_ADD_ONS,
+  "Waffle Protein": WAFFLE_ADD_ONS,
+}
+
+STANDALONE_ADD_ON_ITEM_NAMES = {
+  name
+  for add_ons in ADD_ONS.values()
+  for name, _ in add_ons
 }
 
 LEGACY_DEMO_ITEMS = {
@@ -98,6 +120,20 @@ class Command(BaseCommand):
     staff_group, _ = Group.objects.get_or_create(name="Staff")
     manager_group, _ = Group.objects.get_or_create(name="Manager")
 
+    old_waffles = MenuCategory.objects.filter(name="Waffles & toppings").first()
+    waffles = MenuCategory.objects.filter(name="Waffles").first()
+    if old_waffles and not waffles:
+      old_waffles.name = "Waffles"
+      old_waffles.slug = "waffles"
+      old_waffles.save(update_fields=["name", "slug"])
+    elif old_waffles and waffles:
+      for old_item in MenuItem.objects.filter(category=old_waffles, name__in=["Waffle Plain", "Waffle Protein"]):
+        if MenuItem.objects.filter(category=waffles, name=old_item.name).exists():
+          old_item.delete()
+        else:
+          old_item.category = waffles
+          old_item.save(update_fields=["category", "updated_at"])
+
     for category_name, item_names in LEGACY_DEMO_ITEMS.items():
       try:
         category = MenuCategory.objects.get(name=category_name)
@@ -106,6 +142,8 @@ class Command(BaseCommand):
       MenuItem.objects.filter(category=category, name__in=item_names).delete()
       if not category.items.exists():
         category.delete()
+
+    MenuItem.objects.filter(name__in=STANDALONE_ADD_ON_ITEM_NAMES).delete()
 
     for index, (category_name, items) in enumerate(MENU.items()):
       category, _ = MenuCategory.objects.get_or_create(
@@ -128,6 +166,24 @@ class Command(BaseCommand):
             "featured": item_index == 0,
           },
         )
+
+    for item_name, add_ons in ADD_ONS.items():
+      for item in MenuItem.objects.filter(name=item_name):
+        active_names = []
+        for display_order, (add_on_name, price) in enumerate(add_ons):
+          active_names.append(add_on_name)
+          MenuItemAddOn.objects.update_or_create(
+            menu_item=item,
+            name=add_on_name,
+            defaults={
+              "price": Decimal(price),
+              "available": True,
+              "display_order": display_order,
+            },
+          )
+        item.add_ons.exclude(name__in=active_names).delete()
+
+    MenuCategory.objects.exclude(name__in=MENU.keys()).filter(items__isnull=True).delete()
 
     manager, created = User.objects.get_or_create(
       username="manager",

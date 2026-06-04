@@ -23,10 +23,13 @@ def _amount_to_pence(amount):
 
 def _append_line_item(params, index, order_item):
   prefix = f"line_items[{index}]"
+  product_name = order_item.item_name
+  if order_item.add_on_names:
+    product_name = f"{product_name} with {order_item.add_on_names}"
   params.append((f"{prefix}[quantity]", str(order_item.quantity)))
   params.append((f"{prefix}[price_data][currency]", "gbp"))
   params.append((f"{prefix}[price_data][unit_amount]", str(_amount_to_pence(order_item.unit_price))))
-  params.append((f"{prefix}[price_data][product_data][name]", order_item.item_name[:120]))
+  params.append((f"{prefix}[price_data][product_data][name]", product_name[:120]))
 
 
 def create_stripe_checkout_session(order, success_url, cancel_url):

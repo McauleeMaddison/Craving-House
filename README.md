@@ -24,6 +24,7 @@ https://github.com/McauleeMaddison/Craving-House
 ## Main Features
 
 - Customer menu browsing with prices, prep times, and item availability
+- Item customisation for add-ons such as waffle toppings, hot dog toppings, and meal sides
 - Session-based cart for pickup orders
 - Checkout flow for Stripe test card payment or counter payment
 - Private order confirmation pages with lookup codes
@@ -158,7 +159,7 @@ Use this checklist before submitting or demonstrating the project:
 
 - Open `/` and confirm the homepage loads.
 - Open `/menu/` and confirm seeded menu items appear.
-- Add an item to the cart.
+- Add an item to the cart, including a customised item add-on.
 - Place a pickup order from checkout with Stripe test payment or counter payment.
 - Confirm the order appears in `/staff/`.
 - Update the order status from the staff dashboard.

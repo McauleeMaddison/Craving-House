@@ -12,11 +12,18 @@
     <section class="panel">
       <div class="order-lines">
         {% for line in summary.lines %}
-          <form action="{% url 'cafe:update_cart' line.item.id %}" method="post" class="order-line">
+          <form action="{% url 'cafe:update_cart' line.key %}" method="post" class="order-line">
             {% csrf_token %}
             <div>
               <strong>{{ line.item.name }}</strong>
-              <span>£{{ line.item.price }} each</span>
+              {% if line.add_ons %}
+                <span class="lineAddOns">
+                  {% for add_on in line.add_ons %}
+                    {{ add_on.name }} +£{{ add_on.price }}{% if not forloop.last %} · {% endif %}
+                  {% endfor %}
+                </span>
+              {% endif %}
+              <span>£{{ line.unit_price }} each{% if line.add_ons %} with add-ons{% endif %}</span>
             </div>
             <input type="number" name="quantity" value="{{ line.quantity }}" min="0" max="20">
             <strong>£{{ line.line_total }}</strong>

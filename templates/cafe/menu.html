@@ -52,6 +52,22 @@
             >
               {% csrf_token %}
               <input type="hidden" name="next" value="{% url 'cafe:menu' %}">
+              {% if item.add_ons.all %}
+                <details class="menuCustomize">
+                  <summary>Customize</summary>
+                  <div class="addOnChoices">
+                    {% for add_on in item.add_ons.all %}
+                      {% if add_on.available %}
+                        <label class="addOnChoice">
+                          <input type="checkbox" name="add_ons" value="{{ add_on.id }}">
+                          <span>{{ add_on.name }}</span>
+                          <strong>+£{{ add_on.price }}</strong>
+                        </label>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </details>
+              {% endif %}
               <label class="quantityControl">
                 <span class="sr-only">Quantity for {{ item.name }}</span>
                 <span aria-hidden="true">Qty</span>

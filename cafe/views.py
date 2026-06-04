@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from .cart import cart_summary, get_cart, set_cart
+from .cart import build_cart_key, cart_summary, get_cart, set_cart
 from .forms import CheckoutForm, FeedbackForm, LoyaltyScanForm, MenuItemForm, SignUpForm
 from .models import CustomerProfile, Feedback, LoyaltyScan, MenuCategory, MenuItem, Order, OrderItem
 from .payments import StripePaymentError, create_stripe_checkout_session, stripe_enabled
@@ -48,28 +48,44 @@ def home(request):
 
 
 def menu(request):
-  categories = MenuCategory.objects.prefetch_related("items")
+  categories = MenuCategory.objects.prefetch_related("items__add_ons")
   return render(request, "cafe/menu.html", {"categories": categories})
 
 
 @require_POST
 def add_to_cart(request, item_id):
-  item = get_object_or_404(MenuItem, pk=item_id, available=True)
+  item = get_object_or_404(MenuItem.objects.prefetch_related("add_ons"), pk=item_id, available=True)
   try:
     quantity = max(1, min(20, int(request.POST.get("quantity", "1"))))
   except ValueError:
     quantity = 1
+  selected_add_on_ids = {
+    int(add_on_id)
+    for add_on_id in request.POST.getlist("add_ons")
+    if str(add_on_id).isdigit()
+  }
+  allowed_add_on_ids = set(
+    item.add_ons.filter(available=True, id__in=selected_add_on_ids).values_list("id", flat=True)
+  )
+  line_key = build_cart_key(item.id, allowed_add_on_ids)
   cart = get_cart(request)
-  cart[str(item.id)] = min(20, int(cart.get(str(item.id), 0)) + quantity)
+  cart[line_key] = min(20, int(cart.get(line_key, 0)) + quantity)
   set_cart(request, cart)
 
   if request.headers.get("x-requested-with") == "XMLHttpRequest":
     summary = cart_summary(request)
+    add_on_names = [
+      add_on.name
+      for line in summary["lines"]
+      if line["key"] == line_key
+      for add_on in line["add_ons"]
+    ]
     return JsonResponse(
       {
         "ok": True,
         "item_name": item.name,
-        "item_quantity": cart[str(item.id)],
+        "add_on_names": add_on_names,
+        "item_quantity": cart[line_key],
         "cart_count": summary["count"],
       }
     )
@@ -83,22 +99,21 @@ def cart_detail(request):
 
 
 @require_POST
-def update_cart(request, item_id):
+def update_cart(request, line_key):
   cart = get_cart(request)
-  item_key = str(item_id)
   action = request.POST.get("action")
 
   if action == "remove":
-    cart.pop(item_key, None)
+    cart.pop(str(line_key), None)
   else:
     try:
       quantity = int(request.POST.get("quantity", "1"))
     except ValueError:
       quantity = 1
     if quantity <= 0:
-      cart.pop(item_key, None)
+      cart.pop(str(line_key), None)
     else:
-      cart[item_key] = min(20, quantity)
+      cart[str(line_key)] = min(20, quantity)
 
   set_cart(request, cart)
   return redirect("cafe:cart")
@@ -119,8 +134,10 @@ def create_order_from_cart(request, form, summary):
         order=order,
         menu_item=item,
         item_name=item.name,
+        add_on_names=line["add_on_names"],
+        add_on_total=line["add_on_total"],
         quantity=line["quantity"],
-        unit_price=item.price,
+        unit_price=line["unit_price"],
         prep_minutes_each=item.prep_minutes,
         line_total=line["line_total"],
       )

@@ -176,7 +176,10 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
         button.classList.add("isAdded");
         setButtonLabel(button, "Added");
         if (status) {
-          status.textContent = `${data.item_name || form.dataset.itemName || "Item"} added`;
+          const addOns = Array.isArray(data.add_on_names) && data.add_on_names.length
+            ? ` with ${data.add_on_names.join(", ")}`
+            : "";
+          status.textContent = `${data.item_name || form.dataset.itemName || "Item"}${addOns} added`;
         }
 
         const resetTimer = window.setTimeout(() => {
