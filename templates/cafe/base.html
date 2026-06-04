@@ -5,6 +5,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Craving House{% endblock %}</title>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("cravingHouseTheme") || "light";
+          document.documentElement.dataset.theme = theme === "dark" ? "dark" : "light";
+        } catch (error) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="{% static 'django/css/app.css' %}">
     <script src="{% static 'django/js/app.js' %}" defer></script>
     {% block extra_head %}{% endblock %}
@@ -14,7 +24,7 @@
     <div class="app-shell">
       <header class="appHeader">
         <div class="container appHeaderInner">
-          <a class="brandLink" href="{% url 'cafe:home' %}" aria-label="Craving House home">
+          <a class="brandLink appHeaderBrandLink" href="{% url 'cafe:home' %}" aria-label="Craving House home">
             <span class="brandMarkStack">
               <span class="brandMark" aria-hidden="true">
                 <img src="{% static 'brand/ch-logo.png' %}" alt="">
@@ -29,14 +39,47 @@
             </span>
           </a>
 
+          <button
+            class="brandLink brandButton appHeaderBrandButton"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobile-drawer"
+            data-nav-toggle
+          >
+            <span class="brandMarkStack">
+              <span class="brandMark" aria-hidden="true">
+                <img src="{% static 'brand/ch-logo.png' %}" alt="">
+              </span>
+              {% if cart_count %}
+                <span class="navMobileBadge" aria-label="{{ cart_count }} items in cart">{{ cart_count }}</span>
+              {% endif %}
+            </span>
+            <span class="iconLines" aria-hidden="true"></span>
+          </button>
+
           <nav class="navDesktop" aria-label="Primary navigation">
             <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Menu</a>
             <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">
               <span class="navDesktopLinkLabel">Cart{% if cart_count %}<span class="navDesktopBadge">{{ cart_count }}</span>{% endif %}</span>
             </a>
             <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
-            <a class="btn btn-secondary" href="{% url 'cafe:clicker' %}">Game</a>
+            <a class="btn btn-secondary" href="{% url 'cafe:boiler_buster' %}">Boiler Buster</a>
             <a class="btn btn-secondary" href="{% url 'cafe:feedback' %}">Feedback</a>
+            <button class="themeToggle themeTogglePoster" type="button" role="switch" aria-checked="false" data-theme-toggle>
+              <span class="themeToggleTrack" aria-hidden="true">
+                <span class="themeToggleOrb">
+                  <span class="themeToggleSun"></span>
+                  <span class="themeToggleMoon"></span>
+                  <span class="themeToggleSpark themeToggleSparkA"></span>
+                  <span class="themeToggleSpark themeToggleSparkB"></span>
+                </span>
+              </span>
+              <span class="themeToggleText">
+                <span class="themeToggleTitle">Light mode</span>
+                <span class="themeToggleSub">Golden glow</span>
+              </span>
+            </button>
             {% if user.is_staff %}
               <a class="btn btn-secondary" href="{% url 'cafe:staff_dashboard' %}">Staff</a>
             {% endif %}
@@ -54,6 +97,107 @@
           </nav>
         </div>
       </header>
+
+      <div class="drawerOverlay" data-nav-overlay aria-hidden="true"></div>
+
+      <aside id="mobile-drawer" class="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="drawerTop">
+          <a class="brandLink" href="{% url 'cafe:home' %}" aria-label="Craving House home" data-nav-close>
+            <span class="brandMark" aria-hidden="true">
+              <img src="{% static 'brand/ch-logo.png' %}" alt="">
+            </span>
+            <span class="brandText">
+              <span class="brandName">Craving House</span>
+              <span class="brandTag muted">Coffee, bites, vibes</span>
+            </span>
+          </a>
+          <button class="iconButton" type="button" aria-label="Close menu" data-nav-close>
+            <span class="iconX" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="rowWrap rowWrapTight">
+          <span class="pill">Open Tuesday to Saturday</span>
+          <button class="themeToggle themeTogglePoster themeToggleCompact" type="button" role="switch" aria-checked="false" data-theme-toggle>
+            <span class="themeToggleTrack" aria-hidden="true">
+              <span class="themeToggleOrb">
+                <span class="themeToggleSun"></span>
+                <span class="themeToggleMoon"></span>
+                <span class="themeToggleSpark themeToggleSparkA"></span>
+                <span class="themeToggleSpark themeToggleSparkB"></span>
+              </span>
+            </span>
+            <span class="themeToggleText">
+              <span class="themeToggleTitle">Light mode</span>
+              <span class="themeToggleSub">Golden glow</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="drawerContent">
+          <div class="drawerStatus" aria-label="Quick status">
+            <a class="drawerStatusRow drawerStatusAction" href="{% url 'cafe:menu' %}" data-nav-close>
+              <span class="drawerStatusLabel">Menu</span>
+              <span class="drawerStatusMeta">
+                <span class="drawerStatusValue drawerStatusValueAccent">Open</span>
+                <span class="drawerStatusChevron" aria-hidden="true">›</span>
+              </span>
+            </a>
+            <a class="drawerStatusRow drawerStatusAction" href="{% url 'cafe:loyalty' %}" data-nav-close>
+              <span class="drawerStatusLabel">Loyalty</span>
+              <span class="drawerStatusMeta">
+                <span class="drawerStatusValue">My card</span>
+                <span class="drawerStatusChevron" aria-hidden="true">›</span>
+              </span>
+            </a>
+            <a class="drawerStatusRow drawerStatusAction" href="{% url 'cafe:cart' %}" data-nav-close>
+              <span class="drawerStatusLabel">Cart</span>
+              <span class="drawerStatusMeta">
+                <span class="drawerStatusValue">{% if cart_count %}{{ cart_count }} item{{ cart_count|pluralize }}{% else %}Empty{% endif %}</span>
+                <span class="drawerStatusChevron" aria-hidden="true">›</span>
+              </span>
+            </a>
+          </div>
+
+          <nav class="drawerLinks" aria-label="Mobile navigation">
+            <a class="drawerLink" href="{% url 'cafe:menu' %}" data-nav-close>
+              <span class="drawerLinkLabel">Menu</span>
+            </a>
+            <a class="drawerLink" href="{% url 'cafe:cart' %}" data-nav-close>
+              <span class="drawerLinkLabel">Cart{% if cart_count %}<span class="drawerLinkBadge">{{ cart_count }}</span>{% endif %}</span>
+            </a>
+            <a class="drawerLink" href="{% url 'cafe:loyalty' %}" data-nav-close>
+              <span class="drawerLinkLabel">Loyalty</span>
+            </a>
+            <a class="drawerLink" href="{% url 'cafe:boiler_buster' %}" data-nav-close>
+              <span class="drawerLinkLabel">Boiler Buster</span>
+            </a>
+            <a class="drawerLink" href="{% url 'cafe:feedback' %}" data-nav-close>
+              <span class="drawerLinkLabel">Feedback</span>
+            </a>
+            {% if user.is_staff %}
+              <a class="drawerLink" href="{% url 'cafe:staff_dashboard' %}" data-nav-close>
+                <span class="drawerLinkLabel">Staff</span>
+              </a>
+            {% endif %}
+            {% if user.is_superuser %}
+              <a class="drawerLink" href="{% url 'cafe:manager_dashboard' %}" data-nav-close>
+                <span class="drawerLinkLabel">Manager</span>
+              </a>
+            {% endif %}
+            {% if user.is_authenticated %}
+              <form action="{% url 'logout' %}" method="post" class="drawer-form">
+                {% csrf_token %}
+                <button class="drawerLink" type="submit">Sign out</button>
+              </form>
+            {% else %}
+              <a class="drawerLink" href="{% url 'login' %}" data-nav-close>
+                <span class="drawerLinkLabel">Sign in</span>
+              </a>
+            {% endif %}
+          </nav>
+        </div>
+      </aside>
 
       {% if messages %}
         <div class="container messages" role="status" aria-live="polite">

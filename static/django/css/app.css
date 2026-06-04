@@ -1,5 +1,5 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --bg: #f2b705;
   --bg-gradient:
     radial-gradient(1200px 800px at 20% 0%, rgba(0, 0, 0, 0.16), transparent 55%),
@@ -22,6 +22,27 @@
   --danger: #ff5c73;
   --ok: #2fe4ab;
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --header-bg: rgba(11, 13, 18, 0.72);
+  --header-border: rgba(255, 255, 255, 0.08);
+  --footer-bg: rgba(11, 13, 18, 0.62);
+  --drawer-solid: rgba(255, 255, 255, 0.96);
+  --drawer-bg:
+    radial-gradient(780px 520px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 62%),
+    var(--drawer-solid);
+  --drawer-text: rgba(11, 13, 18, 0.92);
+  --drawer-muted: rgba(11, 13, 18, 0.62);
+  --drawer-border: rgba(11, 13, 18, 0.12);
+  --drawer-surface: rgba(11, 13, 18, 0.06);
+  --drawer-sep: rgba(11, 13, 18, 0.12);
+  --drawer-chevron: rgba(11, 13, 18, 0.38);
+  --drawer-link-active-bg: rgba(242, 183, 5, 0.22);
+  --drawer-overlay-bg:
+    linear-gradient(
+      90deg,
+      rgba(30, 20, 2, 0.12) 0%,
+      rgba(20, 14, 4, 0.28) 42%,
+      rgba(14, 11, 6, 0.5) 100%
+    );
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -44,6 +65,49 @@
     "Helvetica Neue",
     Arial,
     sans-serif;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b0d12;
+  --bg-gradient:
+    radial-gradient(900px 700px at 18% 0%, rgba(242, 183, 5, 0.16), transparent 55%),
+    radial-gradient(1200px 900px at 100% 10%, rgba(242, 183, 5, 0.08), transparent 55%),
+    radial-gradient(900px 700px at 50% 120%, rgba(255, 255, 255, 0.05), transparent 55%),
+    var(--bg);
+  --home-hero-bg:
+    radial-gradient(900px 560px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
+    radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.08), transparent 62%),
+    #06080f;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel-strong: rgba(255, 255, 255, 0.08);
+  --panel-soft: rgba(255, 255, 255, 0.05);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.72);
+  --border: rgba(255, 255, 255, 0.14);
+  --border-soft: rgba(255, 255, 255, 0.09);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --header-bg: rgba(11, 13, 18, 0.6);
+  --header-border: rgba(255, 255, 255, 0.08);
+  --footer-bg: rgba(11, 13, 18, 0.7);
+  --drawer-solid: rgba(11, 13, 18, 0.98);
+  --drawer-bg:
+    radial-gradient(900px 500px at 0% 0%, rgba(242, 183, 5, 0.14), transparent 60%),
+    var(--drawer-solid);
+  --drawer-text: rgba(255, 255, 255, 0.92);
+  --drawer-muted: rgba(255, 255, 255, 0.72);
+  --drawer-border: rgba(255, 255, 255, 0.14);
+  --drawer-surface: rgba(255, 255, 255, 0.06);
+  --drawer-sep: rgba(255, 255, 255, 0.12);
+  --drawer-chevron: rgba(255, 255, 255, 0.38);
+  --drawer-link-active-bg: rgba(242, 183, 5, 0.16);
+  --drawer-overlay-bg:
+    linear-gradient(
+      90deg,
+      rgba(5, 7, 13, 0.14) 0%,
+      rgba(5, 7, 13, 0.34) 42%,
+      rgba(5, 7, 13, 0.62) 100%
+    );
 }
 
 * {
@@ -311,8 +375,8 @@ label {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(11, 13, 18, 0.72);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
   backdrop-filter: blur(14px);
 }
 
@@ -421,6 +485,401 @@ label {
   right: -7px;
   border-width: 2px;
   border-color: rgba(8, 10, 14, 0.82);
+}
+
+.brandButton {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  box-shadow: none;
+}
+
+.brandButton:hover {
+  background: transparent;
+  border-color: transparent;
+  transform: none;
+}
+
+.appHeaderBrandButton {
+  display: none;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.appHeaderBrandButton.iconButtonActive {
+  border-color: rgba(242, 183, 5, 0.42);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.iconLines {
+  width: 18px;
+  height: 12px;
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  position: relative;
+  opacity: 0.9;
+}
+
+.iconLines::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  border-top: 2px solid currentColor;
+}
+
+.iconButton {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--drawer-border);
+  background: var(--drawer-surface);
+  color: var(--drawer-text);
+  display: inline-grid;
+  place-items: center;
+}
+
+.iconX {
+  font-size: 24px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.themeToggle:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.themeToggleTrack {
+  position: relative;
+  width: 66px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(212, 164, 101, 0.45);
+  background: linear-gradient(115deg, rgba(28, 22, 14, 0.92), rgba(13, 12, 11, 0.82));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.themeToggleOrb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: radial-gradient(circle at 35% 28%, #ffe5b5 0%, #f6c56f 45%, #ad6d2e 100%);
+  box-shadow:
+    inset 0 -2px 5px rgba(0, 0, 0, 0.25),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 220ms ease,
+    background 220ms ease,
+    border-color 220ms ease;
+}
+
+.themeToggleSun,
+.themeToggleMoon {
+  position: absolute;
+  inset: 6px;
+  border-radius: var(--radius-pill);
+  transition:
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+
+.themeToggleSun {
+  background: radial-gradient(circle at 30% 28%, #fff8e5 0%, #ffd67f 48%, #f4af31 100%);
+}
+
+.themeToggleMoon {
+  background:
+    radial-gradient(circle at 34% 30%, #fff 0 15%, transparent 16%),
+    radial-gradient(circle at 68% 60%, #fff 0 10%, transparent 11%),
+    radial-gradient(circle at 45% 40%, #dce9ff 0%, #96b6e9 58%, #4f6e98 100%);
+  box-shadow: inset -2px -2px 4px rgba(14, 26, 45, 0.42);
+  opacity: 0;
+  transform: scale(0.45) translate(12px, -9px);
+}
+
+.themeToggleSpark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 245, 215, 0.92);
+  opacity: 0.35;
+}
+
+.themeToggleSparkA {
+  top: 4px;
+  left: 4px;
+}
+
+.themeToggleSparkB {
+  right: 3px;
+  bottom: 4px;
+}
+
+.themeToggleText {
+  display: grid;
+  line-height: 1.02;
+}
+
+.themeToggleTitle {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.themeToggleSub {
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.themeToggleDark .themeToggleTrack {
+  border-color: rgba(112, 161, 241, 0.55);
+  background: linear-gradient(115deg, rgba(11, 16, 29, 0.94), rgba(12, 20, 34, 0.86));
+}
+
+.themeToggleDark .themeToggleOrb {
+  transform: translateX(30px);
+  background: radial-gradient(circle at 35% 28%, #6e97d8 0%, #274164 58%, #0f1e33 100%);
+  border-color: rgba(191, 213, 255, 0.3);
+}
+
+.themeToggleDark .themeToggleSun {
+  opacity: 0;
+  transform: scale(0.45) translate(-10px, 10px);
+}
+
+.themeToggleDark .themeToggleMoon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.themeToggleCompact {
+  min-height: 32px;
+}
+
+.themeToggleCompact .themeToggleTrack {
+  width: 58px;
+  height: 32px;
+}
+
+.themeToggleCompact .themeToggleOrb {
+  width: 24px;
+  height: 24px;
+}
+
+.themeToggleCompact.themeToggleDark .themeToggleOrb {
+  transform: translateX(26px);
+}
+
+.themeToggleCompact .themeToggleText {
+  display: none;
+}
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--drawer-overlay-bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  backdrop-filter: blur(3px);
+}
+
+.drawerOverlayOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 50;
+  width: min(90vw, 420px);
+  max-width: calc(100vw - 14px);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+  padding:
+    calc(14px + env(safe-area-inset-top, 0px))
+    calc(14px + env(safe-area-inset-right, 0px))
+    calc(14px + env(safe-area-inset-bottom, 0px))
+    14px;
+  border-left: 1px solid var(--drawer-border);
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+  background: var(--drawer-bg);
+  color: var(--drawer-text);
+  box-shadow: -20px 0 56px rgba(0, 0, 0, 0.34);
+  transform: translateX(110%);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter: blur(18px);
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+body.navOpen {
+  overflow: hidden;
+}
+
+.drawerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.drawerTop .brandText {
+  display: grid;
+}
+
+.drawer .muted {
+  color: var(--drawer-muted);
+}
+
+.drawer .pill {
+  color: var(--drawer-muted);
+  border-color: var(--drawer-border);
+  background: var(--drawer-surface);
+}
+
+.drawer .themeToggle {
+  color: var(--drawer-text);
+}
+
+.drawerContent {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawerStatus,
+.drawerLinks {
+  border: 1px solid var(--drawer-border);
+  border-radius: var(--radius-lg);
+  background: var(--drawer-surface);
+  overflow: hidden;
+}
+
+.drawerStatusRow,
+.drawerLink {
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 0;
+  border-top: 1px solid var(--drawer-sep);
+  background: transparent;
+  color: var(--drawer-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font: inherit;
+  font-weight: 850;
+  text-align: left;
+  width: 100%;
+}
+
+.drawerStatusRow:first-child,
+.drawerLink:first-child {
+  border-top: 0;
+}
+
+.drawerStatusLabel {
+  font-family: var(--font-display);
+  font-weight: 950;
+}
+
+.drawerStatusMeta,
+.drawerLinkLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drawerStatusValue {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--drawer-border);
+  color: var(--drawer-muted);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.drawerStatusValueAccent {
+  color: var(--drawer-text);
+  border-color: rgba(242, 183, 5, 0.46);
+  background: rgba(242, 183, 5, 0.18);
+}
+
+.drawerStatusChevron,
+.drawerLink::after {
+  color: var(--drawer-chevron);
+  font-size: 18px;
+}
+
+.drawerLink::after {
+  content: "›";
+}
+
+.drawerLinkBadge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(242, 183, 5, 0.38);
+  background: linear-gradient(180deg, rgba(255, 219, 132, 0.96), rgba(242, 183, 5, 0.92));
+  color: rgba(11, 13, 18, 0.98);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.drawer-form {
+  margin: 0;
 }
 
 .messages {
@@ -1260,6 +1719,876 @@ label {
   border: 0;
 }
 
+.surfaceFlat {
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: none;
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.cardBody {
+  margin-top: 9px;
+}
+
+.boilerBusterPage {
+  padding-bottom: 48px;
+}
+
+.boilerBusterHero {
+  max-width: 980px;
+  margin-inline: auto;
+  padding: clamp(18px, 4vw, 26px);
+  display: grid;
+  gap: 16px;
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgba(255, 255, 255, 0.06), transparent 62%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel));
+}
+
+.boilerBusterHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.boilerBusterHeading {
+  display: grid;
+  gap: 7px;
+}
+
+.boilerBusterTitle {
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.02;
+  font-weight: 950;
+  font-family: var(--font-display);
+}
+
+.boilerBusterLead {
+  max-width: 46ch;
+  font-size: clamp(14px, 1.5vw, 16px);
+  line-height: 1.65;
+  color: rgba(243, 241, 232, 0.9);
+}
+
+.boilerBusterStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.boilerBusterStatusPlaying {
+  border-color: rgba(242, 183, 5, 0.42);
+  background: rgba(242, 183, 5, 0.16);
+}
+
+.boilerBusterStatusWon {
+  border-color: rgba(47, 228, 171, 0.4);
+  background: rgba(47, 228, 171, 0.12);
+}
+
+.boilerBusterStatusLost {
+  border-color: rgba(255, 92, 115, 0.42);
+  background: rgba(255, 92, 115, 0.14);
+}
+
+.boilerBusterLayout {
+  display: grid;
+  gap: 12px;
+}
+
+.boilerBusterBoard {
+  padding: clamp(14px, 3vw, 18px);
+  display: grid;
+  gap: 12px;
+}
+
+.boilerBusterStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.boilerBusterStat {
+  position: relative;
+  min-height: 82px;
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.boilerBusterStatLabel {
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.boilerBusterStatValue {
+  margin-top: 7px;
+  font-size: clamp(20px, 4.8vw, 26px);
+  line-height: 1.05;
+  font-weight: 950;
+}
+
+.boilerBusterBestRibbon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 18px;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(242, 183, 5, 0.24);
+  background: rgba(242, 183, 5, 0.14);
+  color: rgba(255, 234, 161, 0.98);
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boilerBusterBestRibbonFlash {
+  animation: boilerBusterRibbonFlash 1s ease;
+}
+
+@keyframes boilerBusterRibbonFlash {
+  0% {
+    transform: scale(0.88);
+    opacity: 0;
+  }
+
+  40% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.boilerBusterMeterCard {
+  padding: clamp(12px, 2.5vw, 15px);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(242, 183, 5, 0.08), transparent 48%),
+    rgba(255, 255, 255, 0.06);
+  display: grid;
+  gap: 11px;
+}
+
+.boilerBusterMeterTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.boilerBusterMeterTopSecondary {
+  margin-top: 2px;
+}
+
+.boilerBusterMeterLabel {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.boilerBusterMeterHint {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.boilerBusterMeterValue {
+  font-size: clamp(18px, 3vw, 22px);
+  line-height: 1;
+  font-weight: 950;
+}
+
+.boilerBusterMeter {
+  height: 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.boilerBusterMeterSecondary {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.boilerBusterMeterFill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(47, 228, 171, 0.95), rgba(242, 183, 5, 0.95), rgba(255, 92, 115, 0.95));
+  transition: width 180ms ease;
+}
+
+.boilerBusterMeterFillPressure {
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.1);
+}
+
+.boilerBusterMeterFillCalm {
+  background: linear-gradient(90deg, rgba(47, 228, 171, 0.94), rgba(77, 242, 193, 0.92));
+}
+
+.boilerBusterMeterFillSteady {
+  background: linear-gradient(90deg, rgba(122, 220, 98, 0.94), rgba(188, 224, 94, 0.92));
+}
+
+.boilerBusterMeterFillRising {
+  background: linear-gradient(90deg, rgba(224, 214, 76, 0.94), rgba(242, 183, 5, 0.94));
+}
+
+.boilerBusterMeterFillDanger {
+  background: linear-gradient(90deg, rgba(255, 184, 59, 0.96), rgba(255, 131, 54, 0.94));
+}
+
+.boilerBusterMeterFillCritical {
+  background: linear-gradient(90deg, rgba(255, 116, 96, 0.96), rgba(255, 92, 115, 0.96));
+}
+
+.boilerBusterMeterFillSecondary {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(242, 183, 5, 0.95));
+}
+
+.pressureTrack {
+  position: relative;
+}
+
+.perfectBand {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 65%;
+  width: 22%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.1), rgba(255, 131, 54, 0.3), rgba(255, 92, 115, 0.16));
+  box-shadow: inset 0 0 0 1px rgba(255, 184, 59, 0.24);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.perfectBandActive {
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.2), rgba(255, 131, 54, 0.46), rgba(255, 92, 115, 0.22));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 130, 0.38),
+    0 0 14px rgba(255, 146, 43, 0.24);
+}
+
+.pressureFill {
+  position: relative;
+  z-index: 2;
+}
+
+.pressureFill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 16%, rgba(255, 255, 255, 0.42) 50%, transparent 84%);
+  transform: translateX(-115%);
+  animation: boilerBusterPressureSweep 1.3s linear infinite;
+}
+
+.pressureFillHot::after {
+  animation-duration: 760ms;
+}
+
+@keyframes boilerBusterPressureSweep {
+  from {
+    transform: translateX(-115%);
+  }
+
+  to {
+    transform: translateX(115%);
+  }
+}
+
+.pressureCoach {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.meterInfoRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.meterTag {
+  min-height: 22px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(248, 249, 250, 0.88);
+  font-size: 11.5px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.meterTagActive,
+.meterTagPerfect {
+  border-color: rgba(242, 183, 5, 0.38);
+  background: rgba(242, 183, 5, 0.16);
+  color: rgba(255, 241, 194, 0.98);
+}
+
+.meterTagSteady {
+  border-color: rgba(47, 228, 171, 0.3);
+  background: rgba(47, 228, 171, 0.12);
+  color: rgba(220, 255, 244, 0.96);
+}
+
+.meterTagClutch {
+  border-color: rgba(255, 92, 115, 0.46);
+  background: rgba(255, 92, 115, 0.18);
+  color: rgba(255, 226, 232, 0.98);
+}
+
+.boilerBusterTapZone {
+  width: 100%;
+  min-height: 248px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(72% 72% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 56%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.07), rgba(11, 13, 18, 0.16));
+  color: var(--text);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.boilerBusterTapZonePlaying {
+  border-color: rgba(242, 183, 5, 0.42);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.12), rgba(11, 13, 18, 0.22));
+}
+
+.boilerBusterTapZoneWon {
+  border-color: rgba(47, 228, 171, 0.42);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(47, 228, 171, 0.16), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.1), rgba(11, 13, 18, 0.18));
+}
+
+.boilerBusterTapZoneLost {
+  border-color: rgba(255, 92, 115, 0.5);
+  background:
+    radial-gradient(80% 80% at 50% 0%, rgba(255, 92, 115, 0.18), transparent 58%),
+    linear-gradient(180deg, rgba(11, 13, 18, 0.14), rgba(11, 13, 18, 0.22));
+}
+
+.boilerBusterTapZone:active {
+  transform: scale(0.992);
+}
+
+.boilerBusterTapZone:focus-visible {
+  outline: 3px solid rgba(242, 183, 5, 0.82);
+  outline-offset: 4px;
+}
+
+.boilerBusterMachine {
+  position: relative;
+  width: min(100%, 220px);
+  height: 144px;
+  z-index: 1;
+}
+
+.boilerBusterMachineGlow {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 0;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle, rgba(242, 183, 5, 0.36), transparent 72%);
+  filter: blur(14px);
+}
+
+.boilerBusterMachineTop {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 100px;
+  height: 52px;
+  transform: translateX(-50%);
+  border-radius: 26px 26px 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.06)),
+    linear-gradient(120deg, rgba(62, 71, 85, 0.98), rgba(20, 24, 32, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.boilerBusterMachineBody {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: 172px;
+  height: 94px;
+  transform: translateX(-50%);
+  border-radius: 38px 38px 24px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
+    linear-gradient(180deg, rgba(71, 82, 98, 0.98), rgba(19, 23, 31, 0.98));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -16px 32px rgba(0, 0, 0, 0.24),
+    0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
+.boilerBusterGauge {
+  --boiler-gauge-accent: rgba(47, 228, 171, 0.96);
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(212, 217, 227, 0.94) 58%, rgba(170, 177, 189, 0.96) 60%, transparent 61%),
+    conic-gradient(
+      from 220deg,
+      rgba(47, 228, 171, 0.98) 0deg 62deg,
+      rgba(147, 211, 99, 0.98) 62deg 116deg,
+      rgba(242, 183, 5, 0.98) 116deg 156deg,
+      rgba(255, 146, 43, 0.98) 156deg 194deg,
+      rgba(255, 92, 115, 0.98) 194deg 320deg,
+      rgba(255, 255, 255, 0.82) 320deg 360deg
+    );
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.34),
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(47, 228, 171, 0.16);
+}
+
+.boilerBusterGaugeCalm,
+.boilerBusterNeedleCalm {
+  --boiler-gauge-accent: rgba(47, 228, 171, 0.98);
+}
+
+.boilerBusterGaugeSteady,
+.boilerBusterNeedleSteady {
+  --boiler-gauge-accent: rgba(147, 211, 99, 0.98);
+}
+
+.boilerBusterGaugeRising,
+.boilerBusterNeedleRising {
+  --boiler-gauge-accent: rgba(242, 183, 5, 0.98);
+}
+
+.boilerBusterGaugeDanger,
+.boilerBusterNeedleDanger {
+  --boiler-gauge-accent: rgba(255, 146, 43, 0.98);
+}
+
+.boilerBusterGaugeCritical,
+.boilerBusterNeedleCritical {
+  --boiler-gauge-accent: rgba(255, 92, 115, 0.98);
+}
+
+.boilerBusterGaugeDot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(11, 13, 18, 0.94);
+  transform: translate(-50%, -50%);
+}
+
+.boilerBusterNeedle {
+  --boiler-gauge-accent: var(--danger);
+  position: absolute;
+  left: 29px;
+  top: 28px;
+  width: 24px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--boiler-gauge-accent);
+  transform-origin: 0% 50%;
+  transition: transform 180ms ease;
+  box-shadow: 0 0 12px rgba(255, 92, 115, 0.68);
+}
+
+.boilerBusterNeedle::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: -3px;
+  border-left: 7px solid var(--boiler-gauge-accent);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.gaugeWarning {
+  animation: boilerBusterGaugeWarning 720ms ease-in-out infinite;
+}
+
+.needleAlarm {
+  animation: boilerBusterNeedleAlarm 420ms linear infinite;
+}
+
+@keyframes boilerBusterGaugeWarning {
+  50% {
+    filter: saturate(1.35) brightness(1.08);
+  }
+}
+
+@keyframes boilerBusterNeedleAlarm {
+  50% {
+    filter: brightness(1.22);
+  }
+}
+
+.boilerBusterMeterCardCalm {
+  border-color: rgba(47, 228, 171, 0.18);
+}
+
+.boilerBusterMeterCardSteady {
+  border-color: rgba(147, 211, 99, 0.18);
+}
+
+.boilerBusterMeterCardRising {
+  border-color: rgba(242, 183, 5, 0.2);
+}
+
+.boilerBusterMeterCardDanger {
+  border-color: rgba(255, 146, 43, 0.22);
+}
+
+.boilerBusterMeterCardCritical {
+  border-color: rgba(255, 92, 115, 0.24);
+}
+
+.boilerBusterValve {
+  position: absolute;
+  left: 44px;
+  top: 46px;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.05)),
+    linear-gradient(120deg, rgba(90, 67, 24, 0.98), rgba(181, 134, 40, 0.96));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.boilerBusterValve::before,
+.boilerBusterValve::after {
+  content: "";
+  position: absolute;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 231, 167, 0.92);
+}
+
+.boilerBusterValve::before {
+  left: -4px;
+  right: -4px;
+  top: 13px;
+  height: 4px;
+}
+
+.boilerBusterValve::after {
+  top: -4px;
+  bottom: -4px;
+  left: 13px;
+  width: 4px;
+}
+
+.boilerBusterSteam {
+  position: absolute;
+  width: 34px;
+  height: 76px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.08) 72%, transparent);
+  filter: blur(2px);
+  opacity: 0.16;
+  animation: boilerBusterSteam 1.6s ease-in-out infinite;
+}
+
+.boilerBusterTapZonePlaying .boilerBusterSteam {
+  opacity: 0.72;
+}
+
+.boilerBusterTapZoneWon .boilerBusterSteam {
+  opacity: 0.4;
+}
+
+.boilerBusterTapZoneLost .boilerBusterSteam {
+  opacity: 0.92;
+}
+
+.boilerBusterSteamA {
+  left: 46px;
+  top: 0;
+}
+
+.boilerBusterSteamB {
+  left: 94px;
+  top: -6px;
+  animation-delay: 0.24s;
+}
+
+.boilerBusterSteamC {
+  right: 30px;
+  top: 2px;
+  animation-delay: 0.48s;
+}
+
+.boilerBusterSteamBurst {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.88) 0 28%, rgba(255, 255, 255, 0.38) 29% 54%, transparent 55%),
+    radial-gradient(circle, rgba(242, 183, 5, 0.42), transparent 70%);
+  filter: blur(0.4px);
+  animation: boilerBusterSteamBurst 520ms ease-out forwards;
+}
+
+@keyframes boilerBusterSteamBurst {
+  from {
+    opacity: 0.96;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(3.2) translateY(-10px);
+  }
+}
+
+@keyframes boilerBusterSteam {
+  0% {
+    transform: translateY(18px) scale(0.84);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: translateY(-18px) scale(1.08);
+    opacity: 0;
+  }
+}
+
+.boilerBusterTapCopy {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  max-width: 34ch;
+  text-align: center;
+}
+
+.boilerBusterTapTitle {
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.06;
+  font-weight: 950;
+  font-family: var(--font-display);
+}
+
+.boilerBusterTapSub,
+.tapSubline {
+  font-size: clamp(13px, 2.2vw, 15px);
+  line-height: 1.62;
+  color: rgba(243, 241, 232, 0.82);
+}
+
+.panelHint {
+  margin: 3px auto 0;
+  max-width: 40ch;
+  font-size: clamp(12px, 1.9vw, 13px);
+  line-height: 1.62;
+  text-align: center;
+}
+
+.boilerBusterActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.boilerBusterSide {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.boilerBusterNote {
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.noteCopy {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(243, 241, 232, 0.88);
+}
+
+.boilerBusterMeta,
+.metaRow {
+  margin-top: 11px;
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 980px) {
+  .boilerBusterLayout {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .boilerBusterPage {
+    padding-top: 10px;
+    padding-bottom: 28px;
+  }
+
+  .boilerBusterHero {
+    gap: 14px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .boilerBusterHeader,
+  .boilerBusterMeterTop {
+    align-items: flex-start;
+  }
+
+  .boilerBusterTitle {
+    font-size: clamp(30px, 10vw, 40px);
+  }
+
+  .boilerBusterLead {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .boilerBusterStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .boilerBusterStat {
+    min-height: 70px;
+    padding: 10px;
+  }
+
+  .boilerBusterTapZone {
+    min-height: 224px;
+    padding: 12px;
+  }
+
+  .boilerBusterActions {
+    align-items: stretch;
+  }
+
+  .boilerBusterActions .btn {
+    flex: 1 1 120px;
+  }
+}
+
+@media (max-width: 420px) {
+  .boilerBusterHero {
+    padding: 12px;
+  }
+
+  .boilerBusterMachine {
+    width: min(100%, 196px);
+    height: 128px;
+  }
+
+  .boilerBusterMachineTop {
+    width: 92px;
+    height: 46px;
+  }
+
+  .boilerBusterMachineBody {
+    width: 154px;
+    height: 86px;
+  }
+
+  .boilerBusterGauge {
+    top: 22px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .boilerBusterNeedle {
+    left: 26px;
+    top: 25px;
+    width: 21px;
+  }
+
+  .boilerBusterValve {
+    left: 38px;
+    top: 42px;
+  }
+
+  .boilerBusterTapTitle {
+    font-size: 24px;
+  }
+
+  .meterTag {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .boilerBusterActions .btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 1024px) {
   .game-grid {
     grid-template-columns: 1fr;
@@ -1267,19 +2596,32 @@ label {
 }
 
 @media (max-width: 860px) {
-  .appHeaderInner,
   .section-heading,
   .appFooterInner {
     align-items: flex-start;
     flex-direction: column;
   }
 
+  .appHeader {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 0 10px;
+  }
+
+  .appHeaderInner {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .appHeaderBrandLink {
+    display: none;
+  }
+
+  .appHeaderBrandButton {
+    display: inline-flex;
+  }
+
   .navDesktop {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 4px;
+    display: none;
   }
 
   .navDesktop .btn,
@@ -1307,19 +2649,88 @@ label {
   }
 
   .game-hero {
-    padding: 22px;
+    min-height: 0;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .game-hero h1 {
+    font-size: clamp(32px, 10vw, 46px);
+    line-height: 1.02;
+  }
+
+  .game-hero .lede {
+    font-size: 15px;
+    line-height: 1.5;
   }
 
   .game-save {
     justify-self: stretch;
+    min-width: 0;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .game-save span {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .game-save button {
+    min-height: 40px;
+    padding-inline: 12px;
   }
 
   .game-board {
     min-height: auto;
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .bean-counter strong {
+    font-size: clamp(44px, 17vw, 74px);
+  }
+
+  .brew-button {
+    width: min(260px, 72vw);
+  }
+
+  .brew-button::after {
+    border-width: 12px;
+  }
+
+  .brew-text {
+    bottom: 17%;
+    font-size: clamp(18px, 6vw, 24px);
   }
 
   .game-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .game-stats div,
+  .roast-progress {
+    padding: 10px;
+  }
+
+  .game-stats span,
+  .roast-progress span {
+    font-size: 10px;
+  }
+
+  .game-stats strong,
+  .roast-progress strong {
+    font-size: 17px;
+  }
+
+  .game-panel {
+    padding: 14px;
+  }
+
+  .upgrade-card {
+    min-height: 76px;
+    padding: 12px;
   }
 
   .roast-progress > div:first-child,
@@ -1334,6 +2745,28 @@ label {
 }
 
 @media (max-width: 720px) {
+  .game-shell {
+    gap: 12px;
+    padding-bottom: 26px;
+  }
+
+  .game-hero {
+    margin-top: 10px;
+    border-radius: 16px;
+  }
+
+  .game-save {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .game-grid {
+    gap: 12px;
+  }
+
+  .roast-progress > div:first-child {
+    grid-template-columns: 1fr;
+  }
+
   .pageHome {
     --home-content-max-width: 100%;
     --home-hero-pad-top: 14px;
@@ -1393,8 +2826,40 @@ label {
     padding-inline: 10px;
   }
 
-  .brandText {
+  .appHeader .brandText {
     display: none;
+  }
+
+  .drawer .brandText {
+    display: grid;
+  }
+
+  .drawer {
+    width: min(92vw, 380px);
+  }
+
+  .game-shell {
+    gap: 10px;
+  }
+
+  .game-hero {
+    padding: 14px;
+  }
+
+  .game-hero h1 {
+    font-size: clamp(30px, 11vw, 40px);
+  }
+
+  .game-board {
+    padding: 14px;
+  }
+
+  .brew-button {
+    width: min(230px, 70vw);
+  }
+
+  .cup {
+    box-shadow: inset 0 0 0 7px rgba(21, 32, 26, 0.08);
   }
 
   .pageHome {

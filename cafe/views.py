@@ -157,8 +157,12 @@ def loyalty(request):
   )
 
 
-def clicker(request):
+def boiler_buster(request):
   return render(request, "cafe/clicker.html")
+
+
+def clicker(request):
+  return redirect("cafe:boiler_buster")
 
 
 def feedback(request):

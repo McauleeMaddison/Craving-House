@@ -29,7 +29,7 @@ https://github.com/McauleeMaddison/Craving-House
 - Private order confirmation pages with lookup codes
 - Staff dashboard for viewing and updating active orders
 - Digital loyalty card with staff stamp scanning
-- Interactive Bean Roaster Clicker mini game
+- Interactive Boiler Buster pressure-control mini game
 - Customer feedback form saved to the database
 - Manager dashboard for creating, editing, showing, and hiding menu items
 - Django admin for full data management
@@ -52,7 +52,7 @@ https://github.com/McauleeMaddison/Craving-House
 - `cafe/models.py` defines the database schema using the Django ORM.
 - `cafe/views.py` handles customer, staff, manager, and loyalty workflows.
 - `templates/` contains server-rendered Django pages.
-- `static/django/js/clicker.js` powers the interactive clicker game.
+- `static/django/js/clicker.js` powers the interactive Boiler Buster game.
 - `cafe/tests.py` verifies ordering and access-control behaviour.
 - `requirements.txt` lists Django as the application dependency.
 
@@ -128,7 +128,7 @@ Use this checklist before submitting or demonstrating the project:
 - Confirm the order appears in `/staff/`.
 - Update the order status from the staff dashboard.
 - Create or sign into a customer account and open `/loyalty/`.
-- Open `/clicker/` and confirm the Bean Roaster Clicker game responds to clicks.
+- Open `/boiler-buster/` and confirm the Boiler Buster game responds to clicks and gauge movement.
 - Add loyalty stamps from the staff dashboard.
 - Submit feedback from `/feedback/`.
 - Sign into `/admin/` or `/manager/` and confirm menu data is manageable.

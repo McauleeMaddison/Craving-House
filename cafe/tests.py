@@ -74,9 +74,14 @@ class CafeFlowTests(TestCase):
 
     self.assertEqual(response.json(), {"status": "ok", "framework": "Django"})
 
-  def test_clicker_game_page_loads(self):
-    response = self.client.get(reverse("cafe:clicker"))
+  def test_boiler_buster_game_page_loads(self):
+    response = self.client.get(reverse("cafe:boiler_buster"))
 
     self.assertEqual(response.status_code, 200)
-    self.assertContains(response, "Bean Roaster Clicker")
-    self.assertContains(response, "data-clicker-game")
+    self.assertContains(response, "Boiler Buster")
+    self.assertContains(response, "data-boiler-buster")
+
+  def test_old_clicker_url_redirects_to_boiler_buster(self):
+    response = self.client.get(reverse("cafe:clicker"))
+
+    self.assertRedirects(response, reverse("cafe:boiler_buster"))

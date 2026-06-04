@@ -13,6 +13,7 @@ urlpatterns = [
   path("checkout/", views.checkout, name="checkout"),
   path("orders/<int:pk>/<uuid:lookup_code>/", views.order_detail, name="order_detail"),
   path("loyalty/", views.loyalty, name="loyalty"),
+  path("boiler-buster/", views.boiler_buster, name="boiler_buster"),
   path("clicker/", views.clicker, name="clicker"),
   path("feedback/", views.feedback, name="feedback"),
   path("signup/", views.signup, name="signup"),

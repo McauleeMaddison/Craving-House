@@ -1,85 +1,137 @@
 {% extends "cafe/base.html" %}
 {% load static %}
 
-{% block title %}Bean Roaster Clicker | Craving House{% endblock %}
+{% block title %}Boiler Buster | Craving House{% endblock %}
 
 {% block extra_scripts %}
   <script src="{% static 'django/js/clicker.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
-  <section class="game-shell" data-clicker-game>
-    <div class="game-hero">
-      <div>
-        <p class="eyebrow">Craving House mini game</p>
-        <h1>Bean Roaster Clicker</h1>
-        <p class="lede">Tap the cup, earn beans, buy cafe upgrades, and grow a tiny coffee counter into a busy Craving House rush.</p>
+  <section class="container page boilerBusterPage" data-boiler-buster>
+    <section class="surface boilerBusterHero">
+      <div class="rowWrap">
+        <span class="pill">Customer mini-game</span>
+        <span class="pill">Tap while you wait</span>
+        <span class="pill">20 second round</span>
       </div>
-      <div class="game-save" aria-live="polite">
-        <span id="save-status">Progress saves automatically</span>
-        <button type="button" id="reset-game" class="button-ghost">Reset</button>
+
+      <div class="boilerBusterHeader">
+        <div class="boilerBusterHeading">
+          <h1 class="boilerBusterTitle">Boiler Buster</h1>
+          <p class="muted boilerBusterLead">
+            Vent steam, control the gauges, and keep pressure below 100% until the order queue clears.
+          </p>
+        </div>
+        <div class="boilerBusterStatus" id="bb-status">Standby</div>
       </div>
-    </div>
 
-    <div class="game-grid">
-      <section class="game-board" aria-label="Clicker game board">
-        <div class="bean-counter">
-          <span>Total beans</span>
-          <strong id="bean-count">0</strong>
+      <div class="boilerBusterLayout">
+        <div class="surface surfaceFlat boilerBusterBoard">
+          <div class="boilerBusterStats" aria-label="Boiler Buster score panel">
+            <div class="boilerBusterStat">
+              <div class="boilerBusterStatLabel">Score</div>
+              <div class="boilerBusterStatValue" id="bb-score">0</div>
+            </div>
+            <div class="boilerBusterStat">
+              <div class="boilerBusterStatLabel">Best</div>
+              <div class="boilerBusterStatValue" id="bb-best">0</div>
+              <span class="boilerBusterBestRibbon" id="bb-best-ribbon" hidden>Best</span>
+            </div>
+            <div class="boilerBusterStat">
+              <div class="boilerBusterStatLabel">Time</div>
+              <div class="boilerBusterStatValue" id="bb-time">20s</div>
+            </div>
+            <div class="boilerBusterStat">
+              <div class="boilerBusterStatLabel">Streak</div>
+              <div class="boilerBusterStatValue" id="bb-combo">x1</div>
+            </div>
+          </div>
+
+          <div class="boilerBusterMeterCard" id="bb-pressure-card">
+            <div class="boilerBusterMeterTop">
+              <div>
+                <div class="boilerBusterMeterLabel">Boiler pressure</div>
+                <div class="muted boilerBusterMeterHint" id="bb-pressure-label">Steady</div>
+              </div>
+              <div class="boilerBusterMeterValue" id="bb-pressure-value">34%</div>
+            </div>
+            <div class="boilerBusterMeter pressureTrack" role="progressbar" aria-label="Boiler pressure" aria-valuemin="0" aria-valuemax="100" aria-valuenow="34">
+              <div class="perfectBand" id="bb-perfect-band" aria-hidden="true"></div>
+              <div class="boilerBusterMeterFill boilerBusterMeterFillPressure pressureFill" id="bb-pressure-fill"></div>
+            </div>
+            <p class="muted boilerBusterMeterHint pressureCoach" id="bb-pressure-coach" aria-live="polite">
+              Tap the boiler to begin a round.
+            </p>
+            <div class="meterInfoRow">
+              <span class="meterTag" id="bb-sweet-spot">Sweet spot 65-87%</span>
+              <span class="meterTag meterTagSteady" id="bb-last-vent">Last vent: Tap the boiler to begin.</span>
+            </div>
+            <div class="boilerBusterMeterTop boilerBusterMeterTopSecondary">
+              <div>
+                <div class="boilerBusterMeterLabel">Order progress</div>
+                <div class="muted boilerBusterMeterHint" id="bb-queue-hint">Hold the line until the queue clears.</div>
+              </div>
+              <div class="boilerBusterMeterValue" id="bb-queue-value">0%</div>
+            </div>
+            <div class="boilerBusterMeter boilerBusterMeterSecondary" role="progressbar" aria-label="Order progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="boilerBusterMeterFill boilerBusterMeterFillSecondary" id="bb-queue-fill"></div>
+            </div>
+          </div>
+
+          <button class="boilerBusterTapZone" type="button" id="bb-tap-zone" aria-label="Start Boiler Buster">
+            <span class="boilerBusterMachine" aria-hidden="true">
+              <span class="boilerBusterMachineGlow"></span>
+              <span class="boilerBusterMachineTop"></span>
+              <span class="boilerBusterMachineBody"></span>
+              <span class="boilerBusterGauge" id="bb-gauge">
+                <span class="boilerBusterGaugeDot"></span>
+                <span class="boilerBusterNeedle" id="bb-needle"></span>
+              </span>
+              <span class="boilerBusterValve"></span>
+              <span class="boilerBusterSteam boilerBusterSteamA"></span>
+              <span class="boilerBusterSteam boilerBusterSteamB"></span>
+              <span class="boilerBusterSteam boilerBusterSteamC"></span>
+            </span>
+            <span class="boilerBusterTapCopy">
+              <span class="boilerBusterTapTitle" id="bb-tap-title">Start round</span>
+              <span class="boilerBusterTapSub" id="bb-tap-sub">Keep pressure under 100% until the timer reaches zero.</span>
+            </span>
+          </button>
+
+          <p class="muted panelHint" id="bb-panel-hint" aria-live="polite">
+            Tap the machine to start your 20-second round.
+          </p>
+
+          <div class="rowWrap boilerBusterActions">
+            <button class="btn" type="button" id="bb-new-round">New round</button>
+            <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">View cart</a>
+            <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Back to menu</a>
+          </div>
         </div>
 
-        <button type="button" id="brew-button" class="brew-button" aria-label="Brew coffee and earn beans">
-          <span class="cup">
-            <img src="{% static 'brand/ch-logo.png' %}" alt="">
-          </span>
-          <span class="brew-text">Brew</span>
-        </button>
+        <aside class="boilerBusterSide">
+          <div class="surface surfaceFlat boilerBusterNote">
+            <div class="cardTitle">How to play</div>
+            <p class="muted cardBody noteCopy">
+              Tap to vent steam and stop the boiler from reaching 100%. Survive for 20 seconds to clear the queue.
+              Vents in the sweet spot earn bonus points.
+            </p>
+          </div>
 
-        <div class="game-stats">
-          <div>
-            <span>Per click</span>
-            <strong id="per-click">1</strong>
+          <div class="surface surfaceFlat boilerBusterNote">
+            <div class="cardTitle">Round status</div>
+            <p class="muted cardBody noteCopy" id="bb-status-copy" aria-live="polite">
+              Tap the boiler to start, then keep pressure below 100% for 20 seconds.
+            </p>
+            <div class="boilerBusterMeta metaRow">
+              <span class="pill" id="bb-taps">Taps: 0</span>
+              <span class="pill" id="bb-pressure-pill">Pressure: 34%</span>
+              <span class="pill" id="bb-zone">Zone: Steady</span>
+            </div>
           </div>
-          <div>
-            <span>Per second</span>
-            <strong id="per-second">0</strong>
-          </div>
-          <div>
-            <span>Best roast</span>
-            <strong id="roast-level">Starter</strong>
-          </div>
-        </div>
-
-        <div class="roast-progress" aria-label="Roast level progress">
-          <div>
-            <span id="next-roast-label">Next roast: House Blend</span>
-            <strong id="next-roast-count">50 beans</strong>
-          </div>
-          <div class="progress-track">
-            <span id="roast-progress-bar"></span>
-          </div>
-        </div>
-      </section>
-
-      <aside class="game-panel">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Cafe upgrades</p>
-            <h2>Spend beans</h2>
-          </div>
-        </div>
-        <div id="upgrade-list" class="upgrade-list"></div>
-      </aside>
-
-      <aside class="game-panel">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Milestones</p>
-            <h2>Achievements</h2>
-          </div>
-        </div>
-        <div id="achievement-list" class="achievement-list"></div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    </section>
   </section>
 {% endblock %}
