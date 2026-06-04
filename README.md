@@ -43,7 +43,7 @@ https://github.com/McauleeMaddison/Craving-House
 - `static/django/` - application CSS and JavaScript
 - `images/` - Craving House brand assets served as static files
 - `requirements.txt` - Python dependencies
-- `.env.example` - example production environment variables
+- `.env` - local environment variable reference; production values are configured in Render
 
 ## Required Stack Evidence
 
