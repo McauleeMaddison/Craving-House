@@ -332,11 +332,77 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, "Staff only")
     self.assertContains(response, "Order station")
     self.assertContains(response, "Loyalty station")
+    self.assertContains(response, "Next order")
+    self.assertContains(response, "Counter due")
+    self.assertContains(response, "Card pending")
+    self.assertContains(response, 'href="#order-station"')
+    self.assertContains(response, 'href="#loyalty-station"')
     self.assertContains(response, "data-loyalty-scanner")
     self.assertEqual(
       response.context["staff_stats"],
-      {"active": 0, "preparing": 0, "ready": 0, "paid": 0},
+      {
+        "active": 0,
+        "placed": 0,
+        "preparing": 0,
+        "ready": 0,
+        "paid": 0,
+        "counter_due": 0,
+        "card_pending": 0,
+      },
     )
+
+  def test_staff_dashboard_prioritizes_oldest_active_orders_and_payment_work(self):
+    group = Group.objects.create(name="Staff")
+    user = User.objects.create_user("staffops", password="StaffPass123")
+    user.groups.add(group)
+    base_time = timezone.now()
+    older_order = Order.objects.create(
+      guest_name="Oldest Customer",
+      payment_status=Order.PaymentStatus.DUE,
+      subtotal=Decimal("4.20"),
+      prep_minutes=5,
+    )
+    newer_order = Order.objects.create(
+      guest_name="Ready Customer",
+      status=Order.Status.READY,
+      payment_method=Order.PaymentMethod.STRIPE,
+      payment_status=Order.PaymentStatus.PENDING,
+      subtotal=Decimal("7.40"),
+      prep_minutes=3,
+    )
+    collected_order = Order.objects.create(
+      guest_name="Collected Customer",
+      status=Order.Status.COLLECTED,
+      payment_status=Order.PaymentStatus.PAID,
+      subtotal=Decimal("2.20"),
+      prep_minutes=2,
+    )
+    Order.objects.filter(pk=older_order.pk).update(created_at=base_time)
+    Order.objects.filter(pk=newer_order.pk).update(created_at=base_time + timedelta(minutes=8))
+    Order.objects.filter(pk=collected_order.pk).update(created_at=base_time - timedelta(minutes=8))
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:staff_dashboard"))
+
+    order_ids = [order.pk for order in response.context["orders"]]
+    self.assertEqual(order_ids, [older_order.pk, newer_order.pk])
+    self.assertEqual(response.context["next_order"].pk, older_order.pk)
+    self.assertEqual(
+      response.context["staff_stats"],
+      {
+        "active": 2,
+        "placed": 1,
+        "preparing": 0,
+        "ready": 1,
+        "paid": 0,
+        "counter_due": 1,
+        "card_pending": 1,
+      },
+    )
+    self.assertContains(response, f"#{older_order.pk} · Oldest Customer")
+    self.assertContains(response, "Counter due")
+    self.assertContains(response, "Card pending")
+    self.assertNotContains(response, "Collected Customer")
 
   def test_staff_scanner_javascript_has_cross_browser_qr_fallback(self):
     scanner_script = Path(__file__).resolve().parent.parent / "static" / "django" / "js" / "app.js"
@@ -366,7 +432,7 @@ class CafeFlowTests(TestCase):
     self.assertNotContains(response, 'href="/feedback/"')
     self.assertNotContains(response, 'href="/boiler-buster/"')
 
-  def test_staff_group_user_sees_staff_navigation(self):
+  def test_staff_group_user_home_redirects_to_staff_dashboard(self):
     group = Group.objects.create(name="Staff")
     user = User.objects.create_user("staffnav", password="StaffPass123")
     user.groups.add(group)
@@ -374,10 +440,7 @@ class CafeFlowTests(TestCase):
 
     response = self.client.get(reverse("cafe:home"))
 
-    self.assertEqual(response.status_code, 200)
-    self.assertContains(response, "Welcome, staffnav · Staff")
-    self.assertContains(response, reverse("cafe:staff_dashboard"))
-    self.assertNotContains(response, reverse("cafe:manager_dashboard"))
+    self.assertRedirects(response, reverse("cafe:staff_dashboard"))
 
   def test_staff_group_user_cannot_access_manager_dashboard(self):
     group = Group.objects.create(name="Staff")
@@ -390,7 +453,7 @@ class CafeFlowTests(TestCase):
     self.assertEqual(response.status_code, 302)
     self.assertIn("/accounts/login/", response["Location"])
 
-  def test_manager_group_user_can_access_manager_dashboard_and_navigation(self):
+  def test_manager_group_user_home_redirects_to_manager_dashboard(self):
     group = Group.objects.create(name="Manager")
     user = User.objects.create_user("manageruser", password="ManagerPass123")
     user.groups.add(group)
@@ -401,9 +464,7 @@ class CafeFlowTests(TestCase):
 
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "Menu and operations")
-    self.assertContains(home_response, "Welcome, manageruser · Manager")
-    self.assertContains(home_response, reverse("cafe:staff_dashboard"))
-    self.assertContains(home_response, reverse("cafe:manager_dashboard"))
+    self.assertRedirects(home_response, reverse("cafe:manager_dashboard"))
 
   def test_manager_portal_hides_customer_navigation_links(self):
     group = Group.objects.create(name="Manager")

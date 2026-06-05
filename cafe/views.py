@@ -26,6 +26,12 @@ manager_required = user_passes_test(is_manager, login_url="login")
 
 
 def home(request):
+  if request.user.is_authenticated:
+    if is_manager(request.user):
+      return redirect("cafe:manager_dashboard")
+    if is_staff_member(request.user):
+      return redirect("cafe:staff_dashboard")
+
   featured_items = MenuItem.objects.filter(available=True, featured=True).select_related("category")[:6]
   if not featured_items:
     featured_items = MenuItem.objects.filter(available=True).select_related("category")[:6]
@@ -302,19 +308,23 @@ def signup(request):
 def staff_dashboard(request):
   active_orders = Order.objects.exclude(
     status__in=[Order.Status.COLLECTED, Order.Status.CANCELLED]
-  ).prefetch_related("items")
+  ).prefetch_related("items").order_by("created_at")
   scan_form = LoyaltyScanForm()
   staff_stats = {
     "active": active_orders.count(),
+    "placed": active_orders.filter(status=Order.Status.PLACED).count(),
     "preparing": active_orders.filter(status=Order.Status.PREPARING).count(),
     "ready": active_orders.filter(status=Order.Status.READY).count(),
     "paid": active_orders.filter(payment_status=Order.PaymentStatus.PAID).count(),
+    "counter_due": active_orders.filter(payment_status=Order.PaymentStatus.DUE).count(),
+    "card_pending": active_orders.filter(payment_status=Order.PaymentStatus.PENDING).count(),
   }
   return render(
     request,
     "cafe/staff_dashboard.html",
     {
       "orders": active_orders,
+      "next_order": active_orders.first(),
       "status_choices": Order.Status.choices,
       "scan_form": scan_form,
       "staff_stats": staff_stats,

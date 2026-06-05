@@ -9,13 +9,42 @@
         <p class="eyebrow">Staff portal</p>
         <h1>Service dashboard</h1>
       </div>
-      <span class="staffAccessPill">Staff only</span>
+      <div class="staffHeroActions">
+        <span class="staffAccessPill">Staff only</span>
+        <a class="staffQuickButton" href="#order-station">Orders</a>
+        <a class="staffQuickButton" href="#loyalty-station">Scan loyalty</a>
+      </div>
+    </section>
+
+    <section class="staffOpsStrip" aria-label="Priority operations">
+      <article class="staffOpsCard staffOpsPriority">
+        <span>Next order</span>
+        {% if next_order %}
+          <strong>#{{ next_order.pk }} · {{ next_order.guest_name }}</strong>
+          <small>{{ next_order.get_status_display }} · {{ next_order.prep_minutes }} min · £{{ next_order.subtotal }}</small>
+        {% else %}
+          <strong>Clear queue</strong>
+          <small>No active orders.</small>
+        {% endif %}
+      </article>
+      <a class="staffOpsCard" href="#order-station">
+        <span>Counter due</span>
+        <strong>{{ staff_stats.counter_due }}</strong>
+      </a>
+      <a class="staffOpsCard" href="#order-station">
+        <span>Card pending</span>
+        <strong>{{ staff_stats.card_pending }}</strong>
+      </a>
     </section>
 
     <section class="staffStatsGrid" aria-label="Order status summary">
       <div class="staffStat">
         <span>Active</span>
         <strong>{{ staff_stats.active }}</strong>
+      </div>
+      <div class="staffStat">
+        <span>New</span>
+        <strong>{{ staff_stats.placed }}</strong>
       </div>
       <div class="staffStat">
         <span>Preparing</span>
@@ -25,33 +54,34 @@
         <span>Ready</span>
         <strong>{{ staff_stats.ready }}</strong>
       </div>
-      <div class="staffStat">
-        <span>Paid card</span>
-        <strong>{{ staff_stats.paid }}</strong>
-      </div>
     </section>
 
     <div class="staffWorkspace">
-      <section class="staffPanel staffOrdersPanel">
+      <section id="order-station" class="staffPanel staffOrdersPanel">
         <div class="staffPanelHeader">
           <h2>Order station</h2>
-          <span>{{ staff_stats.active }} open</span>
+          <span>{{ staff_stats.active }} open · {{ staff_stats.ready }} ready</span>
         </div>
         <div class="staff-list">
           {% for order in orders %}
-            <article class="staff-order">
-              <div>
-                <strong>#{{ order.pk }} · {{ order.guest_name }}</strong>
-                <span>
-                  {{ order.get_status_display }} · {{ order.prep_minutes }} min · £{{ order.subtotal }} ·
-                  {% if order.payment_status == "paid" %}
-                    Paid by card
-                  {% elif order.payment_method == "stripe" %}
-                    Card payment pending
-                  {% else %}
-                    Pay at counter
-                  {% endif %}
-                </span>
+            <article class="staff-order staff-order-{{ order.status }}">
+              <div class="staffOrderTop">
+                <div>
+                  <strong>#{{ order.pk }} · {{ order.guest_name }}</strong>
+                  <span>{{ order.created_at|date:"H:i" }} · {{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+                </div>
+                <span class="staffStatusPill">{{ order.get_status_display }}</span>
+              </div>
+              <div class="staffOrderMeta">
+                <span>{{ order.prep_minutes }} min prep</span>
+                <span>£{{ order.subtotal }}</span>
+                {% if order.payment_status == "paid" %}
+                  <span class="staffPaymentTag staffPaymentPaid">Paid by card</span>
+                {% elif order.payment_method == "stripe" %}
+                  <span class="staffPaymentTag staffPaymentPending">Card pending</span>
+                {% else %}
+                  <span class="staffPaymentTag staffPaymentDue">Counter due</span>
+                {% endif %}
               </div>
               <ul>
                 {% for item in order.items.all %}
@@ -79,7 +109,7 @@
         </div>
       </section>
 
-      <aside class="staffPanel staffLoyaltyPanel">
+      <aside id="loyalty-station" class="staffPanel staffLoyaltyPanel">
         <div class="staffPanelHeader">
           <h2>Loyalty station</h2>
           <span>QR scan</span>
