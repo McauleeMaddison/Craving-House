@@ -109,10 +109,19 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
   const stopButton = scanner.querySelector("[data-loyalty-scanner-stop]");
   const status = scanner.querySelector("[data-loyalty-scanner-status]");
   const cardCodeInput = document.getElementById("id_card_code");
+  const appScriptUrl = document.currentScript && document.currentScript.src;
+  const compatibilityDecoderUrl = appScriptUrl
+    ? new URL("vendor/jsqr/jsQR.js", appScriptUrl).toString()
+    : "/static/django/js/vendor/jsqr/jsQR.js";
+  const canvas = document.createElement("canvas");
+  const canvasContext = canvas.getContext("2d", { willReadFrequently: true });
+  const secureLocalHosts = ["localhost", "127.0.0.1", "::1"];
   let stream = null;
   let detector = null;
   let animationFrame = null;
   let isScanning = false;
+  let scannerMode = null;
+  let decoderScriptPromise = null;
 
   function setStatus(message) {
     if (status) {
@@ -123,6 +132,116 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
   function extractCardCode(value) {
     const match = String(value || "").match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     return match ? match[0] : String(value || "").trim();
+  }
+
+  function cameraNeedsSecureContext() {
+    return !window.isSecureContext && !secureLocalHosts.includes(window.location.hostname);
+  }
+
+  function cameraUnavailableMessage() {
+    if (cameraNeedsSecureContext()) {
+      return "Camera scanning needs HTTPS. Open the secure live site or enter the card code manually.";
+    }
+    return "Camera access is not available in this browser. Enter the card code manually.";
+  }
+
+  function cameraErrorMessage(error) {
+    if (cameraNeedsSecureContext()) {
+      return "Camera scanning needs HTTPS. Open the secure live site or enter the card code manually.";
+    }
+    if (error && error.name === "NotFoundError") {
+      return "No camera was found. Enter the card code manually.";
+    }
+    if (error && error.name === "NotAllowedError") {
+      return "Camera permission was not granted. Enter the card code manually.";
+    }
+    return "Camera scanner stopped. Enter the card code manually.";
+  }
+
+  async function createNativeDetector() {
+    if (!("BarcodeDetector" in window)) {
+      return null;
+    }
+
+    try {
+      if (typeof window.BarcodeDetector.getSupportedFormats === "function") {
+        const formats = await window.BarcodeDetector.getSupportedFormats();
+        if (!formats.includes("qr_code")) {
+          return null;
+        }
+      }
+      return new window.BarcodeDetector({ formats: ["qr_code"] });
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function loadCompatibilityDecoder() {
+    if (window.jsQR) {
+      return Promise.resolve(true);
+    }
+    if (decoderScriptPromise) {
+      return decoderScriptPromise;
+    }
+
+    decoderScriptPromise = new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = compatibilityDecoderUrl;
+      script.async = true;
+      script.crossOrigin = "anonymous";
+      script.onload = () => resolve(Boolean(window.jsQR));
+      script.onerror = () => resolve(false);
+      document.head.appendChild(script);
+    });
+
+    return decoderScriptPromise;
+  }
+
+  async function prepareDecoder() {
+    detector = await createNativeDetector();
+    if (detector) {
+      scannerMode = "native";
+      return true;
+    }
+
+    if (canvasContext && (await loadCompatibilityDecoder())) {
+      scannerMode = "compatibility";
+      return true;
+    }
+
+    scannerMode = null;
+    return false;
+  }
+
+  async function detectQrCodes() {
+    if (!video || video.readyState < 2) {
+      return [];
+    }
+
+    if (scannerMode === "native" && detector) {
+      return detector.detect(video);
+    }
+
+    if (scannerMode === "compatibility" && window.jsQR && canvasContext) {
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+
+      if (!width || !height) {
+        return [];
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      canvasContext.drawImage(video, 0, 0, width, height);
+      const imageData = canvasContext.getImageData(0, 0, width, height);
+      const code = window.jsQR(imageData.data, width, height, {
+        inversionAttempts: "attemptBoth",
+      });
+
+      return code ? [{ rawValue: code.data }] : [];
+    }
+
+    return [];
   }
 
   function stopScanner(message) {
@@ -151,19 +270,17 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
   }
 
   async function scanFrame() {
-    if (!isScanning || !detector || !video) {
+    if (!isScanning || !video) {
       return;
     }
 
     try {
-      if (video.readyState >= 2) {
-        const codes = await detector.detect(video);
-        if (codes.length && cardCodeInput) {
-          cardCodeInput.value = extractCardCode(codes[0].rawValue);
-          cardCodeInput.dispatchEvent(new Event("input", { bubbles: true }));
-          stopScanner("Card scanned. Check the stamp count, then add stamps.");
-          return;
-        }
+      const codes = await detectQrCodes();
+      if (codes.length && cardCodeInput) {
+        cardCodeInput.value = extractCardCode(codes[0].rawValue);
+        cardCodeInput.dispatchEvent(new Event("input", { bubbles: true }));
+        stopScanner("Card scanned. Check the stamp count, then add stamps.");
+        return;
       }
     } catch (error) {
       stopScanner("Camera scanner stopped. Enter the card code manually.");
@@ -174,19 +291,37 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
   }
 
   async function startScanner() {
-    if (!("BarcodeDetector" in window)) {
-      setStatus("QR camera scanning is not available in this browser.");
+    if (isScanning) {
       return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus("Camera access is not available in this browser.");
+      setStatus(cameraUnavailableMessage());
+      return;
+    }
+
+    if (startButton) {
+      startButton.disabled = true;
+    }
+    if (stopButton) {
+      stopButton.disabled = true;
+    }
+    setStatus("Preparing camera scanner...");
+
+    if (!(await prepareDecoder())) {
+      if (startButton) {
+        startButton.disabled = false;
+      }
+      setStatus("QR decoder could not load. Enter the card code manually.");
       return;
     }
 
     try {
-      detector = new window.BarcodeDetector({ formats: ["qr_code"] });
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       video.srcObject = stream;
@@ -195,10 +330,10 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
       scanner.classList.add("isScanning");
       startButton.disabled = true;
       stopButton.disabled = false;
-      setStatus("Scanning...");
+      setStatus(scannerMode === "native" ? "Scanning..." : "Scanning in compatibility mode...");
       scanFrame();
     } catch (error) {
-      stopScanner("Camera permission was not granted. Enter the card code manually.");
+      stopScanner(cameraErrorMessage(error));
     }
   }
 

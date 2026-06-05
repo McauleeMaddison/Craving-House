@@ -94,7 +94,6 @@
                 <button class="btn btn-secondary" type="submit">Sign out</button>
               </form>
             {% else %}
-              <a class="btn btn-secondary" href="{% url 'cafe:signup' %}">Create account</a>
               <a class="btn btn-secondary" href="{% url 'login' %}">Sign in</a>
             {% endif %}
           </nav>
@@ -123,8 +122,6 @@
           <span class="pill">Open Tuesday to Saturday</span>
           {% if user.is_authenticated %}
             <span class="accountWelcome drawerWelcome">Welcome, {{ user.username }}{% if user_role_label %} · {{ user_role_label }}{% endif %}</span>
-          {% else %}
-            <a class="accountWelcome drawerWelcome" href="{% url 'cafe:signup' %}" data-nav-close>Create account</a>
           {% endif %}
           <button class="themeToggle themeTogglePoster themeToggleCompact" type="button" role="switch" aria-checked="false" data-theme-toggle>
             <span class="themeToggleTrack" aria-hidden="true">
@@ -186,9 +183,6 @@
                 <button class="drawerLink" type="submit">Sign out</button>
               </form>
             {% else %}
-              <a class="drawerLink" href="{% url 'cafe:signup' %}" data-nav-close>
-                <span class="drawerLinkLabel">Create account</span>
-              </a>
               <a class="drawerLink" href="{% url 'login' %}" data-nav-close>
                 <span class="drawerLinkLabel">Sign in</span>
               </a>

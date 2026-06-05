@@ -1,6 +1,7 @@
 from decimal import Decimal
 from datetime import timedelta
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
@@ -96,6 +97,15 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, "Sign in to start tracking your stamps.")
     self.assertContains(response, 'value="0"')
     self.assertContains(response, 'max="8"')
+
+  def test_public_navigation_only_shows_sign_in_account_action(self):
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, 'href="/accounts/login/"')
+    self.assertContains(response, '<span class="drawerLinkLabel">Sign in</span>', html=True)
+    self.assertNotContains(response, 'href="/signup/"')
+    self.assertNotContains(response, "Create account")
 
   def test_signed_in_home_loyalty_progress_uses_tracked_profile(self):
     user = User.objects.create_user("trackedcustomer", password="CustomerPass123")
@@ -298,6 +308,16 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, "Order queue")
     self.assertContains(response, "Loyalty scan")
     self.assertContains(response, "data-loyalty-scanner")
+
+  def test_staff_scanner_javascript_has_cross_browser_qr_fallback(self):
+    scanner_script = Path(__file__).resolve().parent.parent / "static" / "django" / "js" / "app.js"
+    script = scanner_script.read_text()
+
+    self.assertIn("BarcodeDetector", script)
+    self.assertIn("jsQR", script)
+    self.assertIn("vendor/jsqr/jsQR.js", script)
+    self.assertIn("Scanning in compatibility mode", script)
+    self.assertIn("Camera scanning needs HTTPS", script)
 
   def test_staff_portal_hides_customer_navigation_links(self):
     group = Group.objects.create(name="Staff")
