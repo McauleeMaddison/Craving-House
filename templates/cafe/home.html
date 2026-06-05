@@ -64,9 +64,12 @@
         </a>
 
         <div class="dashCtaRow">
-          <a class="dashCtaSmall" href="{% url 'cafe:loyalty' %}">
-            <span class="dashCtaSmallTitle">My card</span>
-            <span aria-hidden="true" class="dashCtaSmallArrow">→</span>
+          <a class="dashCtaSmall dashCtaCart" href="{% url 'cafe:cart' %}">
+            <span class="dashCtaSmallTitle">Cart</span>
+            <span class="dashCtaMeta">
+              <span class="dashCartBadge" data-cart-count aria-label="{{ cart_count }} items in cart" {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
+              <span aria-hidden="true" class="dashCtaSmallArrow">→</span>
+            </span>
           </a>
           <a class="dashCtaSmall" href="{% url 'cafe:boiler_buster' %}">
             <span class="dashCtaSmallTitle">Boiler Buster</span>

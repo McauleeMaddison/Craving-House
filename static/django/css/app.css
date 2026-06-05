@@ -555,7 +555,7 @@ label {
 }
 
 .navDesktopBadge,
-.navMobileBadge {
+.dashCartBadge {
   min-width: 22px;
   height: 22px;
   padding: 0 7px;
@@ -569,14 +569,6 @@ label {
   font-size: 11px;
   font-weight: 950;
   line-height: 1;
-}
-
-.navMobileBadge {
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  border-width: 2px;
-  border-color: rgba(8, 10, 14, 0.82);
 }
 
 .accountWelcome {
@@ -1290,6 +1282,13 @@ body.navOpen {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.dashCtaMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
 .dashArrow,
 .dashCtaSmallArrow {
   font-weight: 950;
@@ -1959,6 +1958,113 @@ body.navOpen {
   animation-delay: calc(var(--stamp-index, 1) * 50ms);
 }
 
+.staffPage {
+  --staff-border: rgba(47, 228, 171, 0.18);
+  --staff-surface: rgba(5, 11, 16, 0.68);
+  --staff-surface-strong: rgba(5, 11, 16, 0.86);
+}
+
+.staffHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: clamp(16px, 3vw, 22px);
+  border: 1px solid var(--staff-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(520px 220px at 0% 0%, rgba(47, 228, 171, 0.18), transparent 62%),
+    linear-gradient(135deg, rgba(5, 11, 16, 0.92), rgba(14, 19, 26, 0.76));
+  box-shadow: var(--shadow);
+}
+
+.staffHero h1 {
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 0.98;
+}
+
+.staffAccessPill {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid rgba(47, 228, 171, 0.34);
+  border-radius: var(--radius-pill);
+  background: rgba(47, 228, 171, 0.12);
+  color: rgba(220, 255, 244, 0.96);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.staffStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.staffStat {
+  min-height: 90px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+    rgba(5, 11, 16, 0.68);
+  display: grid;
+  align-content: space-between;
+}
+
+.staffStat span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.staffStat strong {
+  color: rgba(220, 255, 244, 0.96);
+  font-size: clamp(26px, 5vw, 38px);
+  line-height: 1;
+}
+
+.staffWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 0.42fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.staffPanel {
+  padding: 18px;
+  border: 1px solid var(--staff-border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, var(--staff-surface-strong), var(--staff-surface));
+  box-shadow: var(--shadow);
+}
+
+.staffPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.staffPanelHeader h2 {
+  margin: 0;
+  font-size: clamp(20px, 3vw, 26px);
+}
+
+.staffPanelHeader span {
+  min-height: 30px;
+  padding: 6px 10px;
+  border: 1px solid rgba(242, 183, 5, 0.3);
+  border-radius: var(--radius-pill);
+  background: rgba(242, 183, 5, 0.12);
+  color: rgba(255, 242, 200, 0.94);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .staff-list {
   display: grid;
   gap: 12px;
@@ -1966,12 +2072,26 @@ body.navOpen {
 
 .staff-order {
   padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)),
+    rgba(5, 11, 16, 0.58);
+  box-shadow: none;
 }
 
 .staff-order span {
   color: var(--muted);
   display: block;
   margin-top: 4px;
+}
+
+.staff-order ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.staffEmptyState {
+  margin: 0;
+  color: var(--muted);
 }
 
 .inline-form {
@@ -3358,6 +3478,7 @@ body.navOpen {
   }
 
   .two-column,
+  .staffWorkspace,
   .loyalty-card,
   .orderHistoryList,
   .game-hero {
@@ -3366,6 +3487,7 @@ body.navOpen {
 
   .item-grid,
   .dashboard-strip,
+  .staffStatsGrid,
   .dashWidgets {
     grid-template-columns: 1fr;
   }
@@ -3539,6 +3661,15 @@ body.navOpen {
 
   .roast-progress > div:first-child {
     grid-template-columns: 1fr;
+  }
+
+  .staffHero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .staffAccessPill {
+    justify-self: start;
   }
 
   .pageHome {

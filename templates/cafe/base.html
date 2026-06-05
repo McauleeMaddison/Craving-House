@@ -5,6 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Craving House{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'brand/ch-logo.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'brand/ch-logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'brand/ch-logo.png' %}">
+    <meta name="apple-mobile-web-app-title" content="Craving House">
     <script>
       (function () {
         try {
@@ -29,7 +33,6 @@
               <span class="brandMark" aria-hidden="true">
                 <img src="{% static 'brand/ch-logo.png' %}" alt="">
               </span>
-              <span class="navMobileBadge" data-cart-count aria-label="{{ cart_count }} items in cart" {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
             </span>
             <span class="brandText">
               <span class="brandName">Craving House</span>
@@ -205,7 +208,7 @@
 
       <footer class="appFooter">
         <div class="container appFooterInner">
-          <span>Craving House Django project</span>
+          <span>Craving House Coffee App</span>
           <span>Order ahead, collect in store, earn loyalty rewards.</span>
         </div>
       </footer>

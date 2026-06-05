@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
+from django.templatetags.static import static
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -106,6 +107,28 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, '<span class="drawerLinkLabel">Sign in</span>', html=True)
     self.assertNotContains(response, 'href="/signup/"')
     self.assertNotContains(response, "Create account")
+
+  def test_shared_shell_uses_app_branding_and_logo_icons(self):
+    response = self.client.get(reverse("cafe:home"))
+    logo_url = static("brand/ch-logo.png")
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Craving House Coffee App")
+    self.assertContains(response, f'rel="icon" type="image/png" href="{logo_url}"')
+    self.assertContains(response, f'rel="apple-touch-icon" href="{logo_url}"')
+    self.assertNotContains(response, "Craving House Django project")
+
+  def test_home_cart_shortcut_replaces_my_card_and_uses_cart_badge(self):
+    self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "1"})
+
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, 'class="dashCtaSmall dashCtaCart" href="/cart/"')
+    self.assertContains(response, '<span class="dashCtaSmallTitle">Cart</span>', html=True)
+    self.assertContains(response, 'class="dashCartBadge" data-cart-count aria-label="1 items in cart"')
+    self.assertNotContains(response, "My card")
+    self.assertNotContains(response, "navMobileBadge")
 
   def test_signed_in_home_loyalty_progress_uses_tracked_profile(self):
     user = User.objects.create_user("trackedcustomer", password="CustomerPass123")
@@ -305,9 +328,15 @@ class CafeFlowTests(TestCase):
     response = self.client.get(reverse("cafe:staff_dashboard"))
 
     self.assertEqual(response.status_code, 200)
-    self.assertContains(response, "Order queue")
-    self.assertContains(response, "Loyalty scan")
+    self.assertContains(response, "Service dashboard")
+    self.assertContains(response, "Staff only")
+    self.assertContains(response, "Order station")
+    self.assertContains(response, "Loyalty station")
     self.assertContains(response, "data-loyalty-scanner")
+    self.assertEqual(
+      response.context["staff_stats"],
+      {"active": 0, "preparing": 0, "ready": 0, "paid": 0},
+    )
 
   def test_staff_scanner_javascript_has_cross_browser_qr_fallback(self):
     scanner_script = Path(__file__).resolve().parent.parent / "static" / "django" / "js" / "app.js"

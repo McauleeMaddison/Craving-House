@@ -304,10 +304,21 @@ def staff_dashboard(request):
     status__in=[Order.Status.COLLECTED, Order.Status.CANCELLED]
   ).prefetch_related("items")
   scan_form = LoyaltyScanForm()
+  staff_stats = {
+    "active": active_orders.count(),
+    "preparing": active_orders.filter(status=Order.Status.PREPARING).count(),
+    "ready": active_orders.filter(status=Order.Status.READY).count(),
+    "paid": active_orders.filter(payment_status=Order.PaymentStatus.PAID).count(),
+  }
   return render(
     request,
     "cafe/staff_dashboard.html",
-    {"orders": active_orders, "status_choices": Order.Status.choices, "scan_form": scan_form},
+    {
+      "orders": active_orders,
+      "status_choices": Order.Status.choices,
+      "scan_form": scan_form,
+      "staff_stats": staff_stats,
+    },
   )
 
 
