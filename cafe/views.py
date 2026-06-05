@@ -283,12 +283,22 @@ def clicker(request):
 
 
 def feedback(request):
-  form = FeedbackForm(request.POST or None)
+  form = FeedbackForm(request.POST or None, user=request.user)
   if request.method == "POST" and form.is_valid():
-    form.save()
+    feedback_entry = form.save(commit=False)
+    if request.user.is_authenticated:
+      feedback_entry.email = request.user.email
+    feedback_entry.save()
     messages.success(request, "Thanks for the feedback. The manager can review it in admin.")
     return redirect("cafe:feedback")
-  return render(request, "cafe/feedback.html", {"form": form})
+  return render(
+    request,
+    "cafe/feedback.html",
+    {
+      "form": form,
+      "feedback_account_email": request.user.email if request.user.is_authenticated else "",
+    },
+  )
 
 
 def signup(request):

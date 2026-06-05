@@ -21,6 +21,11 @@ class CheckoutForm(forms.Form):
 
 
 class FeedbackForm(forms.ModelForm):
+  def __init__(self, *args, user=None, **kwargs):
+    super().__init__(*args, **kwargs)
+    if user and user.is_authenticated:
+      self.fields.pop("email", None)
+
   class Meta:
     model = Feedback
     fields = ["name", "email", "rating", "message"]

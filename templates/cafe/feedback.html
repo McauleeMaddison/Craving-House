@@ -10,6 +10,11 @@
 
   <form method="post" class="panel form-panel narrow">
     {% csrf_token %}
+    {% if feedback_account_email %}
+      <p class="feedbackAccountEmail">
+        Using your account email: <strong>{{ feedback_account_email }}</strong>
+      </p>
+    {% endif %}
     {{ form.as_p }}
     <button type="submit" class="button-primary">Send feedback</button>
   </form>

@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import CustomerProfile, LoyaltyScan, MenuCategory, MenuItem, MenuItemAddOn, Order
+from .models import CustomerProfile, Feedback, LoyaltyScan, MenuCategory, MenuItem, MenuItemAddOn, Order
 
 
 class CafeFlowTests(TestCase):
@@ -129,6 +129,48 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, 'class="dashCartBadge" data-cart-count aria-label="1 items in cart"')
     self.assertNotContains(response, "My card")
     self.assertNotContains(response, "navMobileBadge")
+
+  def test_guest_feedback_saves_guest_email_field(self):
+    response = self.client.post(
+      reverse("cafe:feedback"),
+      {
+        "name": "Guest Customer",
+        "email": "guest@example.com",
+        "rating": "5",
+        "message": "Loved the coffee.",
+      },
+    )
+
+    feedback = Feedback.objects.get()
+    self.assertRedirects(response, reverse("cafe:feedback"))
+    self.assertEqual(feedback.email, "guest@example.com")
+
+  def test_signed_in_feedback_uses_account_email_and_hides_email_field(self):
+    user = User.objects.create_user(
+      "feedbackcustomer",
+      email="account@example.com",
+      password="CustomerPass123",
+    )
+    self.client.force_login(user)
+
+    get_response = self.client.get(reverse("cafe:feedback"))
+    post_response = self.client.post(
+      reverse("cafe:feedback"),
+      {
+        "name": "Feedback Customer",
+        "email": "spoofed@example.com",
+        "rating": "4",
+        "message": "Nice service.",
+      },
+    )
+
+    feedback = Feedback.objects.get()
+    self.assertEqual(get_response.status_code, 200)
+    self.assertContains(get_response, "Using your account email")
+    self.assertContains(get_response, "account@example.com")
+    self.assertNotContains(get_response, 'name="email"')
+    self.assertRedirects(post_response, reverse("cafe:feedback"))
+    self.assertEqual(feedback.email, "account@example.com")
 
   def test_signed_in_home_loyalty_progress_uses_tracked_profile(self):
     user = User.objects.create_user("trackedcustomer", password="CustomerPass123")

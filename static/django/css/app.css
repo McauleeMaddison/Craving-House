@@ -1711,6 +1711,19 @@ body.navOpen {
   margin: 0 0 16px;
 }
 
+.feedbackAccountEmail {
+  padding: 10px 12px;
+  border: 1px solid rgba(242, 183, 5, 0.24);
+  border-radius: var(--radius-md);
+  background: rgba(242, 183, 5, 0.1);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.feedbackAccountEmail strong {
+  color: rgba(255, 242, 200, 0.96);
+}
+
 .form-panel .helptext,
 .form-panel ul,
 .errorlist {
