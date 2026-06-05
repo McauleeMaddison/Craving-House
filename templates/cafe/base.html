@@ -45,24 +45,26 @@
             aria-controls="mobile-drawer"
             data-nav-toggle
           >
-            <span class="appHeaderMenuLabel">Menu</span>
+            <span class="appHeaderMenuLabel">{% if is_operations_portal %}Portal{% else %}Menu{% endif %}</span>
             <span class="iconLines" aria-hidden="true"></span>
           </button>
 
           <nav class="navDesktop" aria-label="Primary navigation">
-            <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Menu</a>
-            <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">
-              <span class="navDesktopLinkLabel">
-                Cart
-                <span class="navDesktopBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
-              </span>
-            </a>
-            <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
-            {% if user.is_authenticated %}
-              <a class="btn btn-secondary" href="{% url 'cafe:order_history' %}">Orders</a>
+            {% if not is_operations_portal %}
+              <a class="btn btn-secondary" href="{% url 'cafe:menu' %}">Menu</a>
+              <a class="btn btn-secondary" href="{% url 'cafe:cart' %}">
+                <span class="navDesktopLinkLabel">
+                  Cart
+                  <span class="navDesktopBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
+                </span>
+              </a>
+              <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
+              {% if user.is_authenticated %}
+                <a class="btn btn-secondary" href="{% url 'cafe:order_history' %}">Orders</a>
+              {% endif %}
+              <a class="btn btn-secondary" href="{% url 'cafe:boiler_buster' %}">Boiler Buster</a>
+              <a class="btn btn-secondary" href="{% url 'cafe:feedback' %}">Feedback</a>
             {% endif %}
-            <a class="btn btn-secondary" href="{% url 'cafe:boiler_buster' %}">Boiler Buster</a>
-            <a class="btn btn-secondary" href="{% url 'cafe:feedback' %}">Feedback</a>
             {% if user.is_authenticated %}
               <span class="accountWelcome">Welcome, {{ user.username }}{% if user_role_label %} · {{ user_role_label }}{% endif %}</span>
             {% endif %}
@@ -142,30 +144,32 @@
 
         <div class="drawerContent">
           <nav class="drawerLinks" aria-label="Mobile navigation">
-            <a class="drawerLink" href="{% url 'cafe:menu' %}" data-nav-close>
-              <span class="drawerLinkLabel">Menu</span>
-            </a>
-            <a class="drawerLink" href="{% url 'cafe:cart' %}" data-nav-close>
-              <span class="drawerLinkLabel">
-                Cart
-                <span class="drawerLinkBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
-              </span>
-              <span class="drawerLinkMeta" data-cart-status>{% if cart_count %}{{ cart_count }} item{{ cart_count|pluralize }}{% else %}Empty{% endif %}</span>
-            </a>
-            <a class="drawerLink" href="{% url 'cafe:loyalty' %}" data-nav-close>
-              <span class="drawerLinkLabel">Loyalty</span>
-            </a>
-            {% if user.is_authenticated %}
-              <a class="drawerLink" href="{% url 'cafe:order_history' %}" data-nav-close>
-                <span class="drawerLinkLabel">Orders</span>
+            {% if not is_operations_portal %}
+              <a class="drawerLink" href="{% url 'cafe:menu' %}" data-nav-close>
+                <span class="drawerLinkLabel">Menu</span>
+              </a>
+              <a class="drawerLink" href="{% url 'cafe:cart' %}" data-nav-close>
+                <span class="drawerLinkLabel">
+                  Cart
+                  <span class="drawerLinkBadge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count|default:0 }}</span>
+                </span>
+                <span class="drawerLinkMeta" data-cart-status>{% if cart_count %}{{ cart_count }} item{{ cart_count|pluralize }}{% else %}Empty{% endif %}</span>
+              </a>
+              <a class="drawerLink" href="{% url 'cafe:loyalty' %}" data-nav-close>
+                <span class="drawerLinkLabel">Loyalty</span>
+              </a>
+              {% if user.is_authenticated %}
+                <a class="drawerLink" href="{% url 'cafe:order_history' %}" data-nav-close>
+                  <span class="drawerLinkLabel">Orders</span>
+                </a>
+              {% endif %}
+              <a class="drawerLink" href="{% url 'cafe:boiler_buster' %}" data-nav-close>
+                <span class="drawerLinkLabel">Boiler Buster</span>
+              </a>
+              <a class="drawerLink" href="{% url 'cafe:feedback' %}" data-nav-close>
+                <span class="drawerLinkLabel">Feedback</span>
               </a>
             {% endif %}
-            <a class="drawerLink" href="{% url 'cafe:boiler_buster' %}" data-nav-close>
-              <span class="drawerLinkLabel">Boiler Buster</span>
-            </a>
-            <a class="drawerLink" href="{% url 'cafe:feedback' %}" data-nav-close>
-              <span class="drawerLinkLabel">Feedback</span>
-            </a>
             {% if can_access_staff %}
               <a class="drawerLink" href="{% url 'cafe:staff_dashboard' %}" data-nav-close>
                 <span class="drawerLinkLabel">Staff</span>

@@ -299,6 +299,24 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, "Loyalty scan")
     self.assertContains(response, "data-loyalty-scanner")
 
+  def test_staff_portal_hides_customer_navigation_links(self):
+    group = Group.objects.create(name="Staff")
+    user = User.objects.create_user("staffportal", password="StaffPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:staff_dashboard"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, '<span class="appHeaderMenuLabel">Portal</span>', html=True)
+    self.assertContains(response, reverse("cafe:staff_dashboard"))
+    self.assertNotContains(response, 'href="/menu/"')
+    self.assertNotContains(response, 'href="/cart/"')
+    self.assertNotContains(response, 'href="/loyalty/"')
+    self.assertNotContains(response, 'href="/orders/"')
+    self.assertNotContains(response, 'href="/feedback/"')
+    self.assertNotContains(response, 'href="/boiler-buster/"')
+
   def test_staff_group_user_sees_staff_navigation(self):
     group = Group.objects.create(name="Staff")
     user = User.objects.create_user("staffnav", password="StaffPass123")
@@ -337,6 +355,25 @@ class CafeFlowTests(TestCase):
     self.assertContains(home_response, "Welcome, manageruser · Manager")
     self.assertContains(home_response, reverse("cafe:staff_dashboard"))
     self.assertContains(home_response, reverse("cafe:manager_dashboard"))
+
+  def test_manager_portal_hides_customer_navigation_links(self):
+    group = Group.objects.create(name="Manager")
+    user = User.objects.create_user("managerportal", password="ManagerPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:manager_dashboard"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, '<span class="appHeaderMenuLabel">Portal</span>', html=True)
+    self.assertContains(response, reverse("cafe:staff_dashboard"))
+    self.assertContains(response, reverse("cafe:manager_dashboard"))
+    self.assertNotContains(response, 'href="/menu/"')
+    self.assertNotContains(response, 'href="/cart/"')
+    self.assertNotContains(response, 'href="/loyalty/"')
+    self.assertNotContains(response, 'href="/orders/"')
+    self.assertNotContains(response, 'href="/feedback/"')
+    self.assertNotContains(response, 'href="/boiler-buster/"')
 
   def test_manager_group_user_can_delete_menu_item(self):
     group = Group.objects.create(name="Manager")
