@@ -10,6 +10,23 @@
 
   <section class="panel">
     <div class="status-pill">{{ order.get_status_display }}</div>
+    {% if order.payment_status == "paid" %}
+      <div class="paymentNotice paymentNoticeSuccess">
+        <strong>Payment successful</strong>
+        <span>Your card payment has been received. There is nothing due at collection.</span>
+      </div>
+    {% elif order.payment_method == "stripe" %}
+      <div class="paymentNotice">
+        <strong>Card payment pending</strong>
+        <span>
+          {% if payment_check_error %}
+            {{ payment_check_error }}
+          {% else %}
+            Your card payment is still being confirmed.
+          {% endif %}
+        </span>
+      </div>
+    {% endif %}
     <p>Thanks, {{ order.guest_name }}. Keep this page to track your order.</p>
     <div class="order-lines">
       {% for item in order.items.all %}
@@ -29,7 +46,7 @@
       <strong>{{ order.prep_minutes }} min</strong>
     </div>
     <div class="summary-row">
-      <span>Total due at collection</span>
+      <span>{% if order.payment_status == "paid" %}Total paid by card{% else %}Total due at collection{% endif %}</span>
       <strong>£{{ order.subtotal }}</strong>
     </div>
   </section>

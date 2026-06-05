@@ -16,7 +16,16 @@
           <article class="staff-order">
             <div>
               <strong>#{{ order.pk }} · {{ order.guest_name }}</strong>
-              <span>{{ order.get_status_display }} · {{ order.prep_minutes }} min · £{{ order.subtotal }}</span>
+              <span>
+                {{ order.get_status_display }} · {{ order.prep_minutes }} min · £{{ order.subtotal }} ·
+                {% if order.payment_status == "paid" %}
+                  Paid by card
+                {% elif order.payment_method == "stripe" %}
+                  Card payment pending
+                {% else %}
+                  Pay at counter
+                {% endif %}
+              </span>
             </div>
             <ul>
               {% for item in order.items.all %}
@@ -46,9 +55,27 @@
 
     <aside class="panel">
       <h2>Loyalty scan</h2>
+      <div class="loyaltyScanner" data-loyalty-scanner>
+        <div class="loyaltyScannerViewport">
+          <video data-loyalty-scanner-video playsinline muted></video>
+          <div class="loyaltyScannerReticle" aria-hidden="true"></div>
+        </div>
+        <div class="loyaltyScannerActions">
+          <button type="button" class="btn btn-secondary" data-loyalty-scanner-start>Start camera</button>
+          <button type="button" class="btn btn-secondary" data-loyalty-scanner-stop disabled>Stop</button>
+        </div>
+        <p class="muted loyaltyScannerStatus" data-loyalty-scanner-status>Camera scanner ready.</p>
+      </div>
       <form action="{% url 'cafe:scan_loyalty' %}" method="post" class="form-panel">
         {% csrf_token %}
-        {{ scan_form.as_p }}
+        <p>
+          {{ scan_form.card_code.label_tag }}
+          {{ scan_form.card_code }}
+        </p>
+        <p>
+          {{ scan_form.stamps.label_tag }}
+          {{ scan_form.stamps }}
+        </p>
         <button type="submit" class="button-primary">Add stamps</button>
       </form>
     </aside>

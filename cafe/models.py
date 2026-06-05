@@ -109,6 +109,15 @@ class Order(models.Model):
     COLLECTED = "collected", "Collected"
     CANCELLED = "cancelled", "Cancelled"
 
+  class PaymentMethod(models.TextChoices):
+    COUNTER = "counter", "Pay at counter"
+    STRIPE = "stripe", "Stripe card"
+
+  class PaymentStatus(models.TextChoices):
+    DUE = "due", "Due at collection"
+    PENDING = "pending", "Card payment pending"
+    PAID = "paid", "Paid"
+
   customer = models.ForeignKey(
     settings.AUTH_USER_MODEL,
     blank=True,
@@ -125,6 +134,17 @@ class Order(models.Model):
     choices=Status.choices,
     default=Status.PLACED,
   )
+  payment_method = models.CharField(
+    max_length=20,
+    choices=PaymentMethod.choices,
+    default=PaymentMethod.COUNTER,
+  )
+  payment_status = models.CharField(
+    max_length=20,
+    choices=PaymentStatus.choices,
+    default=PaymentStatus.DUE,
+  )
+  stripe_checkout_session_id = models.CharField(max_length=255, blank=True)
   notes = models.TextField(blank=True)
   subtotal = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal("0.00"))
   prep_minutes = models.PositiveIntegerField(default=0)

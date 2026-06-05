@@ -2,11 +2,12 @@ import json
 import os
 from decimal import Decimal
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 
 STRIPE_CHECKOUT_SESSIONS_URL = "https://api.stripe.com/v1/checkout/sessions"
+STRIPE_API_VERSION = "2026-02-25.clover"
 
 
 class StripePaymentError(Exception):
@@ -30,6 +31,13 @@ def _append_line_item(params, index, order_item):
   params.append((f"{prefix}[price_data][currency]", "gbp"))
   params.append((f"{prefix}[price_data][unit_amount]", str(_amount_to_pence(order_item.unit_price))))
   params.append((f"{prefix}[price_data][product_data][name]", product_name[:120]))
+
+
+def _stripe_headers(secret_key):
+  return {
+    "Authorization": f"Bearer {secret_key}",
+    "Stripe-Version": STRIPE_API_VERSION,
+  }
 
 
 def create_stripe_checkout_session(order, success_url, cancel_url):
@@ -56,7 +64,7 @@ def create_stripe_checkout_session(order, success_url, cancel_url):
     STRIPE_CHECKOUT_SESSIONS_URL,
     data=urlencode(params).encode("utf-8"),
     headers={
-      "Authorization": f"Bearer {secret_key}",
+      **_stripe_headers(secret_key),
       "Content-Type": "application/x-www-form-urlencoded",
     },
     method="POST",
@@ -81,4 +89,34 @@ def create_stripe_checkout_session(order, success_url, cancel_url):
   if not checkout_url:
     raise StripePaymentError("Stripe did not return a checkout URL.")
 
-  return checkout_url
+  return {
+    "id": payload.get("id", ""),
+    "url": checkout_url,
+  }
+
+
+def retrieve_stripe_checkout_session(session_id):
+  secret_key = os.environ.get("STRIPE_SECRET_KEY", "").strip()
+  if not secret_key:
+    raise StripePaymentError("Stripe is not configured.")
+
+  request = Request(
+    f"{STRIPE_CHECKOUT_SESSIONS_URL}/{quote(session_id, safe='')}",
+    headers=_stripe_headers(secret_key),
+    method="GET",
+  )
+
+  try:
+    with urlopen(request, timeout=12) as response:
+      return json.loads(response.read().decode("utf-8"))
+  except HTTPError as error:
+    try:
+      payload = json.loads(error.read().decode("utf-8"))
+      message = payload.get("error", {}).get("message") or "Stripe rejected the payment check."
+    except (json.JSONDecodeError, UnicodeDecodeError):
+      message = "Stripe rejected the payment check."
+    raise StripePaymentError(message) from error
+  except (URLError, TimeoutError) as error:
+    raise StripePaymentError("Stripe could not be reached to confirm payment.") from error
+  except (json.JSONDecodeError, UnicodeDecodeError) as error:
+    raise StripePaymentError("Stripe returned an invalid payment check response.") from error

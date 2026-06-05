@@ -1756,24 +1756,180 @@ body.navOpen {
   padding: 6px 10px;
 }
 
+.paymentNotice {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px 14px;
+}
+
+.paymentNotice strong {
+  color: var(--text);
+}
+
+.paymentNotice span {
+  color: var(--muted);
+}
+
+.paymentNoticeSuccess {
+  border-color: rgba(47, 228, 171, 0.42);
+  background: linear-gradient(135deg, rgba(47, 228, 171, 0.16), rgba(255, 255, 255, 0.06));
+}
+
+.paymentNoticeSuccess strong {
+  color: var(--ok);
+}
+
+.orderHistoryList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.orderHistoryCard {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(420px 260px at 0% 0%, rgba(242, 183, 5, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel));
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.orderHistoryCardTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.orderHistoryCardTop h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.orderHistoryMeta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.orderHistoryMeta span {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 6px 10px;
+}
+
+.orderHistoryItems {
+  display: grid;
+  gap: 8px;
+  min-height: 72px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.orderHistoryCard .button {
+  justify-self: start;
+}
+
 .loyalty-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
   gap: 24px;
   align-items: center;
+  overflow: hidden;
+  position: relative;
   background:
     radial-gradient(680px 360px at 0% 0%, rgba(242, 183, 5, 0.16), transparent 58%),
     linear-gradient(180deg, rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.62));
+}
+
+.loyalty-card-animated::before {
+  content: "";
+  position: absolute;
+  inset: -45% auto -45% -30%;
+  width: 42%;
+  transform: rotate(14deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  animation: loyaltySheen 5.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.loyalty-card-copy,
+.loyalty-qr-panel,
+.stamps {
+  position: relative;
+  z-index: 1;
 }
 
 .loyalty-card h2 {
   font-size: clamp(18px, 4vw, 30px);
 }
 
+.loyalty-card-code {
+  overflow-wrap: anywhere;
+}
+
+.loyalty-qr-panel {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.loyalty-qr-panel .muted {
+  margin: 0;
+  text-align: center;
+}
+
+.loyalty-qr-frame {
+  width: min(220px, 100%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.34),
+    0 0 0 8px rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  position: relative;
+  animation: loyaltyQrFloat 3.8s ease-in-out infinite;
+}
+
+.loyalty-qr-frame::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 14%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: rgba(47, 228, 171, 0.72);
+  box-shadow: 0 0 18px rgba(47, 228, 171, 0.68);
+  animation: loyaltyQrScan 2.6s ease-in-out infinite;
+}
+
+.loyaltyQr {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+
 .stamps {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+  width: min(100%, 380px);
 }
 
 .stamps span {
@@ -1790,6 +1946,17 @@ body.navOpen {
   background: var(--accent);
   border-color: var(--accent);
   color: rgba(11, 13, 18, 0.96);
+  box-shadow: 0 0 0 4px rgba(242, 183, 5, 0.14), 0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.animated-stamps {
+  grid-column: 1 / 2;
+  justify-self: start;
+}
+
+.animated-stamps span {
+  animation: stampRise 420ms ease both;
+  animation-delay: calc(var(--stamp-index, 1) * 50ms);
 }
 
 .staff-list {
@@ -1813,12 +1980,136 @@ body.navOpen {
   gap: 8px;
 }
 
+.loyaltyScanner {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+.loyaltyScannerViewport {
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(135deg, rgba(47, 228, 171, 0.14), rgba(11, 13, 18, 0.34)),
+    rgba(11, 13, 18, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  position: relative;
+}
+
+.loyaltyScannerViewport video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.loyaltyScannerReticle {
+  position: absolute;
+  inset: 22%;
+  border: 2px solid rgba(47, 228, 171, 0.82);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    0 0 0 999px rgba(0, 0, 0, 0.22),
+    0 0 24px rgba(47, 228, 171, 0.24);
+}
+
+.loyaltyScanner.isScanning .loyaltyScannerReticle::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 12px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: rgba(47, 228, 171, 0.9);
+  animation: scannerSweep 1.8s ease-in-out infinite;
+}
+
+.loyaltyScannerActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.loyaltyScannerStatus {
+  min-height: 18px;
+  margin: 0;
+}
+
+@keyframes loyaltySheen {
+  0%,
+  58% {
+    transform: translateX(0) rotate(14deg);
+    opacity: 0;
+  }
+
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(420%) rotate(14deg);
+    opacity: 0;
+  }
+}
+
+@keyframes loyaltyQrFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes loyaltyQrScan {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: translateY(162px);
+    opacity: 1;
+  }
+}
+
+@keyframes stampRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes scannerSweep {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: translateY(calc(100% + 80px));
+    opacity: 1;
+  }
+}
+
 .manager-table {
   display: grid;
 }
 
 .manager-row {
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
 }
 
 .appFooter {
@@ -3068,6 +3359,7 @@ body.navOpen {
 
   .two-column,
   .loyalty-card,
+  .orderHistoryList,
   .game-hero {
     grid-template-columns: 1fr;
   }
@@ -3081,7 +3373,16 @@ body.navOpen {
   .order-line,
   .manager-row,
   .checkoutPaymentActions,
-  .inline-form {
+  .inline-form,
+  .loyaltyScannerActions {
+    grid-template-columns: 1fr;
+  }
+
+  .loyalty-qr-panel {
+    justify-items: start;
+  }
+
+  .orderHistoryCardTop {
     grid-template-columns: 1fr;
   }
 

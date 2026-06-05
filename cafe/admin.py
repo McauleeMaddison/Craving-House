@@ -16,9 +16,18 @@ class MenuItemAddOnInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-  list_display = ["id", "guest_name", "status", "subtotal", "prep_minutes", "created_at"]
-  list_filter = ["status", "created_at"]
-  search_fields = ["guest_name", "guest_email", "guest_phone"]
+  list_display = [
+    "id",
+    "guest_name",
+    "status",
+    "payment_method",
+    "payment_status",
+    "subtotal",
+    "prep_minutes",
+    "created_at",
+  ]
+  list_filter = ["status", "payment_method", "payment_status", "created_at"]
+  search_fields = ["guest_name", "guest_email", "guest_phone", "stripe_checkout_session_id"]
   inlines = [OrderItemInline]
 
 

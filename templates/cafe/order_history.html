@@ -1,0 +1,61 @@
+{% extends "cafe/base.html" %}
+
+{% block title %}My Orders | Craving House{% endblock %}
+
+{% block content %}
+  <section class="page-title">
+    <p class="eyebrow">Orders portal</p>
+    <h1>Track your orders</h1>
+  </section>
+
+  {% if orders %}
+    <section class="orderHistoryList" aria-label="Your 8 most recent orders">
+      {% for order in orders %}
+        <article class="orderHistoryCard">
+          <div class="orderHistoryCardTop">
+            <div>
+              <p class="eyebrow">Order #{{ order.pk }}</p>
+              <h2>{{ order.get_status_display }}</h2>
+            </div>
+            <span class="status-pill">{{ order.created_at|date:"j M, H:i" }}</span>
+          </div>
+
+          <div class="orderHistoryMeta">
+            <span>{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+            <span>£{{ order.subtotal }}</span>
+            <span>
+              {% if order.payment_status == "paid" %}
+                Paid by card
+              {% elif order.payment_method == "stripe" %}
+                Card payment pending
+              {% else %}
+                Pay at counter
+              {% endif %}
+            </span>
+          </div>
+
+          <ul class="orderHistoryItems">
+            {% for item in order.items.all|slice:":3" %}
+              <li>
+                {{ item.quantity }} x {{ item.item_name }}
+                {% if item.add_on_names %}
+                  <small class="lineAddOns">{{ item.add_on_names }}</small>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+
+          <a class="button button-primary" href="{% url 'cafe:order_detail' order.pk order.lookup_code %}">
+            Track order
+          </a>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <h2>No orders yet</h2>
+      <p class="muted">Orders placed while signed in will appear here.</p>
+      <a class="button button-primary" href="{% url 'cafe:menu' %}">Start an order</a>
+    </section>
+  {% endif %}
+{% endblock %}

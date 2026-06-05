@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import Group
 from django.db import transaction
 from django.db.models import Sum
 from django.http import JsonResponse
@@ -12,21 +11,14 @@ from django.views.decorators.http import require_POST
 from .cart import build_cart_key, cart_summary, get_cart, set_cart
 from .forms import CheckoutForm, FeedbackForm, LoyaltyScanForm, MenuItemForm, SignUpForm
 from .models import CustomerProfile, Feedback, LoyaltyScan, MenuCategory, MenuItem, Order, OrderItem
-from .payments import StripePaymentError, create_stripe_checkout_session, stripe_enabled
-
-
-def is_staff_member(user):
-  return user.is_active and (
-    user.is_staff
-    or user.groups.filter(name__in=["Staff", "Manager"]).exists()
-  )
-
-
-def is_manager(user):
-  return user.is_active and (
-    user.is_superuser
-    or user.groups.filter(name="Manager").exists()
-  )
+from .payments import (
+  StripePaymentError,
+  create_stripe_checkout_session,
+  retrieve_stripe_checkout_session,
+  stripe_enabled,
+)
+from .qr import make_qr_svg
+from .roles import is_manager, is_staff_member
 
 
 staff_required = user_passes_test(is_staff_member, login_url="login")
@@ -119,13 +111,19 @@ def update_cart(request, line_key):
   return redirect("cafe:cart")
 
 
-def create_order_from_cart(request, form, summary):
+def create_order_from_cart(request, form, summary, payment_method=Order.PaymentMethod.COUNTER):
+  payment_status = Order.PaymentStatus.DUE
+  if payment_method == Order.PaymentMethod.STRIPE:
+    payment_status = Order.PaymentStatus.PENDING
+
   with transaction.atomic():
     order = Order.objects.create(
       customer=request.user if request.user.is_authenticated else None,
       guest_name=form.cleaned_data["name"],
       guest_email=form.cleaned_data["email"],
       guest_phone=form.cleaned_data["phone"],
+      payment_method=payment_method,
+      payment_status=payment_status,
       notes=form.cleaned_data["notes"],
     )
     for line in summary["lines"]:
@@ -162,26 +160,30 @@ def checkout(request):
   form = CheckoutForm(request.POST or None, initial=initial)
   if request.method == "POST" and form.is_valid():
     payment_method = request.POST.get("payment_method", "counter")
+    if payment_method not in [Order.PaymentMethod.COUNTER, Order.PaymentMethod.STRIPE]:
+      payment_method = Order.PaymentMethod.COUNTER
     if payment_method == "stripe" and not can_use_stripe:
       messages.error(request, "Stripe test payments are not configured for this deployment.")
       return render(request, "cafe/checkout.html", {"form": form, "summary": summary, "stripe_enabled": can_use_stripe})
 
-    order = create_order_from_cart(request, form, summary)
+    order = create_order_from_cart(request, form, summary, payment_method=payment_method)
 
     if payment_method == "stripe":
       success_url = request.build_absolute_uri(
         reverse("cafe:order_detail", args=[order.pk, order.lookup_code])
-      )
+      ) + "?stripe_session_id={CHECKOUT_SESSION_ID}"
       cancel_url = request.build_absolute_uri(reverse("cafe:checkout"))
       try:
-        stripe_checkout_url = create_stripe_checkout_session(order, success_url, cancel_url)
+        stripe_checkout_session = create_stripe_checkout_session(order, success_url, cancel_url)
       except StripePaymentError as error:
         order.delete()
         messages.error(request, str(error))
         return render(request, "cafe/checkout.html", {"form": form, "summary": summary, "stripe_enabled": can_use_stripe})
 
+      order.stripe_checkout_session_id = stripe_checkout_session.get("id", "")
+      order.save(update_fields=["stripe_checkout_session_id", "updated_at"])
       set_cart(request, {})
-      return redirect(stripe_checkout_url)
+      return redirect(stripe_checkout_session["url"])
 
     set_cart(request, {})
     messages.success(request, "Order placed. Pay at the counter when you collect.")
@@ -196,18 +198,57 @@ def order_detail(request, pk, lookup_code):
     pk=pk,
     lookup_code=lookup_code,
   )
-  return render(request, "cafe/order_detail.html", {"order": order})
+  stripe_session_id = request.GET.get("stripe_session_id", "").strip()
+  payment_check_error = ""
+
+  if (
+    stripe_session_id
+    and order.payment_method == Order.PaymentMethod.STRIPE
+    and order.payment_status != Order.PaymentStatus.PAID
+  ):
+    try:
+      stripe_session = retrieve_stripe_checkout_session(stripe_session_id)
+    except StripePaymentError as error:
+      payment_check_error = str(error)
+    else:
+      if (
+        stripe_session.get("client_reference_id") == str(order.pk)
+        and stripe_session.get("payment_status") == "paid"
+      ):
+        order.payment_status = Order.PaymentStatus.PAID
+        order.stripe_checkout_session_id = stripe_session.get("id", stripe_session_id)
+        order.save(update_fields=["payment_status", "stripe_checkout_session_id", "updated_at"])
+      else:
+        payment_check_error = "Stripe has not confirmed this card payment yet."
+
+  return render(
+    request,
+    "cafe/order_detail.html",
+    {"order": order, "payment_check_error": payment_check_error},
+  )
+
+
+@login_required
+def order_history(request):
+  orders = (
+    Order.objects.filter(customer=request.user)
+    .prefetch_related("items")
+    .order_by("-created_at")[:8]
+  )
+  return render(request, "cafe/order_history.html", {"orders": orders})
 
 
 @login_required
 def loyalty(request):
   profile, _ = CustomerProfile.objects.get_or_create(user=request.user)
   stamp_range = range(CustomerProfile.LOYALTY_STAMPS_REQUIRED)
+  card_code = str(profile.card_code)
   return render(
     request,
     "cafe/loyalty.html",
     {
       "profile": profile,
+      "loyalty_qr_svg": make_qr_svg(card_code),
       "stamp_range": stamp_range,
       "stamps_required": CustomerProfile.LOYALTY_STAMPS_REQUIRED,
     },
@@ -326,6 +367,16 @@ def toggle_product(request, pk):
   product.save(update_fields=["available", "updated_at"])
   state = "available" if product.available else "hidden"
   messages.success(request, f"{product.name} is now {state}.")
+  return redirect("cafe:manager_dashboard")
+
+
+@require_POST
+@manager_required
+def delete_product(request, pk):
+  product = get_object_or_404(MenuItem, pk=pk)
+  product_name = product.name
+  product.delete()
+  messages.success(request, f"Deleted {product_name}.")
   return redirect("cafe:manager_dashboard")
 
 

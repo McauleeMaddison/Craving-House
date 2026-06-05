@@ -98,6 +98,117 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
 })();
 
 (function () {
+  const scanner = document.querySelector("[data-loyalty-scanner]");
+
+  if (!scanner) {
+    return;
+  }
+
+  const video = scanner.querySelector("[data-loyalty-scanner-video]");
+  const startButton = scanner.querySelector("[data-loyalty-scanner-start]");
+  const stopButton = scanner.querySelector("[data-loyalty-scanner-stop]");
+  const status = scanner.querySelector("[data-loyalty-scanner-status]");
+  const cardCodeInput = document.getElementById("id_card_code");
+  let stream = null;
+  let detector = null;
+  let animationFrame = null;
+  let isScanning = false;
+
+  function setStatus(message) {
+    if (status) {
+      status.textContent = message;
+    }
+  }
+
+  function extractCardCode(value) {
+    const match = String(value || "").match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+    return match ? match[0] : String(value || "").trim();
+  }
+
+  function stopScanner(message) {
+    isScanning = false;
+    if (animationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = null;
+    }
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      stream = null;
+    }
+    if (video) {
+      video.srcObject = null;
+    }
+    scanner.classList.remove("isScanning");
+    if (startButton) {
+      startButton.disabled = false;
+    }
+    if (stopButton) {
+      stopButton.disabled = true;
+    }
+    if (message) {
+      setStatus(message);
+    }
+  }
+
+  async function scanFrame() {
+    if (!isScanning || !detector || !video) {
+      return;
+    }
+
+    try {
+      if (video.readyState >= 2) {
+        const codes = await detector.detect(video);
+        if (codes.length && cardCodeInput) {
+          cardCodeInput.value = extractCardCode(codes[0].rawValue);
+          cardCodeInput.dispatchEvent(new Event("input", { bubbles: true }));
+          stopScanner("Card scanned. Check the stamp count, then add stamps.");
+          return;
+        }
+      }
+    } catch (error) {
+      stopScanner("Camera scanner stopped. Enter the card code manually.");
+      return;
+    }
+
+    animationFrame = window.requestAnimationFrame(scanFrame);
+  }
+
+  async function startScanner() {
+    if (!("BarcodeDetector" in window)) {
+      setStatus("QR camera scanning is not available in this browser.");
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setStatus("Camera access is not available in this browser.");
+      return;
+    }
+
+    try {
+      detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      video.srcObject = stream;
+      await video.play();
+      isScanning = true;
+      scanner.classList.add("isScanning");
+      startButton.disabled = true;
+      stopButton.disabled = false;
+      setStatus("Scanning...");
+      scanFrame();
+    } catch (error) {
+      stopScanner("Camera permission was not granted. Enter the card code manually.");
+    }
+  }
+
+  if (startButton && stopButton && video) {
+    startButton.addEventListener("click", startScanner);
+    stopButton.addEventListener("click", () => stopScanner("Camera scanner stopped."));
+  }
+})();
+
+(function () {
   const forms = Array.from(document.querySelectorAll("[data-cart-form]"));
   const resetTimers = new WeakMap();
 

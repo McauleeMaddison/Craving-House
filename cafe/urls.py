@@ -11,6 +11,7 @@ urlpatterns = [
   path("cart/add/<int:item_id>/", views.add_to_cart, name="add_to_cart"),
   path("cart/update/<str:line_key>/", views.update_cart, name="update_cart"),
   path("checkout/", views.checkout, name="checkout"),
+  path("orders/", views.order_history, name="order_history"),
   path("orders/<int:pk>/<uuid:lookup_code>/", views.order_detail, name="order_detail"),
   path("loyalty/", views.loyalty, name="loyalty"),
   path("boiler-buster/", views.boiler_buster, name="boiler_buster"),
@@ -24,5 +25,6 @@ urlpatterns = [
   path("manager/menu/new/", views.product_form, name="product_new"),
   path("manager/menu/<int:pk>/edit/", views.product_form, name="product_edit"),
   path("manager/menu/<int:pk>/toggle/", views.toggle_product, name="product_toggle"),
+  path("manager/menu/<int:pk>/delete/", views.delete_product, name="product_delete"),
   path("health/", views.health, name="health"),
 ]

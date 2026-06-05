@@ -8,16 +8,27 @@
     <h1>Your stamp card</h1>
   </section>
 
-  <section class="loyalty-card">
-    <div>
+  <section class="loyalty-card loyalty-card-animated">
+    <div class="loyalty-card-copy">
       <p class="eyebrow">Card code</p>
-      <h2>{{ profile.card_code }}</h2>
+      <h2 class="loyalty-card-code">{{ profile.card_code }}</h2>
       <p>{{ profile.stamps }} of {{ stamps_required }} stamps collected</p>
       <p>{{ profile.rewards_available }} reward{{ profile.rewards_available|pluralize }} available</p>
     </div>
-    <div class="stamps" aria-label="{{ profile.stamps }} loyalty stamps">
+
+    <div class="loyalty-qr-panel">
+      <div class="loyalty-qr-frame" data-loyalty-qr>
+        {{ loyalty_qr_svg|safe }}
+      </div>
+      <p class="muted">Show this card at pickup.</p>
+    </div>
+
+    <div class="stamps animated-stamps" aria-label="{{ profile.stamps }} loyalty stamps">
       {% for _ in stamp_range %}
-        <span class="{% if forloop.counter <= profile.stamps %}is-filled{% endif %}">{{ forloop.counter }}</span>
+        <span
+          class="{% if forloop.counter <= profile.stamps %}is-filled{% endif %}"
+          style="--stamp-index: {{ forloop.counter }};"
+        >{{ forloop.counter }}</span>
       {% endfor %}
     </div>
   </section>

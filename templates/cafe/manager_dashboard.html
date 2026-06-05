@@ -44,6 +44,10 @@
             {% csrf_token %}
             <button type="submit">{% if item.available %}Hide{% else %}Show{% endif %}</button>
           </form>
+          <form action="{% url 'cafe:product_delete' item.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" data-confirm="Delete {{ item.name }} from the menu?">Delete</button>
+          </form>
         </div>
       {% empty %}
         <p>No menu items yet.</p>

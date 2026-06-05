@@ -58,10 +58,13 @@
               </span>
             </a>
             <a class="btn btn-secondary" href="{% url 'cafe:loyalty' %}">Loyalty</a>
+            {% if user.is_authenticated %}
+              <a class="btn btn-secondary" href="{% url 'cafe:order_history' %}">Orders</a>
+            {% endif %}
             <a class="btn btn-secondary" href="{% url 'cafe:boiler_buster' %}">Boiler Buster</a>
             <a class="btn btn-secondary" href="{% url 'cafe:feedback' %}">Feedback</a>
             {% if user.is_authenticated %}
-              <span class="accountWelcome">Welcome, {{ user.username }}</span>
+              <span class="accountWelcome">Welcome, {{ user.username }}{% if user_role_label %} · {{ user_role_label }}{% endif %}</span>
             {% endif %}
             <button class="themeToggle themeTogglePoster" type="button" role="switch" aria-checked="false" data-theme-toggle>
               <span class="themeToggleTrack" aria-hidden="true">
@@ -77,10 +80,10 @@
                 <span class="themeToggleSub">Golden glow</span>
               </span>
             </button>
-            {% if user.is_staff %}
+            {% if can_access_staff %}
               <a class="btn btn-secondary" href="{% url 'cafe:staff_dashboard' %}">Staff</a>
             {% endif %}
-            {% if user.is_superuser %}
+            {% if can_access_manager %}
               <a class="btn btn-secondary" href="{% url 'cafe:manager_dashboard' %}">Manager</a>
             {% endif %}
             {% if user.is_authenticated %}
@@ -117,7 +120,7 @@
         <div class="rowWrap rowWrapTight">
           <span class="pill">Open Tuesday to Saturday</span>
           {% if user.is_authenticated %}
-            <span class="accountWelcome drawerWelcome">Welcome, {{ user.username }}</span>
+            <span class="accountWelcome drawerWelcome">Welcome, {{ user.username }}{% if user_role_label %} · {{ user_role_label }}{% endif %}</span>
           {% else %}
             <a class="accountWelcome drawerWelcome" href="{% url 'cafe:signup' %}" data-nav-close>Create account</a>
           {% endif %}
@@ -152,18 +155,23 @@
             <a class="drawerLink" href="{% url 'cafe:loyalty' %}" data-nav-close>
               <span class="drawerLinkLabel">Loyalty</span>
             </a>
+            {% if user.is_authenticated %}
+              <a class="drawerLink" href="{% url 'cafe:order_history' %}" data-nav-close>
+                <span class="drawerLinkLabel">Orders</span>
+              </a>
+            {% endif %}
             <a class="drawerLink" href="{% url 'cafe:boiler_buster' %}" data-nav-close>
               <span class="drawerLinkLabel">Boiler Buster</span>
             </a>
             <a class="drawerLink" href="{% url 'cafe:feedback' %}" data-nav-close>
               <span class="drawerLinkLabel">Feedback</span>
             </a>
-            {% if user.is_staff %}
+            {% if can_access_staff %}
               <a class="drawerLink" href="{% url 'cafe:staff_dashboard' %}" data-nav-close>
                 <span class="drawerLinkLabel">Staff</span>
               </a>
             {% endif %}
-            {% if user.is_superuser %}
+            {% if can_access_manager %}
               <a class="drawerLink" href="{% url 'cafe:manager_dashboard' %}" data-nav-close>
                 <span class="drawerLinkLabel">Manager</span>
               </a>

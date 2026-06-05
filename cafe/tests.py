@@ -1,10 +1,14 @@
 from decimal import Decimal
+from datetime import timedelta
+import os
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import CustomerProfile, MenuCategory, MenuItem, MenuItemAddOn, Order
+from .models import CustomerProfile, LoyaltyScan, MenuCategory, MenuItem, MenuItemAddOn, Order
 
 
 class CafeFlowTests(TestCase):
@@ -109,10 +113,139 @@ class CafeFlowTests(TestCase):
     self.assertEqual(order.subtotal, Decimal("8.60"))
     self.assertEqual(order.prep_minutes, 8)
     self.assertEqual(order.items.count(), 1)
+    self.assertEqual(order.payment_method, Order.PaymentMethod.COUNTER)
+    self.assertEqual(order.payment_status, Order.PaymentStatus.DUE)
     order_item = order.items.get()
     self.assertEqual(order_item.unit_price, Decimal("4.30"))
     self.assertEqual(order_item.add_on_total, Decimal("0.50"))
     self.assertEqual(order_item.add_on_names, "Oat milk")
+
+  def test_stripe_checkout_creates_pending_card_order(self):
+    self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "1"})
+
+    with patch.dict(os.environ, {"STRIPE_SECRET_KEY": "sk_test_fake"}), patch(
+      "cafe.views.create_stripe_checkout_session",
+      return_value={"id": "cs_test_123", "url": "https://checkout.stripe.test/session"},
+    ) as create_session:
+      response = self.client.post(
+        reverse("cafe:checkout"),
+        {
+          "name": "Sam Customer",
+          "email": "sam@example.com",
+          "phone": "07123456789",
+          "notes": "",
+          "payment_method": "stripe",
+        },
+      )
+
+    order = Order.objects.get()
+    success_url = create_session.call_args.args[1]
+    self.assertRedirects(response, "https://checkout.stripe.test/session", fetch_redirect_response=False)
+    self.assertEqual(order.payment_method, Order.PaymentMethod.STRIPE)
+    self.assertEqual(order.payment_status, Order.PaymentStatus.PENDING)
+    self.assertEqual(order.stripe_checkout_session_id, "cs_test_123")
+    self.assertIn("stripe_session_id={CHECKOUT_SESSION_ID}", success_url)
+
+  def test_order_detail_marks_confirmed_stripe_payment_successful(self):
+    order = Order.objects.create(
+      guest_name="Sam Customer",
+      guest_email="sam@example.com",
+      payment_method=Order.PaymentMethod.STRIPE,
+      payment_status=Order.PaymentStatus.PENDING,
+      subtotal=Decimal("5.20"),
+      prep_minutes=4,
+    )
+
+    with patch(
+      "cafe.views.retrieve_stripe_checkout_session",
+      return_value={
+        "id": "cs_test_paid",
+        "client_reference_id": str(order.pk),
+        "payment_status": "paid",
+      },
+    ):
+      response = self.client.get(
+        reverse("cafe:order_detail", args=[order.pk, order.lookup_code]),
+        {"stripe_session_id": "cs_test_paid"},
+      )
+
+    order.refresh_from_db()
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(order.payment_status, Order.PaymentStatus.PAID)
+    self.assertEqual(order.stripe_checkout_session_id, "cs_test_paid")
+    self.assertContains(response, "Payment successful")
+    self.assertContains(response, "Total paid by card")
+    self.assertNotContains(response, "Total due at collection")
+
+  def test_order_history_requires_login(self):
+    response = self.client.get(reverse("cafe:order_history"))
+
+    self.assertEqual(response.status_code, 302)
+    self.assertIn("/accounts/login/", response["Location"])
+
+  def test_order_history_shows_only_eight_most_recent_customer_orders(self):
+    customer = User.objects.create_user("ordercustomer", password="CustomerPass123")
+    other_customer = User.objects.create_user("othercustomer", password="CustomerPass123")
+    base_time = timezone.now()
+    created_orders = []
+
+    for index in range(10):
+      order = Order.objects.create(
+        customer=customer,
+        guest_name=f"Order Customer {index}",
+        guest_email="ordercustomer@example.com",
+        status=Order.Status.READY if index == 9 else Order.Status.PLACED,
+        payment_status=Order.PaymentStatus.PAID if index == 8 else Order.PaymentStatus.DUE,
+        subtotal=Decimal("3.50") + Decimal(index),
+        prep_minutes=4,
+      )
+      Order.objects.filter(pk=order.pk).update(created_at=base_time + timedelta(minutes=index))
+      created_orders.append(order)
+
+    other_order = Order.objects.create(
+      customer=other_customer,
+      guest_name="Other Customer",
+      guest_email="other@example.com",
+      subtotal=Decimal("99.00"),
+      prep_minutes=4,
+    )
+    Order.objects.filter(pk=other_order.pk).update(created_at=base_time + timedelta(minutes=20))
+
+    self.client.force_login(customer)
+    response = self.client.get(reverse("cafe:order_history"))
+
+    order_ids = [order.pk for order in response.context["orders"]]
+    expected_ids = [order.pk for order in reversed(created_orders[-8:])]
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(order_ids, expected_ids)
+    self.assertNotIn(other_order.pk, order_ids)
+    self.assertContains(response, "Track your orders")
+    self.assertContains(response, "Ready for collection")
+    self.assertContains(response, "Paid by card")
+    self.assertContains(response, "Track order", count=8)
+
+  def test_signed_in_checkout_order_appears_in_order_history(self):
+    user = User.objects.create_user("checkoutcustomer", email="checkout@example.com", password="CustomerPass123")
+    self.client.force_login(user)
+    self.client.post(reverse("cafe:add_to_cart", args=[self.item.id]), {"quantity": "1"})
+
+    response = self.client.post(
+      reverse("cafe:checkout"),
+      {
+        "name": "Checkout Customer",
+        "email": "checkout@example.com",
+        "phone": "07123456789",
+        "notes": "",
+      },
+    )
+
+    order = Order.objects.get(guest_name="Checkout Customer")
+    history_response = self.client.get(reverse("cafe:order_history"))
+
+    self.assertRedirects(response, reverse("cafe:order_detail", args=[order.pk, order.lookup_code]))
+    self.assertEqual(order.customer, user)
+    self.assertContains(history_response, f"Order #{order.pk}")
+    self.assertContains(history_response, "Pay at counter")
 
   def test_staff_dashboard_requires_staff_access(self):
     user = User.objects.create_user("customer", password="CustomerPass123")
@@ -133,6 +266,70 @@ class CafeFlowTests(TestCase):
 
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, "Order queue")
+    self.assertContains(response, "Loyalty scan")
+    self.assertContains(response, "data-loyalty-scanner")
+
+  def test_staff_group_user_sees_staff_navigation(self):
+    group = Group.objects.create(name="Staff")
+    user = User.objects.create_user("staffnav", password="StaffPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Welcome, staffnav · Staff")
+    self.assertContains(response, reverse("cafe:staff_dashboard"))
+    self.assertNotContains(response, reverse("cafe:manager_dashboard"))
+
+  def test_staff_group_user_cannot_access_manager_dashboard(self):
+    group = Group.objects.create(name="Staff")
+    user = User.objects.create_user("staffonly", password="StaffPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:manager_dashboard"))
+
+    self.assertEqual(response.status_code, 302)
+    self.assertIn("/accounts/login/", response["Location"])
+
+  def test_manager_group_user_can_access_manager_dashboard_and_navigation(self):
+    group = Group.objects.create(name="Manager")
+    user = User.objects.create_user("manageruser", password="ManagerPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:manager_dashboard"))
+    home_response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Menu and operations")
+    self.assertContains(home_response, "Welcome, manageruser · Manager")
+    self.assertContains(home_response, reverse("cafe:staff_dashboard"))
+    self.assertContains(home_response, reverse("cafe:manager_dashboard"))
+
+  def test_manager_group_user_can_delete_menu_item(self):
+    group = Group.objects.create(name="Manager")
+    user = User.objects.create_user("managerdelete", password="ManagerPass123")
+    user.groups.add(group)
+    self.client.force_login(user)
+
+    response = self.client.post(reverse("cafe:product_delete", args=[self.item.pk]))
+
+    self.assertRedirects(response, reverse("cafe:manager_dashboard"))
+    self.assertFalse(MenuItem.objects.filter(pk=self.item.pk).exists())
+
+  def test_customer_loyalty_card_renders_local_qr_code(self):
+    user = User.objects.create_user("customerqr", password="CustomerPass123")
+    profile = CustomerProfile.objects.create(user=user)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:loyalty"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, str(profile.card_code))
+    self.assertContains(response, 'class="loyaltyQr"')
+    self.assertContains(response, "Show this card at pickup.")
 
   def test_staff_member_can_add_loyalty_stamps_to_customer_card(self):
     group = Group.objects.create(name="Staff")
@@ -150,6 +347,7 @@ class CafeFlowTests(TestCase):
     profile.refresh_from_db()
     self.assertRedirects(response, reverse("cafe:staff_dashboard"))
     self.assertEqual(profile.stamps, 3)
+    self.assertTrue(LoyaltyScan.objects.filter(profile=profile, staff_user=staff_user, stamps_added=3).exists())
 
   def test_health_endpoint_identifies_django(self):
     response = self.client.get(reverse("cafe:health"))
