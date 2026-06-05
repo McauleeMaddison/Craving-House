@@ -1875,6 +1875,35 @@ body.navOpen {
   font-size: clamp(18px, 4vw, 30px);
 }
 
+.loyaltyRewardSummary {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.loyaltyRewardSummary span,
+.loyaltyRewardSummary strong {
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.loyaltyRewardSummary span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.loyaltyRewardSummary strong {
+  color: rgba(255, 242, 200, 0.96);
+  border-color: rgba(242, 183, 5, 0.28);
+  background: rgba(242, 183, 5, 0.12);
+  font-size: 13px;
+}
+
 .loyalty-card-code {
   overflow-wrap: anywhere;
 }
@@ -1931,7 +1960,67 @@ body.navOpen {
   width: min(100%, 380px);
 }
 
-.stamps span {
+.loyaltyProgressBoard {
+  grid-column: 1 / 2;
+  width: min(100%, 420px);
+  padding: 14px;
+  border: 1px solid rgba(242, 183, 5, 0.2);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+    rgba(11, 13, 18, 0.34);
+  display: grid;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.loyaltyProgressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.loyaltyProgressTop span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.loyaltyProgressTop strong {
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(242, 183, 5, 0.14);
+  color: rgba(255, 242, 200, 0.96);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.loyaltyStampProgress {
+  width: 100%;
+  height: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  appearance: none;
+}
+
+.loyaltyStampProgress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.loyaltyStampProgress::-webkit-progress-value,
+.loyaltyStampProgress::-moz-progress-bar {
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, rgba(242, 183, 5, 0.98), rgba(47, 228, 171, 0.78));
+}
+
+.stamps > span,
+.loyaltyStamp {
   aspect-ratio: 1;
   border: 2px dashed rgba(255, 255, 255, 0.44);
   border-radius: 50%;
@@ -1941,19 +2030,78 @@ body.navOpen {
   font-weight: 900;
 }
 
-.stamps .is-filled {
-  background: var(--accent);
-  border-color: var(--accent);
+.custom-stamps {
+  width: 100%;
+}
+
+.loyaltyStamp {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.16);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.09), transparent 46%),
+    rgba(255, 255, 255, 0.045);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.loyaltyStamp::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+}
+
+.loyaltyStampIcon {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 3vw, 18px);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.loyaltyStampNumber {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.stamps > .is-filled,
+.loyaltyStamp.is-filled {
+  border-color: rgba(242, 183, 5, 0.72);
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.32), transparent 42%),
+    linear-gradient(145deg, rgba(255, 222, 132, 0.98), rgba(242, 183, 5, 0.92) 54%, rgba(176, 119, 0, 0.9));
   color: rgba(11, 13, 18, 0.96);
-  box-shadow: 0 0 0 4px rgba(242, 183, 5, 0.14), 0 12px 22px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 0 0 4px rgba(242, 183, 5, 0.14),
+    0 12px 22px rgba(0, 0, 0, 0.22);
+}
+
+.loyaltyStamp.is-filled::after {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+  transform: translateX(-70%) rotate(18deg);
+  animation: loyaltyStampFlash 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--stamp-index, 1) * 95ms);
+}
+
+.loyaltyStamp.is-filled .loyaltyStampNumber {
+  color: rgba(11, 13, 18, 0.58);
 }
 
 .animated-stamps {
-  grid-column: 1 / 2;
   justify-self: start;
 }
 
-.animated-stamps span {
+.animated-stamps > span {
   animation: stampRise 420ms ease both;
   animation-delay: calc(var(--stamp-index, 1) * 50ms);
 }
@@ -2341,6 +2489,23 @@ body.navOpen {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loyaltyStampFlash {
+  0%,
+  62% {
+    opacity: 0;
+    transform: translateX(-70%) rotate(18deg);
+  }
+
+  76% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(70%) rotate(18deg);
   }
 }
 

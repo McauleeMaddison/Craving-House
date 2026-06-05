@@ -15,7 +15,7 @@
           <div class="orderHistoryCardTop">
             <div>
               <p class="eyebrow">Order #{{ order.pk }}</p>
-              <h2>{{ order.get_status_display }}</h2>
+              <h2>{{ order.customer_status_display }}</h2>
             </div>
             <span class="status-pill">{{ order.created_at|date:"j M, H:i" }}</span>
           </div>

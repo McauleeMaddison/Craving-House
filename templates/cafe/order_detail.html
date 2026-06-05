@@ -9,7 +9,7 @@
   </section>
 
   <section class="panel">
-    <div class="status-pill">{{ order.get_status_display }}</div>
+    <div class="status-pill">{{ order.customer_status_display }}</div>
     {% if order.payment_status == "paid" %}
       <div class="paymentNotice paymentNoticeSuccess">
         <strong>Payment successful</strong>

@@ -12,8 +12,10 @@
     <div class="loyalty-card-copy">
       <p class="eyebrow">Card code</p>
       <h2 class="loyalty-card-code">{{ profile.card_code }}</h2>
-      <p>{{ profile.stamps }} of {{ stamps_required }} stamps collected</p>
-      <p>{{ profile.rewards_available }} reward{{ profile.rewards_available|pluralize }} available</p>
+      <div class="loyaltyRewardSummary">
+        <span>{{ profile.stamps }} of {{ stamps_required }} stamps collected</span>
+        <strong>{{ profile.rewards_available }} reward{{ profile.rewards_available|pluralize }} available</strong>
+      </div>
     </div>
 
     <div class="loyalty-qr-panel">
@@ -23,13 +25,28 @@
       <p class="muted">Show this card at pickup.</p>
     </div>
 
-    <div class="stamps animated-stamps" aria-label="{{ profile.stamps }} loyalty stamps">
-      {% for _ in stamp_range %}
-        <span
-          class="{% if forloop.counter <= profile.stamps %}is-filled{% endif %}"
-          style="--stamp-index: {{ forloop.counter }};"
-        >{{ forloop.counter }}</span>
-      {% endfor %}
+    <div class="loyaltyProgressBoard">
+      <div class="loyaltyProgressTop">
+        <span>Craving House stamp run</span>
+        <strong>{{ profile.stamps }}/{{ stamps_required }}</strong>
+      </div>
+      <progress
+        class="loyaltyStampProgress"
+        value="{{ profile.stamps }}"
+        max="{{ stamps_required }}"
+      ></progress>
+      <div class="stamps custom-stamps animated-stamps" aria-label="{{ profile.stamps }} of {{ stamps_required }} loyalty stamps collected">
+        {% for _ in stamp_range %}
+          <span
+            class="loyaltyStamp{% if forloop.counter <= profile.stamps %} is-filled{% endif %}"
+            data-stamp-state="{% if forloop.counter <= profile.stamps %}earned{% else %}empty{% endif %}"
+            style="--stamp-index: {{ forloop.counter }};"
+          >
+            <span class="loyaltyStampIcon" aria-hidden="true">CH</span>
+            <span class="loyaltyStampNumber">{{ forloop.counter }}</span>
+          </span>
+        {% endfor %}
+      </div>
     </div>
   </section>
 {% endblock %}

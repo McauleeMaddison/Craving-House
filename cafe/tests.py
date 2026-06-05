@@ -310,6 +310,41 @@ class CafeFlowTests(TestCase):
     self.assertContains(history_response, f"Order #{order.pk}")
     self.assertContains(history_response, "Pay at counter")
 
+  def test_collected_order_detail_reads_complete_for_customer(self):
+    order = Order.objects.create(
+      guest_name="Complete Customer",
+      guest_email="complete@example.com",
+      status=Order.Status.COLLECTED,
+      payment_status=Order.PaymentStatus.PAID,
+      subtotal=Decimal("5.20"),
+      prep_minutes=4,
+    )
+
+    response = self.client.get(reverse("cafe:order_detail", args=[order.pk, order.lookup_code]))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Complete - collected")
+    self.assertNotContains(response, '<div class="status-pill">Collected</div>', html=True)
+
+  def test_collected_order_history_reads_complete_for_customer(self):
+    user = User.objects.create_user("completehistory", password="CustomerPass123")
+    Order.objects.create(
+      customer=user,
+      guest_name="Complete History",
+      guest_email="completehistory@example.com",
+      status=Order.Status.COLLECTED,
+      payment_status=Order.PaymentStatus.PAID,
+      subtotal=Decimal("6.80"),
+      prep_minutes=5,
+    )
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:order_history"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Complete - collected")
+    self.assertNotContains(response, "<h2>Collected</h2>", html=True)
+
   def test_staff_dashboard_requires_staff_access(self):
     user = User.objects.create_user("customer", password="CustomerPass123")
     self.client.force_login(user)
@@ -498,7 +533,7 @@ class CafeFlowTests(TestCase):
 
   def test_customer_loyalty_card_renders_local_qr_code(self):
     user = User.objects.create_user("customerqr", password="CustomerPass123")
-    profile = CustomerProfile.objects.create(user=user)
+    profile = CustomerProfile.objects.create(user=user, stamps=3, rewards_available=1)
     self.client.force_login(user)
 
     response = self.client.get(reverse("cafe:loyalty"))
@@ -506,6 +541,11 @@ class CafeFlowTests(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertContains(response, str(profile.card_code))
     self.assertContains(response, 'class="loyaltyQr"')
+    self.assertContains(response, "Craving House stamp run")
+    self.assertContains(response, 'class="loyaltyProgressBoard"')
+    self.assertContains(response, 'class="loyaltyStamp is-filled"', count=3)
+    self.assertContains(response, 'data-stamp-state="empty"', count=5)
+    self.assertContains(response, "3 of 8 loyalty stamps collected")
     self.assertContains(response, "Show this card at pickup.")
 
   def test_staff_member_can_add_loyalty_stamps_to_customer_card(self):

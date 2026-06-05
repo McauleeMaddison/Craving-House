@@ -157,6 +157,12 @@ class Order(models.Model):
   def __str__(self):
     return f"Order #{self.pk or 'new'} for {self.guest_name}"
 
+  @property
+  def customer_status_display(self):
+    if self.status == self.Status.COLLECTED:
+      return "Complete - collected"
+    return self.get_status_display()
+
   def recalculate_totals(self):
     subtotal = sum((item.line_total for item in self.items.all()), Decimal("0.00"))
     prep_minutes = sum(item.prep_minutes_total for item in self.items.all())
