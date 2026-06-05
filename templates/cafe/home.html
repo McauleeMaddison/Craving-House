@@ -31,8 +31,19 @@
           <div class="widgetTop">
             <div class="widgetTitle">Loyalty</div>
           </div>
-          <div class="muted widgetHint">Get your personal stamp card here.</div>
-          <progress class="dashProgress" aria-hidden="true" value="25" max="100"></progress>
+          <div class="muted widgetHint">
+            {% if loyalty_is_tracked %}
+              {{ loyalty_stamps }} of {{ loyalty_stamps_required }} stamps collected.
+            {% else %}
+              Sign in to start tracking your stamps.
+            {% endif %}
+          </div>
+          <progress
+            class="dashProgress"
+            aria-hidden="true"
+            value="{% if loyalty_is_tracked %}{{ loyalty_stamps }}{% else %}0{% endif %}"
+            max="{{ loyalty_stamps_required }}"
+          ></progress>
         </a>
 
         <a class="widgetCard" href="{% url 'cafe:cart' %}">

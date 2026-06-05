@@ -89,6 +89,36 @@ class CafeFlowTests(TestCase):
     home_response = self.client.get(reverse("cafe:home"))
     self.assertContains(home_response, "Welcome, newcustomer")
 
+  def test_guest_home_loyalty_progress_stays_empty(self):
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Sign in to start tracking your stamps.")
+    self.assertContains(response, 'value="0"')
+    self.assertContains(response, 'max="8"')
+
+  def test_signed_in_home_loyalty_progress_uses_tracked_profile(self):
+    user = User.objects.create_user("trackedcustomer", password="CustomerPass123")
+    CustomerProfile.objects.create(user=user, stamps=3)
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "3 of 8 stamps collected.")
+    self.assertContains(response, 'value="3"')
+    self.assertContains(response, 'max="8"')
+
+  def test_signed_in_home_without_loyalty_profile_stays_empty(self):
+    user = User.objects.create_user("untrackedcustomer", password="CustomerPass123")
+    self.client.force_login(user)
+
+    response = self.client.get(reverse("cafe:home"))
+
+    self.assertEqual(response.status_code, 200)
+    self.assertContains(response, "Sign in to start tracking your stamps.")
+    self.assertContains(response, 'value="0"')
+
   def test_checkout_creates_order_from_session_cart(self):
     self.client.post(
       reverse("cafe:add_to_cart", args=[self.item.id]),

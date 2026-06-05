@@ -30,11 +30,24 @@ def home(request):
   if not featured_items:
     featured_items = MenuItem.objects.filter(available=True).select_related("category")[:6]
 
+  loyalty_stamps = 0
+  loyalty_is_tracked = False
+  if request.user.is_authenticated:
+    profile = CustomerProfile.objects.filter(user=request.user).only("stamps").first()
+    if profile:
+      loyalty_stamps = profile.stamps
+      loyalty_is_tracked = True
+
+  loyalty_stamps_required = CustomerProfile.LOYALTY_STAMPS_REQUIRED
+
   context = {
     "featured_items": featured_items,
     "active_order_count": Order.objects.exclude(
       status__in=[Order.Status.COLLECTED, Order.Status.CANCELLED]
     ).count(),
+    "loyalty_is_tracked": loyalty_is_tracked,
+    "loyalty_stamps": loyalty_stamps,
+    "loyalty_stamps_required": loyalty_stamps_required,
   }
   return render(request, "cafe/home.html", context)
 
