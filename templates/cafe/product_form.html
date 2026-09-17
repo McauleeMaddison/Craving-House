@@ -10,7 +10,7 @@
 
   <form method="post" class="panel form-panel narrow">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.as_div }}
     <button type="submit" class="button-primary">Save item</button>
   </form>
 {% endblock %}

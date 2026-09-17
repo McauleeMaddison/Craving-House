@@ -1,0 +1,74 @@
+- banner:
+  - link "Back to web dev":
+    - /url: https://craving-house-app.onrender.com/checkout/
+    - generic: Back
+    - img "web dev logo"
+  - text: Sandbox
+- heading "Americano" [level=2]:
+  - generic: Americano
+- generic: £3.10
+- main:
+  - iframe [name="__privateStripeFrame6964"]:
+    - iframe:
+      - button "Apple Pay":
+    - button "Pay securely with Onelink":
+      - text: Pay with
+    - iframe:
+      - button "Pay with Klarna":
+    - iframe:
+      - button "Amazon Pay - Use your Amazon Pay Sandbox test account":
+        - img "Amazon Pay"
+  - paragraph: Or
+  - heading "Contact information" [level=2]
+  - generic: Email
+  - textbox "Email":
+    - /placeholder: email@example.com
+  - heading "Payment method" [level=2]
+  - list:
+    - radio "Card" [checked]
+    - generic: Card
+    - button "Pay with card"
+    - generic: Card information
+    - textbox "Card number":
+      - /placeholder: 1234 1234 1234 1234
+      - text: 4000 0000 0000 0002
+    - generic: Current card brand is Visa.
+    - textbox "Expiration":
+      - /placeholder: MM / YY
+      - text: 12 / 30
+    - textbox "Credit or debit card CVC/CVV":
+      - /placeholder: CVC
+      - text: "123"
+    - img "Credit or debit card CVC/CVV"
+    - generic: 3-digit code on back of card
+    - alert: Your credit card was declined. Try paying with a debit card instead.
+    - group "Billing address":
+      - generic: Cardholder name
+      - textbox "Cardholder name":
+        - /placeholder: Full name on card
+        - text: Assessment Test
+      - generic: Country or region
+      - combobox "Country or region":
+    - radio "Klarna"
+    - generic: Klarna
+    - button "Pay with Klarna"
+    - radio "Revolut Pay"
+    - generic: Revolut Pay
+    - button "Pay with Revolut"
+  - checkbox "Save my information for faster checkout"
+  - generic: Save my information for faster checkout
+  - generic: Pay securely at web dev and everywhere Onelink is accepted.
+  - button "Pay":
+    - generic: Pay
+    - generic: Processing
+  - checkbox "I am an AI agent acting on behalf of someone else"
+  - text: I am an AI agent acting on behalf of someone else
+- contentinfo:
+  - link "Powered by Stripe":
+    - /url: https://stripe.com
+    - text: Powered by
+    - img "Stripe"
+  - link "Terms":
+    - /url: https://stripe.com/legal/end-users
+  - link "Privacy":
+    - /url: https://stripe.com/privacy

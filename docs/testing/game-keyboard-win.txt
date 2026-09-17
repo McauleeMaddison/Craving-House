@@ -1,0 +1,55 @@
+- link "Skip to content":
+  - /url: "#main-content"
+- banner:
+  - link "Craving House home":
+    - /url: /
+    - generic: Craving House
+  - button "Open menu"
+- main:
+  - generic: Customer mini-game
+  - generic: Tap while you wait
+  - generic: 20 second round
+  - heading "Boiler Buster" [level=1]
+  - paragraph: Vent steam, control the gauges, and keep pressure below 100% until the order queue clears.
+  - generic: Queue cleared
+  - group "Boiler Buster score panel":
+    - generic: Score
+    - generic: "222"
+    - generic: Best
+    - generic: "222"
+    - generic: Best
+    - generic: Time
+    - generic: 0s
+    - generic: Streak
+    - generic: x7
+  - generic: Boiler pressure
+  - generic: Steady
+  - generic: 36%
+  - progressbar "Boiler pressure"
+  - paragraph: Tap the boiler to begin a round.
+  - generic: Sweet spot 65-87%
+  - generic: "Last vent: Early vent | Streak +1"
+  - generic: Order progress
+  - generic: Almost done.
+  - generic: 100%
+  - progressbar "Order progress"
+  - button "Start Boiler Buster" [active]:
+    - generic: Queue cleared
+    - generic: Tap the machine to run another round.
+  - paragraph: Round complete. Tap the machine or start a new round.
+  - button "New round"
+  - link "View cart":
+    - /url: /cart/
+  - link "Back to menu":
+    - /url: /menu/
+  - complementary:
+    - generic: How to play
+    - paragraph: Tap to vent steam and stop the boiler from reaching 100%. Survive for 20 seconds to clear the queue. Vents in the sweet spot earn bonus points.
+    - generic: Round status
+    - paragraph: Round clear. Your order queue is ready.
+    - generic: "Taps: 76"
+    - generic: "Pressure: 36%"
+    - generic: "Zone: Steady"
+- contentinfo:
+  - generic: Craving House Coffee App
+  - generic: Order ahead, collect in store, earn loyalty rewards.

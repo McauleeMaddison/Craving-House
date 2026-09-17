@@ -1,0 +1,44 @@
+- link "Skip to content":
+  - /url: "#main-content"
+- banner:
+  - link "Craving House home":
+    - /url: /
+    - generic: Craving House
+    - generic: Coffee, bites, vibes
+  - navigation "Primary navigation":
+    - link "Menu":
+      - /url: /menu/
+    - link "Cart":
+      - /url: /cart/
+      - generic: Cart
+    - link "Loyalty":
+      - /url: /loyalty/
+    - link "Orders":
+      - /url: /orders/
+    - link "Boiler Buster":
+      - /url: /boiler-buster/
+    - link "Feedback":
+      - /url: /feedback/
+    - generic: Welcome, assessment_browser_0917 · Customer
+    - switch "Switch to dark mode":
+      - generic: Light mode
+      - generic: Golden glow
+    - button "Sign out"
+- main:
+  - paragraph: Orders portal
+  - heading "Track your orders" [level=1]
+  - region "Your 8 most recent orders":
+    - article:
+      - paragraph: "Order #2"
+      - heading "Placed" [level=2]
+      - generic: 17 Sep, 15:09
+      - generic: 1 item
+      - generic: £3.10
+      - generic: Pay at counter
+      - list:
+        - listitem: 1 x Americano
+      - link "Track order":
+        - /url: /orders/2/84ab904a-3663-4baa-a217-d429ebccdb40/
+- contentinfo:
+  - generic: Craving House Coffee App
+  - generic: Order ahead, collect in store, earn loyalty rewards.

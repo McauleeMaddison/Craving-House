@@ -32,10 +32,11 @@
       </div>
       <progress
         class="loyaltyStampProgress"
+        aria-label="Loyalty stamps collected"
         value="{{ profile.stamps }}"
         max="{{ stamps_required }}"
       ></progress>
-      <div class="stamps custom-stamps animated-stamps" aria-label="{{ profile.stamps }} of {{ stamps_required }} loyalty stamps collected">
+      <div class="stamps custom-stamps animated-stamps" role="group" aria-label="{{ profile.stamps }} of {{ stamps_required }} loyalty stamps collected">
         {% for _ in stamp_range %}
           <span
             class="loyaltyStamp{% if forloop.counter <= profile.stamps %} is-filled{% endif %}"

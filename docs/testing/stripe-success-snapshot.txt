@@ -1,0 +1,75 @@
+- link "Skip to content":
+  - /url: "#main-content"
+- banner:
+  - link "Craving House home":
+    - /url: /
+    - generic: Craving House
+    - generic: Coffee, bites, vibes
+  - navigation "Primary navigation":
+    - link "Menu":
+      - /url: /menu/
+    - link "Cart":
+      - /url: /cart/
+      - generic: Cart
+    - link "Loyalty":
+      - /url: /loyalty/
+    - link "Boiler Buster":
+      - /url: /boiler-buster/
+    - link "Feedback":
+      - /url: /feedback/
+    - switch "Switch to dark mode":
+      - generic: Light mode
+      - generic: Golden glow
+    - link "Sign in":
+      - /url: /accounts/login/
+- dialog:
+  - link:
+    - /url: /
+    - generic: Craving House
+    - generic: Coffee, bites, vibes
+  - button:
+    - generic: ×
+  - generic: Open Tuesday to Saturday
+  - switch
+  - navigation:
+    - link:
+      - /url: /menu/
+      - generic: Menu
+      - text: ›
+    - link:
+      - /url: /cart/
+      - generic: Cart
+      - generic: Empty
+      - text: ›
+    - link:
+      - /url: /loyalty/
+      - generic: Loyalty
+      - text: ›
+    - link:
+      - /url: /boiler-buster/
+      - generic: Boiler Buster
+      - text: ›
+    - link:
+      - /url: /feedback/
+      - generic: Feedback
+      - text: ›
+    - link:
+      - /url: /accounts/login/
+      - generic: Sign in
+      - text: ›
+- main:
+  - paragraph: Order confirmed
+  - 'heading "Order #1" [level=1]'
+  - generic: Placed
+  - strong: Payment successful
+  - generic: Your card payment has been received. There is nothing due at collection.
+  - paragraph: Thanks, Assessment Stripe Test. Keep this page to track your order.
+  - generic: 1 x Americano
+  - strong: £3.10
+  - generic: Estimated prep
+  - strong: 2 min
+  - generic: Total paid by card
+  - strong: £3.10
+- contentinfo:
+  - generic: Craving House Coffee App
+  - generic: Order ahead, collect in store, earn loyalty rewards.

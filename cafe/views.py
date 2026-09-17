@@ -191,7 +191,9 @@ def checkout(request):
       success_url = request.build_absolute_uri(
         reverse("cafe:order_detail", args=[order.pk, order.lookup_code])
       ) + "?stripe_session_id={CHECKOUT_SESSION_ID}"
-      cancel_url = request.build_absolute_uri(reverse("cafe:checkout"))
+      cancel_url = request.build_absolute_uri(
+        reverse("cafe:order_detail", args=[order.pk, order.lookup_code])
+      ) + "?payment_cancelled=1"
       try:
         stripe_checkout_session = create_stripe_checkout_session(order, success_url, cancel_url)
       except StripePaymentError as error:
@@ -243,7 +245,11 @@ def order_detail(request, pk, lookup_code):
   return render(
     request,
     "cafe/order_detail.html",
-    {"order": order, "payment_check_error": payment_check_error},
+    {
+      "order": order,
+      "payment_check_error": payment_check_error,
+      "payment_cancelled": request.GET.get("payment_cancelled") == "1",
+    },
   )
 
 

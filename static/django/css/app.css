@@ -10,8 +10,9 @@
     radial-gradient(760px 500px at 100% 100%, rgba(242, 183, 5, 0.12), transparent 62%),
     linear-gradient(180deg, rgba(11, 13, 18, 0.84), rgba(11, 13, 18, 0.56)),
     #171107;
-  --panel: rgba(11, 13, 18, 0.54);
-  --panel-strong: rgba(11, 13, 18, 0.72);
+  --panel: #29241a;
+  --panel-strong: #211e18;
+  --page-text: #17130b;
   --panel-soft: rgba(255, 255, 255, 0.06);
   --text: rgba(255, 255, 255, 0.94);
   --muted: rgba(255, 255, 255, 0.72);
@@ -92,6 +93,7 @@
 }
 
 html[data-theme="dark"] {
+  --page-text: #f3f3f3;
   color-scheme: dark;
   --bg: #0b0d12;
   --bg-gradient:
@@ -322,8 +324,9 @@ label {
 }
 
 :where(a, button, input, textarea, select):focus-visible {
-  outline: 2px solid rgba(242, 183, 5, 0.68);
+  outline: 2px solid #fff;
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px #0b0d12;
 }
 
 .app-shell {
@@ -871,11 +874,13 @@ label {
   color: var(--drawer-text);
   box-shadow: -20px 0 56px rgba(0, 0, 0, 0.34);
   transform: translateX(110%);
+  visibility: hidden;
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
   backdrop-filter: blur(18px);
 }
 
 .drawerOpen {
+  visibility: visible;
   transform: translateX(0);
 }
 
@@ -1137,6 +1142,7 @@ body.navOpen {
 }
 
 .dashLeadTitle {
+  margin: 0;
   font-family: var(--font-display);
   font-size: clamp(26px, 5.4vw, 48px);
   font-weight: 950;
@@ -1320,6 +1326,17 @@ body.navOpen {
   display: block;
 }
 
+/* Headings outside dark panels sit directly on the theme background. */
+.page-title,
+.section-heading,
+.menuSectionHeader,
+.page-title .eyebrow,
+.page-title .lede,
+.section-heading .eyebrow,
+.menuSectionHeader .eyebrow {
+  color: var(--page-text);
+}
+
 .eyebrow,
 .item-category {
   color: var(--accent);
@@ -1357,7 +1374,7 @@ body.navOpen {
   padding: 16px;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--panel);
 }
 
 .dashboard-strip strong,
@@ -1477,7 +1494,7 @@ body.navOpen {
   gap: 14px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)),
-    rgba(11, 13, 18, 0.36);
+    #29241a;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
@@ -1705,7 +1722,8 @@ body.navOpen {
   align-items: start;
 }
 
-.form-panel p {
+.form-panel p,
+.form-panel > div:not(.checkoutPaymentActions) {
   display: grid;
   gap: 8px;
   margin: 0 0 16px;
@@ -1758,7 +1776,8 @@ body.navOpen {
   color: var(--muted);
 }
 
-.status-pill {
+.status-pill,
+.manager-row .status-pill {
   display: inline-flex;
   width: fit-content;
   border-radius: var(--radius-pill);

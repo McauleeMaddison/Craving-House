@@ -1,0 +1,97 @@
+- link "Skip to content":
+  - /url: "#main-content"
+- banner:
+  - link "Craving House home":
+    - /url: /
+    - generic: Craving House
+    - generic: Coffee, bites, vibes
+  - navigation "Primary navigation":
+    - link "Menu":
+      - /url: /menu/
+    - link "Cart":
+      - /url: /cart/
+      - generic: Cart
+    - link "Loyalty":
+      - /url: /loyalty/
+    - link "Orders":
+      - /url: /orders/
+    - link "Boiler Buster":
+      - /url: /boiler-buster/
+    - link "Feedback":
+      - /url: /feedback/
+    - generic: Welcome, assessment_browser_0917 · Customer
+    - switch "Switch to dark mode":
+      - generic: Light mode
+      - generic: Golden glow
+    - button "Sign out"
+- dialog:
+  - link:
+    - /url: /
+    - generic: Craving House
+    - generic: Coffee, bites, vibes
+  - button:
+    - generic: ×
+  - generic: Open Tuesday to Saturday
+  - generic: Welcome, assessment_browser_0917 · Customer
+  - switch
+  - navigation:
+    - link:
+      - /url: /menu/
+      - generic: Menu
+      - text: ›
+    - link:
+      - /url: /cart/
+      - generic: Cart
+      - generic: Empty
+      - text: ›
+    - link:
+      - /url: /loyalty/
+      - generic: Loyalty
+      - text: ›
+    - link:
+      - /url: /orders/
+      - generic: Orders
+      - text: ›
+    - link:
+      - /url: /boiler-buster/
+      - generic: Boiler Buster
+      - text: ›
+    - link:
+      - /url: /feedback/
+      - generic: Feedback
+      - text: ›
+    - button: Sign out ›
+- status:
+  - generic: Account created. Your loyalty card is ready.
+- main:
+  - paragraph: Digital loyalty
+  - heading "Your stamp card" [level=1]
+  - paragraph: Card code
+  - heading "87125b36-6b8b-4a5e-bd07-c13f3fef73ab" [level=2]
+  - generic: 0 of 8 stamps collected
+  - strong: 0 rewards available
+  - img "Loyalty card QR code for 87125b36-6b8b-4a5e-bd07-c13f3fef73ab"
+  - paragraph: Show this card at pickup.
+  - generic: Craving House stamp run
+  - strong: 0/8
+  - progressbar "Loyalty stamps collected"
+  - generic "0 of 8 loyalty stamps collected":
+    - generic: CH
+    - generic: "1"
+    - generic: CH
+    - generic: "2"
+    - generic: CH
+    - generic: "3"
+    - generic: CH
+    - generic: "4"
+    - generic: CH
+    - generic: "5"
+    - generic: CH
+    - generic: "6"
+    - generic: CH
+    - generic: "7"
+    - generic: CH
+    - generic: "8"
+- contentinfo:
+  - generic: Craving House Coffee App
+  - generic: Order ahead, collect in store, earn loyalty rewards.

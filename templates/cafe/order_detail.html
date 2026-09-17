@@ -17,9 +17,11 @@
       </div>
     {% elif order.payment_method == "stripe" %}
       <div class="paymentNotice">
-        <strong>Card payment pending</strong>
+        <strong>{% if payment_cancelled %}Card checkout closed{% else %}Card payment pending{% endif %}</strong>
         <span>
-          {% if payment_check_error %}
+          {% if payment_cancelled %}
+            Payment has not been confirmed. Your order is still awaiting payment. Keep this order number and speak to staff before placing another order.
+          {% elif payment_check_error %}
             {{ payment_check_error }}
           {% else %}
             Your card payment is still being confirmed.

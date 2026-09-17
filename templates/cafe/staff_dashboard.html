@@ -95,12 +95,12 @@
               </ul>
               <form action="{% url 'cafe:update_order_status' order.pk %}" method="post" class="inline-form">
                 {% csrf_token %}
-                <select name="status">
+                <select name="status" aria-label="Status for order {{ order.pk }}">
                   {% for value, label in status_choices %}
                     <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
                   {% endfor %}
                 </select>
-                <button type="submit">Update</button>
+                <button type="submit" aria-label="Update order {{ order.pk }} status">Update</button>
               </form>
             </article>
           {% empty %}
@@ -123,7 +123,7 @@
             <button type="button" class="btn btn-secondary" data-loyalty-scanner-start>Start camera</button>
             <button type="button" class="btn btn-secondary" data-loyalty-scanner-stop disabled>Stop</button>
           </div>
-          <p class="muted loyaltyScannerStatus" data-loyalty-scanner-status>Camera scanner ready.</p>
+          <p class="muted loyaltyScannerStatus" role="status" aria-live="polite" data-loyalty-scanner-status>Camera scanner ready.</p>
         </div>
         <form action="{% url 'cafe:scan_loyalty' %}" method="post" class="form-panel">
           {% csrf_token %}

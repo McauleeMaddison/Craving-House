@@ -11,7 +11,7 @@
   <div class="two-column">
     <form method="post" class="panel form-panel">
       {% csrf_token %}
-      {{ form.as_p }}
+      {{ form.as_div }}
       <div class="checkoutPaymentActions">
         <button
           type="submit"

@@ -251,6 +251,21 @@ class CafeFlowTests(TestCase):
     self.assertEqual(order.stripe_checkout_session_id, "cs_test_123")
     self.assertIn("stripe_session_id={CHECKOUT_SESSION_ID}", success_url)
 
+    # Cancelling provider checkout must retain the order's context, not send
+    # the customer to checkout with the basket that was already cleared.
+    cancel_url = create_session.call_args.args[2]
+    self.assertEqual(
+      cancel_url,
+      "http://testserver" + reverse("cafe:order_detail", args=[order.pk, order.lookup_code])
+      + "?payment_cancelled=1",
+    )
+    cancelled_response = self.client.get(cancel_url)
+    self.assertContains(cancelled_response, "Card checkout closed")
+    self.assertContains(cancelled_response, "Payment has not been confirmed.")
+    self.assertContains(cancelled_response, f"Order #{order.pk}")
+    order.refresh_from_db()
+    self.assertEqual(order.payment_status, Order.PaymentStatus.PENDING)
+
   def test_order_detail_marks_confirmed_stripe_payment_successful(self):
     order = Order.objects.create(
       guest_name="Sam Customer",
@@ -281,6 +296,14 @@ class CafeFlowTests(TestCase):
     self.assertContains(response, "Payment successful")
     self.assertContains(response, "Total paid by card")
     self.assertNotContains(response, "Total due at collection")
+
+    # A return-query flag must never undo or misrepresent a confirmed payment.
+    response = self.client.get(
+      reverse("cafe:order_detail", args=[order.pk, order.lookup_code]),
+      {"payment_cancelled": "1"},
+    )
+    self.assertContains(response, "Payment successful")
+    self.assertNotContains(response, "Card checkout closed")
 
   def test_order_history_requires_login(self):
     response = self.client.get(reverse("cafe:order_history"))

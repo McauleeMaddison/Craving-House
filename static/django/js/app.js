@@ -62,7 +62,23 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
     return;
   }
 
+  const background = Array.from(document.querySelectorAll(
+    ".skipLink, .appHeader, .messages, .appMain, .appFooter"
+  ));
+  let previousFocus = null;
+
+  function focusableItems() {
+    return Array.from(drawer.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex="0"]'
+    )).filter((element) => element.getClientRects().length);
+  }
+
   function setOpen(open) {
+    const wasOpen = drawer.classList.contains("drawerOpen");
+    if (open === wasOpen) return;
+    if (open) previousFocus = document.activeElement;
+    drawer.inert = !open;
+    background.forEach((element) => { element.inert = open; });
     drawer.classList.toggle("drawerOpen", open);
     overlay.classList.toggle("drawerOverlayOpen", open);
     document.body.classList.toggle("navOpen", open);
@@ -73,6 +89,13 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
     overlay.setAttribute("aria-hidden", String(!open));
     if (header) {
       header.dataset.drawerOpen = String(open);
+    }
+    if (open) {
+      drawer.querySelector('button[data-nav-close]').focus();
+    } else if (previousFocus && previousFocus.getClientRects().length) {
+      previousFocus.focus();
+    } else {
+      document.getElementById("main-content").focus();
     }
   }
 
@@ -91,9 +114,25 @@ document.querySelectorAll("[data-confirm]").forEach((element) => {
   });
 
   window.addEventListener("keydown", (event) => {
+    if (!drawer.classList.contains("drawerOpen")) return;
     if (event.key === "Escape") {
+      event.preventDefault();
       setOpen(false);
+    } else if (event.key === "Tab") {
+      const items = focusableItems();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
+  });
+  window.addEventListener("resize", () => {
+    if (!toggle.getClientRects().length) setOpen(false);
   });
 })();
 

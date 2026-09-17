@@ -25,10 +25,10 @@
               {% endif %}
               <span>£{{ line.unit_price }} each{% if line.add_ons %} with add-ons{% endif %}</span>
             </div>
-            <input type="number" name="quantity" value="{{ line.quantity }}" min="0" max="20">
+            <input type="number" name="quantity" value="{{ line.quantity }}" min="0" max="20" aria-label="Quantity for {{ line.item.name }}{% if line.add_ons %}, {% for add_on in line.add_ons %}{{ add_on.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}">
             <strong>£{{ line.line_total }}</strong>
-            <button type="submit">Update</button>
-            <button type="submit" name="action" value="remove" class="button-ghost">Remove</button>
+            <button type="submit" aria-label="Update {{ line.item.name }} quantity">Update</button>
+            <button type="submit" name="action" value="remove" class="button-ghost" aria-label="Remove {{ line.item.name }}">Remove</button>
           </form>
         {% endfor %}
       </div>
