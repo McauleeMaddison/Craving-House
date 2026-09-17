@@ -1,0 +1,6 @@
+Documentation checks — 17 September 2026
+git diff --check: PASS (exit 0)
+Local Markdown targets: 42 checked; 0 missing.
+17 actual browser JPEG captures verified by file signatures; extensions match the exported format.
+Application diff: home.html loyalty copy only; original cafe/tests.py unchanged.
+No commit, push, production deployment or submission ZIP regeneration performed.

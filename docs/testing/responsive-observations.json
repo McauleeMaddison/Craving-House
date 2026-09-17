@@ -1,0 +1,198 @@
+[
+  {
+    "page": "Home",
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "page": "Home",
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Menu",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Menu",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Menu",
+    "main": true,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "page": "Cart",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Cart",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Cart",
+    "main": true,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Checkout",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Checkout",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Checkout",
+    "main": true,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Login",
+    "main": true,
+    "scroll": 375,
+    "width": 375
+  },
+  {
+    "page": "Login",
+    "main": true,
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "page": "Login",
+    "main": true,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Loyalty",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Loyalty",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Loyalty",
+    "main": true,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "page": "Feedback",
+    "main": true,
+    "scroll": 375,
+    "width": 375
+  },
+  {
+    "page": "Feedback",
+    "main": true,
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "page": "Feedback",
+    "main": true,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Signup",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Signup",
+    "main": true,
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "page": "Signup",
+    "main": true,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "page": "Staff dashboard",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Staff dashboard",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Staff dashboard",
+    "main": true,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "page": "Manager dashboard",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Manager dashboard",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Manager dashboard",
+    "main": true,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "page": "Manager item form",
+    "main": true,
+    "scroll": 360,
+    "width": 375
+  },
+  {
+    "page": "Manager item form",
+    "main": true,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "page": "Manager item form",
+    "main": true,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "page": "Home",
+    "width": 375,
+    "scroll": 375,
+    "main": true
+  }
+]
