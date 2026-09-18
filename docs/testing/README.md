@@ -1,13 +1,13 @@
-# Assessment testing evidence — 17 September 2026
+# Assessment testing evidence — 17–18 September 2026
 
 The main [README](../../README.md#front-end-testing) contains the manual functional, responsive, form and user-story tables. This directory supplies reproducible commands and raw results. Tests used the current local source; no commit, push, deployment, production write or payment was performed.
 
-## Environment
+## Initial environment
 
 - macOS local workstation; Python 3.9.6; Django 4.2.30.
 - All four pinned packages in `requirements.txt` installed in `/tmp/craving-docs-venv`.
 - The original system Python initially lacked Django. The first package-install attempt failed because the sandbox could not reach the package index. Retrying with approved network access installed the requirements successfully. This was an environment issue, not an application test failure.
-- Browser: Codex in-app browser; version not reported by the tool. Chrome, Safari and Firefox were not independently exercised.
+- Browser: Codex in-app browser; version not reported by the tool. Safari was subsequently exercised separately; Chrome, Firefox and Edge remain untested.
 - Browser URL: `http://127.0.0.1:8765`; database `/tmp/craving-assessment.sqlite3`, freshly migrated and seeded. Stripe key removed from the server environment. Existing repository SQLite data was not used for mutations.
 
 ## Recorded commands
@@ -85,15 +85,47 @@ Responsive checks set widths/heights to 375×812, 768×900 and 1440×900 and rea
 
 Screenshots are viewport captures: full-page capture included the off-screen drawer, so those captures were replaced with viewport captures rather than presenting misleading images. Mobile home/menu/loyalty/staff/manager and desktop home/checkout were visually inspected. Screenshots and width measurements do not prove screen-reader support, adequate contrast, physical-device operation or cross-browser equivalence.
 
-## Remaining checks and interpretation
+## Remaining checks after the follow-up
 
-- External Stripe test checkout, cancellation and failure; the existing Stripe tests mock the provider.
-- Physical QR camera scanning, browser permissions and decoder compatibility.
-- Browser signup completion, signed-in order history, full game win/best-score/keyboard behaviour.
-- Chrome/Safari/Firefox runs with recorded versions; physical devices, zoom, contrast and keyboard/screen-reader audit.
-- W3C/Nu HTML, CSS validation and JavaScript linting were not run. Template compilation is a distinct check.
-- Tests of absent login input, unknown-but-valid loyalty UUIDs and further model boundary values remain open.
+- Physical QR scanning, actual browser permission-denial feedback and decoder/device compatibility remain unverified. A Start camera attempt stayed at “Preparing camera scanner...” in the in-app browser; no physical success is claimed. Safari camera-prompt testing remains deferred. Independent manual entry succeeded (one stamp and one scan record).
+- Physical touch gameplay and independent Chrome/Firefox/Edge runs remain untested.
+- Full screen-reader, zoom and remaining gradient/control contrast review remain open. Automatic axe results include incomplete checks.
+- The official Level 4 assessment brief is still required for a criterion-by-criterion mapping; the project has not received assessor sign-off.
+- Live deployment must be checked against the reviewed source, particularly the cancellation fix.
+- HTML/CSS validator and JavaScript lint checks were not run. Template compilation is a distinct check.
 
-## Final repository review
+## Follow-up results
 
-`git diff --check` and a check that every local Markdown file/image target exists are run before delivery; their results are recorded in `documentation-checks.txt`. No source model, payment, permission, authentication, cart or loyalty logic was changed. The sole application edit corrects the homepage's misleading five-stamp offer to match the existing eight-stamp scheme. The old submission ZIP was deliberately left untouched for review.
+The follow-up retained the isolated SQLite database. Browser signup created a synthetic customer, rejected mismatched passwords, then displayed a zero-stamp card. A signed-in counter order appeared in that account's history; the earlier guest order did not. A full keyboard Boiler Buster round ended with score 222 and 76 vents, and reload retained best 222. These are genuine UI interactions; game state was not injected.
+
+On 17 September the Render deployment opened Stripe **Sandbox**. The official decline card showed a decline message; the success card returned to the app with £3.10 paid. A separate sandbox cancellation lost order context, prompting the local cancel-URL/template fix and regression assertions. These two clearly named test orders affected Render's demonstration database; no real card was charged and no deployment was performed by the review. Card/payment data were not stored in the application.
+
+Safari account/history checks ran on 17 September. Safari **27.0** was identified from its application metadata on 18 September and used for menu, AJAX add, cart and checkout display checks. These are narrower than full browser equivalence. The README browser table retains Chrome/Firefox/Edge as untested.
+
+| Evidence | Scope |
+| --- | --- |
+| [final-regression.txt](final-regression.txt) | 44 tests passed on 18 September; original suite plus supplementary module, including cancellation assertions. |
+| [final-collectstatic.txt](final-collectstatic.txt) | 138 copied, 404 post-processed with WhiteNoise manifest storage and a temporary output root. |
+| [final-responsive-observations.json](final-responsive-observations.json) | Home/menu/populated cart/checkout at 375, 768 and 1440px after fixes; all twelve scroll widths within viewport. |
+| [accessibility-audit.json](accessibility-audit.json) | axe-core 4.13.0 baseline and follow-up states. No automatic violations in follow-up; incomplete checks retained. |
+| [contrast-results.json](contrast-results.json) / [calculation source](contrast_checks.py) | Conservative bounds for two corrected CSS pairs, not every element or a conformance certificate. |
+| [signup-browser-snapshot.txt](signup-browser-snapshot.txt) | Successful signup and authenticated loyalty card. Mismatch error was also observed before correction. |
+| [order-history-browser-snapshot.txt](order-history-browser-snapshot.txt) | Only the signed-in customer's order and tracking link. |
+| [stripe-decline-snapshot.txt](stripe-decline-snapshot.txt) / [stripe-success-snapshot.txt](stripe-success-snapshot.txt) | Real external Sandbox decline and paid return. |
+| [game-keyboard-win.txt](game-keyboard-win.txt) | Completed round, score/best 222 and 76 vents; reload persistence separately observed. |
+| [manual-loyalty-result.txt](manual-loyalty-result.txt) | One-stamp manual submission and isolated database verification. |
+| [safari-order-history.txt](safari-order-history.txt) / [safari-menu-cart-checkout.txt](safari-menu-cart-checkout.txt) | Native Safari observations. Diffs preserve the tool's observed state, not invented screenshots. |
+
+### Accessibility method and limits
+
+axe-core was downloaded from the official npm registry (`axe-core@4.13.0`) into a temporary directory and served by test-only middleware. For a repeat run, obtain the package with `npm pack axe-core@4.13.0`, extract it, and configure the local middleware's asset path. The production app does not load the audit library. Use the source in [audit_middleware.py](audit_middleware.py) only with disposable local test settings; add `docs.testing.audit_middleware.AuditMiddleware` to the local middleware list and open a page with `?audit=1`. Read the hidden `#assessment-audit` JSON after completion. The scan uses WCAG 2 A/AA, WCAG 2.1 AA and best-practice tags; it does not prove coverage of every criterion.
+
+The follow-up used `StaticFilesStorage` and removed WhiteNoise middleware **only in temporary local settings**, plus versioned asset URLs, so cached collected files did not conceal CSS/JS edits. The release `collectstatic` check separately exercised the real WhiteNoise manifest storage. Baseline scans preceded fixes; labelled generic-group warnings in early loyalty/game scans are superseded by the later mobile scans after explicit group roles were added. Gradient contrast results were retained as incomplete. Silent live scanner preview was manually classified separately from prerecorded media caption requirements.
+
+Mobile keyboard verification opened the drawer, observed focus on Close, verified inert background, wrapped Tab from Sign out to the first link and Shift+Tab back, then used Escape and observed focus return to Open menu. No screen-reader or physical touchscreen equivalence is claimed.
+
+## Repository and archive review
+
+No model/schema or role-predicate behaviour changed. The role module gained an explanatory docstring. Source fixes address confirmed heading/control semantics, drawer focus, form markup, affected contrast pairs and the observed Stripe cancellation context loss. The final 44-test run passed. The original screenshot set is retained as dated evidence; follow-up captures are indexed separately.
+
+Build the source/evidence ZIP with `python3 scripts/build_submission.py`. The explicit allowlist excludes environment files, databases, Git metadata, caches and prior archives. The build verifies CRCs and all SHA-256 entries in `MANIFEST.sha256`. Read [the README's outstanding checks](../../README.md#known-issues-and-remaining-verification) before submission: successful packaging is not an assertion that every assessment requirement has been fulfilled.

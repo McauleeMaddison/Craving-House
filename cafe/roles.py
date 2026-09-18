@@ -1,3 +1,11 @@
+"""Separate service tasks from menu administration using least privilege.
+
+Staff fulfil orders and award loyalty stamps. Managers additionally maintain
+menu data and availability, and inherit staff access so they can cover service.
+These predicates support server-side decorators; hiding navigation alone is
+not an access-control boundary. Django admin permissions remain independent.
+"""
+
 STAFF_GROUP = "Staff"
 MANAGER_GROUP = "Manager"
 

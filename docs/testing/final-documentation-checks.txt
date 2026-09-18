@@ -1,0 +1,21 @@
+18 September 2026 — final documentation review
+
+PASS: 87 relative Markdown targets in README/docs resolve to existing files.
+PASS: 10 model-linked user stories; all five requested README section headings present.
+PASS: all three SVG wireframes parse and were visually inspected in a browser.
+PASS: 12 fresh core-template viewport checks show no document horizontal overflow.
+PASS: 29 recorded axe follow-up states have zero automatic violations.
+LIMIT: incomplete axe checks remain; results are not full WCAG certification.
+PASS: 44 Django tests; see final-regression.txt.
+PASS: release static collection, 138 copied and 404 post-processed.
+PASS: Python syntax checks for the packaging, contrast and local audit scripts.
+PASS: git diff --check (no whitespace errors).
+
+The first syntax-check command could not write Python bytecode to the system
+cache under sandbox restrictions. Retrying with PYTHONPYCACHEPREFIX pointing
+to /tmp succeeded. No application failure was inferred from that environment
+permission error.
+
+Camera prompt/denial and physical scanning, touch-device gameplay, independent
+Chrome/Firefox/Edge coverage, the official rubric and deployment parity remain
+open. No unperformed test has been labelled PASS.

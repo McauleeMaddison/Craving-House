@@ -1,0 +1,122 @@
+[
+  {
+    "page": "home",
+    "requested": {
+      "width": 375,
+      "height": 812
+    },
+    "scroll": 360,
+    "title": "Order ahead. Collect when ready.",
+    "width": 375
+  },
+  {
+    "page": "menu",
+    "requested": {
+      "width": 375,
+      "height": 812
+    },
+    "scroll": 360,
+    "title": "Craving House Menu",
+    "width": 375
+  },
+  {
+    "page": "cart",
+    "requested": {
+      "width": 375,
+      "height": 812
+    },
+    "scroll": 375,
+    "title": "Cart",
+    "width": 375
+  },
+  {
+    "page": "checkout",
+    "requested": {
+      "width": 375,
+      "height": 812
+    },
+    "scroll": 360,
+    "title": "Confirm your order",
+    "width": 375
+  },
+  {
+    "page": "home",
+    "requested": {
+      "width": 768,
+      "height": 900
+    },
+    "scroll": 768,
+    "title": "Order ahead. Collect when ready.",
+    "width": 768
+  },
+  {
+    "page": "menu",
+    "requested": {
+      "width": 768,
+      "height": 900
+    },
+    "scroll": 753,
+    "title": "Craving House Menu",
+    "width": 768
+  },
+  {
+    "page": "cart",
+    "requested": {
+      "width": 768,
+      "height": 900
+    },
+    "scroll": 768,
+    "title": "Cart",
+    "width": 768
+  },
+  {
+    "page": "checkout",
+    "requested": {
+      "width": 768,
+      "height": 900
+    },
+    "scroll": 753,
+    "title": "Confirm your order",
+    "width": 768
+  },
+  {
+    "page": "home",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "scroll": 1440,
+    "title": "Order ahead. Collect when ready.",
+    "width": 1440
+  },
+  {
+    "page": "menu",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "scroll": 1425,
+    "title": "Craving House Menu",
+    "width": 1440
+  },
+  {
+    "page": "cart",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "scroll": 1440,
+    "title": "Cart",
+    "width": 1440
+  },
+  {
+    "page": "checkout",
+    "requested": {
+      "width": 1440,
+      "height": 900
+    },
+    "scroll": 1440,
+    "title": "Confirm your order",
+    "width": 1440
+  }
+]

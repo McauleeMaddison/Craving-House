@@ -1,6 +1,6 @@
 # Frontend Screenshot Evidence
 
-Captured on **17 September 2026** from the actual locally running Django application, using the Codex in-app browser and a disposable seeded SQLite database. The browser exports JPEG bytes, so the captured files use `.jpg` extensions. These are viewport screenshots, not generated illustrations or production captures. Demonstration contact details and loyalty code are synthetic/seeded. The local database is not included in the repository.
+Initial captures 01–17 were recorded on **17 September 2026** from the actual locally running Django application, using the Codex in-app browser and a disposable seeded SQLite database. The browser exports JPEG bytes, so the captured files use `.jpg` extensions. These are viewport screenshots, not generated illustrations. Follow-up capture 18 comes from Render after Stripe Sandbox payment; 19–20 show the corrected local menu. Demonstration contact details and loyalty code are synthetic/seeded. The local database is not included in the repository.
 
 Desktop viewport: **1440 × 900**. Mobile viewport: **375 × 812**. A browser scrollbar may reduce captured content width. Long pages extend below the viewport. Screenshots show different stages of the same assessment session; for example, the order becomes Ready and the card increases to three stamps. They do not represent a single simultaneous database snapshot.
 
@@ -26,16 +26,25 @@ Desktop viewport: **1440 × 900**. Mobile viewport: **375 × 812**. A browser sc
 | [x] | [16-signup.jpg](16-signup.jpg) | Registration fields and Django password guidance. |
 | [x] | [17-loyalty-mobile-after-stamps.jpg](17-loyalty-mobile-after-stamps.jpg) | Mobile customer card after staff awarded three stamps. |
 
+## Follow-up captures
+
+The initial set above is retained as historical evidence before the accessibility fixes. These additional captures show the follow-up states; dimensions below are the actual JPEG pixel dimensions, which can differ from CSS viewport dimensions because of the capture tool and scrollbars.
+
+| File | Date / browser | Dimensions | Actual state |
+| --- | --- | --- | --- |
+| [18-stripe-sandbox-success.jpg](18-stripe-sandbox-success.jpg) | 17 September 2026; in-app browser | 1280 × 720 | Render return: £3.10 Payment successful after Sandbox card testing (F03). |
+| [19-menu-contrast-desktop.jpg](19-menu-contrast-desktop.jpg) | 18 September 2026; in-app browser | 1425 × 891; requested viewport 1440 × 900 | Local guest menu after text/card contrast fixes. |
+| [20-menu-contrast-mobile.jpg](20-menu-contrast-mobile.jpg) | 18 September 2026; in-app browser | 360 × 780; requested viewport 375 × 812 | Same corrected menu at mobile width. |
+
+![Corrected desktop menu](19-menu-contrast-desktop.jpg)
+
+![Corrected mobile menu](20-menu-contrast-mobile.jpg)
+
 ## Remaining manual evidence
 
-Use a local/test deployment and synthetic data. Keep real customer details, private order lookup links and secrets out of shared captures. Suggested files below **do not yet exist** and are deliberately not image links.
+- [ ] Successful physical QR scan and decoded code; real camera permission-denial feedback followed by manual entry.
+- [ ] Physical touch gameplay on a named phone/tablet.
+- [ ] Representative Chrome, Firefox and Edge captures with browser versions and the tested home/menu/cart/checkout states.
+- [ ] Full screen-reader/zoom and remaining contrast verification.
 
-- [ ] `18-stripe-test-checkout.png`: Stripe-hosted test checkout, using a test-mode key.
-- [ ] `19-stripe-paid-confirmation.png`: return to the app with Payment successful and matching order total. Also record cancel/error behaviour in the testing table.
-- [ ] `20-staff-camera-scan.png`: successful scan of the seeded customer QR using a physical camera; show decoded code/status, not a customer's personal card.
-- [ ] `21-customer-order-history.png`: signed-in customer history with tracking links; only that account's orders.
-- [ ] `22-form-validation.png`: visible Django error state, such as mismatched signup passwords, with sensitive fields empty.
-- [ ] `23-tablet-checkout.png`: 768px checkout in a separately identified browser.
-- [ ] `24-dark-theme-mobile.png`: readable mobile form/menu in dark mode.
-
-For each new capture, add its actual filename, date, browser/version, viewport, role and test ID to this checklist. Replace planned status only after performing the action and verifying the result. Review the image before adding a Markdown link.
+Browser signup/history, keyboard game and Safari results are preserved as text snapshots in [testing evidence](../testing/README.md). Text observations are evidence of the listed interaction, not invented image files. The three [design wireframes](../../README.md#design) are labelled retrospective diagrams and kept separate from screenshots.

@@ -1,0 +1,26 @@
+[
+  {
+    "pair": "Previous menu secondary text",
+    "ratio": 2.55,
+    "current": false,
+    "meets_normal_text_4_5_to_1": false
+  },
+  {
+    "pair": "Corrected menu secondary text",
+    "ratio": 6.94,
+    "current": true,
+    "meets_normal_text_4_5_to_1": true
+  },
+  {
+    "pair": "Previous heading on gold",
+    "ratio": 1.75,
+    "current": false,
+    "meets_normal_text_4_5_to_1": false
+  },
+  {
+    "pair": "Corrected heading on darkest gold",
+    "ratio": 5.88,
+    "current": true,
+    "meets_normal_text_4_5_to_1": true
+  }
+]

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="790" viewBox="0 0 640 790" role="img" aria-labelledby="title desc">
+<title id="title">Staff service dashboard structural wireframe</title>
+<desc id="desc">Retrospective wireframe of the implemented interface, showing six labelled sections. It is not an application screenshot.</desc>
+<rect width="640" height="790" fill="#f6f4ef"/>
+<g font-family="Arial, sans-serif" fill="#252525">
+<text x="30" y="44" font-size="25" font-weight="bold">Staff service dashboard</text>
+<text x="30" y="73" font-size="14">Retrospective structure • 18 September 2026</text>
+<rect x="30" y="100" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="129" font-size="17" font-weight="bold">1. Operations header</text>
+<text x="48" y="156" font-size="14">Brand | Staff | Theme | Sign out</text>
+<rect x="30" y="200" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="229" font-size="17" font-weight="bold">2. Service overview</text>
+<text x="48" y="256" font-size="14">Next order, counter due, card pending</text>
+<rect x="30" y="300" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="329" font-size="17" font-weight="bold">3. Status summary</text>
+<text x="48" y="356" font-size="14">Active | New | Preparing | Ready</text>
+<rect x="30" y="400" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="429" font-size="17" font-weight="bold">4. Order station</text>
+<text x="48" y="456" font-size="14">Order lines; status selector; Update</text>
+<rect x="30" y="500" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="529" font-size="17" font-weight="bold">5. Loyalty station</text>
+<text x="48" y="556" font-size="14">Camera preview; Start camera / Stop</text>
+<rect x="30" y="600" width="580" height="83" rx="6" fill="white" stroke="#555" stroke-width="1.5"/>
+<text x="48" y="629" font-size="17" font-weight="bold">6. Manual loyalty form</text>
+<text x="48" y="656" font-size="14">Customer card code; stamp count; Add stamps</text>
+<text x="30" y="728" font-size="14">Mobile: shared navigation becomes a drawer;</text>
+<text x="30" y="752" font-size="14">cards, form controls and operational columns stack.</text>
+</g></svg>

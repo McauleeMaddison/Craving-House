@@ -1,0 +1,817 @@
+The following is a diff from the previous accessibility tree for Window: "Menu | Craving House" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 4-63, 72
+~0 standard window Menu | Craving House, ID: SafariWindow?IsSecure=false&UUID=750083AF-1B23-4D95-90E5-2B0A475149BC, Secondary Actions: Raise
++			87 scroll area
++				88 HTML content Description: Menu | Craving House, URL: 127.0.0.1:8765/menu/
++					89 link Skip to content, Value: 127.0.0.1:8765/menu/#main-content
++					90 container
++						91 link Craving House home, Value: 127.0.0.1:8765/
++						92 button (collapsed) Open menu, Secondary Actions: Expand
++					93 container
++						94 text Pickup menu
++						95 text Counter payment
++						96 text Freshly prepared
++						97 heading Craving House Menu, Value: 1
++							98 text Craving House Menu
++						99 text Browse hot drinks, cold drinks, bites, meals, hot dogs, waffles, and toppings.
++						100 link View cart, Value: 127.0.0.1:8765/cart/
++						101 link Loyalty card, Value: 127.0.0.1:8765/loyalty/
++						102 text 17 ITEMS
++						103 heading Hot drinks, Value: 2
++							104 text Hot drinks
++						105 container Americano
++							106 text 2 MIN PREP · EARNS STAMP
++							107 heading Americano, Value: 3
++								108 text Americano
++							109 text £3.10
++							110 text Espresso topped with hot water.
++							111 container
++								112 text Quantity for Americano
++								113 number field (settable) Quantity for Americano, Value: 1
++									114 stepper 0
++										115 unknown
++										116 unknown
++								117 button Add to cart
++						118 container Assessment Cocoa
++							119 text 5 MIN PREP · EARNS STAMP
++							120 heading Assessment Cocoa, Value: 3
++								121 text Assessment Cocoa
++							122 text £2.95
++							123 text Temporary menu item for local assessment evidence.
++							124 container
++								125 text Quantity for Assessment Cocoa
++								126 number field (settable) Quantity for Assessment Cocoa, Value: 1
++									127 stepper 0
++										128 unknown
++										129 unknown
++								130 button Add to cart
++						131 container Breakfast Tea
++							132 text 2 MIN PREP
++							133 heading Breakfast Tea, Value: 3
++								134 text Breakfast Tea
++							135 text £2.10
++							136 text Classic breakfast tea.
++							137 container
++								138 text Quantity for Breakfast Tea
++								139 number field (settable) Quantity for Breakfast Tea, Value: 1
++									140 stepper 0
++										141 unknown
++										142 unknown
++								143 button Add to cart
++						144 container Cappuccino
++							145 text 3 MIN PREP · EARNS STAMP
++							146 heading Cappuccino, Value: 3
++								147 text Cappuccino
++							148 text £3.50
++							149 text Espresso with steamed milk, foam, and cocoa dust.
++							150 container
++								151 text Quantity for Cappuccino
++								152 number field (settable) Quantity for Cappuccino, Value: 1
++									153 stepper 0
++										154 unknown
++										155 unknown
++								156 button Add to cart
++						157 container Chai Latte
++							158 text 3 MIN PREP
++							159 heading Chai Latte, Value: 3
++								160 text Chai Latte
++							161 text £3.50
++							162 text Spiced chai with steamed milk.
++							163 container
++								164 text Quantity for Chai Latte
++								165 number field (settable) Quantity for Chai Latte, Value: 1
++									166 stepper 0
++										167 unknown
++										168 unknown
++								169 button Add to cart
++						170 container Cortado
++							171 text 3 MIN PREP · EARNS STAMP
++							172 heading Cortado, Value: 3
++								173 text Cortado
++							174 text £3.20
++							175 text Espresso cut with a small pour of warm milk.
++							176 container
++								177 text Quantity for Cortado
++								178 number field (settable) Quantity for Cortado, Value: 1
++									179 stepper 0
++										180 unknown
++										181 unknown
++								182 button Add to cart
++						183 container Espresso
++							184 text 2 MIN PREP · EARNS STAMP
++							185 heading Espresso, Value: 3
++								186 text Espresso
++							187 text £2.50
++							188 text Short, bold espresso pulled to order.
++							189 container
++								190 text Quantity for Espresso
++								191 number field (settable) Quantity for Espresso, Value: 1
++									192 stepper 0
++										193 unknown
++										194 unknown
++								195 button Add to cart
++						196 container Flat White
++							197 text 3 MIN PREP · EARNS STAMP
++							198 heading Flat White, Value: 3
++								199 text Flat White
++							200 text £3.25
++							201 text Strong, silky, and balanced.
++							202 container
++								203 text Quantity for Flat White
++								204 number field (settable) Quantity for Flat White, Value: 1
++									205 stepper 0
++										206 unknown
++										207 unknown
++								208 button Add to cart
++						209 container Green Tea
++							210 text 2 MIN PREP
++							211 heading Green Tea, Value: 3
++								212 text Green Tea
++							213 text £2.10
++							214 text Light green tea.
++							215 container
++								216 text Quantity for Green Tea
++								217 number field (settable) Quantity for Green Tea, Value: 1
++									218 stepper 0
++										219 unknown
++										220 unknown
++								221 button Add to cart
++						222 container Herbal Tea
++							223 text 2 MIN PREP
++							224 heading Herbal Tea, Value: 3
++								225 text Herbal Tea
++							226 text £2.10
++							227 text Caffeine-free herbal infusion.
++							228 container
++								229 text Quantity for Herbal Tea
++								230 number field (settable) Quantity for Herbal Tea, Value: 1
++									231 stepper 0
++										232 unknown
++										233 unknown
++								234 button Add to cart
++						235 container Hot Chocolate
++							236 text 3 MIN PREP
++							237 heading Hot Chocolate, Value: 3
++								238 text Hot Chocolate
++							239 text £3.50
++							240 text Rich chocolate with steamed milk.
++							241 container
++								242 text Quantity for Hot Chocolate
++								243 number field (settable) Quantity for Hot Chocolate, Value: 1
++									244 stepper 0
++										245 unknown
++										246 unknown
++								247 button Add to cart
++						248 container House Latte
++							249 text 4 MIN PREP · EARNS STAMP
++							250 heading House Latte, Value: 3
++								251 text House Latte
++							252 text £3.80
++							253 text Double espresso with steamed milk and a caramel finish.
++							254 container
++								255 text Quantity for House Latte
++								256 number field (settable) Quantity for House Latte, Value: 1
++									257 stepper 0
++										258 unknown
++										259 unknown
++								260 button Add to cart
++						261 container Latte
++							262 text 3 MIN PREP · EARNS STAMP
++							263 heading Latte, Value: 3
++								264 text Latte
++							265 text £3.20
++							266 text Smooth espresso with steamed milk.
++							267 container
++								268 text Quantity for Latte
++								269 number field (settable) Quantity for Latte, Value: 1
++									270 stepper 0
++										271 unknown
++										272 unknown
++								273 button Add to cart
++						274 container Mocha
++							275 text 3 MIN PREP · EARNS STAMP
++							276 heading Mocha, Value: 3
++								277 text Mocha
++							278 text £3.80
++							279 text Espresso, chocolate, and steamed milk.
++							280 container
++								281 text Quantity for Mocha
++								282 number field (settable) Quantity for Mocha, Value: 1
++									283 stepper 0
++										284 unknown
++										285 unknown
++								286 button Add to cart
++						287 container Peppermint Tea
++							288 text 2 MIN PREP
++							289 heading Peppermint Tea, Value: 3
++								290 text Peppermint Tea
++							291 text £2.10
++							292 text Fresh peppermint infusion.
++							293 container
++								294 text Quantity for Peppermint Tea
++								295 number field (settable) Quantity for Peppermint Tea, Value: 1
++									296 stepper 0
++										297 unknown
++										298 unknown
++								299 button Add to cart
++						300 container Turmeric Latte
++							301 text 3 MIN PREP
++							302 heading Turmeric Latte, Value: 3
++								303 text Turmeric Latte
++							304 text £3.30
++							305 text Golden turmeric latte with warming spice.
++							306 container
++								307 text Quantity for Turmeric Latte
++								308 number field (settable) Quantity for Turmeric Latte, Value: 1
++									309 stepper 0
++										310 unknown
++										311 unknown
++								312 button Add to cart
++						313 container Velvet Cappuccino
++							314 text 4 MIN PREP · EARNS STAMP
++							315 heading Velvet Cappuccino, Value: 3
++								316 text Velvet Cappuccino
++							317 text £3.60
++							318 text Classic cappuccino with rich foam and cocoa dust.
++							319 container
++								320 text Quantity for Velvet Cappuccino
++								321 number field (settable) Quantity for Velvet Cappuccino, Value: 1
++									322 stepper 0
++										323 unknown
++										324 unknown
++								325 button Add to cart
++						326 text 11 ITEMS
++						327 heading Cold drinks, Value: 2
++							328 text Cold drinks
++						329 container Affogato
++							330 text 3 MIN PREP · EARNS STAMP
++							331 heading Affogato, Value: 3
++								332 text Affogato
++							333 text £4.10
++							334 text Espresso poured over soft ice cream.
++							335 container
++								336 text Quantity for Affogato
++								337 number field (settable) Quantity for Affogato, Value: 1
++									338 stepper 0
++										339 unknown
++										340 unknown
++								341 button Add to cart
++						342 container Berry Lemonade
++							343 text 3 MIN PREP · EARNS STAMP
++							344 heading Berry Lemonade, Value: 3
++								345 text Berry Lemonade
++							346 text £3.90
++							347 text Sparkling lemonade with mixed berry syrup.
++							348 container
++								349 text Quantity for Berry Lemonade
++								350 number field (settable) Quantity for Berry Lemonade, Value: 1
++									351 stepper 0
++										352 unknown
++										353 unknown
++								354 button Add to cart
++						355 container Iced Caramel
++							356 text 3 MIN PREP · EARNS STAMP
++							357 heading Iced Caramel, Value: 3
++								358 text Iced Caramel
++							359 text £3.90
++							360 text Iced coffee with caramel syrup.
++							361 container
++								362 text Quantity for Iced Caramel
++								363 number field (settable) Quantity for Iced Caramel, Value: 1
++									364 stepper 0
++										365 unknown
++										366 unknown
++								367 button Add to cart
++						368 container Iced Chocolate
++							369 text 3 MIN PREP
++							370 heading Iced Chocolate, Value: 3
++								371 text Iced Chocolate
++							372 text £3.50
++							373 text Chilled chocolate drink.
++							374 container
++								375 text Quantity for Iced Chocolate
++								376 number field (settable) Quantity for Iced Chocolate, Value: 1
++									377 stepper 0
++										378 unknown
++										379 unknown
++								380 button Add to cart
++						381 container Iced Hazelnut
++							382 text 3 MIN PREP · EARNS STAMP
++							383 heading Iced Hazelnut, Value: 3
++								384 text Iced Hazelnut
++							385 text £3.60
++							386 text Iced coffee with hazelnut syrup.
++							387 container
++								388 text Quantity for Iced Hazelnut
++								389 number field (settable) Quantity for Iced Hazelnut, Value: 1
++									390 stepper 0
++										391 unknown
++										392 unknown
++								393 button Add to cart
++						394 container Iced Latte
++							395 text 3 MIN PREP · EARNS STAMP
++							396 heading Iced Latte, Value: 3
++								397 text Iced Latte
++							398 text £3.20
++							399 text Cold milk and espresso served over ice.
++							400 container
++								401 text Quantity for Iced Latte
++								402 number field (settable) Quantity for Iced Latte, Value: 1
++									403 stepper 0
++										404 unknown
++										405 unknown
++								406 button Add to cart
++						407 container Iced Mocha
++							408 text 3 MIN PREP · EARNS STAMP
++							409 heading Iced Mocha, Value: 3
++								410 text Iced Mocha
++							411 text £3.50
++							412 text Iced coffee with chocolate.
++							413 container
++								414 text Quantity for Iced Mocha
++								415 number field (settable) Quantity for Iced Mocha, Value: 1
++									416 stepper 0
++										417 unknown
++										418 unknown
++								419 button Add to cart
++						420 container Iced Spanish Latte
++							421 text 5 MIN PREP · EARNS STAMP
++							422 heading Iced Spanish Latte, Value: 3
++								423 text Iced Spanish Latte
++							424 text £4.20
++							425 text Cold milk, espresso, and condensed milk over ice.
++							426 container
++								427 text Quantity for Iced Spanish Latte
++								428 number field (settable) Quantity for Iced Spanish Latte, Value: 1
++									429 stepper 0
++										430 unknown
++										431 unknown
++								432 button Add to cart
++						433 container Mango Iced Tea
++							434 text 3 MIN PREP · EARNS STAMP
++							435 heading Mango Iced Tea, Value: 3
++								436 text Mango Iced Tea
++							437 text £3.70
++							438 text Black tea shaken with mango and citrus.
++							439 container
++								440 text Quantity for Mango Iced Tea
++								441 number field (settable) Quantity for Mango Iced Tea, Value: 1
++									442 stepper 0
++										443 unknown
++										444 unknown
++								445 button Add to cart
++						446 container Protein Coffee
++							447 text 3 MIN PREP · EARNS STAMP
++							448 heading Protein Coffee, Value: 3
++								449 text Protein Coffee
++							450 text £3.50
++							451 text Iced coffee with protein boost.
++							452 container
++								453 text Quantity for Protein Coffee
++								454 number field (settable) Quantity for Protein Coffee, Value: 1
++									455 stepper 0
++										456 unknown
++										457 unknown
++								458 button Add to cart
++						459 container Smoothies
++							460 text 3 MIN PREP
++							461 heading Smoothies, Value: 3
++								462 text Smoothies
++							463 text £4.80
++							464 text Cold blended fruit smoothie.
++							465 container
++								466 text Quantity for Smoothies
++								467 number field (settable) Quantity for Smoothies, Value: 1
++									468 stepper 0
++										469 unknown
++										470 unknown
++								471 button Add to cart
++						472 text 13 ITEMS
++						473 heading Breakfast & light bites, Value: 2
++							474 text Breakfast & light bites
++						475 container Banana Bread
++							476 text 4 MIN PREP · EARNS STAMP
++							477 heading Banana Bread, Value: 3
++								478 text Banana Bread
++							479 text £3.40
++							480 text House-baked banana bread served warm.
++							481 container
++								482 text Quantity for Banana Bread
++								483 number field (settable) Quantity for Banana Bread, Value: 1
++									484 stepper 0
++										485 unknown
++										486 unknown
++								487 button Add to cart
++						488 container Croissant
++							489 text 1 MIN PREP
++							490 heading Croissant, Value: 3
++								491 text Croissant
++							492 text £1.80
++							493 text Classic butter croissant.
++							494 container
++								495 text Quantity for Croissant
++								496 number field (settable) Quantity for Croissant, Value: 1
++									497 stepper 0
++										498 unknown
++										499 unknown
++								500 button Add to cart
++						501 container Croissant Chocolate
++							502 text 1 MIN PREP
++							503 heading Croissant Chocolate, Value: 3
++								504 text Croissant Chocolate
++							505 text £1.80
++							506 text Chocolate-filled croissant.
++							507 container
++								508 text Quantity for Croissant Chocolate
++								509 number field (settable) Quantity for Croissant Chocolate, Value: 1
++									510 stepper 0
++										511 unknown
++										512 unknown
++								513 button Add to cart
++						514 container Croissant Ham & Cheese
++							515 text 3 MIN PREP
++							516 heading Croissant Ham & Cheese, Value: 3
++								517 text Croissant Ham & Cheese
++							518 text £3.30
++							519 text Warm croissant filled with ham and cheese.
++							520 container
++								521 text Quantity for Croissant Ham & Cheese
++								522 number field (settable) Quantity for Croissant Ham & Cheese, Value: 1
++									523 stepper 0
++										524 unknown
++										525 unknown
++								526 button Add to cart
++						527 container Grilled Ham & Cheese
++							528 text 5 MIN PREP
++							529 heading Grilled Ham & Cheese, Value: 3
++								530 text Grilled Ham & Cheese
++							531 text £6.00
++							532 text Toasted ham and cheese breakfast sandwich.
++							533 container
++								534 text Quantity for Grilled Ham & Cheese
++								535 number field (settable) Quantity for Grilled Ham & Cheese, Value: 1
++									536 stepper 0
++										537 unknown
++										538 unknown
++								539 button Add to cart
++						540 container Halloumi Toastie
++							541 text 8 MIN PREP
++							542 heading Halloumi Toastie, Value: 3
++								543 text Halloumi Toastie
++							544 text £6.50
++							545 text Grilled sourdough with halloumi, tomato, and basil.
++							546 container
++								547 text Quantity for Halloumi Toastie
++								548 number field (settable) Quantity for Halloumi Toastie, Value: 1
++									549 stepper 0
++										550 unknown
++										551 unknown
++								552 button Add to cart
++						553 container Panini Ham & Cheese
++							554 text 5 MIN PREP
++							555 heading Panini Ham & Cheese, Value: 3
++								556 text Panini Ham & Cheese
++							557 text £6.50
++							558 text Pressed panini with ham and melted cheese.
++							559 container
++								560 text Quantity for Panini Ham & Cheese
++								561 number field (settable) Quantity for Panini Ham & Cheese, Value: 1
++									562 stepper 0
++										563 unknown
++										564 unknown
++								565 button Add to cart
++						566 container Pistachio Croissant
++							567 text 6 MIN PREP · EARNS STAMP
++							568 heading Pistachio Croissant, Value: 3
++								569 text Pistachio Croissant
++							570 text £3.95
++							571 text Buttery pastry filled with pistachio cream.
++							572 container
++								573 text Quantity for Pistachio Croissant
++								574 number field (settable) Quantity for Pistachio Croissant, Value: 1
++									575 stepper 0
++										576 unknown
++										577 unknown
++								578 button Add to cart
++						579 container Protein Tuna Turner
++							580 text 6 MIN PREP
++							581 heading Protein Tuna Turner, Value: 3
++								582 text Protein Tuna Turner
++							583 text £6.90
++							584 text Panini tuna melt.
++							585 container
++								586 text Quantity for Protein Tuna Turner
++								587 number field (settable) Quantity for Protein Tuna Turner, Value: 1
++									588 stepper 0
++										589 unknown
++										590 unknown
++								591 button Add to cart
++						592 container The Italian Grill
++							593 text 6 MIN PREP
++							594 heading The Italian Grill, Value: 3
++								595 text The Italian Grill
++							596 text £6.50
++							597 text Focaccia with salami, ham, prosciutto, mozzarella, and mustard.
++							598 container
++								599 text Quantity for The Italian Grill
++								600 number field (settable) Quantity for The Italian Grill, Value: 1
++									601 stepper 0
++										602 unknown
++										603 unknown
++								604 button Add to cart
++						605 container The Spaniard
++							606 text 6 MIN PREP
++							607 heading The Spaniard, Value: 3
++								608 text The Spaniard
++							609 text £5.50
++							610 text Panini with serrano ham and tomato.
++							611 container
++								612 text Quantity for The Spaniard
++								613 number field (settable) Quantity for The Spaniard, Value: 1
++									614 stepper 0
++										615 unknown
++										616 unknown
++								617 button Add to cart
++						618 container The Toasted Temptation
++							619 text 6 MIN PREP
++							620 heading The Toasted Temptation, Value: 3
++								621 text The Toasted Temptation
++							622 text £6.90
++							623 text Panini with chicken, mozzarella, and pesto.
++							624 container
++								625 text Quantity for The Toasted Temptation
++								626 number field (settable) Quantity for The Toasted Temptation, Value: 1
++									627 stepper 0
++										628 unknown
++										629 unknown
++								630 button Add to cart
++						631 container Tornado
++							632 text 6 MIN PREP
++							633 heading Tornado, Value: 3
++								634 text Tornado
++							635 text £6.90
++							636 text Protein chicken and cheese melt.
++							637 container
++								638 text Quantity for Tornado
++								639 number field (settable) Quantity for Tornado, Value: 1
++									640 stepper 0
++										641 unknown
++										642 unknown
++								643 button Add to cart
++						644 text 3 ITEMS
++						645 heading Hot dogs, Value: 2
++							646 text Hot dogs
++						647 container Bratwurst XXL
++							648 text 6 MIN PREP
++							649 heading Bratwurst XXL, Value: 3
++								650 text Bratwurst XXL
++							651 text £7.50
++							652 text Large bratwurst hot dog.
++							653 container
++								654 summary Customize +, Value: off
++									655 text Customize
++								656 text Quantity for Bratwurst XXL
++								657 number field (settable) Quantity for Bratwurst XXL, Value: 1
++									658 stepper 0
++										659 unknown
++										660 unknown
++								661 button Add to cart
++						662 container Cheese Bratwurst XXL
++							663 text 6 MIN PREP
++							664 heading Cheese Bratwurst XXL, Value: 3
++								665 text Cheese Bratwurst XXL
++							666 text £8.00
++							667 text Large bratwurst hot dog with cheese.
++							668 container
++								669 summary Customize +, Value: off
++									670 text Customize
++								671 text Quantity for Cheese Bratwurst XXL
++								672 number field (settable) Quantity for Cheese Bratwurst XXL, Value: 1
++									673 stepper 0
++										674 unknown
++										675 unknown
++								676 button Add to cart
++						677 container Choripan
++							678 text 6 MIN PREP
++							679 heading Choripan, Value: 3
++								680 text Choripan
++							681 text £6.00
++							682 text Chorizo-style hot dog.
++							683 container
++								684 summary Customize +, Value: off
++									685 text Customize
++								686 text Quantity for Choripan
++								687 number field (settable) Quantity for Choripan, Value: 1
++									688 stepper 0
++										689 unknown
++										690 unknown
++								691 button Add to cart
++						692 text 6 ITEMS
++						693 heading Meals, Value: 2
++							694 text Meals
++						695 container 6 Buffalo Wings
++							696 text 6 MIN PREP
++							697 heading 6 Buffalo Wings, Value: 3
++								698 text 6 Buffalo Wings
++							699 text £6.10
++							700 text Six buffalo wings.
++							701 container
++								702 summary Customize +, Value: off
++									703 text Customize
++								704 text Quantity for 6 Buffalo Wings
++								705 number field (settable) Quantity for 6 Buffalo Wings, Value: 1
++									706 stepper 0
++										707 unknown
++										708 unknown
++								709 button Add to cart
++						710 container 6 Chicken Wings
++							711 text 6 MIN PREP
++							712 heading 6 Chicken Wings, Value: 3
++								713 text 6 Chicken Wings
++							714 text £5.95
++							715 text Six chicken wings.
++							716 container
++								717 summary Customize +, Value: off
++									718 text Customize
++								719 text Quantity for 6 Chicken Wings
++								720 number field (settable) Quantity for 6 Chicken Wings, Value: 1
++									721 stepper 0
++										722 unknown
++										723 unknown
++								724 button Add to cart
++						725 container 6 Parmesan Wings
++							726 text 6 MIN PREP
++							727 heading 6 Parmesan Wings, Value: 3
++								728 text 6 Parmesan Wings
++							729 text £6.10
++							730 text Six parmesan wings.
++							731 container
++								732 summary Customize +, Value: off
++									733 text Customize
++								734 text Quantity for 6 Parmesan Wings
++								735 number field (settable) Quantity for 6 Parmesan Wings, Value: 1
++									736 stepper 0
++										737 unknown
++										738 unknown
++								739 button Add to cart
++						740 container Chicken Cotoletta with Chips
++							741 text 7 MIN PREP
++							742 heading Chicken Cotoletta with Chips, Value: 3
++								743 text Chicken Cotoletta with Chips
++							744 text £8.00
++							745 text Chicken cotoletta served with chips.
++							746 container
++								747 text Quantity for Chicken Cotoletta with Chips
++								748 number field (settable) Quantity for Chicken Cotoletta with Chips, Value: 1
++									749 stepper 0
++										750 unknown
++										751 unknown
++								752 button Add to cart
++						753 container Homemade Rice
++							754 text 3 MIN PREP
++							755 heading Homemade Rice, Value: 3
++								756 text Homemade Rice
++							757 text £3.95
++							758 text House rice side.
++							759 container
++								760 text Quantity for Homemade Rice
++								761 number field (settable) Quantity for Homemade Rice, Value: 1
++									762 stepper 0
++										763 unknown
++										764 unknown
++								765 button Add to cart
++						766 container Meat Cotoletta with Chips
++							767 text 7 MIN PREP
++							768 heading Meat Cotoletta with Chips, Value: 3
++								769 text Meat Cotoletta with Chips
++							770 text £9.00
++							771 text Meat cotoletta served with chips.
++							772 container
++								773 text Quantity for Meat Cotoletta with Chips
++								774 number field (settable) Quantity for Meat Cotoletta with Chips, Value: 1
++									775 stepper 0
++										776 unknown
++										777 unknown
++								778 button Add to cart
++						779 text 2 ITEMS
++						780 heading Waffles, Value: 2
++							781 text Waffles
++						782 container Waffle Plain
++							783 text 5 MIN PREP
++							784 heading Waffle Plain, Value: 3
++								785 text Waffle Plain
++							786 text £5.30
++							787 text Fresh plain waffle.
++							788 container
++								789 summary Customize +, Value: off
++									790 text Customize
++								791 text Quantity for Waffle Plain
++								792 number field (settable) Quantity for Waffle Plain, Value: 1
++									793 stepper 0
++										794 unknown
++										795 unknown
++								796 button Add to cart
++						797 container Waffle Protein
++							798 text 5 MIN PREP
++							799 heading Waffle Protein, Value: 3
++								800 text Waffle Protein
++							801 text £6.80
++							802 text Protein waffle.
++							803 container
++								804 summary Customize +, Value: off
++									805 text Customize
++								806 text Quantity for Waffle Protein
++								807 number field (settable) Quantity for Waffle Protein, Value: 1
++									808 stepper 0
++										809 unknown
++										810 unknown
++								811 button Add to cart
++					812 container
++						813 text Craving House Coffee App Order ahead, collect in store, earn loyalty rewards.
++				814 scroll bar (settable, float) 0
+~			69 button Description: Go back, Help: Show the previous page, ID: BackButton
++			815 button Page Menu, ID: AssistantButton
++			816 button Add page to Reading List, ID: OneStepBookmarkingButton
+~			73 text field (settable) Description: smart search field, Value: 127.0.0.1:8765/menu/, ID: WEB_BROWSER_ADDRESS_AND_SEARCH_FIELD
++			817 button Reload this page, ID: ReloadButton
++	818 tab group Description: Tab bar, 2 tabs, ID: TabBar?isSeparate=false
++		819 tab Start Page, Value: off, Secondary Actions: close tab, ID: TabBarTab?isNarrow=false&isExpanded=false&tabCount=&isPinned=false&isCluster=false&clusterID=&isActive=false
++			820 image Description: favourite, ID: FaviconImageView
++			821 text Value: Start Page, ID: UnifiedTabBarButton._titleTextField
++		822 tab Menu | Craving House, Help: To interact with the items in this button, press Control-Option-Shift-Down Arrow., Value: on, Secondary Actions: close tab, ID: TabBarTab?isNarrow=false&isExpanded=false&tabCount=&isPinned=false&isCluster=false&clusterID=&isActive=true
++			823 image FaviconImageView
++			824 text Value: Menu | Craving House, ID: UnifiedTabBarButton._titleTextField
+The focused UI element is 88 HTML content Description: Menu | Craving House, URL: 127.0.0.1:8765/menu/
+The following is a diff from the previous accessibility tree for Window: "Menu | Craving House" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~								117 button Added
++								825 text Americano added
+The focused UI element is 93 container
+The following is a diff from the previous accessibility tree for Window: "Cart | Craving House" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 87-814, 825
+~0 standard window Cart | Craving House, ID: SafariWindow?IsSecure=false&UUID=750083AF-1B23-4D95-90E5-2B0A475149BC, Secondary Actions: Raise
++			825 scroll area
++				826 HTML content Description: Cart | Craving House, URL: 127.0.0.1:8765/cart/
++					827 link Skip to content, Value: 127.0.0.1:8765/cart/#main-content
++					828 container
++						829 link Craving House home, Value: 127.0.0.1:8765/
++						830 button (collapsed) Open menu, Secondary Actions: Expand
++					831 container
++						832 text YOUR ORDER
++						833 heading Cart, Value: 1
++							834 text Cart
++						835 text Americano £3.10 each
++						836 number field (settable) Quantity for Americano, Value: 1
++							837 stepper 0
++								838 unknown
++								839 unknown
++						840 text £3.10
++						841 button Update Americano quantity
++						842 button Remove Americano
++						843 text Estimated prep
++						844 text 2 min
++						845 text Total
++						846 text £3.10
++						847 link Add more, Value: 127.0.0.1:8765/menu/
++						848 link Checkout, Value: 127.0.0.1:8765/checkout/
++					849 container
++						850 text Craving House Coffee App Order ahead, collect in store, earn loyalty rewards.
+~			73 text field (settable) Description: smart search field, Value: 127.0.0.1:8765/cart/, ID: WEB_BROWSER_ADDRESS_AND_SEARCH_FIELD
+~		822 tab Cart | Craving House, Help: To interact with the items in this button, press Control-Option-Shift-Down Arrow., Value: on, Secondary Actions: close tab, ID: TabBarTab?isNarrow=false&isExpanded=false&tabCount=&isPinned=false&isCluster=false&clusterID=&isActive=true
+~			824 text Value: Cart | Craving House, ID: UnifiedTabBarButton._titleTextField
+The focused UI element is 826 HTML content Description: Cart | Craving House, URL: 127.0.0.1:8765/cart/
+The following is a diff from the previous accessibility tree for Window: "Checkout | Craving House" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 837-839, 848-850
+~0 standard window Checkout | Craving House, ID: SafariWindow?IsSecure=false&UUID=750083AF-1B23-4D95-90E5-2B0A475149BC, Secondary Actions: Raise
+~				826 HTML content Description: Checkout | Craving House, URL: 127.0.0.1:8765/checkout/
+~					827 link Skip to content, Value: 127.0.0.1:8765/checkout/#main-content
+~						832 text PICKUP CHECKOUT
+~						833 heading Confirm your order, Value: 1
+~							834 text Confirm your order
+~						835 text Name:
+~						836 text field (settable) Name:
++						837 text Email:
++						838 email field (settable) Email:
++						839 text Phone:
+~						840 text field (settable) Phone:
+~						841 text Notes:
+~						842 text Allergies, milk choice notes, or pickup instructions.
+~						843 text entry area (settable) Notes:
+~						844 button (disabled) Pay by card with Stripe
+~						845 button Pay at counter
+~						846 text Stripe card payments are not configured on this deployment. Counter payment still works.
+~						847 heading Order summary, Value: 2
++							848 text Order summary
++						849 text 1 x Americano
++						850 text £3.10
++						851 text Estimated prep
++						852 text 2 min
++						853 text Total
++						854 text £3.10
++						855 text Choose Stripe test payment when configured, or pay at the counter when you collect.
++					856 container
++						857 text Craving House Coffee App Order ahead, collect in store, earn loyalty rewards.
++				858 scroll bar (settable, float) 0
+~			73 text field (settable) Description: smart search field, Value: 127.0.0.1:8765/checkout/, ID: WEB_BROWSER_ADDRESS_AND_SEARCH_FIELD
+~		822 tab Checkout | Craving House, Help: To interact with the items in this button, press Control-Option-Shift-Down Arrow., Value: on, Secondary Actions: close tab, ID: TabBarTab?isNarrow=false&isExpanded=false&tabCount=&isPinned=false&isCluster=false&clusterID=&isActive=true
+~			824 text Value: Checkout | Craving House, ID: UnifiedTabBarButton._titleTextField
+The focused UI element is 826 HTML content Description: Checkout | Craving House, URL: 127.0.0.1:8765/checkout/

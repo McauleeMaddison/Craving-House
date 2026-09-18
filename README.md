@@ -10,16 +10,16 @@ Craving House is a Python and Django application for a coffee shop. Customers br
 
 The project demonstrates both sides of a full-stack application: responsive HTML templates, CSS and JavaScript provide the interface, while Django routes, views, forms, authentication and the ORM handle requests and persist data. The cart belongs to the browser session; completed orders, menu data, feedback and loyalty records belong to the database. Pages render on the server, with JavaScript enhancements for navigation, themes, cart feedback, camera scanning and the game.
 
-This documentation describes the implementation in this repository. The dated evidence below comes from a local assessment run on **17 September 2026**, not a production deployment test.
+This documentation describes the implementation in this repository. Local evidence was collected on **17–18 September 2026**. Separate Stripe **Sandbox** checks were performed through the Render deployment on 17 September; no real card was charged. The learner identifies the course as the **Level 4 Diploma in Web Application Development, provided by Code Institute and assessed by Newcastle College**. The exact assessment brief has not yet been supplied, so no claim of official rubric compliance or assessor approval is made.
 
 ## Contents
 
 - [User experience](#user-experience) and [user stories](#user-stories)
-- [Front-end design](#front-end-design), [features](#front-end-features) and [responsive design](#responsive-design)
+- [Design and wireframes](#design), [front-end design](#front-end-design), [features](#front-end-features) and [responsive design](#responsive-design)
 - [Full-stack integration](#full-stack-integration)
 - [Screenshot evidence](#frontend-screenshot-evidence)
 - [Front-end testing](#front-end-testing), [automated testing](#automated-testing) and [validation](#validation--code-quality)
-- [Bugs and fixes](#bugs-and-fixes)
+- [Known issues / bugs fixed](#known-issues--bugs-fixed)
 - [Database and backend](#database--backend)
 - [Setup](#setup), [assessor access](#assessor-test-access), [payment testing](#payment-testing) and [deployment](#deployment-notes)
 
@@ -84,27 +84,70 @@ The shared navigation adapts to these roles. Staff and managers receive a **Port
 
 ## User Stories
 
-These stories describe implemented features. Acceptance criteria are observable outcomes, not proposed functionality. `M` references the manual functional table below; `A` refers to the existing Django suite; `S` refers to the supplementary request checks. Screenshots are indexed in [docs/screenshots](docs/screenshots/README.md).
+The ten stories below are tied to the actual models in [cafe/models.py](cafe/models.py). Django's built-in `User` supplies authentication; the cart uses the session, and Boiler Buster uses browser state rather than an invented database model.
 
-| ID | User story | Acceptance criteria | How the application satisfies it / relevant feature | Testing evidence |
+| ID | User story | Models / storage | Acceptance evidence |
+| --- | --- | --- | --- |
+| ST01 | As a customer, I want to browse categories and menu items, so that I can choose what to order. | `MenuCategory`, `MenuItem` | US01; M02; menu screenshots |
+| ST02 | As a customer, I want to choose add-ons and adjust my basket, so that the order matches my preferences. | `MenuItem`, `MenuItemAddOn`; session cart | US02–04; M03–07; add-on and cart tests |
+| ST03 | As a customer, I want to place a pickup order and choose counter or card payment, so that I know what to collect and pay. | `Order`, `OrderItem` | US05–07; M08–11; F03 Stripe sandbox checks |
+| ST04 | As a customer, I want to create an account and see my recent orders, so that I can return to their tracking pages. | Django `User`, `CustomerProfile`, `Order`, `OrderItem` | US08–09, US17; F01–02; history ownership tests |
+| ST05 | As a customer, I want to see my loyalty card and stamp progress, so that I know when I have earned a reward. | `CustomerProfile` | US10; M15; eight-stamp boundary test |
+| ST06 | As a staff member, I want to scan or enter a card code and award stamps, so that purchases are recorded in the customer's loyalty progress. | `CustomerProfile`, `LoyaltyScan` | US11; M18; manual-entry evidence; physical scan pending |
+| ST07 | As a customer, I want to submit a rating and message, so that the café can review my experience. | `Feedback` | US12; M16; validation and email-storage tests |
+| ST08 | As a customer, I want to play Boiler Buster while waiting, so that I have a short activity between ordering and collection. | Browser memory and local storage; no Django model | US13; M17; F04 keyboard win and persisted score; physical touch pending |
+| ST09 | As a staff member, I want to view active orders and update their statuses, so that I can prioritise preparation and show collection progress. | `Order`, `OrderItem` | US14–15; M10/M18; queue and status tests |
+| ST10 | As a manager, I want to maintain menu items and availability, so that customers see an accurate menu while staff retain service-only access. | `MenuCategory`, `MenuItem`, `MenuItemAddOn`; Django permissions | US16; M19; role tests. Item CRUD is in the manager portal; category/add-on administration uses Django admin permissions. |
+
+### Detailed acceptance criteria
+
+The detailed feature criteria below retain their original `US01–US17` evidence IDs so earlier test records remain traceable. The ten stories above group those features by user goal; these rows are acceptance criteria, not additional stories. `M` references the manual functional table below; `A` refers to the existing Django suite; `S` refers to the supplementary request checks. Screenshots are indexed in [docs/screenshots](docs/screenshots/README.md).
+
+| Evidence ID | Feature | Acceptance criteria | How the application satisfies it / relevant feature | Testing evidence |
 | --- | --- | --- | --- | --- |
-| US01 | As a guest, I want to browse the menu, so that I can choose food and drinks. | Categories contain item names, descriptions, prices and preparation times. | `/menu/` renders category and item cards from the ORM. Information appears on the card; there is no separate product-detail page. | M02; A menu test; screenshots 03–04 |
-| US02 | As a customer, I want to customise an item, so that my order includes my preferred toppings or sides. | Available add-ons can be selected; their names and prices appear in the cart. | Native **Customize** disclosures and checkboxes submit add-on IDs. Django accepts only available add-ons belonging to that item. | M04; A add-on calculation test; screenshot 05 |
-| US03 | As a customer, I want to add items to my cart, so that I can build a pickup order. | Quantity is reflected in the cart and its navigation badge. | Menu POST forms are enhanced with `fetch`; the response updates badges without leaving the menu. | M03–04; A AJAX payload test |
-| US04 | As a customer, I want to update or remove cart items, so that I can correct my order before checkout. | Update recalculates totals; Remove or quantity zero removes the line; an empty cart has a menu link. | `/cart/` posts to `update_cart`; summary values are recalculated from current menu data. | M05–07; S zero-removal check; screenshot 06 |
-| US05 | As a customer, I want to place an order, so that the café can prepare it for collection. | Name is required; valid checkout creates an order with the selected items, total and prep estimate. | `CheckoutForm` validates details; `create_order_from_cart` stores order/item snapshots in a transaction. | M08–09; A checkout test; S invalid checkout; screenshots 07–08 |
-| US06 | As a customer, I want to pay at the counter, so that I can order without entering card details online. | Confirmation states the amount due at collection and the cart is cleared. | Counter checkout stores payment method `counter` and status `due`. | M09–10; A counter-order assertions |
-| US07 | As a customer, I want to use Stripe test checkout when configured, so that I can try card payment. | Unconfigured card payment is disabled; configured checkout redirects to Stripe; a verified paid return updates the order. | `cafe/payments.py` creates/retrieves Checkout sessions; the confirmation view checks payment status and order reference. | M11; S unconfigured direct POST; A mocked Stripe tests. External checkout remains untested. |
-| US08 | As a guest, I want to create an account, so that I can keep a digital loyalty card. | Valid signup creates a user/profile and signs in; invalid input is rejected. | `/signup/` uses `SignUpForm`, based on Django `UserCreationForm`. | A signup test; M14; S signup validation; screenshot 16 |
-| US09 | As a registered customer, I want to sign in and sign out, so that I can access my account and end my session. | Valid login shows the username; invalid login displays an error; sign out restores guest navigation. | Django authentication views plus a POST sign-out form in `base.html`. | M12–13, M20; screenshot 09 |
-| US10 | As a registered customer, I want to see loyalty progress, so that I know how close I am to a reward. | The card shows a code/QR, current stamps out of eight and rewards available. | `/loyalty/` renders the profile, locally generated QR SVG and eight stamp positions. | M15, M18; A loyalty rendering; S eight-stamp boundary; screenshots 10, 17 |
-| US11 | As a staff member, I want to award loyalty stamps, so that a customer's visit is recorded. | Valid code and 1–8 stamps update the profile and create a scan record; invalid input is rejected. | Staff form posts to `/staff/loyalty/scan/`; camera decoding can fill the same code field. | M18; A scan record test; S invalid scans. Physical camera untested. |
-| US12 | As a customer, I want to submit feedback, so that the café can review my experience. | Name/message and a rating of 1–5 are required; success is acknowledged. | `FeedbackForm` stores feedback; signed-in email comes from the account. Review is through Django admin. | M16; A guest/account email tests; S feedback validation; screenshot 11 |
-| US13 | As a customer, I want to play Boiler Buster, so that I have something to do while waiting. | Start runs the timer/gauges; taps vent steam; the round can restart. | `/boiler-buster/` loads `clicker.js`; game state is in the browser and best score uses local storage. | M17; A page/legacy-route tests; screenshot 12 |
-| US14 | As a staff member, I want to view incoming orders, so that I can prioritise preparation. | Active orders appear oldest first with item/add-on and payment information; collected/cancelled orders are excluded. | `/staff/` queries active orders and renders the next-order card, counts and order station. Refresh to obtain new orders. | M18; A ordering/statistics tests; screenshot 13 |
-| US15 | As a staff member, I want to update order statuses, so that customers can check collection progress. | A valid status persists and appears on the customer's confirmation after reload; invalid statuses are rejected. | Staff POST updates `Order.status`; both interfaces read the same record. | M18; S status checks; screenshots 08, 14 |
-| US16 | As a manager, I want to manage menu items and availability, so that the customer menu reflects what we can prepare. | New/edit saves fields; Hide disables ordering; Show restores availability; deletion is restricted to managers. | `/manager/` links to `MenuItemForm` and POST toggle/delete routes. Hidden items remain visible as unavailable cards. | M19; A manager access/deletion tests; S form checks; screenshot 15 |
-| US17 | As a registered customer, I want to view recent orders, so that I can return to their tracking pages. | Only my eight most recent signed-in orders appear, with statuses and tracking links. | `/orders/` filters by `request.user`, orders newest first and limits the queryset to eight. | A history ownership, limit and checkout-linkage tests; browser history journey still to capture. |
+| US01 | Browse menu | Categories contain item names, descriptions, prices and preparation times. | `/menu/` renders category and item cards from the ORM. Information appears on the card; there is no separate product-detail page. | M02; A menu test; screenshots 03–04 |
+| US02 | Customise items | Available add-ons can be selected; their names and prices appear in the cart. | Native **Customize** disclosures and checkboxes submit add-on IDs. Django accepts only available add-ons belonging to that item. | M04; A add-on calculation test; screenshot 05 |
+| US03 | Add to cart | Quantity is reflected in the cart and its navigation badge. | Menu POST forms are enhanced with `fetch`; the response updates badges without leaving the menu. | M03–04; A AJAX payload test |
+| US04 | Update/remove cart lines | Update recalculates totals; Remove or quantity zero removes the line; an empty cart has a menu link. | `/cart/` posts to `update_cart`; summary values are recalculated from current menu data. | M05–07; S zero-removal check; screenshot 06 |
+| US05 | Place a pickup order | Name is required; valid checkout creates an order with the selected items, total and prep estimate. | `CheckoutForm` validates details; `create_order_from_cart` stores order/item snapshots in a transaction. | M08–09; A checkout test; S invalid checkout; screenshots 07–08 |
+| US06 | Counter payment | Confirmation states the amount due at collection and the cart is cleared. | Counter checkout stores payment method `counter` and status `due`. | M09–10; A counter-order assertions |
+| US07 | Stripe checkout | Unconfigured card payment is disabled; configured checkout redirects to Stripe; a verified paid return updates the order. | `cafe/payments.py` creates/retrieves Checkout sessions; the confirmation view checks payment status and order reference. | M11; S unconfigured direct POST; A mocked Stripe tests. External sandbox decline and success verified; cancellation defect fixed locally (F03 below). |
+| US08 | Account creation | Valid signup creates a user/profile and signs in; invalid input is rejected. | `/signup/` uses `SignUpForm`, based on Django `UserCreationForm`. | A signup test; M14; S signup validation; screenshot 16 |
+| US09 | Sign in/out | Valid login shows the username; invalid login displays an error; sign out restores guest navigation. | Django authentication views plus a POST sign-out form in `base.html`. | M12–13, M20; screenshot 09 |
+| US10 | Loyalty progress | The card shows a code/QR, current stamps out of eight and rewards available. | `/loyalty/` renders the profile, locally generated QR SVG and eight stamp positions. | M15, M18; A loyalty rendering; S eight-stamp boundary; screenshots 10, 17 |
+| US11 | Award loyalty stamps | Valid code and 1–8 stamps update the profile and create a scan record; invalid input is rejected. | Staff form posts to `/staff/loyalty/scan/`; camera decoding can fill the same code field. | M18; A scan record test; S invalid scans. Physical camera untested. |
+| US12 | Submit feedback | Name/message and a rating of 1–5 are required; success is acknowledged. | `FeedbackForm` stores feedback; signed-in email comes from the account. Review is through Django admin. | M16; A guest/account email tests; S feedback validation; screenshot 11 |
+| US13 | Boiler Buster | Start runs the timer/gauges; taps vent steam; the round can restart. | `/boiler-buster/` loads `clicker.js`; game state is in the browser and best score uses local storage. | M17; A page/legacy-route tests; screenshot 12 |
+| US14 | Incoming order queue | Active orders appear oldest first with item/add-on and payment information; collected/cancelled orders are excluded. | `/staff/` queries active orders and renders the next-order card, counts and order station. Refresh to obtain new orders. | M18; A ordering/statistics tests; screenshot 13 |
+| US15 | Order status updates | A valid status persists and appears on the customer's confirmation after reload; invalid statuses are rejected. | Staff POST updates `Order.status`; both interfaces read the same record. | M18; S status checks; screenshots 08, 14 |
+| US16 | Manage menu | New/edit saves fields; Hide disables ordering; Show restores availability; deletion is restricted to managers. | `/manager/` links to `MenuItemForm` and POST toggle/delete routes. Hidden items remain visible as unavailable cards. | M19; A manager access/deletion tests; S form checks; screenshot 15 |
+| US17 | Personal order history | Only my eight most recent signed-in orders appear, with statuses and tracking links. | `/orders/` filters by `request.user`, orders newest first and limits the queryset to eight. | A history ownership, limit and checkout-linkage tests; F02 browser history evidence. |
+
+## Design
+
+These **retrospective structural wireframes** were created on 18 September 2026 from the implemented templates. They explain the design; they are not claimed as original pre-development artefacts or test screenshots. Actual rendered screens are separately indexed in [screenshot evidence](docs/screenshots/README.md).
+
+### Customer view
+
+The customer journey places menu information and ordering controls together, followed by cart review, checkout and a persistent order confirmation. Categories organise browsing; the basket shows add-ons and totals before submission.
+
+![Customer menu and ordering wireframe](docs/design/customer-wireframe.svg)
+
+### Staff view
+
+The staff dashboard prioritises the next order, queue counts and order status changes. A separate loyalty station keeps camera and manual code entry beside the operational workflow. At narrow widths the stations stack.
+
+![Staff service dashboard wireframe](docs/design/staff-wireframe.svg)
+
+### Manager view
+
+Managers see menu counts and product rows with create, edit and availability actions. Forms expose the saved menu fields; service operations remain accessible through the Staff link.
+
+![Manager menu dashboard wireframe](docs/design/manager-wireframe.svg)
+
+### Why staff and manager roles are separate
+
+Staff need to prepare orders, update collection status and award stamps. Managers additionally need to change menu records, prices and availability. This split limits routine service accounts to their operational duties and reduces accidental changes to the catalogue. Managers inherit staff access so they can cover service. [Role predicates](cafe/roles.py) and server-side view decorators enforce the distinction; hiding links alone is not security. Django admin access still depends on Django staff status and model permissions.
 
 ## Front-End Design
 
@@ -163,9 +206,9 @@ The usual path is **template/control → URL route → view → validation/busin
 
 ## Frontend Screenshot Evidence
 
-Seventeen **real local browser captures** are included in [docs/screenshots/README.md](docs/screenshots/README.md), including all fifteen originally requested views plus signup and mobile loyalty after stamps. The original `images/` files are brand/print assets, not application testing screenshots.
+The initial seventeen **real local browser captures** and subsequent evidence are indexed in [docs/screenshots/README.md](docs/screenshots/README.md), including all fifteen originally requested views plus signup and mobile loyalty after stamps. The original `images/` files are brand/print assets, not application testing screenshots.
 
-Screenshots show disposable demonstration data on the local server. They document captured states, not every step or every device. These are viewport captures; long pages need scrolling. Full-page capture was avoided because the capture tool included the off-screen navigation drawer in its output.
+Screenshots 01–17 show disposable demonstration data on the local server before the accessibility follow-up. Screenshot 18 records the Render app after a real Stripe Sandbox return. Wireframes are labelled separately and are not screenshots. They document captured states, not every step or every device. These are viewport captures; long pages need scrolling. Full-page capture was avoided because the capture tool included the off-screen navigation drawer in its output.
 
 ![Craving House desktop home](docs/screenshots/01-home-desktop.jpg)
 
@@ -173,13 +216,13 @@ Screenshots show disposable demonstration data on the local server. They documen
 
 ![Staff order management on mobile](docs/screenshots/14-staff-order-management.jpg)
 
-Additional evidence still worth capturing manually: external Stripe test checkout/paid return, physical-camera QR scanning, signed-in order history, and representative error states and tablet views in another browser. Suggested filenames and instructions are in the screenshot checklist; no links point to missing images.
+Follow-up evidence includes the external Stripe paid return and text snapshots for browser signup, signed-in order history, Safari and keyboard gameplay. Physical-camera QR scanning and touch-device evidence remain outstanding. Suggested filenames and instructions are in the screenshot checklist; no links point to missing images.
 
 ## Front-End Testing
 
 ### Test environment and evidence boundaries
 
-Testing took place on **17 September 2026**, using Python **3.9.6**, Django **4.2.30** and the **Codex in-app browser** against `http://127.0.0.1:8765`. The browser tool did not report a product version. A fresh seeded SQLite database at `/tmp/craving-assessment.sqlite3` isolated browser orders, users and feedback from the repository's existing database. The local server explicitly had no Stripe key. No production order, payment or deployment was performed.
+Testing took place on **17 September 2026**, using Python **3.9.6**, Django **4.2.30** and the **Codex in-app browser** against `http://127.0.0.1:8765`. The browser tool did not report a product version. A fresh seeded SQLite database at `/tmp/craving-assessment.sqlite3` isolated browser orders, users and feedback from the repository's existing database. The local server explicitly had no Stripe key. That initial run made no production changes. A later 17 September follow-up created two clearly named test orders on Render: one paid using Stripe Sandbox, one with checkout closed without payment. No real payment or deployment was performed.
 
 - **PASS — browser:** the listed action and visible result were exercised through browser controls. This is a bounded manual check performed with UI automation, not a reusable end-to-end test suite.
 - **PASS — Django:** an assertion ran in a Django test; it does not prove browser rendering or JavaScript behaviour.
@@ -202,13 +245,13 @@ Reproduction details and raw command output are in [docs/testing/README.md](docs
 | M08 Checkout validation | Submit blank name; enter malformed email. | Invalid input blocks order submission. | Name `valueMissing` and email `typeMismatch` were true; stayed at checkout. Server rejection also verified in S. | PASS — browser + Django |
 | M09 Counter order | Enter Assessment Guest and assessment@example.com; Pay at counter. | Confirmation contains items, total and payment due. | Order #1, two waffles with Nutella, £12.80 due, 10-minute prep; cart cleared. | PASS — browser |
 | M10 Confirmation status | After staff update, reopen the order's UUID URL. | Updated collection status is visible. | “Ready for collection” replaced “Placed”. | PASS — browser |
-| M11 Stripe configuration | Inspect checkout without key; separately POST Stripe in S. | Disabled card button; direct request rejected. | Disabled state/explanation observed; server created no order for unconfigured Stripe. External provider flow not exercised. | PASS — browser + Django, configured provider NOT TESTED |
+| M11 Stripe configuration | Inspect checkout without key; separately POST Stripe in S. | Disabled card button; direct request rejected. | Disabled state/explanation observed; server created no order for unconfigured Stripe. Initial check only; external Sandbox success/decline subsequently passed in F03. | PASS — initial configuration check; see F03 for provider results |
 | M12 Invalid login | Submit customer with incorrect password. | Login error; no authenticated session. | Django displayed the correct-username-and-password error. | PASS — browser |
 | M13 Valid login | Sign in with seeded customer/staff/manager credentials. | Customer welcome and role-specific landing pages. | Customer home, Service dashboard and Menu and operations appeared respectively. | PASS — browser |
-| M14 Signup | Submit empty form; inspect form at three widths. | Required username blocks submission. | Browser reported missing username. Valid creation and password/email/duplicate validation ran in Django tests. | PASS — browser for empty input; Django for creation/other validation |
+| M14 Signup | Submit empty form; inspect form at three widths. | Required username blocks submission. | Browser reported missing username. F01 later verified mismatch rejection and valid browser creation; other validation ran in Django tests. | PASS — browser for required input/mismatch/creation; Django for other validation |
 | M15 Loyalty display | Open customer loyalty page before/after staff award. | QR/code, eight stamp positions and current count. | Initially 0/8; subsequently 3/8, with matching filled stamps. | PASS — browser |
 | M16 Feedback | Submit empty name, then rating 6, then valid name/message/rating 5 while signed in. | Missing/out-of-range input rejected; valid feedback acknowledged. | Browser validity flags rejected invalid input; acknowledgement appeared; account email was displayed without an editable email field. | PASS — browser |
-| M17 Boiler Buster | Start and tap; allow an unattended round to end; restart. | Timer/gauges respond and reset. | ROUND LIVE, Taps: 2, then BOILER TRIPPED; restart reset timer to 20s. Winning round, score persistence and keyboard play not exercised. | PASS — browser for listed controls |
+| M17 Boiler Buster | Start and tap; allow an unattended round to end; restart. | Timer/gauges respond and reset. | ROUND LIVE, Taps: 2, then BOILER TRIPPED; restart reset timer to 20s. F04 subsequently verified a keyboard win and persisted best score. | PASS — browser for listed controls |
 | M18 Staff operations | Inspect incoming order; set Ready; submit invalid UUID then valid customer code with 3 stamps. | Order persists; invalid scan shows error; valid scan updates card. | Correct order/add-ons/payment shown; status confirmation, invalid-code error and stamp success message appeared; customer showed 3/8. | PASS — browser; camera NOT TESTED |
 | M19 Manager menu | Create Assessment Cocoa £2.75; edit to £2.95; Hide; check menu; Show. | Changes save; hidden item cannot be ordered; Show restores availability. | Save messages and £2.95 row verified; menu showed disabled Unavailable; Show returned Available. Delete is covered by A, not this browser run. | PASS — browser |
 | M20 Logout | Sign out through desktop and mobile portal navigation. | Guest state returns. | Sign in link returned and account welcome disappeared. | PASS — browser |
@@ -231,18 +274,61 @@ Viewports: **375 × 812**, **768 × 900** and **1440 × 900 CSS pixels**. All ro
 | Manager dashboard | L | L | L | Mobile stacked controls visually inspected; desktop capture supplied. |
 | Manager new-item form | L | L | L | Width checks and native category-required validation completed. |
 
-These checks used resized browser viewports, not physical phones/tablets. Portrait/landscape devices, zoom, long user-generated content, dark-mode layouts across every page and exhaustive keyboard traversal remain to be tested. Some text over the gold background appears faint in captures; no measured contrast pass is claimed.
+These checks used resized browser viewports, not physical phones/tablets. Portrait/landscape devices, zoom, long user-generated content and exhaustive keyboard/screen-reader traversal remain to be tested. Follow-up checks cover six customer pages in both themes at mobile width. The identified light-theme heading/card contrast was corrected; the conservative colour calculations below apply only to those pairs, not every element.
+
+### Device and template coverage
+
+`PASS — layout` means the template loaded without document-level horizontal overflow at the specified viewport, not a physical-device or complete accessibility pass. The [original measurements](docs/testing/responsive-observations.json) include these four templates and seven further pages. [Fresh measurements on 18 September](docs/testing/final-responsive-observations.json) rechecked all four templates at all three widths after the accessibility fixes.
+
+| Device / viewport | Homepage `home.html` | Menu `menu.html` | Cart `cart.html` | Checkout `checkout.html` | Boundary |
+| --- | --- | --- | --- | --- | --- |
+| Desktop — 1440 × 900 | PASS — layout | PASS — layout | PASS — layout | PASS — layout | In-app browser; functional ordering tests recorded separately. |
+| Tablet — 768 × 900 | PASS — layout | PASS — layout | PASS — layout | PASS — layout | Resized viewport, no physical tablet. |
+| Mobile — 375 × 812 | PASS — layout | PASS — layout | PASS — layout | PASS — layout | Resized viewport, no physical phone or touch-input claim. |
 
 ### Browser Testing
 
-| Browser | Testing actually performed | Result / scope |
-| --- | --- | --- |
-| Codex in-app browser, version not reported | M01–M20 within the boundaries above; viewport checks; inspected captured console warnings/errors at the end of the main workflow. | Listed workflows passed; log query returned no warning/error entries. This is not a complete network or accessibility audit. |
-| Chrome | Not run as a separate browser. | NOT TESTED |
-| Safari | Installed locally, but not exercised in this test pass. | NOT TESTED |
-| Firefox | Not exercised in this test pass. | NOT TESTED |
+The four requested browser products are listed explicitly. An unchecked row is an honest testing gap, not an implied pass. The in-app browser is recorded separately rather than being labelled Chrome, Safari, Firefox or Edge.
 
-The QR fallback test in `cafe/tests.py` checks script text; it is **not** proof of cross-browser camera scanning.
+| Browser | Homepage | Menu | Cart | Checkout | Actual scope |
+| --- | --- | --- | --- | --- | --- |
+| [ ] Chrome | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | No independent Chrome run recorded. |
+| [ ] Firefox | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | No independent Firefox run recorded. |
+| [x] Safari 27.0 on macOS | PASS | PASS | PASS | PASS — display | Home/account navigation, menu Add to cart acknowledgement, £3.10 cart and checkout form/summary observed. Login, personal history, tracking and logout also exercised. Safari checkout submission was not tested. |
+| [ ] Edge | NOT TESTED | NOT TESTED | NOT TESTED | NOT TESTED | No independent Edge run recorded. |
+| [x] Codex in-app browser, version not reported | PASS | PASS | PASS | PASS | M01–M20 and F01–F04 within their stated limits; local counter checkout and deployed Stripe Sandbox success/decline. |
+
+Safari's core-template checks were recorded on 18 September; its account/history checks were recorded on 17 September. See [Safari template evidence](docs/testing/safari-menu-cart-checkout.txt) and [history evidence](docs/testing/safari-order-history.txt). The QR fallback test in `cafe/tests.py` checks script text; it is **not** proof of cross-browser camera scanning.
+
+### Follow-up functional evidence
+
+| ID / Test | Steps | Expected | Actual | Pass-Fail |
+| --- | --- | --- | --- | --- |
+| F01 Browser signup | Submit mismatched passwords, then matching acceptable passwords with a unique username/email. | Error first; successful creation then authenticated loyalty page. | Mismatch error displayed; account created; loyalty card displayed 0/8. [Snapshot](docs/testing/signup-browser-snapshot.txt). | PASS |
+| F02 Personal order history | Check a new account's empty history; order one Americano while signed in; return to Orders and open tracking. | Account's order appears; earlier guest order does not. | Order #2, £3.10, one Americano; guest order #1 absent. Also opened tracking in Safari. [Snapshot](docs/testing/order-history-browser-snapshot.txt). | PASS |
+| F03 External Stripe | Open Render checkout; verify Sandbox; submit official decline card, then success card; separately use the provider's Back link. | Decline error; paid return; meaningful cancellation return. | Decline shown; £3.10 paid return confirmed. Cancellation returned to an empty menu: defect reproduced and fixed locally to retain order context. [Decline](docs/testing/stripe-decline-snapshot.txt), [success](docs/testing/stripe-success-snapshot.txt). | PASS success/decline; cancellation FIXED LOCALLY, deployment retest pending |
+| F04 Full keyboard game | Start/restart; use Space to vent through a 20-second round; reload. | Queue clears, score persists. | Queue cleared; score/best 222; 76 vents; reload retained best 222. [Snapshot](docs/testing/game-keyboard-win.txt). | PASS |
+| F05 Manual loyalty code | Enter the newly created customer's code and 1 stamp as staff. | Success acknowledgement and a stored scan. | “Added 1 stamp(s) to assessment_browser_0917.” This is manual entry, not proof of the camera-denial branch. | PASS — manual entry |
+
+### Manual game and loyalty scanner checks
+
+| Test | Steps | Expected | Actual | Pass-Fail |
+| --- | --- | --- | --- | --- |
+| Boiler Buster — mouse | Click Start, click the boiler, allow a loss, then restart. | Timer/gauges respond; taps counted; restart resets the round. | M17 recorded ROUND LIVE, Taps: 2, BOILER TRIPPED and reset to 20s. | PASS — mouse controls |
+| Boiler Buster — keyboard | Focus game control; Enter/Space; keep venting; reload after a win. | Keyboard controls work; completed score persists. | F04 completed a 20-second round and retained best 222. | PASS |
+| Boiler Buster — physical touch | On a phone/tablet, tap Start, repeatedly vent, then restart. Check one score increment per tap. | Touch events operate without duplicate clicks or scrolling interference. | No physical touch-device session performed. Viewport resizing is not a substitute. | NOT TESTED |
+| QR scanner — permission prompt | Sign in as staff; choose Start camera on HTTPS or localhost. | Browser asks for camera permission where not already decided. | In-app attempt remained “Preparing camera scanner...”; no permission outcome verified. Safari prompt check remains deferred. | NOT VERIFIED |
+| QR scanner — denied permission | Deny camera access, then read the status and enter a code manually. | “Camera permission was not granted. Enter the card code manually.”; manual submission remains usable. | Error text exists in `app.js`; actual deny-then-submit sequence not completed. | NOT TESTED |
+| QR scanner — manual entry | Enter a valid customer code and 1–8 stamps; submit; reopen the card. | Success and updated stamp count; audit record created. | M18 verified 3/8 and F05 a further synthetic account's one-stamp acknowledgement; Django tests verify scan persistence and reward boundary. | PASS — independent manual path |
+| QR scanner — physical scan | Allow camera; show a real display/printed QR; confirm code; add stamps; Stop. | Correct code decodes, stream stops and only an explicit submission awards stamps. | Deferred at the learner's request; no physical scan claimed. | NOT TESTED |
+
+### Accessibility follow-up
+
+The home title is now an `h1`; quantity/status controls and loyalty progress have accessible names; the drawer is inert and hidden while closed. Opening the mobile dialog moves focus to Close, makes the background inert and confines Tab/Shift+Tab; Escape closes it and restores focus to Open menu. These keyboard outcomes were exercised at 375px. Form rendering uses Django `as_div` to avoid paragraph/list nesting in signup help. The scanner status is a polite live region.
+
+[axe-core 4.13.0 results](docs/testing/accessibility-audit.json) record the actual states scanned. No automatic violations were reported in the follow-up states, but many gradient contrast checks were marked **incomplete**. These results are not a claim of complete WCAG conformance. Initial semantic findings on labelled generic groups were subsequently corrected with explicit group roles; the later mobile scan records the retest. The staff video is a silent live camera preview, not prerecorded media requiring captions.
+
+[Conservative colour calculations](docs/testing/contrast-results.json) for the corrected light-theme pairs: menu secondary text improved from **2.55:1 to 6.94:1**; heading text on gold improved from **1.75:1 to at least 5.88:1** across the specified background overlays. These checks do not cover every text/control state. Full screen-reader, zoom and remaining gradient/control contrast review are still outstanding. Focus management follows the [W3C modal-dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
 
 ### Form Validation Testing
 
@@ -250,7 +336,7 @@ The nine [supplementary checks](docs/testing/request_checks.py) exercise forms a
 
 | Form | Valid input | Missing required input | Invalid input | Expected feedback and actual result |
 | --- | --- | --- | --- | --- |
-| Signup | Unique username, email and matching acceptable passwords valid in S; creation/profile/login verified in A. | Empty form invalid in S; empty username blocked in browser. | Bad email, mismatched/weak passwords and existing username rejected in S. | Django password mismatch text rendered; no user created by invalid POST. PASS for these cases. |
+| Signup | Unique username, email and matching acceptable passwords valid in S; creation/profile/login verified in A and F01 browser signup. | Empty form invalid in S; empty username blocked in browser. | Bad email, mismatched/weak passwords and existing username rejected in S. | Django password mismatch text rendered; no user created by invalid POST. PASS for these cases. |
 | Login | Seeded customer/staff/manager credentials accepted in browser. | Not separately submitted empty in browser. | Wrong password rejected in browser. | Correct-username-and-password error displayed. PASS for valid/incorrect-password cases; missing-input case NOT TESTED. |
 | Checkout | Name-only form valid in S; browser guest checkout succeeded. Email/phone/notes optional. | No name rejected in S and browser. | Bad email rejected in S and browser. | Bound form errors returned; invalid POSTs created zero orders. PASS. |
 | Feedback | Guest form valid in S; browser signed-in rating 5 succeeded; A verifies stored guest/account email. | Empty form invalid in S; name missing blocked in browser. | Email malformed, rating 0/6 and blank message rejected in S; rating 6 also blocked in browser. | Form errors returned and invalid POSTs created no Feedback rows. PASS. |
@@ -258,9 +344,9 @@ The nine [supplementary checks](docs/testing/request_checks.py) exercise forms a
 | Loyalty stamp | Valid card and 3 stamps succeeded in browser; 8 stamps converted to one reward in S. | Empty form invalid in S. | Malformed UUID, zero or nine stamps rejected in S; malformed UUID also submitted in browser. | Shared invalid-card/count error; invalid cases created no scan record. PASS. Unknown but well-formed UUID not included. |
 | Staff order status | Ready succeeded in browser; Collected excluded the order from the queue in S. | No separate missing-status case. | Unknown status rejected in S. | “That order status is not valid”; original status unchanged. PASS for listed cases. |
 
-### User Story Testing
+### Acceptance Criteria Testing
 
-| User story | Acceptance criteria checked | Test/evidence | Result |
+| Evidence ID | Acceptance criteria checked | Test/evidence | Result |
 | --- | --- | --- | --- |
 | US01 | Item/category information renders | M02; A menu; 03–04 | PASS |
 | US02 | Add-ons selected, priced and retained | M04; A add-ons; 05–06 | PASS |
@@ -268,19 +354,21 @@ The nine [supplementary checks](docs/testing/request_checks.py) exercise forms a
 | US04 | Update/remove/empty state | M05–07; S quantity zero | PASS |
 | US05 | Valid order persists; invalid input rejected | M08–09; A checkout; S checkout | PASS |
 | US06 | Counter due confirmation and cleared cart | M07, M09; A checkout | PASS |
-| US07 | Disabled when unconfigured; pending/paid provider responses | M11; S disabled POST; A mocks | PARTIAL: real Stripe checkout/return not tested |
-| US08 | Account/profile creation and validation | A signup; S signup; M14 | PASS — creation through Django test client, not browser |
+| US07 | Disabled when unconfigured; pending/paid provider responses | M11; S disabled POST; A mocks | PASS success/decline via F03; cancellation deployment retest pending |
+| US08 | Account/profile creation and validation | A signup; S signup; M14 | PASS — Django plus F01 browser creation |
 | US09 | Valid/invalid login and logout | M12–13, M20 | PASS |
 | US10 | Stamp/reward progress | M15/M18; A QR/card; S eight-stamp conversion | PASS — reward boundary through Django |
 | US11 | Staff award and rejection | M18; A scan audit; S invalid scans | PASS — manual code entry; camera NOT TESTED |
 | US12 | Feedback validation/storage and acknowledgement | M16; A email storage; S invalid input | PASS |
-| US13 | Start/tap/restart | M17; A page/redirect | PASS for stated controls; full gameplay NOT TESTED |
+| US13 | Start/tap/restart | M17; A page/redirect | PASS for mouse controls and F04 keyboard win/persistence; physical touch NOT TESTED |
 | US14 | Incoming active queue and prioritisation | M18; A oldest-first/closed exclusion | PASS |
 | US15 | Status changes shared with customer | M10/M18; S status | PASS |
 | US16 | CRUD access and availability | M19; A deletion/access; S form | PASS — deletion through Django test client |
-| US17 | Owned, limited recent history and tracking links | A order history and signed-in checkout | PASS — Django; manual browser history check outstanding |
+| US17 | Owned, limited recent history and tracking links | A order history and signed-in checkout | PASS — Django plus F02 browser history |
 
 ## Automated Testing
+
+The final regression on **18 September 2026** ran the original 35 tests and nine supplementary checks together: **44 tests passed**, including the new cancellation assertions within existing payment tests. [Full output](docs/testing/final-regression.txt). Static collection also passed: **138 files copied, 404 post-processed**. [Output](docs/testing/final-collectstatic.txt).
 
 The original [cafe/tests.py](cafe/tests.py) remains intact. Its **35 tests passed** with `OK` and Django reported **no system-check issues (0 silenced)**. See [system check output](docs/testing/django-check.txt) and [test output](docs/testing/django-tests.txt).
 
@@ -321,24 +409,29 @@ python3 manage.py collectstatic --noinput
 | Static assets | PASS: WhiteNoise static collection/manifest processing completed with temporary output directory. |
 | Whitespace and links | Final local `git diff --check` and repository Markdown target checks; see evidence notes. |
 
-## Bugs and Fixes
+## Known Issues / Bugs Fixed
 
 | Finding | Evidence / cause | Resolution and verification |
 | --- | --- | --- |
 | Home-page loyalty offer contradicted the actual eight-stamp scheme | `home.html` said “Buy 5 get 1 free”; `CustomerProfile.LOYALTY_STAMPS_REQUIRED` is 8 and the loyalty page renders eight positions. | Changed only that pill to “Collect 8 stamps for a reward”. Corrected text observed in the local browser at mobile/desktop sizes. Original suite passed; supplementary eight-stamp conversion check passed. No loyalty logic or data changed. |
+| Hidden mobile drawer remained keyboard-focusable | Initial axe scan reported `aria-hidden-focus`; no focus trap/restoration existed. | Closed drawer now inert/hidden; dialog background inert while open. Tab wraps both ways; Escape restores the opener. Verified with browser keyboard actions. |
+| Missing heading/control semantics | Home lead was a `div`; cart quantity/staff status and loyalty progress lacked names; labelled groups lacked roles. | Added `h1`, accessible names and group roles. Follow-up scans and DOM checks recorded. |
+| Light-theme text was faint on gold | Menu secondary text calculated at 2.55:1; heading text at 1.75:1 for the specified colours. | Darkened affected card surfaces and used dark text for headings on gold. Calculated corrected ratios 6.94:1 and at least 5.88:1; browser view inspected. |
+| Signup help contained block lists inside paragraphs | Django `as_p` wrapped password help containing a list. | Switched form rendering to `as_div`, retaining Django labels, help and validation. F01 signup and regression tests passed. |
+| Stripe cancellation lost the order context | Actual Render Sandbox Back action returned to empty checkout, then menu with “Add an item before checking out.” | Cancel URL now returns to the existing UUID order page, clearly stating that payment is unconfirmed and advising staff contact before a duplicate order. The [44-test regression run](docs/testing/final-regression.txt) passed; cancellation assertions verify pending state stays pending and paid state cannot be undone by a query flag. **Local fix; deployed retest pending.** |
 
-No critical unresolved bug was identified in the documented local test pass. This is limited to the exercised scenarios; it does not imply that untested payment, camera or accessibility paths are defect-free. No historical fixes have been invented.
+### Known issues and remaining verification
 
-### Known Limitations
-
-- Staff queues and customer status pages require a refresh to see new data; no polling/WebSocket push is implemented.
-- A confirmation URL acts as a private bearer link: anyone with the complete order ID/UUID URL can view it. Keep it private; do not treat it as account-only access.
-- The manager's **recorded revenue** metric sums all order subtotals, including unpaid/cancelled orders. It is not verified payment income.
-- Loyalty reward counts are stored, but no customer-facing reward redemption workflow is implemented. Staff explicitly award stamps; ordering an eligible item does not award one automatically.
-- Stripe is enabled by a non-empty environment value; the code does not enforce a test-key prefix. Use a test-mode key for assessment. Payment confirmation is checked on return from Checkout; there is no webhook route. A paid session not returning to the application can remain pending locally. External success/cancellation/failure journeys need separate evidence.
-- Accessibility remains incomplete: the cart quantity and staff status controls lack explicit labels, the mobile dialog has no scripted focus trap/return, and the home lead uses a `div` rather than an `h1`. Colour contrast and screen-reader behaviour have not been audited. These are recorded assessment gaps; this documentation update does not redesign those controls.
-- Signup succeeds through the Django test client, but a complete browser signup journey is not recorded. Browser history, physical QR camera scanning, multiple browser products and full gameplay also need further checks.
-- `dist/craving-house-django-submission.zip` is an existing archive and has not been regenerated. It does not automatically include these new docs/screenshots; prepare a fresh submission archive after reviewing the changes.
+- The official Level 4 assessment brief/qualification code has not been supplied. The Newcastle College/Code Institute course description alone is insufficient for a criterion-by-criterion sign-off; no grade or assessor approval is guaranteed.
+- Physical-camera QR scanning and the real permission-denial journey remain unverified. The in-app Start camera attempt remained at the preparation message; its cause has not been established. Manual entry passed independently.
+- Physical touch gameplay, independent Chrome/Firefox/Edge runs, full screen-reader testing, zoom and remaining gradient/control contrast combinations remain unverified.
+- Staff queues and customer status pages require a refresh; no polling/WebSocket push is implemented.
+- A complete order ID/UUID URL acts as a private bearer link. It is not an account-only page.
+- The manager's **recorded revenue** metric includes unpaid/cancelled orders and is not verified payment income.
+- Loyalty counts are stored, but there is no customer-facing reward redemption workflow. Staff explicitly award stamps; checkout does not automatically award them.
+- Stripe enablement uses a non-empty environment value, not enforced test-key validation. Use Sandbox for assessment. Payment confirmation is checked on return; no webhook is implemented, so a payment that never returns may remain pending. Cancelling checkout leaves a pending order; staff must resolve it. The local cancellation explanation does not claim to cancel a Stripe payment or offer a new retry flow.
+- Local fixes and documentation must be reviewed and deployed together before comparing the submitted source with the live app. No deployment was performed by this review.
+- The refreshed [submission ZIP](dist/craving-house-django-submission.zip) includes current source, documentation, wireframes and evidence. Its manifest is generated by [the build script](scripts/build_submission.py); it excludes secrets, databases and development environments. Packaging is not assessor sign-off.
 
 ## Database / Backend
 
@@ -437,7 +530,7 @@ CVC: any 3 digits, for example 123
 Postcode: any valid postcode, for example SW1A 1AA
 ```
 
-If `STRIPE_SECRET_KEY` is not set, the Stripe button is disabled and the assessor can still test the checkout workflow with **Pay at counter**.
+If `STRIPE_SECRET_KEY` is not set, the Stripe button is disabled and the assessor can still test the checkout workflow with **Pay at counter**. F03 used the official [Stripe testing guidance](https://docs.stripe.com/testing): `4000 0000 0000 0002` for a decline and `4242 4242 4242 4242` for success, only after the hosted page displayed **Sandbox**.
 
 ## Loyalty Scan Testing
 
@@ -452,19 +545,26 @@ To test staff loyalty scanning:
 
 ## Functional Acceptance Checklist
 
-Use this checklist before submitting or demonstrating the project. It is a repeatable demonstration plan; completed results and remaining gaps are recorded in Front-End Testing above:
+This table records actual evidence rather than marking a demonstration plan as complete. `NOT TESTED` and `PENDING` are retained where a pass has not been earned.
 
-- Open `/` and confirm the homepage loads.
-- Open `/menu/` and confirm seeded menu items appear.
-- Add an item to the cart, including a customised item add-on.
-- Place a pickup order from checkout with Stripe test payment or counter payment.
-- Confirm the order appears in `/staff/`.
-- Update the order status from the staff dashboard.
-- Create or sign into a customer account and open `/loyalty/`.
-- Open `/boiler-buster/` and confirm the Boiler Buster game responds to clicks and gauge movement.
-- Add loyalty stamps from the staff dashboard.
-- Submit feedback from `/feedback/`.
-- Sign into `/admin/` or `/manager/` and confirm menu data is manageable.
+| Test | Steps | Expected | Actual | Pass-Fail |
+| --- | --- | --- | --- | --- |
+| Homepage | Open `/` at desktop and mobile widths. | Main actions and navigation visible. | M01; screenshots 01–02; follow-up `h1`/keyboard checks. | PASS |
+| Menu and add-ons | Open `/menu/`; select waffle plus Nutella; add. | Correct item, add-on and price in basket. | M02–04: selected add-on retained; initial combined basket £9.50. | PASS |
+| Cart update/removal | Change waffle quantity to 2; remove Americano. | Totals recalculate. | M05–06: total £12.80; 10-minute prep. | PASS |
+| Checkout validation | Submit missing name/malformed email. | Invalid order blocked. | M08 browser validity and supplementary server rejection. | PASS |
+| Counter order | Submit valid pickup details and Pay at counter. | Confirmation, stored lines, cleared basket. | M09–10: order saved; £12.80 due; later Ready status visible. | PASS |
+| Stripe success/decline | Use Render Sandbox with official test cards. | Decline message; successful paid return. | F03: decline shown; success page £3.10 paid. | PASS — Sandbox |
+| Stripe cancellation | Use provider Back; inspect existing order context. | Clear unpaid status and retained order reference. | Defect reproduced on Render; local cancel-return regression passed. | PENDING deployed retest |
+| Signup/account | Submit mismatched then valid signup; sign in/out. | Validation, created profile, authenticated state then guest state. | F01; M12–14/M20; Safari login/logout. | PASS |
+| Order history | Create a signed-in order and reopen Orders. | Only that account's orders and tracking links. | F02: order #2 displayed; guest order #1 excluded. | PASS |
+| Staff order handling | Sign in as staff, view queue, change status. | Active order visible; valid status persists. | M18 and Django queue/status tests. | PASS |
+| Loyalty manual entry | Submit a valid card/count; reopen card. | Stamps increase and scan is recorded. | M18/F05; 3/8 observed; model persistence/reward tests passed. | PASS |
+| Loyalty camera/denial | Request camera, deny then manually enter; separately scan a QR. | Clear permission feedback, fallback and physical decoding. | Real denial and physical scan not completed. | NOT TESTED |
+| Feedback | Submit invalid rating, then valid message/rating. | Invalid input rejected; valid feedback acknowledged. | M16; database/email assertions. | PASS |
+| Boiler Buster | Mouse start/tap/restart; keyboard full round; physical touch round. | Responsive controls, win/loss and persisted best. | M17/F04 mouse and keyboard passed; physical touch not exercised. | PARTIAL |
+| Manager menu | Create/edit/hide/show item; verify server restrictions and deletion. | Changes persist; customer/staff cannot manage items. | M19 browser CRUD except deletion; deletion/access tests in Django. | PASS within stated scope |
+| Official criteria | Compare each criterion with evidence in this repository. | Matching brief, criterion references and resolved gaps. | Correct Level 4 brief still required. | PENDING |
 
 ## Deployment Notes
 
